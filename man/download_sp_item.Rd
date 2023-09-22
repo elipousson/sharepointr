@@ -2,7 +2,7 @@
 % Please edit documentation in R/sp_item.R
 \name{download_sp_item}
 \alias{download_sp_item}
-\title{Download one or more items from SharePoint to a file}
+\title{Download one or more items from SharePoint to a file or folder}
 \usage{
 download_sp_item(
   file,

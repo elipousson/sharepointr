@@ -7,6 +7,7 @@ details}
 \usage{
 read_sharepoint(
   file,
+  ...,
   path = tempdir(),
   drive_name = NULL,
   drive_id = NULL,
@@ -14,14 +15,15 @@ read_sharepoint(
   dest = NULL,
   overwrite = TRUE,
   recursive = FALSE,
-  parallel = FALSE,
-  ...
+  parallel = FALSE
 )
 }
 \arguments{
 \item{file}{Required. A SharePoint shared file URL, document URL, or, if
 \code{item_id} is supplied, a file name to use with \code{path} to set \code{dest} with
 location and filename for downloaded item.}
+
+\item{...}{Optional arguments that will ultimately be passed to \code{\link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token}}.}
 
 \item{path}{description}
 
@@ -35,20 +37,24 @@ found.}
 
 \item{dest, overwrite, recursive, parallel}{Parameters passed to \code{download}
 method for \code{ms_item} object.}
-
-\item{...}{Optional arguments that will ultimately be passed to \code{\link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token}}.}
 }
 \description{
 \code{\link[=read_sharepoint]{read_sharepoint()}} is designed to download a SharePoint item to a temporary
 folder and read the file based on the file extension. The class of the
 returned object depends on the file extension of the file parameter.
 \itemize{
-\item If the file is a csv or Microsoft Excel file (xlsx or xls), the
-\code{\link[readr:read_delim]{readr::read_csv()}} or \code{\link[readxl:read_excel]{readxl::read_excel()}} is used to return a data frame.
+\item If the file is a csv, csv2, or tsv file or a Microsoft Excel file (xlsx or
+xls), \code{\link[readr:read_delim]{readr::read_delim()}} or \code{\link[readxl:read_excel]{readxl::read_excel()}} is used to return a
+data frame.
+\item If the file is a rds file, \code{\link[readr:read_rds]{readr::read_rds()}} is used to return the saved
+object.
 \item If the file is a pptx or docx file, \code{\link[officer:read_docx]{officer::read_docx()}} or
 \code{\link[officer:read_pptx]{officer::read_pptx()}} are used to read the file into a \code{rdocx} or \code{rpptx}
 object.
-\item If the file is a GeoPackage or GeoJSON file, \code{\link[sf:st_read]{sf::read_sf()}} is used to
-read the file into a \code{sf} data frame.
+\item If the file has a "gpkg", "geojson", "kml", "gdb", or "shp" file extension,
+\code{\link[sf:st_read]{sf::read_sf()}} is used to read the file into a \code{sf} data frame.
 }
+
+If the file has none of these file extensions, an attempt is made to read the
+file with \code{\link[readr:read_lines]{readr::read_lines()}}.
 }

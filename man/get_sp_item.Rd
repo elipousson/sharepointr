@@ -4,7 +4,7 @@
 \alias{get_sp_item}
 \alias{get_sp_drive}
 \alias{get_sp_site}
-\title{Get a SharePoint item based on a file URL or file name and site}
+\title{Get a SharePoint site, drive, or item based on a file URL or other parameters}
 \usage{
 get_sp_item(
   file = NULL,
@@ -26,7 +26,13 @@ get_sp_drive(
   call = caller_env()
 )
 
-get_sp_site(site_url = NULL, ..., call = caller_env())
+get_sp_site(
+  site_url = NULL,
+  site_name = NULL,
+  site_id = NULL,
+  ...,
+  call = caller_env()
+)
 }
 \arguments{
 \item{file}{A SharePoint file URL or the relative path to a file located in a
@@ -63,7 +69,15 @@ mentioned in error messages as the source of the error. See the
 additional parameters passed to \code{...} are ignored.}
 }
 \description{
-\code{\link[=get_sp_item]{get_sp_item()}} is a helper for the \code{{Microsoft365R}} methods that makes it
-easier to get an \code{ms_item} object based on a file URL.
+These functions are helpers for \code{{Microsoft365R}} functions and methods that
+support parsing required parameters from an input URL.
+}
+\details{
+\itemize{
+\item \code{\link[=get_sp_site]{get_sp_site()}} is a wrapper for \code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}} and
+returns a \code{ms_site} object.
+\item \code{\link[=get_sp_drive]{get_sp_drive()}} wraps the \code{get_drive} method returns a \code{ms_drive} object.
+\item \code{\link[=get_sp_item]{get_sp_item()}} wraps the \code{get_item} method and returns a \code{ms_item} object.
+}
 }
 \keyword{internal}

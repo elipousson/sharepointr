@@ -28,7 +28,11 @@ read_sharepoint <- function(file,
                             path = tempdir(),
                             drive_name = NULL,
                             drive_id = NULL,
+                            drive = NULL,
                             site_url = NULL,
+                            site_name = NULL,
+                            site_id = NULL,
+                            site = NULL,
                             dest = NULL,
                             overwrite = TRUE,
                             recursive = FALSE,
@@ -38,7 +42,11 @@ read_sharepoint <- function(file,
     path = path,
     drive_name = drive_name,
     drive_id = drive_id,
+    drive = drive,
     site_url = site_url,
+    site_name = site_name,
+    site_id = site_id,
+    site = site,
     dest = dest,
     overwrite = overwrite,
     recursive = recursive,
@@ -73,7 +81,7 @@ read_sharepoint <- function(file,
     sf::read_sf(dest, ...)
   } else {
     check_installed("readr")
-    cli_progress_step("{message}{.fn sf::read_sf}")
+    cli_progress_step("{message}{.fn readr::read_lines}")
     readr::read_lines(dest, ...)
   }
 }

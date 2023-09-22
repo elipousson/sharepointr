@@ -1,7 +1,13 @@
-#' Get a SharePoint item based on a file URL or file name and site
+#' Get a SharePoint site, drive, or item based on a file URL or other parameters
 #'
-#' [get_sp_item()] is a helper for the `{Microsoft365R}` methods that makes it
-#' easier to get an `ms_item` object based on a file URL.
+#' These functions are helpers for `{Microsoft365R}` functions and methods that
+#' support parsing required parameters from an input URL.
+#'
+#' - [get_sp_site()] is a wrapper for [Microsoft365R::get_sharepoint_site()] and
+#' returns a `ms_site` object.
+#' - [get_sp_drive()] wraps the `get_drive` method returns a `ms_drive` object.
+#' - [get_sp_item()] wraps the `get_item` method and returns a `ms_item` object.
+#'
 #'
 #' @keywords internal
 #' @param file A SharePoint file URL or the relative path to a file located in a
@@ -109,16 +115,32 @@ get_sp_drive <- function(drive_name = NULL,
 #' @export
 #' @importFrom Microsoft365R get_sharepoint_site
 get_sp_site <- function(site_url = NULL,
+                        site_name = NULL,
+                        site_id = NULL,
                         ...,
                         call = caller_env()) {
-  if (!is_sp_site_url(site_url)) {
-    sp_url <- sp_site_url_parse(site_url)
-    site_url <- sp_site_url_build(sp_url[["tenant"]], sp_url[["site_name"]])
+  if (!is.null(site_url)) {
+    if (!is_sp_site_url(site_url)) {
+      sp_url <- sp_site_url_parse(site_url)
+      site_url <- sp_site_url_build(sp_url[["tenant"]], sp_url[["site_name"]])
+    }
+
+    check_url(site_url, call = call)
   }
 
-  check_url(site_url, call = call)
+  if (is_empty(list(site_url, site_name, site_id))) {
+    cli_abort(
+      "{.arg site_url}, {.arg site_name}, or {.arg site_id} must be supplied.",
+      call = call
+    )
+  }
 
-  Microsoft365R::get_sharepoint_site(site_url = site_url, ...)
+  Microsoft365R::get_sharepoint_site(
+    site_url = site_url,
+    site_name = site_name,
+    site_id = site_id,
+    ...
+  )
 }
 
 #' Download one or more items from SharePoint to a file or folder
@@ -163,6 +185,8 @@ download_sp_item <- function(file,
     ...,
     call = call
   )
+
+  check_ms_item(item, call = call)
 
   dest <- dest %||% sp_file_dest(file, path = path)
 

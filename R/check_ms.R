@@ -21,6 +21,22 @@ check_ms <- function(x,
 }
 
 #' @noRd
+check_ms_site <- function(x,
+                          ...,
+                          allow_null = FALSE,
+                          arg = caller_arg(x),
+                          call = caller_env()) {
+  check_ms(
+    x,
+    what = "ms_site",
+    ...,
+    allow_null = allow_null,
+    arg = arg,
+    call = call
+  )
+}
+
+#' @noRd
 check_ms_drive <- function(x,
                            ...,
                            allow_null = FALSE,
@@ -36,16 +52,15 @@ check_ms_drive <- function(x,
   )
 }
 
-
 #' @noRd
-check_ms_site <- function(x,
+check_ms_item <- function(x,
                           ...,
                           allow_null = FALSE,
                           arg = caller_arg(x),
                           call = caller_env()) {
   check_ms(
     x,
-    what = "ms_site",
+    what = "ms_item",
     ...,
     allow_null = allow_null,
     arg = arg,

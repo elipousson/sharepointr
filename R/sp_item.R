@@ -40,7 +40,7 @@ get_sp_item <- function(file = NULL,
 
       file <- paste0(sp_url[["path"]], "/", sp_url[["file"]])
 
-      check_string(item_id, allow_empty = FALSE, call = call)
+      check_string(file, allow_empty = FALSE, call = call)
 
       drive_name <- drive_name %||% sp_url[["drive_name"]]
     }
@@ -59,9 +59,14 @@ get_sp_item <- function(file = NULL,
     call = call
   )
 
-  stopifnot(
-    is_string(file) || is_string(item_id)
-  )
+  check_ms_drive(drive, call = call)
+
+  if (!is_string(file) && !is_string(item_id)) {
+    cli_abort(
+      "A {.arg file} or {.arg item_id} string must be supplied.",
+      call = call
+    )
+  }
 
   drive$get_item(path = file, itemid = item_id)
 }
@@ -85,6 +90,8 @@ get_sp_drive <- function(drive_name = NULL,
                          ...,
                          call = caller_env()) {
   site <- site %||% get_sp_site(site_url, ...)
+
+  check_ms_site(site, call = call)
 
   if (!is_string(drive_name) && !is_string(drive_id)) {
     cli_abort(
@@ -114,7 +121,7 @@ get_sp_site <- function(site_url = NULL,
   Microsoft365R::get_sharepoint_site(site_url = site_url, ...)
 }
 
-#' Download one or more items from SharePoint to a file
+#' Download one or more items from SharePoint to a file or folder
 #'
 #' [download_sp_item()] wraps the `download` method for SharePoint items making
 #' it easier to download items based on a shared file URL or document URL. The

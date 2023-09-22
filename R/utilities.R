@@ -52,18 +52,6 @@ is_fileext_path <- function(x, fileext, ignore.case = TRUE) {
   )
 }
 
-#' @noRd
-check_ms_drive <- function(x, allow_null = FALSE) {
-  if (inherits(x, "ms_drive")) {
-    return(invisible(NULL))
-  }
-
-  stop_input_type(
-    x,
-    what = "a `ms_drive` object",
-    allow_null = allow_null
-  )
-}
 
 #' @noRd
 is_sp_url <- function(x) {

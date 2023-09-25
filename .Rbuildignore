@@ -3,3 +3,7 @@
 ^LICENSE\.md$
 ^README\.Rmd$
 ^codemeta\.json$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$

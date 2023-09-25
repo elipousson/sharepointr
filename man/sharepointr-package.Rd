@@ -12,6 +12,7 @@ More about what it does (maybe more than one line) Use four spaces when indentin
 Useful links:
 \itemize{
   \item \url{https://github.com/elipousson/sharepointr}
+  \item \url{https://elipousson.github.io/sharepointr/}
   \item Report bugs at \url{https://github.com/elipousson/sharepointr/issues}
 }
 

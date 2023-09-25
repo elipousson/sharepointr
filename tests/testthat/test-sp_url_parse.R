@@ -19,7 +19,7 @@ test_that("sp_url_parse works", {
 
   expect_equal(
     parsed_file_url[["file_path"]],
-    "Baltimore Greenway Trails Network/Green Network Addendum/Data"
+    "Baltimore Greenway Trails Network/Green Network Addendum/Data/waterfront_promenade_osm.geojson"
   )
 
   test_dir_url <- "https://bmore.sharepoint.com/:f:/r/sites/DOP-CPR/Shared%20Documents/Baltimore%20Greenway%20Trails%20Network/Green%20Network%20Addendum/Data?csf=1&web=1&e=5VuyG6"
@@ -32,6 +32,6 @@ test_that("sp_url_parse works", {
 
   expect_equal(
     parsed_dir_url[["file"]],
-    "Data"
+    NULL
   )
 })

@@ -22,6 +22,14 @@ sp_url_parse_path(
 sp_url_parse_query(query)
 }
 \description{
-Parse a SharePoint URL using \code{httr2::url_parse}
+\code{\link[=sp_url_parse]{sp_url_parse()}} parses a URL into a named list of parts.
+
+\code{\link[=sp_url_parse_hostname]{sp_url_parse_hostname()}} parses the hostname into a tenant and base_url.
+
+\code{\link[=sp_url_parse_hostname]{sp_url_parse_hostname()}} parses the hostname into a path into a url_type,
+permissions, site_name, file_path, and file.
+
+\code{\link[=sp_url_parse_hostname]{sp_url_parse_hostname()}} parses the query to turn the sourcedoc value into
+an item_id and return other query values as a named list.
 }
 \keyword{internal}

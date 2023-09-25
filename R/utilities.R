@@ -51,6 +51,31 @@ is_fileext_path <- function(x, fileext, ignore.case = TRUE) {
   )
 }
 
+#' @noRd
+str_remove_slash <- function(string, before = TRUE, after = FALSE) {
+  pattern <- NULL
+
+  if (before) {
+    pattern <- c(pattern, "^/")
+  }
+
+  if (after) {
+    pattern <- c(pattern, "/$")
+  }
+
+  stringr::str_remove_all(string, pattern = paste0(pattern, collapse = "|"))
+}
+
+#' @noRd
+str_c_url <- function(..., sep = "/") {
+  stringr::str_c(..., sep = sep)
+}
+
+#' @noRd
+str_c_fsep <- function(..., fsep = .Platform$file.sep) {
+  stringr::str_c(..., sep = fsep)
+}
+
 #' Variant of [stringr::str_match()] that returns a list where any `NA` values
 #' are replaced with `NULL`
 #'

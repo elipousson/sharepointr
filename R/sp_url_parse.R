@@ -1,5 +1,8 @@
 #' Parse a SharePoint URL using `httr2::url_parse`
 #'
+#' @description
+#' [sp_url_parse()] parses a URL into a named list of parts.
+#'
 #' @keywords internal
 #' @export
 #' @importFrom httr2 url_parse
@@ -24,6 +27,9 @@ sp_url_parse <- function(url, call = caller_env()) {
   sp_url_parts
 }
 
+#' @description
+#' [sp_url_parse_hostname()] parses the hostname into a tenant and base_url.
+#'
 #' @rdname sp_url_parse
 #' @name sp_url_parse_hostname
 #' @export
@@ -43,22 +49,10 @@ sp_url_parse_hostname <- function(hostname,
   parts
 }
 
-#' @noRd
-str_match_sp_url_path <- function(path,
-                                  url_type = "w|x|p|o|b|t|i|v|f|u|li",
-                                  permissions = "r|s|t|u|g") {
-  str_match_list(
-    utils::URLdecode(path),
-    # regex created with support from GPT-3.5 on 2023-09-21
-    # https://chat.openai.com/share/a7885919-bbbe-489a-9fd7-37d71567a1f7
-    pattern = glue(
-      "/:([{url_type}]):/([{permissions}])(?:/sites)?/([a-zA-Z0-9-]+)",
-      "(?:/(.+[/$])+)?(?:([^?]+))?"
-    ),
-    nm = c("path", "url_type", "permissions", "site_name", "file_path", "file")
-  )
-}
-
+#' @description
+#' [sp_url_parse_hostname()] parses the hostname into a path into a url_type,
+#' permissions, site_name, file_path, and file.
+#'
 #' @rdname sp_url_parse
 #' @name sp_url_parse_path
 #' @export
@@ -89,7 +83,7 @@ sp_url_parse_path <- function(path,
 
   parts[["file_path"]] <- parts[["file_path"]] |>
     str_remove(paste0("^", parts[["drive_name"]], "/")) |>
-    str_remove("/$")
+    str_remove_slash(after = TRUE)
 
   if (is_string(drive_name_prefix)) {
     parts[["drive_name"]] <- parts[["drive_name"]] |>
@@ -97,11 +91,21 @@ sp_url_parse_path <- function(path,
   }
 
   parts[["file"]] <- parts[["file"]] |>
-    str_remove("^/")
+    str_remove_slash()
+
+  parts[["file_path"]] <- str_c_url(parts[["file_path"]], parts[["file"]])
+
+  if (parts[["url_type"]] == "f") {
+    parts[["file"]] <- NULL
+  }
 
   parts
 }
 
+#' @description
+#' [sp_url_parse_hostname()] parses the query to turn the sourcedoc value into
+#' an item_id and return other query values as a named list.
+#'
 #' @rdname sp_url_parse
 #' @name sp_url_parse_query
 #' @export
@@ -116,6 +120,26 @@ sp_url_parse_query <- function(query) {
     item_id <- str_remove_all(query[["sourcedoc"]], "\\{|\\}")
   }
 
-
   c(list(item_id = item_id), as.list(query))
+}
+
+#' Helper to get matches from the path of a SharePoint URL
+#'
+#' @noRd
+#' @importFrom utils URLdecode
+str_match_sp_url_path <- function(path,
+                                  url_type = "w|x|p|o|b|t|i|v|f|u|li",
+                                  permissions = "r|s|t|u|g",
+                                  nm = c("path", "url_type", "permissions",
+                                         "site_name", "file_path", "file")) {
+  str_match_list(
+    utils::URLdecode(path),
+    # regex created with support from GPT-3.5 on 2023-09-21
+    # https://chat.openai.com/share/a7885919-bbbe-489a-9fd7-37d71567a1f7
+    pattern = glue(
+      "/:([{url_type}]):/([{permissions}])(?:/sites)?/([a-zA-Z0-9-]+)",
+      "(?:/(.+[/$])+)?(?:([^?]+))?"
+    ),
+    nm = nm
+  )
 }

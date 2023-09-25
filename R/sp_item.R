@@ -15,9 +15,6 @@
 #'   `get_item` method for `ms_drive` objects.
 #' @inheritDotParams get_sp_drive
 #' @param drive_name,drive_id SharePoint drive name or ID.
-#' @param .default_drive_name Drive name string used only if file is a document
-#'   URL and drive name is not part of the URL. Defaults to
-#'   `getOption("sharepointr.default_drive_name", "Documents")`
 #' @param drive A `ms_drive` object. If drive is supplied, `drive_name`,
 #'   `site_url`, and any additional parameters passed to `...` are ignored.
 #' @param properties If `TRUE`, use `get_item_properties` method and return item
@@ -27,9 +24,9 @@
 get_sp_item <- function(path = NULL,
                         item_id = NULL,
                         ...,
-                        drive = NULL,
                         drive_name = NULL,
                         drive_id = NULL,
+                        drive = NULL,
                         site_url = NULL,
                         .default_drive_name = getOption(
                           "sharepointr.default_drive_name",
@@ -47,12 +44,8 @@ get_sp_item <- function(path = NULL,
 
     drive_name <- drive_name %||% sp_url_parts[["drive_name"]]
 
-    if (is_null(sp_url_parts[["item_id"]])) {
-      path <- stringr::str_c(
-        sp_url_parts[["file_path"]],
-        sp_url_parts[["file"]],
-        sep = "/"
-      )
+    if (is_null(item_id) && is_null(sp_url_parts[["item_id"]])) {
+      path <- sp_url_parts[["file_path"]]
     }
 
     item_id <- item_id %||% sp_url_parts[["item_id"]]
@@ -209,10 +202,10 @@ download_sp_file <- function(file,
 #' Set a file destination for a SharePoint file before downloading
 #'
 #' @noRd
-sp_file_dest <- function(file, path = tempdir(), fsep = .Platform$file.sep) {
+sp_file_dest <- function(file, path = tempdir()) {
   if (is_sp_url(file)) {
     file <- sp_url_parse(file)[["file"]]
   }
 
-  stringr::str_c(path, basename(file), sep = fsep)
+  str_c_fsep(path, basename(file))
 }

@@ -34,6 +34,10 @@ found.}
 
 \item{site}{A \code{ms_site} object. If site is supplied, \code{site_url} is ignored.}
 
+\item{.default_drive_name}{Drive name string used only if input is a document
+URL and drive name is not part of the URL. Defaults to
+\code{getOption("sharepointr.default_drive_name", "Documents")}}
+
 \item{properties}{If \code{TRUE}, return the drive properties instead of the
 \code{ms_drive} object.}
 

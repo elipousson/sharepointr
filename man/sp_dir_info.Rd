@@ -8,6 +8,7 @@ sp_dir_info(
   path = NULL,
   ...,
   drive_name = NULL,
+  drive_id = NULL,
   drive = NULL,
   call = caller_env()
 )
@@ -22,11 +23,17 @@ If \code{NULL}, path is set to default "/".}
     \item{\code{drive_name,drive_id}}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
     \item{\code{site}}{A \code{ms_site} object. If site is supplied, \code{site_url} is ignored.}
+    \item{\code{.default_drive_name}}{Drive name string used only if input is a document
+URL and drive name is not part of the URL. Defaults to
+\code{getOption("sharepointr.default_drive_name", "Documents")}}
     \item{\code{site_url}}{A SharePoint site URL in the format "https://\if{html}{\out{<tenant
 name>}}.sharepoint.com/sites/\if{html}{\out{<site name>}}". Any SharePoint item or document
 URL will be parsed and a site URL built using the tenant and site name if
 found.}
   }}
+
+\item{drive_name, drive_id}{SharePoint Drive name or ID passed to \code{get_drive}
+method for SharePoint site object.}
 
 \item{drive}{A \code{ms_drive} object. If drive is supplied, \code{drive_name},
 \code{site_url}, and any additional parameters passed to \code{...} are ignored.}

@@ -18,6 +18,9 @@ NULL
 #'   [get_sp_site()]. For [set_sp_drive()], parameters passed to
 #'   [get_sp_drive()].
 #' @param site A `ms_site` object. If site is supplied, `site_url` is ignored.
+#' @param .default_drive_name Drive name string used only if input is a document
+#'   URL and drive name is not part of the URL. Defaults to
+#'   `getOption("sharepointr.default_drive_name", "Documents")`
 #' @param properties If `TRUE`, return the drive properties instead of the
 #'   `ms_drive` object.
 #' @export

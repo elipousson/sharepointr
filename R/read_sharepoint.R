@@ -28,6 +28,7 @@
 #'   the description.
 #' @inheritParams download_sp_item
 #' @inheritParams get_sp_drive
+#' @inheritParams get_sp_site
 #' @export
 read_sharepoint <- function(file,
                             ...,

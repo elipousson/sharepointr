@@ -13,6 +13,7 @@
 sp_dir_info <- function(path = NULL,
                         ...,
                         drive_name = NULL,
+                        drive_id = NULL,
                         drive = NULL,
                         call = caller_env()) {
   if (is_sp_url(path)) {
@@ -25,6 +26,7 @@ sp_dir_info <- function(path = NULL,
 
   drive <- drive %||% get_sp_drive(
     drive_name = drive_name,
+    drive_id = drive_id,
     ...,
     call = call
   )

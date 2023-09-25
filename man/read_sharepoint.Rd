@@ -43,6 +43,10 @@ name>}}.sharepoint.com/sites/\if{html}{\out{<site name>}}". Any SharePoint item 
 URL will be parsed and a site URL built using the tenant and site name if
 found.}
 
+\item{site_name, site_id}{Site name or ID of the SharePoint site as an
+alternative to the SharePoint site URL. Only one of the three arguments
+should be supplied.}
+
 \item{site}{A \code{ms_site} object. If site is supplied, \code{site_url} is ignored.}
 
 \item{dest, overwrite, recursive, parallel}{Parameters passed to \code{download}

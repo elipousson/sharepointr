@@ -2,82 +2,77 @@
 % Please edit documentation in R/sp_item.R
 \name{get_sp_item}
 \alias{get_sp_item}
-\alias{get_sp_drive}
-\alias{get_sp_site}
-\title{Get a SharePoint site, drive, or item based on a file URL or other parameters}
+\alias{get_sp_item_properties}
+\title{Get a SharePoint item or item properties}
 \usage{
 get_sp_item(
-  file = NULL,
+  path = NULL,
   item_id = NULL,
-  drive = NULL,
-  drive_name = NULL,
-  site_url = NULL,
   ...,
-  .default = "Documents",
-  call = caller_env()
-)
-
-get_sp_drive(
+  drive = NULL,
   drive_name = NULL,
   drive_id = NULL,
   site_url = NULL,
-  site = NULL,
-  ...,
+  .default_drive_name = getOption("sharepointr.default_drive_name", "Documents"),
+  properties = FALSE,
   call = caller_env()
 )
 
-get_sp_site(
-  site_url = NULL,
-  site_name = NULL,
-  site_id = NULL,
+get_sp_item_properties(
+  path = NULL,
+  item_id = NULL,
   ...,
+  drive = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  site_url = NULL,
+  .default_drive_name = getOption("sharepointr.default_drive_name", "Documents"),
   call = caller_env()
 )
 }
 \arguments{
-\item{file}{A SharePoint file URL or the relative path to a file located in a
-SharePoint drive. If file is a relative path, the string should \emph{not}
-include the drive name. If file is a shared file URL, the text "Shared " is
-removed from the start of the SharePoint drive name by default. If file is
-a document URL, the \code{.default} argument is used as the drive_name and
-the \code{item_id} is extracted from the URL.}
+\item{path}{A SharePoint file URL or the relative path to a file located in a
+SharePoint drive. If input is a relative path, the string should \emph{not}
+include the drive name. If input is a shared file URL, the text "Shared "
+is removed from the start of the SharePoint drive name by default. If file
+is a document URL, the \code{.default_drive_name} argument is used as the
+\code{drive_name} and the \code{item_id} is extracted from the URL.}
 
 \item{item_id}{A SharePoint item ID passed to the \code{itemid} parameter of the
 \code{get_item} method for \code{ms_drive} objects.}
 
+\item{...}{
+  Arguments passed on to \code{\link[=get_sp_drive]{get_sp_drive}}
+  \describe{
+    \item{\code{drive_name,drive_id}}{SharePoint Drive name or ID passed to \code{get_drive}
+method for SharePoint site object.}
+    \item{\code{site}}{A \code{ms_site} object. If site is supplied, \code{site_url} is ignored.}
+  }}
+
 \item{drive}{A \code{ms_drive} object. If drive is supplied, \code{drive_name},
 \code{site_url}, and any additional parameters passed to \code{...} are ignored.}
 
-\item{drive_name, drive_id}{Passed to \code{get_drive} method for SharePoint site
-object.}
+\item{drive_name, drive_id}{SharePoint drive name or ID.}
 
 \item{site_url}{A SharePoint site URL in the format "https://\if{html}{\out{<tenant
-name>}}.sharepoint.com/sites/\if{html}{\out{<site name>}}". A SharePoint file or document URL
-will be parsed and a site URL built using the tenant and site name if
+name>}}.sharepoint.com/sites/\if{html}{\out{<site name>}}". Any SharePoint item or document
+URL will be parsed and a site URL built using the tenant and site name if
 found.}
 
-\item{...}{Optional arguments that will ultimately be passed to \code{\link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token}}.}
+\item{.default_drive_name}{Drive name string used only if file is a document
+URL and drive name is not part of the URL. Defaults to
+\code{getOption("sharepointr.default_drive_name", "Documents")}}
 
-\item{.default}{Default drive name string used only if file is a document URL.}
+\item{properties}{If \code{TRUE}, use \code{get_item_properties} method and return item
+properties instead of the item.}
 
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
-
-\item{site}{A \code{ms_site} object. If site is supplied, \code{site_url} and any
-additional parameters passed to \code{...} are ignored.}
 }
 \description{
-These functions are helpers for \code{{Microsoft365R}} functions and methods that
-support parsing required parameters from an input URL.
+\code{\link[=get_sp_item]{get_sp_item()}} wraps the \code{get_item} method for \code{ms_drive} objects and
+returns a \code{ms_drive_item} object by default. \code{\link[=get_sp_item_properties]{get_sp_item_properties()}} uses
+the \code{get_item_properties} method (also available by setting \code{properties = TRUE} for \code{\link[=get_sp_item]{get_sp_item()}}).
 }
-\details{
-\itemize{
-\item \code{\link[=get_sp_site]{get_sp_site()}} is a wrapper for \code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}} and
-returns a \code{ms_site} object.
-\item \code{\link[=get_sp_drive]{get_sp_drive()}} wraps the \code{get_drive} method returns a \code{ms_drive} object.
-\item \code{\link[=get_sp_item]{get_sp_item()}} wraps the \code{get_item} method and returns a \code{ms_item} object.
-}
-}
-\keyword{internal}

@@ -8,7 +8,7 @@ details}
 read_sharepoint(
   file,
   ...,
-  path = tempdir(),
+  new_path = tempdir(),
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
@@ -24,23 +24,29 @@ read_sharepoint(
 }
 \arguments{
 \item{file}{Required. A SharePoint shared file URL, document URL, or, if
-\code{item_id} is supplied, a file name to use with \code{path} to set \code{dest} with
-location and filename for downloaded item.}
+\code{item_id} is supplied, a file name to use in combination with \code{new_path} to
+set \code{dest} with location and filename for downloaded item.}
 
-\item{...}{Optional arguments that will ultimately be passed to \code{\link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token}}.}
+\item{...}{Additional parameters passed to one of the functions identified in
+the description.}
 
-\item{path}{description}
+\item{new_path}{Path to directory for downloaded item. Optional if \code{dest} is
+supplied.}
 
-\item{drive_name, drive_id}{Passed to \code{get_drive} method for SharePoint site
-object.}
+\item{drive_name, drive_id}{SharePoint drive name or ID.}
+
+\item{drive}{A \code{ms_drive} object. If drive is supplied, \code{drive_name},
+\code{site_url}, and any additional parameters passed to \code{...} are ignored.}
 
 \item{site_url}{A SharePoint site URL in the format "https://\if{html}{\out{<tenant
-name>}}.sharepoint.com/sites/\if{html}{\out{<site name>}}". A SharePoint file or document URL
-will be parsed and a site URL built using the tenant and site name if
+name>}}.sharepoint.com/sites/\if{html}{\out{<site name>}}". Any SharePoint item or document
+URL will be parsed and a site URL built using the tenant and site name if
 found.}
 
+\item{site}{A \code{ms_site} object. If site is supplied, \code{site_url} is ignored.}
+
 \item{dest, overwrite, recursive, parallel}{Parameters passed to \code{download}
-method for \code{ms_item} object.}
+method for \code{ms_drive_item} object.}
 }
 \description{
 \code{\link[=read_sharepoint]{read_sharepoint()}} is designed to download a SharePoint item to a temporary

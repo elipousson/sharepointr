@@ -2,41 +2,50 @@
 % Please edit documentation in R/sp_item.R
 \name{download_sp_item}
 \alias{download_sp_item}
+\alias{download_sp_file}
 \title{Download one or more items from SharePoint to a file or folder}
 \usage{
 download_sp_item(
-  file,
-  path = "",
+  path,
+  new_path = "",
+  ...,
   drive_name = NULL,
   drive_id = NULL,
+  drive = NULL,
   site_url = NULL,
   dest = NULL,
   overwrite = FALSE,
   recursive = FALSE,
   parallel = FALSE,
-  ...,
   call = caller_env()
 )
+
+download_sp_file(file, new_path = "", ..., call = caller_env())
 }
 \arguments{
-\item{file}{Required. A SharePoint shared file URL, document URL, or, if
+\item{path, file}{Required. A SharePoint shared file URL, document URL, or, if
 \code{item_id} is supplied, a file name to use with \code{path} to set \code{dest} with
 location and filename for downloaded item.}
 
-\item{path}{description}
+\item{new_path}{Path to directory for downloaded item. Optional if \code{dest} is
+supplied.}
 
-\item{drive_name, drive_id}{Passed to \code{get_drive} method for SharePoint site
-object.}
+\item{...}{For \code{\link[=get_sp_drive]{get_sp_drive()}}, additional parameters passed to
+\code{\link[=get_sp_site]{get_sp_site()}}. For \code{\link[=set_sp_drive]{set_sp_drive()}}, parameters passed to
+\code{\link[=get_sp_drive]{get_sp_drive()}}.}
+
+\item{drive_name, drive_id}{SharePoint drive name or ID.}
+
+\item{drive}{A \code{ms_drive} object. If drive is supplied, \code{drive_name},
+\code{site_url}, and any additional parameters passed to \code{...} are ignored.}
 
 \item{site_url}{A SharePoint site URL in the format "https://\if{html}{\out{<tenant
-name>}}.sharepoint.com/sites/\if{html}{\out{<site name>}}". A SharePoint file or document URL
-will be parsed and a site URL built using the tenant and site name if
+name>}}.sharepoint.com/sites/\if{html}{\out{<site name>}}". Any SharePoint item or document
+URL will be parsed and a site URL built using the tenant and site name if
 found.}
 
 \item{dest, overwrite, recursive, parallel}{Parameters passed to \code{download}
-method for \code{ms_item} object.}
-
-\item{...}{Optional arguments that will ultimately be passed to \code{\link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token}}.}
+method for \code{ms_drive_item} object.}
 
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be
@@ -48,5 +57,7 @@ mentioned in error messages as the source of the error. See the
 it easier to download items based on a shared file URL or document URL. The
 default valye for \code{path} is \code{""} so, by default, SharePoint items are
 downloaded to the current working directory. Set \code{overwrite = TRUE} to allow
-this function to overwrite an existing file.
+this function to overwrite an existing file. \code{\link[=download_sp_file]{download_sp_file()}} is
+identical except for the name of the path paramter (which is file instead of
+path).
 }

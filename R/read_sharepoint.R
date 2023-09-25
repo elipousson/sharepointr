@@ -21,11 +21,17 @@
 #' file with [readr::read_lines()].
 #'
 #' @name read_sharepoint
+#' @param file Required. A SharePoint shared file URL, document URL, or, if
+#'   `item_id` is supplied, a file name to use in combination with `new_path` to
+#'   set `dest` with location and filename for downloaded item.
+#' @param ... Additional parameters passed to one of the functions identified in
+#'   the description.
 #' @inheritParams download_sp_item
+#' @inheritParams get_sp_drive
 #' @export
 read_sharepoint <- function(file,
                             ...,
-                            path = tempdir(),
+                            new_path = tempdir(),
                             drive_name = NULL,
                             drive_id = NULL,
                             drive = NULL,
@@ -37,9 +43,9 @@ read_sharepoint <- function(file,
                             overwrite = TRUE,
                             recursive = FALSE,
                             parallel = FALSE) {
-  dest <- download_sp_item(
+  dest <- download_sp_file(
     file = file,
-    path = path,
+    new_path = new_path,
     drive_name = drive_name,
     drive_id = drive_id,
     drive = drive,

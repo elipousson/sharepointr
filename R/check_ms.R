@@ -9,7 +9,6 @@ check_ms <- function(x,
     return(invisible(NULL))
   }
 
-
   stop_input_type(
     x,
     what,
@@ -18,6 +17,11 @@ check_ms <- function(x,
     arg = arg,
     call = call
   )
+}
+
+#' @noRd
+is_ms_site <- function(x) {
+  inherits(x, "ms_site")
 }
 
 #' @noRd
@@ -37,6 +41,11 @@ check_ms_site <- function(x,
 }
 
 #' @noRd
+is_ms_drive <- function(x) {
+  inherits(x, "ms_drive")
+}
+
+#' @noRd
 check_ms_drive <- function(x,
                            ...,
                            allow_null = FALSE,
@@ -53,14 +62,14 @@ check_ms_drive <- function(x,
 }
 
 #' @noRd
-check_ms_item <- function(x,
-                          ...,
-                          allow_null = FALSE,
-                          arg = caller_arg(x),
-                          call = caller_env()) {
+check_ms_drive_item <- function(x,
+                                ...,
+                                allow_null = FALSE,
+                                arg = caller_arg(x),
+                                call = caller_env()) {
   check_ms(
     x,
-    what = "ms_item",
+    what = "ms_drive_item",
     ...,
     allow_null = allow_null,
     arg = arg,

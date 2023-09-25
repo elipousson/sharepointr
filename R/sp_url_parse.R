@@ -130,8 +130,10 @@ sp_url_parse_query <- function(query) {
 str_match_sp_url_path <- function(path,
                                   url_type = "w|x|p|o|b|t|i|v|f|u|li",
                                   permissions = "r|s|t|u|g",
-                                  nm = c("path", "url_type", "permissions",
-                                         "site_name", "file_path", "file")) {
+                                  nm = c(
+                                    "path", "url_type", "permissions",
+                                    "site_name", "file_path", "file"
+                                  )) {
   str_match_list(
     utils::URLdecode(path),
     # regex created with support from GPT-3.5 on 2023-09-21

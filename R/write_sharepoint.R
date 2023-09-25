@@ -133,7 +133,8 @@ upload_sp_item <- function(file = NULL,
       cli_abort(
         c(
           "{.file {basename(src)}} already exists on SharePoint drive at {.arg dest}",
-          "i" = "Set {.code overwrite = TRUE} to replace the existing item."),
+          "i" = "Set {.code overwrite = TRUE} to replace the existing item."
+        ),
         call = call
       )
     }
@@ -145,7 +146,7 @@ upload_sp_item <- function(file = NULL,
     cli_progress_step(
       msg = "Uploading directory to SharePoint drive",
       msg_done = "Directory upload complete"
-      )
+    )
 
     drive$upload_folder(
       src = src,

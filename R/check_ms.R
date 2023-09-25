@@ -1,4 +1,14 @@
 #' @noRd
+is_ms_site <- function(x) {
+  inherits(x, "ms_site")
+}
+
+#' @noRd
+is_ms_drive <- function(x) {
+  inherits(x, "ms_drive")
+}
+
+#' @noRd
 check_ms <- function(x,
                      what,
                      ...,
@@ -20,11 +30,6 @@ check_ms <- function(x,
 }
 
 #' @noRd
-is_ms_site <- function(x) {
-  inherits(x, "ms_site")
-}
-
-#' @noRd
 check_ms_site <- function(x,
                           ...,
                           allow_null = FALSE,
@@ -38,11 +43,6 @@ check_ms_site <- function(x,
     arg = arg,
     call = call
   )
-}
-
-#' @noRd
-is_ms_drive <- function(x) {
-  inherits(x, "ms_drive")
 }
 
 #' @noRd

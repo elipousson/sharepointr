@@ -62,8 +62,9 @@ used by <code><a href="get_sp_item.html">get_sp_item()</a></code>.</p>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  .default_drive_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sharepointr.default_drive_name"</span>, <span class="st">"Documents"</span><span class="op">)</span>,</span>
-<span>  items <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  items <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -78,9 +79,6 @@ used by <code><a href="get_sp_item.html">get_sp_item()</a></code>.</p>
 <dd><p>Arguments passed on to <code><a href="sp_drive.html">get_sp_drive</a></code></p><dl><dt><code>drive_name,drive_id</code></dt>
 <dd><p>SharePoint Drive name or ID passed to <code>get_drive</code>
 method for SharePoint site object.</p></dd>
-
-    <dt><code>site</code></dt>
-<dd><p>A <code>ms_site</code> object. If site is supplied, <code>site_url</code> is ignored.</p></dd>
 
     <dt><code>properties</code></dt>
 <dd><p>If <code>TRUE</code>, return the drive properties instead of the
@@ -106,6 +104,10 @@ URL will be parsed and a site URL built using the tenant and site name if
 found.</site></tenant></p></dd>
 
 
+<dt>site</dt>
+<dd><p>A <code>ms_site</code> object. If site is supplied, <code>site_url</code> is ignored.</p></dd>
+
+
 <dt>.default_drive_name</dt>
 <dd><p>Drive name string used only if input is a document
 URL and drive name is not part of the URL. Defaults to
@@ -113,8 +115,9 @@ URL and drive name is not part of the URL. Defaults to
 
 
 <dt>items</dt>
-<dd><p>If <code>TRUE</code>, use the <code>list_items</code> method to return a data frame
-with all items in the specified list.</p></dd>
+<dd><p>If <code>TRUE</code> (default), use the <code>list_items</code> method to return a
+data frame with all items in the specified list. If <code>FALSE</code>, return a
+<code>ms_list</code> class object.</p></dd>
 
 
 <dt>call</dt>

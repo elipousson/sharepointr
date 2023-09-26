@@ -9,13 +9,25 @@
 sp_url_parse <- function(url, call = caller_env()) {
   check_url(url, call = call)
 
-  url <- httr2::url_parse(url)
+  parts <- httr2::url_parse(url)
+
+  if (is_sp_site_url(url)) {
+    # FIXME: This catches list URLs unintentionally
+    sp_url_parts <- c(
+      sp_url_parse_hostname(parts[["hostname"]]),
+      list(
+        "site_url" = url
+      )
+    )
+
+    return(sp_url_parts)
+  }
 
   sp_url_parts <- list_replace_empty(
     c(
-      sp_url_parse_hostname(url[["hostname"]]),
-      sp_url_parse_path(url[["path"]]),
-      sp_url_parse_query(url[["query"]])
+      sp_url_parse_hostname(parts[["hostname"]]),
+      sp_url_parse_path(parts[["path"]]),
+      sp_url_parse_query(parts[["query"]])
     )
   )
 
@@ -95,7 +107,7 @@ sp_url_parse_path <- function(path,
 
   parts[["file_path"]] <- str_c_url(parts[["file_path"]], parts[["file"]])
 
-  if (parts[["url_type"]] == "f") {
+  if (identical(parts[["url_type"]], "f")) {
     parts[["file"]] <- NULL
   }
 

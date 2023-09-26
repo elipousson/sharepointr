@@ -3,6 +3,30 @@
 #' @description
 #' [sp_url_parse()] parses a URL into a named list of parts.
 #'
+#' @details Types of SharePoint URLs
+#'
+#' SharePoint site URL:
+#'
+#' https://\[tenant\].sharepoint.com/sites/\[site name\]
+#'
+#' SharePoint document editor URL:
+#'
+#' https://\[tenant\].sharepoint.com/:\[url
+#' type\]:/\[permissions\]/sites/\[site
+#' name\]/_layouts/15/Doc.aspx?sourcedoc={\[item id\]}&file=\[file
+#' name\]&\[additional query parameters\]
+#'
+#' SharePoint List URL:
+#'
+#' https://\[tenant\].sharepoint.com/sites/\[site name\]/Lists/\[list
+#' name\]/AllItems.aspx?env=WebViewList
+#'
+#' SharePoint folder URL:
+#'
+#' https://\[tenant\].sharepoint.com/:\[url type\]:/\[permissions\]/sites/\[site
+#' name\]/[drive name (with possible "Shared" prefix)]/\[folder path\]/\[folder
+#' name\]/?\[additional query parameters\]
+#'
 #' @keywords internal
 #' @export
 #' @importFrom httr2 url_parse

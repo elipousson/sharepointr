@@ -90,12 +90,16 @@ using:</p><ul><li><p><code><a href="https://r-spatial.github.io/sf/reference/st_
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>x</dt>
-<dd><p>Object to write to file and upload to SharePoint.</p></dd>
+<dd><p>Object to write to file and upload to SharePoint. <code>sf</code>, <code>rdocx</code>,
+<code>rpptx</code>, <code>rxlsx</code>, and <code>data.frame</code> objects are saved with the functions
+noted in the description. All other object types are saved as <code>rds</code>
+outputs.</p></dd>
 
 
 <dt>file</dt>
-<dd><p>Path for file or directory to upload. Optional if <code>src</code> is
-supplied.</p></dd>
+<dd><p>File to write to. Passed to <code>file</code> parameter for
+<code><a href="https://readr.tidyverse.org/reference/write_delim.html" class="external-link">readr::write_csv()</a></code> or <code><a href="https://readr.tidyverse.org/reference/read_rds.html" class="external-link">readr::write_rds()</a></code>, <code>dsn</code> for <code><a href="https://r-spatial.github.io/sf/reference/st_write.html" class="external-link">sf::write_sf()</a></code>,
+or <code>target</code> for <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> (when working with <code>{officer}</code> class objects).</p></dd>
 
 
 <dt>dest</dt>
@@ -157,6 +161,12 @@ mentioned in error messages as the source of the error. See the
 <code>call</code> argument of <code><a href="https://rlang.r-lib.org/reference/abort.html" class="external-link">abort()</a></code> for more information.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
+
+<p>Invisibly returns the input object x.</p>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>

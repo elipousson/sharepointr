@@ -1,4 +1,4 @@
-#' List SharePoint files
+#' List SharePoint files and folders
 #'
 #' @description
 #'
@@ -58,4 +58,5 @@ sp_dir_create <- function(path,
     drive$create_folder(path = path)
   }
 
+  invisible(path)
 }

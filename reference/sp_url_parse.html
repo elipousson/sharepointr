@@ -78,8 +78,27 @@ an item_id and return other query values as a named list.</p>
 <span><span class="fu">sp_url_parse_query</span><span class="op">(</span><span class="va">query</span><span class="op">)</span></span></code></pre></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Types of SharePoint URLs</p>
+<p>SharePoint site URL:</p>
+<p>https://[tenant].sharepoint.com/sites/[site name]</p>
+<p>SharePoint document editor URL:</p>
+<p>https://[tenant].sharepoint.com/:[url
+type]:/[permissions]/sites/[site
+name]/_layouts/15/Doc.aspx?sourcedoc=[item id]&amp;file=[file
+name]&amp;[additional query parameters]</p>
+<p>SharePoint List URL:</p>
+<p>https://[tenant].sharepoint.com/sites/[site name]/Lists/[list
+name]/AllItems.aspx?env=WebViewList</p>
+<p>SharePoint folder URL:</p>
+<p>https://[tenant].sharepoint.com/:[url type]:/[permissions]/sites/[site
+name]/drive name (with possible "Shared" prefix)/[folder path]/[folder
+name]/?[additional query parameters]</p>
+    </div>
 
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

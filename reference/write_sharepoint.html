@@ -72,6 +72,7 @@ using:</p><ul><li><p><code><a href="https://r-spatial.github.io/sf/reference/st_
 <span>  <span class="va">dest</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  new_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -110,6 +111,13 @@ URLs are supported.</p></dd>
 <dd><p>Path to write file to. Defaults to <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir()</a></code></p></dd>
 
 
+<dt>overwrite</dt>
+<dd><p>If <code>FALSE</code> (default), error if an item with the name
+specified in <code>file</code> or <code>src</code> already exists at the specified destination.
+If <code>TRUE</code>, overwrite any existing items with the same name. The latter is
+the default for the <code>upload_file</code> method.</p></dd>
+
+
 <dt>drive_name, drive_id</dt>
 <dd><p>SharePoint Drive name or ID passed to <code>get_drive</code>
 method for SharePoint site object.</p></dd>
@@ -121,9 +129,10 @@ method for SharePoint site object.</p></dd>
 
 
 <dt>site_url</dt>
-<dd><p>A SharePoint site URL in the format "https://<tenant name>.sharepoint.com/sites/<site name>". Any SharePoint item or document
+<dd><p>A SharePoint site URL in the format "https://[tenant
+name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL will be parsed and a site URL built using the tenant and site name if
-found.</site></tenant></p></dd>
+found.</p></dd>
 
 
 <dt>site_name, site_id</dt>

@@ -56,10 +56,10 @@ ms_drive objects."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/aja
 <span>  <span class="va">dest</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  src <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  blocksize <span class="op">=</span> <span class="fl">327680000</span>,</span>
 <span>  recursive <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -90,6 +90,13 @@ URLs are supported.</p></dd>
 method. Defaults to <code>NULL</code> and set to use file value by default.</p></dd>
 
 
+<dt>overwrite</dt>
+<dd><p>If <code>FALSE</code> (default), error if an item with the name
+specified in <code>file</code> or <code>src</code> already exists at the specified destination.
+If <code>TRUE</code>, overwrite any existing items with the same name. The latter is
+the default for the <code>upload_file</code> method.</p></dd>
+
+
 <dt>drive_name, drive_id</dt>
 <dd><p>SharePoint Drive name or ID passed to <code>get_drive</code>
 method for SharePoint site object.</p></dd>
@@ -98,12 +105,6 @@ method for SharePoint site object.</p></dd>
 <dt>drive</dt>
 <dd><p>A <code>ms_drive</code> object. If drive is supplied, <code>drive_name</code>,
 <code>site_url</code>, and any additional parameters passed to <code>...</code> are ignored.</p></dd>
-
-
-<dt>overwrite</dt>
-<dd><p>If <code>TRUE</code>, replace the existing option for
-<code>sharepointr.default_drive</code>. If <code>FALSE</code> and the option is a <code>ms_drive</code>
-object, return an error.</p></dd>
 
 
 <dt>blocksize, recursive, parallel</dt>

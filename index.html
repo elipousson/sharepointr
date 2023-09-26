@@ -72,6 +72,166 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># pak::pkg_install("elipousson/sharepointr")</span></span></code></pre></div>
 </div>
+<div class="section level2">
+<h2 id="requirements">Requirements<a class="anchor" aria-label="anchor" href="#requirements"></a>
+</h2>
+<p>To use this package (or <code>{Microsoft365}</code>) you must:</p>
+<ul>
+<li>Have a work or school account with access to <a href="https://www.microsoft.com/en-us/microsoft-365/sharepoint/collaboration" class="external-link">Microsoft SharePoint</a>
+</li>
+<li>Have enabled permissions for the default <code>{Microsoft365}</code> app ID</li>
+</ul>
+<p>See the <code>{Microsoft365}</code> <a href="https://github.com/Azure/Microsoft365R/blob/master/inst/app_registration.md" class="external-link">documentation on app registration for more information</a>.</p>
+</div>
+<div class="section level2">
+<h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
+</h2>
+<p><code>{Microsoft365}</code> uses S6 methods for nearly everything which may be difficult for users (me included) who are less familiar with this interface.</p>
+<p>The <a href="https://github.com/elipousson/sharepointr" class="external-link">sharepointr</a> package seeks to ease this challenge by wrapping the <code>{Microsoft365}</code> methods and adding support for the specification of SharePoint sites, drives, and items using SharePoint URLs instead of item or drive ID values.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/elipousson/sharepointr" class="external-link">sharepointr</a></span><span class="op">)</span></span></code></pre></div>
+<p>The most useful functions for most users may be <code><a href="reference/read_sharepoint.html">read_sharepoint()</a></code> and <code><a href="reference/write_sharepoint.html">write_sharepoint()</a></code>.</p>
+<p><code><a href="reference/read_sharepoint.html">read_sharepoint()</a></code> downloads a SharePoint file to a temporary folder and then, based on the file extension, reads it into your environment using an appropriate function and package (e.g. using <code><a href="https://davidgohel.github.io/officer/reference/read_docx.html" class="external-link">officer::read_docx()</a></code> for Microsoft Word files or <code><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">sf::read_sf()</a></code> for common spatial data files):</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">docx_shared_url</span> <span class="op">&lt;-</span> <span class="st">"https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/General/Baltimore%20Data%20Academy/Baltimore%20Data%20Academy%20Announcement%20Content.docx?d=w0a50d3cd74ce4a8da6d82596037f0148&amp;csf=1&amp;web=1&amp;e=cBURo2"</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/read_sharepoint.html">read_sharepoint</a></span><span class="op">(</span><span class="va">docx_shared_url</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Getting item from SharePoint</span></span>
+<span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span><span class="co">#&gt; ✔ Getting item from SharePoint [623ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_40000g…</span></span>
+<span><span class="co">#&gt; ✔ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_40000g…</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Reading item with `officer::read_docx()`</span></span>
+<span><span class="co">#&gt; ✔ Reading item with `officer::read_docx()` [29ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; rdocx document with 19 element(s)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; * styles:</span></span>
+<span><span class="co">#&gt;                 Normal Default Paragraph Font           Normal Table </span></span>
+<span><span class="co">#&gt;            "paragraph"            "character"                "table" </span></span>
+<span><span class="co">#&gt;                No List         List Paragraph   annotation reference </span></span>
+<span><span class="co">#&gt;            "numbering"            "paragraph"            "character" </span></span>
+<span><span class="co">#&gt;        annotation text      Comment Text Char     annotation subject </span></span>
+<span><span class="co">#&gt;            "paragraph"            "character"            "paragraph" </span></span>
+<span><span class="co">#&gt;   Comment Subject Char              Hyperlink     Unresolved Mention </span></span>
+<span><span class="co">#&gt;            "character"            "character"            "character" </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; * Content at cursor location:</span></span>
+<span><span class="co">#&gt;   level num_id</span></span>
+<span><span class="co">#&gt; 1    NA     NA</span></span>
+<span><span class="co">#&gt;                                                                                                                                                  text</span></span>
+<span><span class="co">#&gt; 1 If you have questions or feedback about the program, contact Chief Data Officer Justin Elszasz at justin.elszasz@baltimorecity.gov. Happy learning!</span></span>
+<span><span class="co">#&gt;   style_name content_type</span></span>
+<span><span class="co">#&gt; 1         NA    paragraph</span></span></code></pre></div>
+<p><code><a href="reference/write_sharepoint.html">write_sharepoint()</a></code> saves an R object to local files and then uses <code><a href="reference/upload_sp_item.html">upload_sp_item()</a></code> to uploads the file to SharePoint. I plan on adding features to allow the custom mapping of file extensions and object classes to specific functions or packages and adding more thorough documentation.</p>
+<p>Both functions rely on a set of helper functions: <code><a href="reference/sp_site.html">get_sp_site()</a></code>, <code><a href="reference/sp_drive.html">get_sp_drive()</a></code>, and <code><a href="reference/get_sp_item.html">get_sp_item()</a></code>, that can parse a URL to determine the SharePoint site URL, drive name, and file path based on the URL.</p>
+<p><code><a href="reference/sp_site.html">get_sp_site()</a></code> is a minimal wrapper for <code><a href="https://rdrr.io/pkg/Microsoft365R/man/client.html" class="external-link">Microsoft365R::get_sharepoint_site()</a></code>:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">site_url</span> <span class="op">&lt;-</span> <span class="st">"https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance"</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/sp_site.html">get_sp_site</a></span><span class="op">(</span>site_url <span class="op">=</span> <span class="va">site_url</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span><span class="co">#&gt; &lt;Sharepoint site 'Citywide Data Network'&gt;</span></span>
+<span><span class="co">#&gt;   directory id: bmore.sharepoint.com,1da01cb7-76c7-4487-b398-ec60dff8f52d,7abe409a-2aeb-4eb8-8dc3-8fe9106907af </span></span>
+<span><span class="co">#&gt;   web link: https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance </span></span>
+<span><span class="co">#&gt;   description: If you work with or are interested in data, feel free to join! </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt;   Methods:</span></span>
+<span><span class="co">#&gt;     delete, do_operation, get_drive, get_group, get_list,</span></span>
+<span><span class="co">#&gt;     get_list_pager, get_lists, list_drives, list_subsites,</span></span>
+<span><span class="co">#&gt;     sync_fields, update</span></span></code></pre></div>
+<p><code><a href="reference/sp_drive.html">get_sp_drive()</a></code> returns a <code>ms_drive</code> object and <code><a href="reference/get_sp_item.html">get_sp_item()</a></code> returns a <code>ms_drive_item</code> object but support most shared file and folder URLs (support for SharePoint List URLs is currently incomplete):</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/sp_drive.html">get_sp_drive</a></span><span class="op">(</span><span class="va">docx_shared_url</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span><span class="co">#&gt; &lt;Document library 'Documents'&gt;</span></span>
+<span><span class="co">#&gt;   directory id: b!txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta613N3QJlbvrVKyTwO </span></span>
+<span><span class="co">#&gt;   web link: https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Shared%20Documents </span></span>
+<span><span class="co">#&gt;   description:  </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt;   Methods:</span></span>
+<span><span class="co">#&gt;     copy_item, create_folder, create_share_link, delete,</span></span>
+<span><span class="co">#&gt;     delete_item, do_operation, download_file, download_folder,</span></span>
+<span><span class="co">#&gt;     get_item, get_item_properties, get_list_pager, list_files,</span></span>
+<span><span class="co">#&gt;     list_items, list_shared_files, list_shared_items,</span></span>
+<span><span class="co">#&gt;     load_dataframe, load_rdata, load_rds, move_item, open_item,</span></span>
+<span><span class="co">#&gt;     save_dataframe, save_rdata, save_rds, set_item_properties,</span></span>
+<span><span class="co">#&gt;     sync_fields, update, upload_file, upload_folder</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/get_sp_item.html">get_sp_item</a></span><span class="op">(</span><span class="va">docx_shared_url</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span><span class="co">#&gt; &lt;Drive item 'Baltimore Data Academy Announcement Content.docx'&gt;</span></span>
+<span><span class="co">#&gt;   directory id: 017P4HV6ON2NIAVTTURVFKNWBFSYBX6AKI </span></span>
+<span><span class="co">#&gt;   web link: https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/Doc.aspx?sourcedoc=%7B0A50D3CD-74CE-4A8D-A6D8-2596037F0148%7D&amp;file=Baltimore%20Data%20Academy%20Announcement%20Content.docx&amp;action=default&amp;mobileredirect=true </span></span>
+<span><span class="co">#&gt;   type: file </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt;   Methods:</span></span>
+<span><span class="co">#&gt;     copy, create_folder, create_share_link, delete,</span></span>
+<span><span class="co">#&gt;     do_operation, download, get_item, get_list_pager,</span></span>
+<span><span class="co">#&gt;     get_parent_folder, get_path, is_folder, list_files,</span></span>
+<span><span class="co">#&gt;     list_items, load_dataframe, load_rdata, load_rds, move,</span></span>
+<span><span class="co">#&gt;     open, save_dataframe, save_rdata, save_rds, sync_fields,</span></span>
+<span><span class="co">#&gt;     update, upload</span></span></code></pre></div>
+<p><code><a href="reference/download_sp_item.html">download_sp_item()</a></code> is a wrapper for <code><a href="reference/get_sp_item.html">get_sp_item()</a></code> that adds support for downloading copies of your SharePoint files:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_tempfile.html" class="external-link">with_tempdir</a></span><span class="op">(</span><span class="op">{</span></span>
+<span>  <span class="va">docx_dest</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/download_sp_item.html">download_sp_item</a></span><span class="op">(</span><span class="va">docx_shared_url</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">docx_dest</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Getting item from SharePoint</span></span>
+<span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span><span class="co">#&gt; ✔ Getting item from SharePoint [430ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Downloading SharePoint item to 'Baltimore Data Academy Announcement Content.d…</span></span>
+<span><span class="co">#&gt; ✔ Downloading SharePoint item to 'Baltimore Data Academy Announcement Content.d…</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<p>The package also includes a handful of helper functions like <code><a href="reference/sp_dir_create.html">sp_dir_create()</a></code> and <code><a href="reference/sp_dir_info.html">sp_dir_info()</a></code>:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/sp_dir_info.html">sp_dir_info</a></span><span class="op">(</span><span class="st">"https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/General/Baltimore%20Data%20Academy"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span><span class="co">#&gt;                                                                                                 name</span></span>
+<span><span class="co">#&gt; 1                                                                                              Logos</span></span>
+<span><span class="co">#&gt; 2                                                 BALT 02 Interpreting Data - Student Coursebook.pdf</span></span>
+<span><span class="co">#&gt; 3                                            BALT 03_Leading with Data_Workday Lesson 1_03292023.pdf</span></span>
+<span><span class="co">#&gt; 4                                             BALT 04_Data Stewardship_Workday Lesson 1_03292023.pdf</span></span>
+<span><span class="co">#&gt; 5  BALT 05_Measuring Government Performance_Course Access Instructions_Workday Lesson 1_02282023.pdf</span></span>
+<span><span class="co">#&gt; 6                                                   Baltimore Data Academy Announcement Content.docx</span></span>
+<span><span class="co">#&gt; 7                                        Baltimore Data Academy New Course Announcement 7.11.23.docx</span></span>
+<span><span class="co">#&gt; 8                                                                           Curriculum One Pager.pdf</span></span>
+<span><span class="co">#&gt; 9                                                                                      Document.docx</span></span>
+<span><span class="co">#&gt; 10                                                        Foundations of Data Literacy_2023 [43].pdf</span></span>
+<span><span class="co">#&gt; 11                                       Interpreting Data with Greater Accuracy and Insight[97].pdf</span></span>
+<span><span class="co">#&gt; 12                                                              Last SR by Agency as of 7.11.23.xlsx</span></span>
+<span><span class="co">#&gt;       size isdir                                 id</span></span>
+<span><span class="co">#&gt; 1  3422970  TRUE 017P4HV6I3IGKTFCO2FZD3FXPCGUPJSO6G</span></span>
+<span><span class="co">#&gt; 2   720266 FALSE 017P4HV6KITC7MJJJESFD35BIDU5DR4BSL</span></span>
+<span><span class="co">#&gt; 3   398246 FALSE 017P4HV6N2LBZHX6ERCBCIQRJIXGTZMYCK</span></span>
+<span><span class="co">#&gt; 4   399017 FALSE 017P4HV6ICFKFITU4WC5CYAFJUTZAMHP7K</span></span>
+<span><span class="co">#&gt; 5   400728 FALSE 017P4HV6MQCBPQQD6VUVCJWMWAKTIBZNYQ</span></span>
+<span><span class="co">#&gt; 6    76665 FALSE 017P4HV6ON2NIAVTTURVFKNWBFSYBX6AKI</span></span>
+<span><span class="co">#&gt; 7    55243 FALSE 017P4HV6PKOSFTLSMOAJDK3OGKFUVCIICU</span></span>
+<span><span class="co">#&gt; 8    90575 FALSE 017P4HV6OKNLH7UWTQJBEZXWNFXBGBC6OC</span></span>
+<span><span class="co">#&gt; 9    49677 FALSE 017P4HV6L5XTQ7IOMVYBGKSYMSOYDXMMPZ</span></span>
+<span><span class="co">#&gt; 10  549730 FALSE 017P4HV6KALORFIRC2IBB3RN52WE4V7QGU</span></span>
+<span><span class="co">#&gt; 11  633034 FALSE 017P4HV6NWPAN6PTWC3FEJB3KRR2WDWXFM</span></span>
+<span><span class="co">#&gt; 12   16117 FALSE 017P4HV6K2WP2LBTN6PFGLVY4PIWOY7IAR</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="related-packages">Related packages<a class="anchor" aria-label="anchor" href="#related-packages"></a>
+</h2>
+<p>There are two similar packages available:</p>
+<ul>
+<li>
+<a href="https://gitlab.com/tolmay/sharrpoint" class="external-link">sharrpoint</a>: An R package to interact with Sharepoint API (files &amp; lists).</li>
+<li>
+<a href="https://github.com/LukasK13/sharepointr" class="external-link">sharepointr</a>:A R package for reading from and writing to SharePoint lists.</li>
+</ul>
+<p>I may rename this package to avoid the name conflict with the existing sharepointr package—I didn’t find it until after I set up the repository. However, it has a more limited feature set and may be no longer under development.</p>
+</div>
 </div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>

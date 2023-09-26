@@ -38,8 +38,8 @@ supplied.}
 \item{drive}{A \code{ms_drive} object. If drive is supplied, \code{drive_name},
 \code{site_url}, and any additional parameters passed to \code{...} are ignored.}
 
-\item{site_url}{A SharePoint site URL in the format "https://\if{html}{\out{<tenant
-name>}}.sharepoint.com/sites/\if{html}{\out{<site name>}}". Any SharePoint item or document
+\item{site_url}{A SharePoint site URL in the format "https://[tenant
+name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL will be parsed and a site URL built using the tenant and site name if
 found.}
 

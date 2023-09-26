@@ -2,7 +2,7 @@
 % Please edit documentation in R/sp_dir.R
 \name{sp_dir_info}
 \alias{sp_dir_info}
-\title{List SharePoint files}
+\title{List SharePoint files and folders}
 \usage{
 sp_dir_info(
   path = NULL,
@@ -26,8 +26,8 @@ method for SharePoint site object.}
     \item{\code{.default_drive_name}}{Drive name string used only if input is a document
 URL and drive name is not part of the URL. Defaults to
 \code{getOption("sharepointr.default_drive_name", "Documents")}}
-    \item{\code{site_url}}{A SharePoint site URL in the format "https://\if{html}{\out{<tenant
-name>}}.sharepoint.com/sites/\if{html}{\out{<site name>}}". Any SharePoint item or document
+    \item{\code{site_url}}{A SharePoint site URL in the format "https://[tenant
+name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL will be parsed and a site URL built using the tenant and site name if
 found.}
   }}

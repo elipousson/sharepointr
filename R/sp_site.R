@@ -9,8 +9,8 @@ NULL
 
 #' @rdname sp_site
 #' @name get_sp_site
-#' @param site_url A SharePoint site URL in the format "https://<tenant
-#'   name>.sharepoint.com/sites/<site name>". Any SharePoint item or document
+#' @param site_url A SharePoint site URL in the format "https://\[tenant
+#'   name\].sharepoint.com/sites/\[site name\]". Any SharePoint item or document
 #'   URL will be parsed and a site URL built using the tenant and site name if
 #'   found.
 #' @param site_name,site_id Site name or ID of the SharePoint site as an

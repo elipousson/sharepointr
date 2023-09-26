@@ -17,8 +17,8 @@ get_sp_site(
 set_sp_site(..., overwrite = FALSE, call = caller_env())
 }
 \arguments{
-\item{site_url}{A SharePoint site URL in the format "https://\if{html}{\out{<tenant
-name>}}.sharepoint.com/sites/\if{html}{\out{<site name>}}". Any SharePoint item or document
+\item{site_url}{A SharePoint site URL in the format "https://[tenant
+name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL will be parsed and a site URL built using the tenant and site name if
 found.}
 

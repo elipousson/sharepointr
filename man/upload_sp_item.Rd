@@ -9,10 +9,10 @@ upload_sp_item(
   dest,
   ...,
   src = NULL,
+  overwrite = FALSE,
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  overwrite = FALSE,
   blocksize = 327680000,
   recursive = FALSE,
   parallel = FALSE,
@@ -33,15 +33,16 @@ URLs are supported.}
 \item{src}{Data source path passed to \code{upload_folder} or \code{upload_file}
 method. Defaults to \code{NULL} and set to use file value by default.}
 
+\item{overwrite}{If \code{FALSE} (default), error if an item with the name
+specified in \code{file} or \code{src} already exists at the specified destination.
+If \code{TRUE}, overwrite any existing items with the same name. The latter is
+the default for the \code{upload_file} method.}
+
 \item{drive_name, drive_id}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
 
 \item{drive}{A \code{ms_drive} object. If drive is supplied, \code{drive_name},
 \code{site_url}, and any additional parameters passed to \code{...} are ignored.}
-
-\item{overwrite}{If \code{TRUE}, replace the existing option for
-\code{sharepointr.default_drive}. If \code{FALSE} and the option is a \code{ms_drive}
-object, return an error.}
 
 \item{blocksize, recursive, parallel}{Additional parameters passed to
 \code{upload_folder} or \code{upload_file} method for \code{ms_drive} objects.}

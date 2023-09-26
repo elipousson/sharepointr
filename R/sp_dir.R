@@ -50,7 +50,6 @@ sp_dir_create <- function(path,
                           drive_name = NULL,
                           drive = NULL,
                           call = caller_env()) {
-
   drive <- drive %||%
     get_sp_drive(drive_name = drive_name, ..., call = call)
 

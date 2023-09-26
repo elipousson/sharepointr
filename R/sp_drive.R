@@ -53,7 +53,6 @@ get_sp_drive <- function(drive_name = NULL,
     }
   }
 
-
   site <- site %||% get_sp_site(site_url, ...)
 
   check_ms_site(site, call = call)

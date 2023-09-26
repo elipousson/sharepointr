@@ -6,13 +6,13 @@
 #' @keywords internal
 #' @export
 #' @importFrom httr2 url_parse
+#' @importFrom stringr str_detect
 sp_url_parse <- function(url, call = caller_env()) {
   check_url(url, call = call)
 
   parts <- httr2::url_parse(url)
 
-  if (is_sp_site_url(url)) {
-    # FIXME: This catches list URLs unintentionally
+  if (is_sp_site_url(url) && !str_detect(url, "/Lists/")) {
     sp_url_parts <- c(
       sp_url_parse_hostname(parts[["hostname"]]),
       list(

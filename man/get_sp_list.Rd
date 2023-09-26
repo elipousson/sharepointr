@@ -12,8 +12,9 @@ get_sp_list(
   drive_id = NULL,
   drive = NULL,
   site_url = NULL,
+  site = NULL,
   .default_drive_name = getOption("sharepointr.default_drive_name", "Documents"),
-  items = FALSE,
+  items = TRUE,
   call = caller_env()
 )
 }
@@ -25,7 +26,6 @@ get_sp_list(
   \describe{
     \item{\code{drive_name,drive_id}}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
-    \item{\code{site}}{A \code{ms_site} object. If site is supplied, \code{site_url} is ignored.}
     \item{\code{properties}}{If \code{TRUE}, return the drive properties instead of the
 \code{ms_drive} object.}
   }}
@@ -41,12 +41,15 @@ name>}}.sharepoint.com/sites/\if{html}{\out{<site name>}}". Any SharePoint item 
 URL will be parsed and a site URL built using the tenant and site name if
 found.}
 
+\item{site}{A \code{ms_site} object. If site is supplied, \code{site_url} is ignored.}
+
 \item{.default_drive_name}{Drive name string used only if input is a document
 URL and drive name is not part of the URL. Defaults to
 \code{getOption("sharepointr.default_drive_name", "Documents")}}
 
-\item{items}{If \code{TRUE}, use the \code{list_items} method to return a data frame
-with all items in the specified list.}
+\item{items}{If \code{TRUE} (default), use the \code{list_items} method to return a
+data frame with all items in the specified list. If \code{FALSE}, return a
+\code{ms_list} class object.}
 
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be

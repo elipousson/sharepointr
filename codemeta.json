@@ -4,6 +4,7 @@
   "identifier": "sharepointr",
   "description": "More about what it does (maybe more than one line) Use four spaces when indenting paragraphs within the Description.",
   "name": "sharepointr: Read SharePoint Files",
+  "relatedLink": "https://elipousson.github.io/sharepointr/",
   "codeRepository": "https://github.com/elipousson/sharepointr",
   "issueTracker": "https://github.com/elipousson/sharepointr/issues",
   "license": "https://spdx.org/licenses/MIT",
@@ -113,6 +114,31 @@
         "url": "https://cran.r-project.org"
       },
       "sameAs": "https://CRAN.R-project.org/package=sf"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "testthat",
+      "name": "testthat",
+      "version": ">= 3.0.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=testthat"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "withr",
+      "name": "withr",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=withr"
     }
   ],
   "softwareRequirements": {
@@ -130,6 +156,30 @@
     },
     "2": {
       "@type": "SoftwareApplication",
+      "identifier": "glue",
+      "name": "glue",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=glue"
+    },
+    "3": {
+      "@type": "SoftwareApplication",
+      "identifier": "httr2",
+      "name": "httr2",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=httr2"
+    },
+    "4": {
+      "@type": "SoftwareApplication",
       "identifier": "Microsoft365R",
       "name": "Microsoft365R",
       "provider": {
@@ -140,7 +190,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=Microsoft365R"
     },
-    "3": {
+    "5": {
       "@type": "SoftwareApplication",
       "identifier": "rlang",
       "name": "rlang",
@@ -153,7 +203,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=rlang"
     },
-    "4": {
+    "6": {
       "@type": "SoftwareApplication",
       "identifier": "stringr",
       "name": "stringr",
@@ -165,13 +215,15 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=stringr"
     },
-    "5": {
+    "7": {
       "@type": "SoftwareApplication",
       "identifier": "utils",
       "name": "utils"
     },
     "SystemRequirements": null
   },
-  "fileSize": "43.675KB",
-  "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html#experimental"
+  "fileSize": "95.865KB",
+  "readme": "https://github.com/elipousson/sharepointr/blob/main/README.md",
+  "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html#experimental",
+  "keywords": ["microsoft-365", "r-package", "sharepoint"]
 }

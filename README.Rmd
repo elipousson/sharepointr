@@ -29,3 +29,77 @@ You can install the development version of SharePointR like so:
 ``` r
 # pak::pkg_install("elipousson/sharepointr")
 ```
+
+## Requirements
+
+To use this package (or `{Microsoft365}`) you must:
+
+- Have a work or school account with access to [Microsoft SharePoint](https://www.microsoft.com/en-us/microsoft-365/sharepoint/collaboration)
+- Have enabled permissions for the default `{Microsoft365}` app ID
+
+See the `{Microsoft365}` [documentation on app registration for more information](https://github.com/Azure/Microsoft365R/blob/master/inst/app_registration.md).
+
+## Usage
+
+`{Microsoft365}` uses S6 methods for nearly everything which may be difficult for users (me included) who are less familiar with this interface.
+
+The `{sharepointr}` package seeks to ease this challenge by wrapping the `{Microsoft365}` methods and adding support for the specification of SharePoint sites, drives, and items using SharePoint URLs instead of item or drive ID values.
+
+```{r}
+library(sharepointr)
+```
+
+The most useful functions for most users may be `read_sharepoint()` and `write_sharepoint()`. 
+
+`read_sharepoint()` downloads a SharePoint file to a temporary folder and then, based on the file extension, reads it into your environment using an appropriate function and package (e.g. using `officer::read_docx()` for Microsoft Word files or `sf::read_sf()` for common spatial data files):
+
+```{r}
+docx_shared_url <- "https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/General/Baltimore%20Data%20Academy/Baltimore%20Data%20Academy%20Announcement%20Content.docx?d=w0a50d3cd74ce4a8da6d82596037f0148&csf=1&web=1&e=cBURo2"
+
+read_sharepoint(docx_shared_url)
+```
+
+`write_sharepoint()` saves an R object to local files and then uses `upload_sp_item()` to uploads the file to SharePoint. I plan on adding features to allow the custom mapping of file extensions and object classes to specific functions or packages and adding more thorough documentation.
+
+Both functions rely on a set of helper functions: `get_sp_site()`, `get_sp_drive()`, and `get_sp_item()`, that can parse a URL to determine the SharePoint site URL, drive name, and file path based on the URL.
+
+`get_sp_site()` is a minimal wrapper for `Microsoft365R::get_sharepoint_site()`:
+
+```{r}
+site_url <- "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance"
+
+get_sp_site(site_url = site_url)
+```
+
+`get_sp_drive()` returns a `ms_drive` object and `get_sp_item()` returns a `ms_drive_item` object but support most shared file and folder URLs (support for SharePoint List URLs is currently incomplete):
+
+```{r}
+get_sp_drive(docx_shared_url)
+
+get_sp_item(docx_shared_url)
+```
+
+`download_sp_item()` is a wrapper for `get_sp_item()` that adds support for downloading copies of your SharePoint files:
+
+```{r}
+withr::with_tempdir({
+  docx_dest <- download_sp_item(docx_shared_url)
+  
+  file.exists(docx_dest)
+})
+```
+
+The package also includes a handful of helper functions like `sp_dir_create()` and `sp_dir_info()`:
+
+```{r}
+sp_dir_info("https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/General/Baltimore%20Data%20Academy")
+```
+
+## Related packages
+
+There are two similar packages available:
+
+- [sharrpoint](https://gitlab.com/tolmay/sharrpoint): An R package to interact with Sharepoint API (files & lists).
+- [sharepointr](https://github.com/LukasK13/sharepointr):A R package for reading from and writing to SharePoint lists.
+
+I may rename this package to avoid the name conflict with the existing sharepointr package—I didn't find it until after I set up the repository. However, it has a more limited feature set and may be no longer under development.

@@ -9,12 +9,19 @@
 #' - The [print()] method from `{officer}` if x is a `rdocx`, `rpptx`, or `rxlsx` object
 #' - [readr::write_rds()] if x is any other class
 #'
-#' @param x Object to write to file and upload to SharePoint.
+#' @param x Object to write to file and upload to SharePoint. `sf`, `rdocx`,
+#'   `rpptx`, `rxlsx`, and `data.frame` objects are saved with the functions
+#'   noted in the description. All other object types are saved as `rds`
+#'   outputs.
+#' @param file File to write to. Passed to `file` parameter for
+#'   [readr::write_csv()] or [readr::write_rds()], `dsn` for `sf::write_sf()`,
+#'   or `target` for `print()` (when working with `{officer}` class objects).
 #' @param ... Additional parameters passed to write function.
 #' @param new_path Path to write file to. Defaults to [tempdir()]
 #' @inheritParams upload_sp_item
 #' @inheritParams get_sp_drive
 #' @inheritParams get_sp_site
+#' @returns Invisibly returns the input object x.
 #' @export
 write_sharepoint <- function(x,
                              file,
@@ -38,16 +45,16 @@ write_sharepoint <- function(x,
 
   if (inherits(x, "sf")) {
     check_installed("sf", call = call)
-    sf::write_sf(x, file, ...)
+    sf::write_sf(x, dsn = file, ...)
   } else if (inherits(x, "data.frame")) {
     check_installed("readr", call = call)
-    readr::write_csv(x, file, ...)
+    readr::write_csv(x, file = file, ...)
   } else if (inherits(x, c("rdocx", "rpptx", "rxslx"))) {
     check_installed("officer", call = call)
     print(x, target = file, ...)
   } else {
     check_installed("readr")
-    readr::write_rds(x, file, ...)
+    readr::write_rds(x, file = file, ...)
   }
 
   upload_sp_item(

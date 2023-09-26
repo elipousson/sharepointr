@@ -25,10 +25,14 @@ write_sharepoint(
 )
 }
 \arguments{
-\item{x}{Object to write to file and upload to SharePoint.}
+\item{x}{Object to write to file and upload to SharePoint. \code{sf}, \code{rdocx},
+\code{rpptx}, \code{rxlsx}, and \code{data.frame} objects are saved with the functions
+noted in the description. All other object types are saved as \code{rds}
+outputs.}
 
-\item{file}{Path for file or directory to upload. Optional if \code{src} is
-supplied.}
+\item{file}{File to write to. Passed to \code{file} parameter for
+\code{\link[readr:write_delim]{readr::write_csv()}} or \code{\link[readr:read_rds]{readr::write_rds()}}, \code{dsn} for \code{sf::write_sf()},
+or \code{target} for \code{print()} (when working with \code{{officer}} class objects).}
 
 \item{dest}{Destination on SharePoint for file to upload. SharePoint folder
 URLs are supported.}
@@ -66,6 +70,9 @@ should be supplied.}
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
+}
+\value{
+Invisibly returns the input object x.
 }
 \description{
 \code{\link[=write_sharepoint]{write_sharepoint()}} uses \code{\link[=upload_sp_item]{upload_sp_item()}} to upload an object created

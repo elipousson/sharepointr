@@ -37,3 +37,25 @@ sp_dir_info <- function(path = NULL,
 
   drive$list_files(path = path)
 }
+
+#' Create SharePoint folders
+#'
+#' [sp_dir_create()] is a wrapper for the `create_folder` method that handles
+#' character vectors.
+#'
+#' @param path A character vector of one or more paths.
+#' @export
+sp_dir_create <- function(path,
+                          ...,
+                          drive_name = NULL,
+                          drive = NULL,
+                          call = caller_env()) {
+
+  drive <- drive %||%
+    get_sp_drive(drive_name = drive_name, ..., call = call)
+
+  for (dir in path) {
+    drive$create_folder(path = path)
+  }
+
+}

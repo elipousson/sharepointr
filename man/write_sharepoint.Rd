@@ -10,6 +10,7 @@ write_sharepoint(
   dest,
   ...,
   new_path = tempdir(),
+  overwrite = FALSE,
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
@@ -36,14 +37,19 @@ URLs are supported.}
 
 \item{new_path}{Path to write file to. Defaults to \code{\link[=tempdir]{tempdir()}}}
 
+\item{overwrite}{If \code{FALSE} (default), error if an item with the name
+specified in \code{file} or \code{src} already exists at the specified destination.
+If \code{TRUE}, overwrite any existing items with the same name. The latter is
+the default for the \code{upload_file} method.}
+
 \item{drive_name, drive_id}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
 
 \item{drive}{A \code{ms_drive} object. If drive is supplied, \code{drive_name},
 \code{site_url}, and any additional parameters passed to \code{...} are ignored.}
 
-\item{site_url}{A SharePoint site URL in the format "https://\if{html}{\out{<tenant
-name>}}.sharepoint.com/sites/\if{html}{\out{<site name>}}". Any SharePoint item or document
+\item{site_url}{A SharePoint site URL in the format "https://[tenant
+name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL will be parsed and a site URL built using the tenant and site name if
 found.}
 

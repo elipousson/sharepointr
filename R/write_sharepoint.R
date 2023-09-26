@@ -21,6 +21,7 @@ write_sharepoint <- function(x,
                              dest,
                              ...,
                              new_path = tempdir(),
+                             overwrite = FALSE,
                              drive_name = NULL,
                              drive_id = NULL,
                              drive = NULL,
@@ -52,6 +53,7 @@ write_sharepoint <- function(x,
   upload_sp_item(
     file = file,
     dest = dest,
+    overwrite = overwrite,
     drive_name = drive_name,
     drive_id = drive_id,
     drive = drive,
@@ -80,6 +82,10 @@ write_sharepoint <- function(x,
 #'   URLs are supported.
 #' @param src Data source path passed to `upload_folder` or `upload_file`
 #'   method. Defaults to `NULL` and set to use file value by default.
+#' @param overwrite If `FALSE` (default), error if an item with the name
+#'   specified in `file` or `src` already exists at the specified destination.
+#'   If `TRUE`, overwrite any existing items with the same name. The latter is
+#'   the default for the `upload_file` method.
 #' @inheritParams get_sp_drive
 #' @param blocksize,recursive,parallel Additional parameters passed to
 #'   `upload_folder` or `upload_file` method for `ms_drive` objects.
@@ -90,10 +96,10 @@ upload_sp_item <- function(file = NULL,
                            dest,
                            ...,
                            src = NULL,
+                           overwrite = FALSE,
                            drive_name = NULL,
                            drive_id = NULL,
                            drive = NULL,
-                           overwrite = FALSE,
                            blocksize = 327680000,
                            recursive = FALSE,
                            parallel = FALSE,

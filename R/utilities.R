@@ -119,3 +119,95 @@ list_replace_empty <- function(x, replace = NULL) {
     i
   })
 }
+
+#' Convert a list of ms_obj elements to a data frame of properties with a list
+#' column of objects
+#'
+#' @noRd
+ms_obj_list_as_data_frame <- function(ms_obj_list,
+                                      obj_col = "ms_plan",
+                                      .name_repair = "universal_quiet",
+                                      .error_call = caller_env()) {
+  check_installed("vctrs", call = call)
+
+  ms_obj_list <- lapply(
+    ms_obj_list,
+    function(obj) {
+      properties <- obj$properties
+
+      sizes <- vapply(properties, vctrs::vec_size, NA_integer_)
+      string_props <- properties[sizes == 1]
+      list_props <- properties[sizes != 1]
+
+      df <- vctrs::vec_rbind(
+        c(
+          unlist(string_props, recursive = FALSE, use.names = FALSE),
+          list_props
+        ),
+        .name_repair = .name_repair,
+        .error_call = .error_call
+      )
+
+      df <- set_names(df, nm = names(c(string_props, list_props)))
+
+      df[[obj_col]] <- list(x)
+
+      df
+    }
+  )
+
+  vctrs::vec_rbind(!!!ms_obj_list, .error_call = .error_call)
+}
+
+
+#' Check if x or y is not `NULL` and is a string and error if neither or both
+#' are supplied or if the supplied argument is not a string
+#'
+#' @noRd
+check_exclusive_strings <- function(x = NULL,
+                                    y = NULL,
+                                    x_arg = caller_arg(x),
+                                    y_arg = caller_arg(y),
+                                    allow_empty = FALSE,
+                                    require = TRUE,
+                                    call = caller_env()) {
+  check_exclusive_args(
+    x = x, y = y,
+    x_arg = x_arg, y_arg = y_arg,
+    require = require, call = call
+  )
+
+  check_string(x, allow_empty = allow_empty, allow_null = TRUE, call = call)
+  check_string(y, allow_empty = allow_empty, allow_null = TRUE, call = call)
+}
+
+
+#' Check if x or y is not `NULL` and error if neither or both are supplied
+#'
+#' @noRd
+check_exclusive_args <- function(x = NULL,
+                                 y = NULL,
+                                 x_arg = caller_arg(x),
+                                 y_arg = caller_arg(y),
+                                 require = TRUE,
+                                 call = caller_env()) {
+  if (is_empty(c(x, y))) {
+    if (!require) {
+      return(invisible(NULL))
+    }
+
+    cli_abort(
+      "One of {.arg {x_arg}} or {.arg {y_arg}} must be supplied.",
+      call = call
+    )
+  }
+
+  if (has_length(c(x, y), 2)) {
+    cli_abort(
+      "Exactly one of {.arg {x_arg}} or {.arg {y_arg}} must be supplied.",
+      call = call
+    )
+  }
+
+  invisible(NULL)
+}

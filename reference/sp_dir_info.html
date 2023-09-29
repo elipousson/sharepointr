@@ -70,9 +70,6 @@ If <code>NULL</code>, path is set to default "/".</p></dd>
 <dd><p>SharePoint Drive name or ID passed to <code>get_drive</code>
 method for SharePoint site object.</p></dd>
 
-    <dt><code>site</code></dt>
-<dd><p>A <code>ms_site</code> object. If site is supplied, <code>site_url</code> is ignored.</p></dd>
-
     <dt><code>.default_drive_name</code></dt>
 <dd><p>Drive name string used only if input is a document
 URL and drive name is not part of the URL. Defaults to
@@ -81,8 +78,12 @@ URL and drive name is not part of the URL. Defaults to
     <dt><code>site_url</code></dt>
 <dd><p>A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
-URL will be parsed and a site URL built using the tenant and site name if
-found.</p></dd>
+URL can also be parsed to build a site URL using the tenant and site name
+included in the URL.</p></dd>
+
+    <dt><code>site</code></dt>
+<dd><p>A <code>ms_site</code> object. If <code>site</code> is supplied, <code>site_url</code>,
+<code>site_name</code>, and <code>site_id</code> are ignored.</p></dd>
 
   
 </dl></dd>

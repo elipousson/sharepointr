@@ -70,6 +70,7 @@ path).</p>
 <span>  <span class="va">path</span>,</span>
 <span>  new_path <span class="op">=</span> <span class="st">""</span>,</span>
 <span>  <span class="va">...</span>,</span>
+<span>  item <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -103,6 +104,10 @@ supplied.</p></dd>
 <code><a href="sp_drive.html">get_sp_drive()</a></code>.</p></dd>
 
 
+<dt>item</dt>
+<dd><p>A <code>ms_drive_item</code> class object.</p></dd>
+
+
 <dt>drive_name, drive_id</dt>
 <dd><p>SharePoint drive name or ID.</p></dd>
 
@@ -115,8 +120,8 @@ supplied.</p></dd>
 <dt>site_url</dt>
 <dd><p>A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
-URL will be parsed and a site URL built using the tenant and site name if
-found.</p></dd>
+URL can also be parsed to build a site URL using the tenant and site name
+included in the URL.</p></dd>
 
 
 <dt>dest, overwrite, recursive, parallel</dt>
@@ -131,6 +136,13 @@ mentioned in error messages as the source of the error. See the
 <code>call</code> argument of <code><a href="https://rlang.r-lib.org/reference/abort.html" class="external-link">abort()</a></code> for more information.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
+
+<p>Invisibly returns the input dest or the dest parsed from the input
+path or item.</p>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>

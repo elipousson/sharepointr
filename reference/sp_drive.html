@@ -84,12 +84,13 @@ method for SharePoint site object.</p></dd>
 <dt>site_url</dt>
 <dd><p>A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
-URL will be parsed and a site URL built using the tenant and site name if
-found.</p></dd>
+URL can also be parsed to build a site URL using the tenant and site name
+included in the URL.</p></dd>
 
 
 <dt>site</dt>
-<dd><p>A <code>ms_site</code> object. If site is supplied, <code>site_url</code> is ignored.</p></dd>
+<dd><p>A <code>ms_site</code> object. If <code>site</code> is supplied, <code>site_url</code>,
+<code>site_name</code>, and <code>site_id</code> are ignored.</p></dd>
 
 
 <dt>.default_drive_name</dt>
@@ -116,6 +117,10 @@ mentioned in error messages as the source of the error. See the
 object, return an error.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><a href="https://rdrr.io/pkg/Microsoft365R/man/ms_drive.html" class="external-link">Microsoft365R::ms_drive</a></p></div>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>

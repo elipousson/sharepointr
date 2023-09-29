@@ -20,8 +20,6 @@ If \code{NULL}, path is set to default "/".}
 \item{...}{
   Arguments passed on to \code{\link[=get_sp_drive]{get_sp_drive}}
   \describe{
-    \item{\code{drive_name,drive_id}}{SharePoint Drive name or ID passed to \code{get_drive}
-method for SharePoint site object.}
     \item{\code{.default_drive_name}}{Drive name string used only if input is a document
 URL and drive name is not part of the URL. Defaults to
 \code{getOption("sharepointr.default_drive_name", "Documents")}}

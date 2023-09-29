@@ -6,7 +6,7 @@
 #'
 #' @param path Path to directory or folder. SharePoint folder URLs are allowed.
 #'   If `NULL`, path is set to default "/".
-#' @inheritDotParams get_sp_drive -properties
+#' @inheritDotParams get_sp_drive -drive_name -drive_id -properties
 #' @inheritParams get_sp_drive
 #' @inheritParams get_sp_item
 #' @export
@@ -28,6 +28,7 @@ sp_dir_info <- function(path = NULL,
     drive_name = drive_name,
     drive_id = drive_id,
     ...,
+    properties = FALSE,
     call = call
   )
 

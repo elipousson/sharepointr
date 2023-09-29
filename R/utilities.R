@@ -133,32 +133,56 @@ ms_obj_list_as_data_frame <- function(ms_obj_list,
   ms_obj_list <- lapply(
     ms_obj_list,
     function(obj) {
-      properties <- obj$properties
-
-      sizes <- vapply(properties, vctrs::vec_size, NA_integer_)
-      string_props <- properties[sizes == 1]
-      list_props <- properties[sizes != 1]
-
-      df <- vctrs::vec_rbind(
-        c(
-          unlist(string_props, recursive = FALSE, use.names = FALSE),
-          list_props
-        ),
+      ms_obj_as_data_frame(
+        obj,
+        obj_col = obj_col,
         .name_repair = .name_repair,
         .error_call = .error_call
       )
-
-      df <- set_names(df, nm = names(c(string_props, list_props)))
-
-      df[[obj_col]] <- list(obj)
-
-      df
     }
   )
 
   vctrs::vec_rbind(!!!ms_obj_list, .error_call = .error_call)
 }
 
+
+#' Convert a ms_obj object to a data frame of properties with a list column of
+#' objects
+#'
+#' @noRd
+ms_obj_as_data_frame <- function(ms_obj,
+                                 obj_col = "ms_plan",
+                                 recursive = FALSE,
+                                 .name_repair = "universal_quiet",
+                                 .error_call = caller_env()) {
+  properties <- ms_obj$properties
+
+  check_installed("vctrs", call = .error_call)
+
+  sizes <- vapply(properties, vctrs::vec_size, NA_integer_)
+  string_props <- properties[sizes == 1]
+  list_props <- properties[sizes != 1]
+
+  df <- vctrs::vec_rbind(
+    c(
+      unlist(string_props, recursive = recursive, use.names = FALSE),
+      list_props
+    ),
+    .name_repair = .name_repair,
+    .error_call = .error_call
+  )
+
+  df <- set_names(df, nm = names(c(string_props, list_props)))
+
+  # FIXME: Must be a better way to do this
+  for (nm in names(string_props)) {
+    df[[nm]] <- unlist(df[[nm]])
+  }
+
+  df[[obj_col]] <- list(ms_obj)
+
+  df
+}
 
 #' Check if x or y is not `NULL` and is a string and error if neither or both
 #' are supplied or if the supplied argument is not a string

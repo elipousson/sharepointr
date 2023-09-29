@@ -2,23 +2,24 @@
 #'
 #' [get_sp_site()] is a wrapper for [Microsoft365R::get_sharepoint_site()] and
 #' returns a `ms_site` object. [set_sp_site()] allows you to set a default
-#' SharePoint site for use by other functions.
+#' SharePoint site for use by other functions. [get_sp_site_group()] gets the
+#' group associated with an individual site using the `get_group` method.
 #'
 #' @name sp_site
+#' @seealso [Microsoft365R::ms_site]
 NULL
 
 #' @rdname sp_site
 #' @name get_sp_site
 #' @param site_url A SharePoint site URL in the format "https://\[tenant
 #'   name\].sharepoint.com/sites/\[site name\]". Any SharePoint item or document
-#'   URL will be parsed and a site URL built using the tenant and site name if
-#'   found.
+#'   URL can also be parsed to build a site URL using the tenant and site name
+#'   included in the URL.
 #' @param site_name,site_id Site name or ID of the SharePoint site as an
-#'   alternative to the SharePoint site URL. Only one of the three arguments
-#'   should be supplied.
-#' @param ... For [get_sp_drive()], additional parameters passed to
-#'   [Microsoft365R::get_sharepoint_site()]. For [set_sp_site()], parameters
-#'   passed to [get_sp_site()].
+#'   alternative to the SharePoint site URL. Exactly one of  `site_url`,
+#'   `site_name`, and `site_id` must be supplied.
+#' @param ... Additional parameters passed to
+#'   [Microsoft365R::get_sharepoint_site()] or [get_sp_site()].
 #' @inheritDotParams Microsoft365R::get_sharepoint_site
 #' @inheritParams rlang::args_error_context
 #' @export
@@ -62,12 +63,17 @@ get_sp_site <- function(site_url = NULL,
 
 #' @rdname sp_site
 #' @name set_sp_site
+#' @param site A `ms_site` object. If `site` is supplied, `site_url`,
+#'   `site_name`, and `site_id` are ignored.
 #' @param overwrite If `TRUE`, replace the existing option for
-#'   `sharepointr.default_site`. If `FALSE` and the option is a `ms_site`
-#'   object, return an error.
+#'   `sharepointr.default_site`. Error if `FALSE` and the option is a `ms_site`
+#'   object.
 #' @export
-set_sp_site <- function(..., overwrite = FALSE, call = caller_env()) {
-  new_default_site <- get_sp_site(..., call = call)
+set_sp_site <- function(...,
+                        site = NULL,
+                        overwrite = FALSE,
+                        call = caller_env()) {
+  new_default_site <- site %||% get_sp_site(..., call = call)
 
   if (is_ms_site(getOption("sharepointr.default_site")) && !overwrite) {
     cli_abort(
@@ -80,4 +86,26 @@ set_sp_site <- function(..., overwrite = FALSE, call = caller_env()) {
   options(
     "sharepointr.default_site" = new_default_site
   )
+}
+
+#' @rdname sp_site
+#' @name get_sp_site_group
+#' @export
+get_sp_site_group <- function(site_url = NULL,
+                              site_name = NULL,
+                              site_id = NULL,
+                              ...,
+                              site = NULL,
+                              call = caller_env()) {
+  site <- site %||% get_sp_site(
+    site_url = site_url,
+    site_name = site_name,
+    site_id = site_id,
+    ...,
+    call = call
+  )
+
+  check_ms_site(site, call = call)
+
+  site$get_group()
 }

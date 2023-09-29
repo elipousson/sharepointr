@@ -4,6 +4,7 @@
 \alias{sp_site}
 \alias{get_sp_site}
 \alias{set_sp_site}
+\alias{get_sp_site_group}
 \title{Get a SharePoint site or set a default SharePoint site}
 \usage{
 get_sp_site(
@@ -14,17 +15,26 @@ get_sp_site(
   call = caller_env()
 )
 
-set_sp_site(..., overwrite = FALSE, call = caller_env())
+set_sp_site(..., site = NULL, overwrite = FALSE, call = caller_env())
+
+get_sp_site_group(
+  site_url = NULL,
+  site_name = NULL,
+  site_id = NULL,
+  ...,
+  site = NULL,
+  call = caller_env()
+)
 }
 \arguments{
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
-URL will be parsed and a site URL built using the tenant and site name if
-found.}
+URL can also be parsed to build a site URL using the tenant and site name
+included in the URL.}
 
 \item{site_name, site_id}{Site name or ID of the SharePoint site as an
-alternative to the SharePoint site URL. Only one of the three arguments
-should be supplied.}
+alternative to the SharePoint site URL. Exactly one of  \code{site_url},
+\code{site_name}, and \code{site_id} must be supplied.}
 
 \item{...}{
   Arguments passed on to \code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site}}
@@ -41,12 +51,19 @@ running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
+\item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
+\code{site_name}, and \code{site_id} are ignored.}
+
 \item{overwrite}{If \code{TRUE}, replace the existing option for
-\code{sharepointr.default_site}. If \code{FALSE} and the option is a \code{ms_site}
-object, return an error.}
+\code{sharepointr.default_site}. Error if \code{FALSE} and the option is a \code{ms_site}
+object.}
 }
 \description{
 \code{\link[=get_sp_site]{get_sp_site()}} is a wrapper for \code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}} and
 returns a \code{ms_site} object. \code{\link[=set_sp_site]{set_sp_site()}} allows you to set a default
-SharePoint site for use by other functions.
+SharePoint site for use by other functions. \code{\link[=get_sp_site_group]{get_sp_site_group()}} gets the
+group associated with an individual site using the \code{get_group} method.
+}
+\seealso{
+\link[Microsoft365R:ms_site]{Microsoft365R::ms_site}
 }

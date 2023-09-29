@@ -3,31 +3,39 @@
 \name{sp_tasks}
 \alias{sp_tasks}
 \alias{list_sp_tasks}
+\alias{get_sp_task}
 \title{Get a SharePoint task or list tasks from a planner}
 \usage{
+get_sp_task(
+  task_title = NULL,
+  task_id = NULL,
+  ...,
+  plan_title = NULL,
+  plan_id = NULL,
+  plan = NULL,
+  as_data_frame = TRUE,
+  call = caller_env()
+)
+
 list_sp_tasks(
   plan_title = NULL,
   plan_id = NULL,
   ...,
   filter = NULL,
   n = NULL,
-  site = NULL,
+  plan = NULL,
   as_data_frame = TRUE,
   call = caller_env()
 )
 }
 \arguments{
-\item{plan_title, plan_id}{Planner title or ID. Exactly one of the two
-arguments must be supplied.}
+\item{task_title, task_id}{Planner task title and id. Exactly one of
+\code{task_title} and \code{task_id} must be supplied.}
 
 \item{...}{Additional arguments passed to \code{\link[=get_sp_site_group]{get_sp_site_group()}}.}
 
-\item{filter}{Filter for tasks}
-
-\item{n}{Number of tasks to return.}
-
-\item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
-\code{site_name}, and \code{site_id} are ignored.}
+\item{plan_title, plan_id}{Planner title or ID. Exactly one of the two
+arguments must be supplied.}
 
 \item{as_data_frame}{If \code{TRUE} (default), return a data frame with the plan
 tite, id, creation date/time, and owner ID with a list column named
@@ -38,14 +46,19 @@ tite, id, creation date/time, and owner ID with a list column named
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
+
+\item{filter}{Filter for tasks}
+
+\item{n}{Number of tasks to return.}
 }
 \value{
 For \code{\link[=list_sp_tasks]{list_sp_tasks()}}, a list of \code{ms_plan_task} class objects or a
 data frame with a list column named "ms_plan_task".
 }
 \description{
+\code{\link[=get_sp_task]{get_sp_task()}} gets an individual planner task using the \code{get_task} method.
 \code{\link[=list_sp_tasks]{list_sp_tasks()}} lists the tasks for a specified plan using the \code{list_tasks}
-method.
+method. Both default to returning a data frame.
 }
 \seealso{
 \link[Microsoft365R:ms_plan_task]{Microsoft365R::ms_plan_task}

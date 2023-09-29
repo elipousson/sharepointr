@@ -97,6 +97,11 @@ get_sp_site_group <- function(site_url = NULL,
                               ...,
                               site = NULL,
                               call = caller_env()) {
+  if (is_url(site)) {
+    site_url <- site
+    site <- NULL
+  }
+
   site <- site %||% get_sp_site(
     site_url = site_url,
     site_name = site_name,

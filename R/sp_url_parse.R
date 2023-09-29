@@ -24,7 +24,7 @@
 #' SharePoint folder URL:
 #'
 #' https://\[tenant\].sharepoint.com/:\[url type\]:/\[permissions\]/sites/\[site
-#' name\]/[drive name (with possible "Shared" prefix)]/\[folder path\]/\[folder
+#' name\]/\[drive name (with possible "Shared" prefix)\]/\[folder path\]/\[folder
 #' name\]/?\[additional query parameters\]
 #'
 #' SharePoint Planner URL:

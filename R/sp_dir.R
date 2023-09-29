@@ -44,14 +44,18 @@ sp_dir_info <- function(path = NULL,
 #' character vectors.
 #'
 #' @param path A character vector of one or more paths.
+#' @inheritParams get_sp_drive
+#' @inheritParams get_sp_item
+#' @inheritDotParams get_sp_drive
 #' @export
 sp_dir_create <- function(path,
                           ...,
                           drive_name = NULL,
+                          drive_id = NULL,
                           drive = NULL,
                           call = caller_env()) {
   drive <- drive %||%
-    get_sp_drive(drive_name = drive_name, ..., call = call)
+    get_sp_drive(drive_name = drive_name, drive_id = drive_id, ..., call = call)
 
   for (dir in path) {
     drive$create_folder(path = path)

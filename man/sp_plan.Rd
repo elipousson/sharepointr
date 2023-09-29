@@ -25,6 +25,9 @@ list_sp_plans(
 )
 }
 \arguments{
+\item{plan_title, plan_id}{Planner title or ID. Exactly one of the two
+arguments must be supplied.}
+
 \item{...}{Additional arguments passed to \code{\link[=get_sp_site_group]{get_sp_site_group()}}.}
 
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
@@ -39,6 +42,10 @@ included in the URL.}
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
+
+\item{filter}{Filter for plans.}
+
+\item{n}{Number of plans to return.}
 
 \item{as_data_frame}{If \code{TRUE} (default), return a data frame with the plan
 tite, id, creation date/time, and owner ID with a list column named

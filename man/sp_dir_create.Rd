@@ -4,10 +4,46 @@
 \alias{sp_dir_create}
 \title{Create SharePoint folders}
 \usage{
-sp_dir_create(path, ..., drive_name = NULL, drive = NULL, call = caller_env())
+sp_dir_create(
+  path,
+  ...,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  call = caller_env()
+)
 }
 \arguments{
 \item{path}{A character vector of one or more paths.}
+
+\item{...}{
+  Arguments passed on to \code{\link[=get_sp_drive]{get_sp_drive}}
+  \describe{
+    \item{\code{drive_name,drive_id}}{SharePoint Drive name or ID passed to \code{get_drive}
+method for SharePoint site object.}
+    \item{\code{.default_drive_name}}{Drive name string used only if input is a document
+URL and drive name is not part of the URL. Defaults to
+\code{getOption("sharepointr.default_drive_name", "Documents")}}
+    \item{\code{properties}}{If \code{TRUE}, return the drive properties instead of the
+\code{ms_drive} object.}
+    \item{\code{site_url}}{A SharePoint site URL in the format "https://[tenant
+name].sharepoint.com/sites/[site name]". Any SharePoint item or document
+URL can also be parsed to build a site URL using the tenant and site name
+included in the URL.}
+    \item{\code{site}}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
+\code{site_name}, and \code{site_id} are ignored.}
+  }}
+
+\item{drive_name, drive_id}{SharePoint Drive name or ID passed to \code{get_drive}
+method for SharePoint site object.}
+
+\item{drive}{A \code{ms_drive} object. If drive is supplied, \code{drive_name},
+\code{site_url}, and any additional parameters passed to \code{...} are ignored.}
+
+\item{call}{The execution environment of a currently
+running function, e.g. \code{caller_env()}. The function will be
+mentioned in error messages as the source of the error. See the
+\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \description{
 \code{\link[=sp_dir_create]{sp_dir_create()}} is a wrapper for the \code{create_folder} method that handles

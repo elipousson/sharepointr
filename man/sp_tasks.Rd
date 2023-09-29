@@ -17,7 +17,14 @@ list_sp_tasks(
 )
 }
 \arguments{
+\item{plan_title, plan_id}{Planner title or ID. Exactly one of the two
+arguments must be supplied.}
+
 \item{...}{Additional arguments passed to \code{\link[=get_sp_site_group]{get_sp_site_group()}}.}
+
+\item{filter}{Filter for tasks}
+
+\item{n}{Number of tasks to return.}
 
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}

@@ -1,3 +1,16 @@
+#' Shared general definitions for Microsoft Graph API parameters
+#'
+#' @name ms_graph_terms
+#' @param filter A string with [an OData
+#'   expression](https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter)
+#'   apply as a filter to the results. Learn more in the [Microsoft Graph API
+#'   documentation](https://learn.microsoft.com/en-us/graph/filter-query-parameter)
+#'   on using filter query parameters.
+#' @param n Maximum number of lists, plans, tasks, or other items to return.
+#'   Defaults to `NULL` which sets n to `Inf`.
+#' @keywords internal
+NULL
+
 #' Get a SharePoint list, list items, or a list of SharePoint lists
 #'
 #' [get_sp_list()] is a wrapper for the `get_list` and `list_items` methods.
@@ -5,7 +18,7 @@
 #' used by [get_sp_item()]. [list_sp_lists()] returns all lists for a SharePoint
 #' site or drive as a list or data frame.
 #'
-#' @inheritDotParams get_sp_drive
+#' @inheritDotParams get_sp_drive -properties
 #' @inheritParams get_sp_drive
 #' @inheritParams get_sp_item
 #' @seealso
@@ -24,6 +37,8 @@ NULL
 #'   "ms_list" column. [get_sp_list()] returns a 1 row data frame and
 #'   [list_sp_lists()] returns a data frame with n rows or all lists available
 #'   for the SharePoint site or drive.
+#' @returns A data frame `as_data_frame = TRUE` or a `ms_list` object (or list
+#'   of `ms_list` objects) if `FALSE`.
 #' @export
 get_sp_list <- function(list_name = NULL,
                         list_id = NULL,
@@ -73,6 +88,7 @@ get_sp_list <- function(list_name = NULL,
       drive_name = drive_name,
       drive_id = drive_id,
       ...,
+      properties = FALSE,
       site_url = site_url,
       call = call
     )
@@ -115,8 +131,7 @@ get_sp_list <- function(list_name = NULL,
 
 #' @rdname sp_list
 #' @name list_sp_lists
-#' @param filter Filter for lists.
-#' @param n Number of lists to return.
+#' @inheritParams ms_graph_terms
 #' @export
 list_sp_lists <- function(site_url = NULL,
                           filter = NULL,
@@ -142,6 +157,7 @@ list_sp_lists <- function(site_url = NULL,
       drive_name = drive_name,
       drive_id = drive_id,
       ...,
+      properties = FALSE,
       site_url = site_url,
       call = call
     )

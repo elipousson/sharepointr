@@ -47,9 +47,12 @@ running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
-\item{filter}{Filter for tasks}
+\item{filter}{A string with \href{https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter}{an OData expression}
+apply as a filter to the results. Learn more in the \href{https://learn.microsoft.com/en-us/graph/filter-query-parameter}{Microsoft Graph API documentation}
+on using filter query parameters.}
 
-\item{n}{Number of tasks to return.}
+\item{n}{Maximum number of lists, plans, tasks, or other items to return.
+Defaults to \code{NULL} which sets n to \code{Inf}.}
 }
 \value{
 For \code{\link[=list_sp_tasks]{list_sp_tasks()}}, a list of \code{ms_plan_task} class objects or a

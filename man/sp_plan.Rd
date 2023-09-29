@@ -43,9 +43,12 @@ running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
-\item{filter}{Filter for plans.}
+\item{filter}{A string with \href{https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter}{an OData expression}
+apply as a filter to the results. Learn more in the \href{https://learn.microsoft.com/en-us/graph/filter-query-parameter}{Microsoft Graph API documentation}
+on using filter query parameters.}
 
-\item{n}{Number of plans to return.}
+\item{n}{Maximum number of lists, plans, tasks, or other items to return.
+Defaults to \code{NULL} which sets n to \code{Inf}.}
 
 \item{as_data_frame}{If \code{TRUE} (default), return a data frame with the plan
 tite, id, creation date/time, and owner ID with a list column named

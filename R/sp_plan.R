@@ -49,8 +49,7 @@ get_sp_plan <- function(plan_title = NULL,
 #'   tite, id, creation date/time, and owner ID with a list column named
 #'   "ms_plan" containing `ms_plan` objects. If `FALSE`, return a list of
 #'   `ms_plan` objects.
-#' @param filter Filter for plans.
-#' @param n Number of plans to return.
+#' @inheritParams ms_graph_terms
 #' @returns For [list_sp_plans()], A list of `ms_plan` class objects or a data
 #'   frame with a list column named "ms_plan".
 #' @export
@@ -127,8 +126,7 @@ get_sp_task <- function(task_title = NULL,
 #' @name list_sp_tasks
 #' @inheritParams Microsoft365R::ms_plan_task
 #' @inheritParams get_sp_plan
-#' @param filter Filter for tasks
-#' @param n Number of tasks to return.
+#' @inheritParams ms_graph_terms
 #' @returns For [list_sp_tasks()], a list of `ms_plan_task` class objects or a
 #'   data frame with a list column named "ms_plan_task".
 #' @export

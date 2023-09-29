@@ -13,7 +13,6 @@ get_sp_item(
   drive_id = NULL,
   drive = NULL,
   site_url = NULL,
-  .default_drive_name = getOption("sharepointr.default_drive_name", "Documents"),
   properties = FALSE,
   call = caller_env()
 )
@@ -26,7 +25,6 @@ get_sp_item_properties(
   drive_name = NULL,
   drive_id = NULL,
   site_url = NULL,
-  .default_drive_name = getOption("sharepointr.default_drive_name", "Documents"),
   call = caller_env()
 )
 }
@@ -46,6 +44,9 @@ is a document URL, the \code{.default_drive_name} argument is used as the
   \describe{
     \item{\code{drive_name,drive_id}}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
+    \item{\code{.default_drive_name}}{Drive name string used only if input is a document
+URL and drive name is not part of the URL. Defaults to
+\code{getOption("sharepointr.default_drive_name", "Documents")}}
     \item{\code{site}}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
   }}
@@ -59,10 +60,6 @@ method for SharePoint site object.}
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL can also be parsed to build a site URL using the tenant and site name
 included in the URL.}
-
-\item{.default_drive_name}{Drive name string used only if input is a document
-URL and drive name is not part of the URL. Defaults to
-\code{getOption("sharepointr.default_drive_name", "Documents")}}
 
 \item{properties}{If \code{TRUE}, use \code{get_item_properties} method and return item
 properties instead of the item.}

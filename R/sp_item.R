@@ -13,7 +13,7 @@
 #'   `drive_name` and the `item_id` is extracted from the URL.
 #' @param item_id A SharePoint item ID passed to the `itemid` parameter of the
 #'   `get_item` method for `ms_drive` objects.
-#' @inheritDotParams get_sp_drive
+#' @inheritDotParams get_sp_drive -properties
 #' @param drive_name,drive_id SharePoint drive name or ID.
 #' @param drive A `ms_drive` object. If drive is supplied, `drive_name`,
 #'   `site_url`, and any additional parameters passed to `...` are ignored.
@@ -29,10 +29,6 @@ get_sp_item <- function(path = NULL,
                         drive_id = NULL,
                         drive = NULL,
                         site_url = NULL,
-                        .default_drive_name = getOption(
-                          "sharepointr.default_drive_name",
-                          "Documents"
-                        ),
                         properties = FALSE,
                         call = caller_env()) {
   if (is_url(path)) {
@@ -59,7 +55,7 @@ get_sp_item <- function(path = NULL,
     drive_name = drive_name,
     drive_id = drive_id,
     ...,
-    .default_drive_name = .default_drive_name,
+    properties = FALSE,
     site_url = site_url,
     call = call
   )
@@ -89,10 +85,6 @@ get_sp_item_properties <- function(path = NULL,
                                    drive_name = NULL,
                                    drive_id = NULL,
                                    site_url = NULL,
-                                   .default_drive_name = getOption(
-                                     "sharepointr.default_drive_name",
-                                     "Documents"
-                                   ),
                                    call = caller_env()) {
   get_sp_item(
     path = path,
@@ -102,7 +94,6 @@ get_sp_item_properties <- function(path = NULL,
     drive_name = drive_name,
     drive_id = drive_id,
     site_url = site_url,
-    .default_drive_name = .default_drive_name,
     properties = TRUE,
     call = call
   )

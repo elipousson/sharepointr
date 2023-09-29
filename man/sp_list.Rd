@@ -45,8 +45,6 @@ method for SharePoint site object.}
     \item{\code{.default_drive_name}}{Drive name string used only if input is a document
 URL and drive name is not part of the URL. Defaults to
 \code{getOption("sharepointr.default_drive_name", "Documents")}}
-    \item{\code{properties}}{If \code{TRUE}, return the drive properties instead of the
-\code{ms_drive} object.}
   }}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
@@ -77,9 +75,16 @@ running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
-\item{filter}{Filter for lists.}
+\item{filter}{A string with \href{https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter}{an OData expression}
+apply as a filter to the results. Learn more in the \href{https://learn.microsoft.com/en-us/graph/filter-query-parameter}{Microsoft Graph API documentation}
+on using filter query parameters.}
 
-\item{n}{Number of lists to return.}
+\item{n}{Maximum number of lists, plans, tasks, or other items to return.
+Defaults to \code{NULL} which sets n to \code{Inf}.}
+}
+\value{
+A data frame \code{as_data_frame = TRUE} or a \code{ms_list} object (or list
+of \code{ms_list} objects) if \code{FALSE}.
 }
 \description{
 \code{\link[=get_sp_list]{get_sp_list()}} is a wrapper for the \code{get_list} and \code{list_items} methods.

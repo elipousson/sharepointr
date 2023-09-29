@@ -150,7 +150,7 @@ ms_obj_list_as_data_frame <- function(ms_obj_list,
 
       df <- set_names(df, nm = names(c(string_props, list_props)))
 
-      df[[obj_col]] <- list(x)
+      df[[obj_col]] <- list(obj)
 
       df
     }

@@ -126,6 +126,7 @@ list_replace_empty <- function(x, replace = NULL) {
 #' @noRd
 ms_obj_list_as_data_frame <- function(ms_obj_list,
                                       obj_col = "ms_plan",
+                                      keep_list_cols = NULL,
                                       .name_repair = "universal_quiet",
                                       .error_call = caller_env()) {
   check_installed("vctrs", call = .error_call)
@@ -136,6 +137,7 @@ ms_obj_list_as_data_frame <- function(ms_obj_list,
       ms_obj_as_data_frame(
         obj,
         obj_col = obj_col,
+        keep_list_cols = keep_list_cols,
         .name_repair = .name_repair,
         .error_call = .error_call
       )
@@ -153,29 +155,38 @@ ms_obj_list_as_data_frame <- function(ms_obj_list,
 ms_obj_as_data_frame <- function(ms_obj,
                                  obj_col = "ms_plan",
                                  recursive = FALSE,
+                                 keep_list_cols = NULL,
                                  .name_repair = "universal_quiet",
                                  .error_call = caller_env()) {
   properties <- ms_obj$properties
 
   check_installed("vctrs", call = .error_call)
 
-  sizes <- vapply(properties, vctrs::vec_size, NA_integer_)
-  string_props <- properties[sizes == 1]
+  sizes <- vctrs::list_sizes(properties)
+  len1_props <- properties[sizes == 1]
   list_props <- properties[sizes != 1]
 
   df <- vctrs::vec_rbind(
     c(
-      unlist(string_props, recursive = recursive, use.names = FALSE),
+      unlist(len1_props, recursive = recursive, use.names = FALSE),
       list_props
     ),
     .name_repair = .name_repair,
     .error_call = .error_call
   )
 
-  df <- set_names(df, nm = names(c(string_props, list_props)))
+  df <- set_names(df, nm = names(c(len1_props, list_props)))
 
+  # Keep any supplied columns that need to stay as list columns
+  # FIXME: This is only need for the "createdBy" and "lastModifiedBy" columns
+  # from
+  if (!is.null(keep_list_cols)) {
+    len1_props <- len1_props[!(names(len1_props) %in% keep_list_cols)]
+  }
+
+  # Unlist select columns to create vector, not list columns
   # FIXME: Must be a better way to do this
-  for (nm in names(string_props)) {
+  for (nm in names(len1_props)) {
     df[[nm]] <- unlist(df[[nm]])
   }
 

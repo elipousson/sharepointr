@@ -27,6 +27,7 @@ Suggests:
     rmarkdown,
     sf,
     testthat (>= 3.0.0),
+    vctrs,
     withr
 VignetteBuilder: 
     knitr

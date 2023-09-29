@@ -128,7 +128,7 @@ ms_obj_list_as_data_frame <- function(ms_obj_list,
                                       obj_col = "ms_plan",
                                       .name_repair = "universal_quiet",
                                       .error_call = caller_env()) {
-  check_installed("vctrs", call = call)
+  check_installed("vctrs", call = .error_call)
 
   ms_obj_list <- lapply(
     ms_obj_list,

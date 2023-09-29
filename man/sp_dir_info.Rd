@@ -2,11 +2,26 @@
 % Please edit documentation in R/sp_dir.R
 \name{sp_dir_info}
 \alias{sp_dir_info}
+\alias{sp_dir_ls}
 \title{List SharePoint files and folders}
 \usage{
 sp_dir_info(
   path = NULL,
   ...,
+  info = "partial",
+  full_names = TRUE,
+  pagesize = 1000,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  call = caller_env()
+)
+
+sp_dir_ls(
+  path = NULL,
+  ...,
+  full_names = TRUE,
+  pagesize = 1000,
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
@@ -31,6 +46,14 @@ included in the URL.}
 \code{site_name}, and \code{site_id} are ignored.}
   }}
 
+\item{info}{The information to return: "partial", "name" or "all". If
+"partial", a data frame is returned containing the name, size, ID and
+whether the item is a file or folder. If "all", a data frame is returned containing all the
+properties for each item (this can be large).}
+
+\item{pagesize}{Maximum number of items to return. Defaults to 1000. Decrease
+if you are experiencing timeouts.}
+
 \item{drive_name, drive_id}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
 
@@ -41,6 +64,9 @@ method for SharePoint site object.}
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
+
+\item{full_name}{If \code{TRUE} (default), return the full file path as the name
+for each item.}
 }
 \description{
 \code{\link[=sp_dir_info]{sp_dir_info()}} is a wrapper for the \code{list_files} method.

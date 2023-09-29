@@ -39,7 +39,7 @@ get_sp_drive <- function(drive_name = NULL,
     return(getOption("sharepointr.default_drive"))
   }
 
-  if (is_sp_url(drive_name)) {
+  if (!is.null(drive_name) && is_sp_url(drive_name)) {
     url <- drive_name
     drive_name <- NULL
 

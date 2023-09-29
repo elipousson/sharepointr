@@ -22,9 +22,6 @@
     <loc>https://elipousson.github.io/sharepointr/reference/get_sp_item.html</loc>
   </url>
   <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/get_sp_list.html</loc>
-  </url>
-  <url>
     <loc>https://elipousson.github.io/sharepointr/reference/index.html</loc>
   </url>
   <url>
@@ -41,6 +38,9 @@
   </url>
   <url>
     <loc>https://elipousson.github.io/sharepointr/reference/sp_drive.html</loc>
+  </url>
+  <url>
+    <loc>https://elipousson.github.io/sharepointr/reference/sp_list.html</loc>
   </url>
   <url>
     <loc>https://elipousson.github.io/sharepointr/reference/sp_plan.html</loc>

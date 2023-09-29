@@ -159,7 +159,7 @@ download_sp_item <- function(path,
     )
   }
 
-  check_ms_drive_item(item, call = call)
+  check_ms(item, "ms_drive_item", call = call)
 
   # FIXME: Take a closer look at why this is needed
   if ((new_path == "") || is.null(new_path)) {

@@ -15,7 +15,7 @@ check_ms <- function(x,
                      allow_null = FALSE,
                      arg = caller_arg(x),
                      call = caller_env()) {
-  if (inherits(x, what)) {
+  if (inherits_all(x, c(what, "ms_object"))) {
     return(invisible(NULL))
   }
 
@@ -54,22 +54,6 @@ check_ms_drive <- function(x,
   check_ms(
     x,
     what = "ms_drive",
-    ...,
-    allow_null = allow_null,
-    arg = arg,
-    call = call
-  )
-}
-
-#' @noRd
-check_ms_drive_item <- function(x,
-                                ...,
-                                allow_null = FALSE,
-                                arg = caller_arg(x),
-                                call = caller_env()) {
-  check_ms(
-    x,
-    what = "ms_drive_item",
     ...,
     allow_null = allow_null,
     arg = arg,

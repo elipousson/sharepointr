@@ -27,6 +27,11 @@
 #' name\]/[drive name (with possible "Shared" prefix)]/\[folder path\]/\[folder
 #' name\]/?\[additional query parameters\]
 #'
+#' SharePoint Planner URL:
+#'
+#' https://tasks.office.com/\[tenant\].onmicrosoft.com/en-US/Home/Planner/#/plantaskboard?groupId=\[Group
+#' ID\]&planId=\[Plan ID\]
+#'
 #' @keywords internal
 #' @export
 #' @importFrom httr2 url_parse

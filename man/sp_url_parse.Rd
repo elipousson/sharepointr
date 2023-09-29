@@ -56,5 +56,10 @@ SharePoint folder URL:
 https://[tenant].sharepoint.com/:[url type]:/[permissions]/sites/[site
 name]/\link{drive name (with possible "Shared" prefix)}/[folder path]/[folder
 name]/?[additional query parameters]
+
+SharePoint Planner URL:
+
+https://tasks.office.com/[tenant].onmicrosoft.com/en-US/Home/Planner/#/plantaskboard?groupId=[Group
+ID]&planId=[Plan ID]
 }
 \keyword{internal}

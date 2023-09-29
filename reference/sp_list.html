@@ -102,10 +102,6 @@ method for SharePoint site object.</p></dd>
 URL and drive name is not part of the URL. Defaults to
 <code>getOption("sharepointr.default_drive_name", "Documents")</code></p></dd>
 
-    <dt><code>properties</code></dt>
-<dd><p>If <code>TRUE</code>, return the drive properties instead of the
-<code>ms_drive</code> object.</p></dd>
-
   
 </dl></dd>
 
@@ -153,13 +149,23 @@ mentioned in error messages as the source of the error. See the
 
 
 <dt>filter</dt>
-<dd><p>Filter for lists.</p></dd>
+<dd><p>A string with <a href="https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter" class="external-link">an OData expression</a>
+apply as a filter to the results. Learn more in the <a href="https://learn.microsoft.com/en-us/graph/filter-query-parameter" class="external-link">Microsoft Graph API documentation</a>
+on using filter query parameters.</p></dd>
 
 
 <dt>n</dt>
-<dd><p>Number of lists to return.</p></dd>
+<dd><p>Maximum number of lists, plans, tasks, or other items to return.
+Defaults to <code>NULL</code> which sets n to <code>Inf</code>.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
+
+<p>A data frame <code>as_data_frame = TRUE</code> or a <code>ms_list</code> object (or list
+of <code>ms_list</code> objects) if <code>FALSE</code>.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index">

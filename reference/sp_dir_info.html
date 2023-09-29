@@ -51,6 +51,20 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sp_dir_info</span><span class="op">(</span></span>
 <span>  path <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
+<span>  info <span class="op">=</span> <span class="st">"partial"</span>,</span>
+<span>  full_names <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  pagesize <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">sp_dir_ls</span><span class="op">(</span></span>
+<span>  path <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  full_names <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  pagesize <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -85,6 +99,18 @@ included in the URL.</p></dd>
 </dl></dd>
 
 
+<dt>info</dt>
+<dd><p>The information to return: "partial", "name" or "all". If
+"partial", a data frame is returned containing the name, size, ID and
+whether the item is a file or folder. If "all", a data frame is returned containing all the
+properties for each item (this can be large).</p></dd>
+
+
+<dt>pagesize</dt>
+<dd><p>Maximum number of items to return. Defaults to 1000. Decrease
+if you are experiencing timeouts.</p></dd>
+
+
 <dt>drive_name, drive_id</dt>
 <dd><p>SharePoint Drive name or ID passed to <code>get_drive</code>
 method for SharePoint site object.</p></dd>
@@ -100,6 +126,11 @@ method for SharePoint site object.</p></dd>
 running function, e.g. <code>caller_env()</code>. The function will be
 mentioned in error messages as the source of the error. See the
 <code>call</code> argument of <code><a href="https://rlang.r-lib.org/reference/abort.html" class="external-link">abort()</a></code> for more information.</p></dd>
+
+
+<dt>full_name</dt>
+<dd><p>If <code>TRUE</code> (default), return the full file path as the name
+for each item.</p></dd>
 
 </dl></div>
 

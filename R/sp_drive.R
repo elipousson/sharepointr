@@ -7,6 +7,7 @@
 #' other functions.
 #'
 #' @name sp_drive
+#' @seealso [Microsoft365R::ms_drive]
 NULL
 
 #' @rdname sp_drive
@@ -17,7 +18,6 @@ NULL
 #' @param ... For [get_sp_drive()], additional parameters passed to
 #'   [get_sp_site()]. For [set_sp_drive()], parameters passed to
 #'   [get_sp_drive()].
-#' @param site A `ms_site` object. If site is supplied, `site_url` is ignored.
 #' @param .default_drive_name Drive name string used only if input is a document
 #'   URL and drive name is not part of the URL. Defaults to
 #'   `getOption("sharepointr.default_drive_name", "Documents")`
@@ -56,13 +56,7 @@ get_sp_drive <- function(drive_name = NULL,
   site <- site %||% get_sp_site(site_url, ...)
 
   check_ms_site(site, call = call)
-
-  if (!is_string(drive_name) && !is_string(drive_id)) {
-    cli_abort(
-      "A {.arg drive_name} or {.arg drive_id} string must be supplied.",
-      call = call
-    )
-  }
+  check_exclusive_strings(drive_name, drive_id, call = call)
 
   drive <- site$get_drive(drive_name = drive_name, drive_id = drive_id)
 

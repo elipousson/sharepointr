@@ -38,10 +38,11 @@ method for SharePoint site object.}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
-URL will be parsed and a site URL built using the tenant and site name if
-found.}
+URL can also be parsed to build a site URL using the tenant and site name
+included in the URL.}
 
-\item{site}{A \code{ms_site} object. If site is supplied, \code{site_url} is ignored.}
+\item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
+\code{site_name}, and \code{site_id} are ignored.}
 
 \item{.default_drive_name}{Drive name string used only if input is a document
 URL and drive name is not part of the URL. Defaults to
@@ -60,4 +61,10 @@ mentioned in error messages as the source of the error. See the
 \code{\link[=get_sp_list]{get_sp_list()}} is a wrapper for the \code{get_list} and \code{list_items} methods.
 This function is still under development and does not support the URL parsing
 used by \code{\link[=get_sp_item]{get_sp_item()}}.
+}
+\seealso{
+\itemize{
+\item \link[Microsoft365R:ms_list]{Microsoft365R::ms_list}
+\item \link[Microsoft365R:ms_list_item]{Microsoft365R::ms_list_item}
+}
 }

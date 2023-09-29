@@ -20,6 +20,7 @@
 #' @param properties If `TRUE`, use `get_item_properties` method and return item
 #'   properties instead of the item.
 #' @inheritParams get_sp_drive
+#' @seealso [Microsoft365R::ms_drive_item]
 #' @export
 get_sp_item <- function(path = NULL,
                         item_id = NULL,
@@ -35,12 +36,13 @@ get_sp_item <- function(path = NULL,
                         properties = FALSE,
                         call = caller_env()) {
   if (is_url(path)) {
+    url <- path
+    path <- NULL
+
     sp_url_parts <- sp_url_parse(
-      url = path,
+      url = url,
       call = call
     )
-
-    path <- NULL
 
     drive_name <- drive_name %||% sp_url_parts[["drive_name"]]
 
@@ -63,13 +65,7 @@ get_sp_item <- function(path = NULL,
   )
 
   check_ms_drive(drive, call = call)
-
-  if (!is_string(path) && !is_string(item_id)) {
-    cli_abort(
-      "A {.arg path} or {.arg item_id} string must be supplied.",
-      call = call
-    )
-  }
+  check_exclusive_strings(path, item_id, call = call)
 
   if (properties) {
     item_properties <- drive$get_item_properties(
@@ -131,10 +127,14 @@ get_sp_item_properties <- function(path = NULL,
 #' @inheritParams get_sp_item
 #' @param dest,overwrite,recursive,parallel Parameters passed to `download`
 #'   method for `ms_drive_item` object.
+#' @param item A `ms_drive_item` class object.
+#' @returns Invisibly returns the input dest or the dest parsed from the input
+#'   path or item.
 #' @export
 download_sp_item <- function(path,
                              new_path = "",
                              ...,
+                             item = NULL,
                              drive_name = NULL,
                              drive_id = NULL,
                              drive = NULL,
@@ -144,28 +144,28 @@ download_sp_item <- function(path,
                              recursive = FALSE,
                              parallel = FALSE,
                              call = caller_env()) {
-  cli::cli_progress_step(
-    "Getting item from SharePoint"
-  )
+  if (!is.null(item)) {
+    cli::cli_progress_step(
+      "Getting item from SharePoint"
+    )
 
-  item <- get_sp_item(
-    path = path,
-    drive_name = drive_name,
-    drive_id = drive_id,
-    site_url = site_url,
-    ...,
-    call = call
-  )
+    item <- get_sp_item(
+      path = path,
+      drive_name = drive_name,
+      drive_id = drive_id,
+      site_url = site_url,
+      ...,
+      call = call
+    )
+  }
 
   check_ms_drive_item(item, call = call)
 
   # FIXME: Take a closer look at why this is needed
   if ((new_path == "") || is.null(new_path)) {
-    dest <- dest %||%
-      item$properties$name
+    dest <- dest %||% item$properties$name
   } else {
-    dest <- dest %||%
-      sp_file_dest(file = path, path = new_path)
+    dest <- dest %||% sp_file_dest(file = path, path = new_path)
   }
 
   check_string(dest, call = call)

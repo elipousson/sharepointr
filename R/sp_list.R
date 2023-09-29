@@ -11,6 +11,9 @@
 #' @param items If `TRUE` (default), use the `list_items` method to return a
 #'   data frame with all items in the specified list. If `FALSE`, return a
 #'   `ms_list` class object.
+#' @seealso
+#' - [Microsoft365R::ms_list]
+#' - [Microsoft365R::ms_list_item]
 #' @export
 get_sp_list <- function(list_name = NULL,
                         list_id = NULL,
@@ -76,12 +79,7 @@ get_sp_list <- function(list_name = NULL,
     check_ms_site(site, call = call)
   }
 
-  if (!is_string(list_name) && !is_string(list_id)) {
-    cli_abort(
-      "A {.arg list_name} or {.arg list_id} string must be supplied.",
-      call = call
-    )
-  }
+  check_exclusive_strings(list_name, list_id, call = call)
 
   if (site_list) {
     sp_list <- site$get_list(list_name = list_name, list_id = list_id)

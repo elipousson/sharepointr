@@ -9,6 +9,7 @@ download_sp_item(
   path,
   new_path = "",
   ...,
+  item = NULL,
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
@@ -34,6 +35,8 @@ supplied.}
 \code{\link[=get_sp_site]{get_sp_site()}}. For \code{\link[=set_sp_drive]{set_sp_drive()}}, parameters passed to
 \code{\link[=get_sp_drive]{get_sp_drive()}}.}
 
+\item{item}{A \code{ms_drive_item} class object.}
+
 \item{drive_name, drive_id}{SharePoint drive name or ID.}
 
 \item{drive}{A \code{ms_drive} object. If drive is supplied, \code{drive_name},
@@ -41,8 +44,8 @@ supplied.}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
-URL will be parsed and a site URL built using the tenant and site name if
-found.}
+URL can also be parsed to build a site URL using the tenant and site name
+included in the URL.}
 
 \item{dest, overwrite, recursive, parallel}{Parameters passed to \code{download}
 method for \code{ms_drive_item} object.}
@@ -51,6 +54,10 @@ method for \code{ms_drive_item} object.}
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
+}
+\value{
+Invisibly returns the input dest or the dest parsed from the input
+path or item.
 }
 \description{
 \code{\link[=download_sp_item]{download_sp_item()}} wraps the \code{download} method for SharePoint items making

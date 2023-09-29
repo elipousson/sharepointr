@@ -54,14 +54,15 @@ method for SharePoint site object.}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
-URL will be parsed and a site URL built using the tenant and site name if
-found.}
+URL can also be parsed to build a site URL using the tenant and site name
+included in the URL.}
 
 \item{site_name, site_id}{Site name or ID of the SharePoint site as an
-alternative to the SharePoint site URL. Only one of the three arguments
-should be supplied.}
+alternative to the SharePoint site URL. Exactly one of  \code{site_url},
+\code{site_name}, and \code{site_id} must be supplied.}
 
-\item{site}{A \code{ms_site} object. If site is supplied, \code{site_url} is ignored.}
+\item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
+\code{site_name}, and \code{site_id} are ignored.}
 
 \item{blocksize, recursive, parallel}{Additional parameters passed to
 \code{upload_folder} or \code{upload_file} method for \code{ms_drive} objects.}

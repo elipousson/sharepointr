@@ -22,14 +22,15 @@ If \code{NULL}, path is set to default "/".}
   \describe{
     \item{\code{drive_name,drive_id}}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
-    \item{\code{site}}{A \code{ms_site} object. If site is supplied, \code{site_url} is ignored.}
     \item{\code{.default_drive_name}}{Drive name string used only if input is a document
 URL and drive name is not part of the URL. Defaults to
 \code{getOption("sharepointr.default_drive_name", "Documents")}}
     \item{\code{site_url}}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
-URL will be parsed and a site URL built using the tenant and site name if
-found.}
+URL can also be parsed to build a site URL using the tenant and site name
+included in the URL.}
+    \item{\code{site}}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
+\code{site_name}, and \code{site_id} are ignored.}
   }}
 
 \item{drive_name, drive_id}{SharePoint Drive name or ID passed to \code{get_drive}

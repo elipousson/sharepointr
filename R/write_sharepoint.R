@@ -111,14 +111,16 @@ upload_sp_item <- function(file = NULL,
                            recursive = FALSE,
                            parallel = FALSE,
                            call = caller_env()) {
-  if (!is_string(file) && !is_string(src)) {
-    cli_abort(
-      "{.arg file} or {.arg src} must be supplied",
-      call = call
-    )
-  }
+  if (!is_string(src)) {
+    if (!is_string(file)) {
+      cli_abort(
+        "One of {.arg file} or {.arg src} must be a string.",
+        call = call
+      )
+    }
 
-  src <- src %||% file
+    src <- file
+  }
 
   if (is_sp_url(dest)) {
     url <- dest
@@ -131,6 +133,8 @@ upload_sp_item <- function(file = NULL,
     drive_name <- url
   }
 
+  check_string(dest, allow_empty = FALSE, call = call)
+
   drive <- drive %||%
     get_sp_drive(
       drive_name = drive_name,
@@ -138,6 +142,8 @@ upload_sp_item <- function(file = NULL,
       ...,
       call = call
     )
+
+  check_ms_drive(drive, call = call)
 
   if (!overwrite) {
     file_list <- sp_dir_info(drive = drive, path = file_path, call = call)
@@ -152,8 +158,6 @@ upload_sp_item <- function(file = NULL,
       )
     }
   }
-
-  check_ms_drive(drive, call = call)
 
   if (dir.exists(src)) {
     cli_progress_step(

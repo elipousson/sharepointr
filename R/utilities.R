@@ -158,7 +158,11 @@ ms_obj_as_data_frame <- function(ms_obj,
                                  keep_list_cols = NULL,
                                  .name_repair = "universal_quiet",
                                  .error_call = caller_env()) {
-  properties <- ms_obj$properties
+  if (has_name(ms_obj, "properties")) {
+    properties <- ms_obj$properties
+  } else {
+    properties <- ms_obj
+  }
 
   check_installed("vctrs", call = .error_call)
 

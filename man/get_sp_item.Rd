@@ -14,6 +14,7 @@ get_sp_item(
   drive = NULL,
   site_url = NULL,
   properties = FALSE,
+  as_data_frame = FALSE,
   call = caller_env()
 )
 
@@ -25,6 +26,7 @@ get_sp_item_properties(
   drive_name = NULL,
   drive_id = NULL,
   site_url = NULL,
+  as_data_frame = FALSE,
   call = caller_env()
 )
 }

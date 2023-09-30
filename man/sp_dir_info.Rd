@@ -20,7 +20,7 @@ sp_dir_info(
 sp_dir_ls(
   path = NULL,
   ...,
-  full_names = TRUE,
+  full_names = FALSE,
   pagesize = 1000,
   drive_name = NULL,
   drive_id = NULL,

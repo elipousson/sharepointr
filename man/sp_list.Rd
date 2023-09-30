@@ -4,7 +4,7 @@
 \alias{sp_list}
 \alias{get_sp_list}
 \alias{list_sp_lists}
-\title{Get a SharePoint list, list items, or a list of SharePoint lists}
+\title{Get a SharePoint list or a list of SharePoint lists}
 \usage{
 get_sp_list(
   list_name = NULL,
@@ -15,7 +15,7 @@ get_sp_list(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  items = TRUE,
+  metadata = FALSE,
   as_data_frame = TRUE,
   call = caller_env()
 )
@@ -23,7 +23,7 @@ get_sp_list(
 list_sp_lists(
   site_url = NULL,
   filter = NULL,
-  n = NULL,
+  n = Inf,
   ...,
   site = NULL,
   drive_name = NULL,
@@ -61,9 +61,9 @@ method for SharePoint site object.}
 \item{drive}{A \code{ms_drive} object. If drive is supplied, \code{drive_name},
 \code{site_url}, and any additional parameters passed to \code{...} are ignored.}
 
-\item{items}{If \code{TRUE} (default), use the \code{list_items} method to return a
-data frame with all items in the specified list. If \code{FALSE}, return a
-\code{ms_list} class object or, if \code{as_data_frame} is \code{TRUE}, a data frame with a "ms_list" column.}
+\item{metadata}{If \code{TRUE}, \code{\link[=get_sp_list]{get_sp_list()}} applies the \code{get_column_info}
+method to the returned SharePoint list and returns a data frame with column
+metadata for the list.}
 
 \item{as_data_frame}{If \code{TRUE} (default), return a data frame with a
 "ms_list" column. \code{\link[=get_sp_list]{get_sp_list()}} returns a 1 row data frame and
@@ -90,7 +90,9 @@ of \code{ms_list} objects) if \code{FALSE}.
 \code{\link[=get_sp_list]{get_sp_list()}} is a wrapper for the \code{get_list} and \code{list_items} methods.
 This function is still under development and does not support the URL parsing
 used by \code{\link[=get_sp_item]{get_sp_item()}}. \code{\link[=list_sp_lists]{list_sp_lists()}} returns all lists for a SharePoint
-site or drive as a list or data frame.
+site or drive as a list or data frame. Note, when using \code{filter} with
+\code{\link[=get_sp_list]{get_sp_list()}}, names used in the expression must be prefixed with "fields/"
+to distinguish them from item metadata.
 }
 \seealso{
 \itemize{

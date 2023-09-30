@@ -1,3 +1,43 @@
+#' Get drive or site for list
+#'
+#' @noRd
+get_ms_list_obj <- function(list_name = NULL,
+                            list_id = NULL,
+                            ...,
+                            site_url = NULL,
+                            site = NULL,
+                            drive_name = NULL,
+                            drive_id = NULL,
+                            drive = NULL,
+                            call = caller_env()) {
+  if (!is.null(drive) ||
+    (!is.null(drive_name) && !identical(drive_name, "Lists")) ||
+    !is.null(drive_id)) {
+    drive <- drive %||% get_sp_drive(
+      drive_name = drive_name,
+      drive_id = drive_id,
+      ...,
+      properties = FALSE,
+      site_url = site_url,
+      call = call
+    )
+
+    check_ms_drive(drive, call = call)
+
+    return(drive)
+  }
+
+  site <- site %||% get_sp_site(
+    site_url = site_url,
+    ...,
+    call = call
+  )
+
+  check_ms_site(site, call = call)
+
+  site
+}
+
 #' Shared general definitions for Microsoft Graph API parameters
 #'
 #' @name ms_graph_terms
@@ -11,12 +51,14 @@
 #' @keywords internal
 NULL
 
-#' Get a SharePoint list, list items, or a list of SharePoint lists
+#' Get a SharePoint list or a list of SharePoint lists
 #'
 #' [get_sp_list()] is a wrapper for the `get_list` and `list_items` methods.
 #' This function is still under development and does not support the URL parsing
 #' used by [get_sp_item()]. [list_sp_lists()] returns all lists for a SharePoint
-#' site or drive as a list or data frame.
+#' site or drive as a list or data frame. Note, when using `filter` with
+#' [get_sp_list()], names used in the expression must be prefixed with "fields/"
+#' to distinguish them from item metadata.
 #'
 #' @inheritDotParams get_sp_drive -properties
 #' @inheritParams get_sp_drive
@@ -30,13 +72,13 @@ NULL
 #' @rdname sp_list
 #' @name get_sp_list
 #' @param list_name,list_id SharePoint List name or ID string.
-#' @param items If `TRUE` (default), use the `list_items` method to return a
-#'   data frame with all items in the specified list. If `FALSE`, return a
-#'   `ms_list` class object or, if `as_data_frame` is `TRUE`, a data frame with a "ms_list" column.
 #' @param as_data_frame If `TRUE` (default), return a data frame with a
 #'   "ms_list" column. [get_sp_list()] returns a 1 row data frame and
 #'   [list_sp_lists()] returns a data frame with n rows or all lists available
 #'   for the SharePoint site or drive.
+#' @param metadata If `TRUE`, [get_sp_list()] applies the `get_column_info`
+#'   method to the returned SharePoint list and returns a data frame with column
+#'   metadata for the list.
 #' @returns A data frame `as_data_frame = TRUE` or a `ms_list` object (or list
 #'   of `ms_list` objects) if `FALSE`.
 #' @export
@@ -48,13 +90,9 @@ get_sp_list <- function(list_name = NULL,
                         drive_name = NULL,
                         drive_id = NULL,
                         drive = NULL,
-                        items = TRUE,
+                        metadata = FALSE,
                         as_data_frame = TRUE,
                         call = caller_env()) {
-  cli::cli_progress_step(
-    "Getting list from SharePoint"
-  )
-
   # FIXME: URL parsing is not set up for links to SharePoint lists
   if (is_url(list_name)) {
     url <- list_name
@@ -73,49 +111,31 @@ get_sp_list <- function(list_name = NULL,
     }
 
     list_id <- list_id %||% sp_url_parts[["item_id"]]
-
     site_url <- site_url %||% sp_url_parts[["site_url"]]
   }
 
-  site_list <- TRUE
-
-  if (!is.null(drive) ||
-    (!is.null(drive_name) && !identical(drive_name, "Lists")) ||
-    !is.null(drive_id)) {
-    site_list <- FALSE
-
-    drive <- drive %||% get_sp_drive(
-      drive_name = drive_name,
-      drive_id = drive_id,
-      ...,
-      properties = FALSE,
-      site_url = site_url,
-      call = call
-    )
-
-    check_ms_drive(drive, call = call)
-  } else {
-    site <- site %||% get_sp_site(
-      site_url = site_url,
-      ...,
-      call = call
-    )
-
-    check_ms_site(site, call = call)
-  }
+  ms_list_obj <- get_ms_list_obj(
+    list_name = list_name,
+    list_id = list_id,
+    ...,
+    site_url = site_url,
+    site = site,
+    drive_name = drive_name,
+    drive_id = drive_id,
+    drive = drive,
+    call = call
+  )
 
   check_exclusive_strings(list_name, list_id, call = call)
 
-  if (site_list) {
-    sp_list <- site$get_list(list_name = list_name, list_id = list_id)
-  } else {
-    sp_list <- drive$get_list(list_name = list_name, list_id = list_id)
-  }
+  cli::cli_progress_step(
+    "Getting list from SharePoint"
+  )
 
-  if (items) {
-    sp_list_items <- sp_list$list_items()
+  sp_list <- ms_list_obj$get_list(list_name = list_name, list_id = list_id)
 
-    return(sp_list_items)
+  if (metadata) {
+    return(sp_list$get_column_info())
   }
 
   if (!as_data_frame) {
@@ -135,7 +155,7 @@ get_sp_list <- function(list_name = NULL,
 #' @export
 list_sp_lists <- function(site_url = NULL,
                           filter = NULL,
-                          n = NULL,
+                          n = Inf,
                           ...,
                           site = NULL,
                           drive_name = NULL,
@@ -144,40 +164,17 @@ list_sp_lists <- function(site_url = NULL,
                           items = TRUE,
                           as_data_frame = TRUE,
                           call = caller_env()) {
-  # FIXME: This chunk (128-152) is copied from get_sp_list
-  # Put it into a function to avoid duplication
-  site_list <- TRUE
+  ms_list_obj <- get_ms_list_obj(
+    site_url = site_url,
+    ...,
+    site = site,
+    drive_name = drive_name,
+    drive_id = drive_id,
+    drive = drive,
+    call = call
+  )
 
-  if (!is.null(drive) ||
-    (!is.null(drive_name) && !identical(drive_name, "Lists")) ||
-    !is.null(drive_id)) {
-    site_list <- FALSE
-
-    drive <- drive %||% get_sp_drive(
-      drive_name = drive_name,
-      drive_id = drive_id,
-      ...,
-      properties = FALSE,
-      site_url = site_url,
-      call = call
-    )
-
-    check_ms_drive(drive, call = call)
-  } else {
-    site <- site %||% get_sp_site(
-      site_url = site_url,
-      ...,
-      call = call
-    )
-
-    check_ms_site(site, call = call)
-  }
-
-  if (site_list) {
-    sp_lists <- site$get_lists(filter = filter, n = n %||% Inf)
-  } else {
-    sp_lists <- drive$get_lists(filter = filter, n = n %||% Inf)
-  }
+  sp_lists <- ms_list_obj$get_lists(filter = filter, n = n)
 
   if (!as_data_frame) {
     return(sp_lists)

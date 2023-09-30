@@ -30,7 +30,7 @@ sp_dir_info <- function(path = NULL,
   if (!is.null(path) && is_sp_url(path)) {
     sp_url_parts <- sp_url_parse(path, call = call)
     drive_name <- path
-    path <- sp_url_parts[["file_path"]]
+    path <- str_remove_slash(sp_url_parts[["file_path"]], before = TRUE)
   }
 
   drive <- drive %||% get_sp_drive(
@@ -52,7 +52,7 @@ sp_dir_info <- function(path = NULL,
     info = info,
     full_names = full_names,
     pagesize = pagesize
-    )
+  )
 }
 
 #' @rdname sp_dir_info
@@ -60,7 +60,7 @@ sp_dir_info <- function(path = NULL,
 #' @export
 sp_dir_ls <- function(path = NULL,
                       ...,
-                      full_names = TRUE,
+                      full_names = FALSE,
                       pagesize = 1000,
                       drive_name = NULL,
                       drive_id = NULL,

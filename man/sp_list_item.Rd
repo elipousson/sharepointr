@@ -76,9 +76,8 @@ update_sp_list_item(
 \arguments{
 \item{list_name, list_id}{SharePoint List name or ID string.}
 
-\item{...}{For \code{\link[=get_sp_drive]{get_sp_drive()}}, additional parameters passed to
-\code{\link[=get_sp_site]{get_sp_site()}}. For \code{\link[=set_sp_drive]{set_sp_drive()}}, parameters passed to
-\code{\link[=get_sp_drive]{get_sp_drive()}}.}
+\item{...}{Additional parameters passed to
+\code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}} or \code{\link[=get_sp_site]{get_sp_site()}}.}
 
 \item{filter}{A string with \href{https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter}{an OData expression}
 apply as a filter to the results. Learn more in the \href{https://learn.microsoft.com/en-us/graph/filter-query-parameter}{Microsoft Graph API documentation}

@@ -145,6 +145,7 @@ get_sp_item_properties <- function(path = NULL,
 #' @param item A `ms_drive_item` class object.
 #' @returns Invisibly returns the input dest or the dest parsed from the input
 #'   path or item.
+#' @inheritDotParams get_sp_item
 #' @export
 download_sp_item <- function(path,
                              new_path = "",

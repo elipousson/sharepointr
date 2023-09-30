@@ -23,9 +23,13 @@ set_sp_drive(..., overwrite = FALSE, call = caller_env())
 \item{drive_name, drive_id}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
 
-\item{...}{For \code{\link[=get_sp_drive]{get_sp_drive()}}, additional parameters passed to
-\code{\link[=get_sp_site]{get_sp_site()}}. For \code{\link[=set_sp_drive]{set_sp_drive()}}, parameters passed to
-\code{\link[=get_sp_drive]{get_sp_drive()}}.}
+\item{...}{
+  Arguments passed on to \code{\link[=get_sp_site]{get_sp_site}}
+  \describe{
+    \item{\code{site_name,site_id}}{Site name or ID of the SharePoint site as an
+alternative to the SharePoint site URL. Exactly one of  \code{site_url},
+\code{site_name}, and \code{site_id} must be supplied.}
+  }}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
@@ -55,7 +59,8 @@ object, return an error.}
 \code{\link[=get_sp_drive]{get_sp_drive()}} wraps the \code{get_drive} method returns a \code{ms_drive} object.
 
 \code{\link[=set_sp_drive]{set_sp_drive()}} allows you to set a default SharePoint drive for use by
-other functions.
+other functions. Additional parameters in \code{...} are passed to
+\code{\link[=get_sp_drive]{get_sp_drive()}}.
 }
 \seealso{
 \link[Microsoft365R:ms_drive]{Microsoft365R::ms_drive}

@@ -4,7 +4,8 @@
 #' [get_sp_drive()] wraps the `get_drive` method returns a `ms_drive` object.
 #'
 #' [set_sp_drive()] allows you to set a default SharePoint drive for use by
-#' other functions.
+#' other functions. Additional parameters in `...` are passed to
+#' [get_sp_drive()].
 #'
 #' @name sp_drive
 #' @seealso [Microsoft365R::ms_drive]
@@ -15,9 +16,7 @@ NULL
 #' @param drive_name,drive_id SharePoint Drive name or ID passed to `get_drive`
 #'   method for SharePoint site object.
 #' @inheritParams sp_site
-#' @param ... For [get_sp_drive()], additional parameters passed to
-#'   [get_sp_site()]. For [set_sp_drive()], parameters passed to
-#'   [get_sp_drive()].
+#' @inheritDotParams get_sp_site
 #' @param .default_drive_name Drive name string used only if input is a document
 #'   URL and drive name is not part of the URL. Defaults to
 #'   `getOption("sharepointr.default_drive_name", "Documents")`
@@ -53,7 +52,11 @@ get_sp_drive <- function(drive_name = NULL,
     }
   }
 
-  site <- site %||% get_sp_site(site_url, ...)
+  site <- site %||% get_sp_site(
+    site_url = site_url,
+    ...,
+    call = call
+    )
 
   check_ms_site(site, call = call)
   check_exclusive_strings(drive_name, drive_id, call = call)

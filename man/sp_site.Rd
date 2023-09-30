@@ -43,7 +43,6 @@ alternative to the SharePoint site URL. Exactly one of  \code{site_url},
     \item{\code{scopes}}{The Microsoft Graph scopes (permissions) to obtain. It should never be necessary to change these.}
     \item{\code{token}}{An AAD OAuth token object, of class \code{AzureAuth::AzureToken}. If supplied, the \code{tenant}, \code{app}, \code{scopes} and \code{...} arguments will be ignored. See "Authenticating with a token" below.}
     \item{\code{tenant}}{For \code{get_business_onedrive}, \code{get_sharepoint_site} and \code{get_team}, the name of your Azure Active Directory (AAD) tenant. If not supplied, use the value of the \code{CLIMICROSOFT365_TENANT} environment variable, or "common" if that is unset.}
-    \item{\code{site_name,site_url,site_id}}{For \code{get_sharepoint_site}, either the name, web URL or ID of the SharePoint site to retrieve. Supply exactly one of these.}
   }}
 
 \item{call}{The execution environment of a currently

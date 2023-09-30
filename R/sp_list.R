@@ -60,9 +60,9 @@ NULL
 #' [get_sp_list()], names used in the expression must be prefixed with "fields/"
 #' to distinguish them from item metadata.
 #'
-#' @inheritDotParams get_sp_drive -properties
 #' @inheritParams get_sp_drive
 #' @inheritParams get_sp_item
+#' @inheritDotParams get_sp_drive -drive_name -drive_id -properties
 #' @seealso
 #' - [Microsoft365R::ms_list]
 #' - [Microsoft365R::ms_list_item]

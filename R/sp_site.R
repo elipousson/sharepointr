@@ -20,7 +20,7 @@ NULL
 #'   `site_name`, and `site_id` must be supplied.
 #' @param ... Additional parameters passed to
 #'   [Microsoft365R::get_sharepoint_site()] or [get_sp_site()].
-#' @inheritDotParams Microsoft365R::get_sharepoint_site
+#' @inheritDotParams Microsoft365R::get_sharepoint_site -site_url -site_name -site_id
 #' @inheritParams rlang::args_error_context
 #' @export
 #' @importFrom Microsoft365R get_sharepoint_site

@@ -99,9 +99,19 @@ supplied.</p></dd>
 
 
 <dt>...</dt>
-<dd><p>For <code><a href="sp_drive.html">get_sp_drive()</a></code>, additional parameters passed to
-<code><a href="sp_site.html">get_sp_site()</a></code>. For <code><a href="sp_drive.html">set_sp_drive()</a></code>, parameters passed to
-<code><a href="sp_drive.html">get_sp_drive()</a></code>.</p></dd>
+<dd><p>Arguments passed on to <code><a href="get_sp_item.html">get_sp_item</a></code></p><dl><dt><code>item_id</code></dt>
+<dd><p>A SharePoint item ID passed to the <code>itemid</code> parameter of the
+<code>get_item</code> method for <code>ms_drive</code> objects.</p></dd>
+
+    <dt><code>drive_name,drive_id</code></dt>
+<dd><p>SharePoint drive name or ID.</p></dd>
+
+    <dt><code>properties</code></dt>
+<dd><p>If <code>TRUE</code>, use <code>get_item_properties</code> method and return item
+properties instead of the item.</p></dd>
+
+  
+</dl></dd>
 
 
 <dt>item</dt>

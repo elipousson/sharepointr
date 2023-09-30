@@ -30,6 +30,7 @@ get_sp_item <- function(path = NULL,
                         drive = NULL,
                         site_url = NULL,
                         properties = FALSE,
+                        as_data_frame = FALSE,
                         call = caller_env()) {
   if (is_url(path)) {
     url <- path
@@ -69,10 +70,31 @@ get_sp_item <- function(path = NULL,
       itemid = item_id
     )
 
+    if (!as_data_frame) {
+      return(item_properties)
+    }
+
+    item_properties <- ms_obj_as_data_frame(
+      item_properties,
+      # TODO: Check if this is the right name
+      obj_col = "ms_item_properties",
+      keep_list_cols = c("createdBy", "lastModifiedBy")
+    )
+
     return(item_properties)
   }
 
-  drive$get_item(path = path, itemid = item_id)
+  item <- drive$get_item(path = path, itemid = item_id)
+
+  if (!as_data_frame) {
+    return(item)
+  }
+
+  ms_obj_as_data_frame(
+    item,
+    obj_col = "ms_item",
+    keep_list_cols = c("createdBy", "lastModifiedBy")
+    )
 }
 
 #' @rdname get_sp_item
@@ -85,6 +107,7 @@ get_sp_item_properties <- function(path = NULL,
                                    drive_name = NULL,
                                    drive_id = NULL,
                                    site_url = NULL,
+                                   as_data_frame = FALSE,
                                    call = caller_env()) {
   get_sp_item(
     path = path,
@@ -95,6 +118,7 @@ get_sp_item_properties <- function(path = NULL,
     drive_id = drive_id,
     site_url = site_url,
     properties = TRUE,
+    as_data_frame = as_data_frame,
     call = call
   )
 }

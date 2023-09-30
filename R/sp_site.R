@@ -51,6 +51,10 @@ get_sp_site <- function(site_url = NULL,
       "{.arg site_url}, {.arg site_name}, or {.arg site_id} must be supplied.",
       call = call
     )
+  } else {
+    # FIXME: These may give confusing error messages
+    check_exclusive_strings(site_url, site_name, call = call)
+    check_exclusive_strings(site_url, site_id, call = call)
   }
 
   Microsoft365R::get_sharepoint_site(

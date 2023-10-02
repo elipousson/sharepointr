@@ -160,7 +160,7 @@ download_sp_item <- function(path,
                              recursive = FALSE,
                              parallel = FALSE,
                              call = caller_env()) {
-  if (!is.null(item)) {
+  if (is.null(item)) {
     cli::cli_progress_step(
       "Getting item from SharePoint"
     )

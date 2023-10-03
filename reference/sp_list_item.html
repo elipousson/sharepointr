@@ -134,8 +134,20 @@ parameters passed to <code>...</code> are all ignored.</p></dd>
 
 
 <dt>...</dt>
-<dd><p>Additional parameters passed to
-<code><a href="https://rdrr.io/pkg/Microsoft365R/man/client.html" class="external-link">Microsoft365R::get_sharepoint_site()</a></code> or <code><a href="sp_site.html">get_sp_site()</a></code>.</p></dd>
+<dd><p>Arguments passed on to <code><a href="sp_list.html">get_sp_list</a></code></p><dl><dt><code>list_name,list_id</code></dt>
+<dd><p>SharePoint List name or ID string.</p></dd>
+
+    <dt><code>metadata</code></dt>
+<dd><p>If <code>TRUE</code>, <code><a href="sp_list.html">get_sp_list()</a></code> applies the <code>get_column_info</code>
+method to the returned SharePoint list and returns a data frame with column
+metadata for the list.</p></dd>
+
+    <dt><code>drive_name,drive_id</code></dt>
+<dd><p>SharePoint Drive name or ID passed to <code>get_drive</code>
+method for SharePoint site object.</p></dd>
+
+  
+</dl></dd>
 
 
 <dt>filter</dt>

@@ -1,11 +1,11 @@
 #' @noRd
 is_ms_site <- function(x) {
-  inherits(x, "ms_site")
+  inherits_all(x, c("ms_site", "ms_object"))
 }
 
 #' @noRd
 is_ms_drive <- function(x) {
-  inherits(x, "ms_drive")
+  inherits_all(x, c("ms_drive", "ms_object"))
 }
 
 #' @noRd
@@ -20,8 +20,8 @@ check_ms <- function(x,
   }
 
   stop_input_type(
-    x,
-    what,
+    x = x,
+    what = what,
     ...,
     allow_null = allow_null,
     arg = arg,

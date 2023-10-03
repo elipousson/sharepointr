@@ -123,6 +123,40 @@ get_sp_item_properties <- function(path = NULL,
   )
 }
 
+#' Delete SharePoint items
+#'
+#' @name delete_sp_item
+#' @inheritParams get_sp_item
+#' @param confirm If `TRUE`, confirm before deleting item.
+#' @param by_item For business OneDrive or SharePoint document libraries, you
+#'   may need to set `by_item = TRUE` to delete the contents of a folder
+#'   depending on the policies set up by your SharePoint administrator policies.
+#'   Note, that this method can be slow for large folders.
+#' @export
+delete_sp_item <- function(path = NULL,
+                           ...,
+                           item_id = NULL,
+                           drive_name = NULL,
+                           drive_id = NULL,
+                           drive = NULL,
+                           site_url = NULL,
+                           confirm = TRUE,
+                           by_item = FALSE,
+                           call = caller_env()) {
+  item <- item %||% get_sp_item(
+    path = path,
+    item_id = item_id,
+    drive_name = drive_name,
+    drive_id = drive_id,
+    drive = drive,
+    site_url = site_url,
+    ...,
+    call = call
+  )
+
+  item$delete(confirm = confirm, by_item = by_item)
+}
+
 #' Download one or more items from SharePoint to a file or folder
 #'
 #' [download_sp_item()] wraps the `download` method for SharePoint items making

@@ -78,17 +78,12 @@ methods documented in <a href="https://rdrr.io/pkg/Microsoft365R/man/ms_list.htm
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">import_sp_list_items</span><span class="op">(</span></span>
+<span><span class="fu">create_sp_list_items</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  list_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  list_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  filter <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  select <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  all_metadata <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  as_data_frame <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  pagesize <span class="op">=</span> <span class="fl">5000</span>,</span>
 <span>  site_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -100,9 +95,9 @@ methods documented in <a href="https://rdrr.io/pkg/Microsoft365R/man/ms_list.htm
 <span><span class="fu">get_sp_list_item</span><span class="op">(</span></span>
 <span>  <span class="va">id</span>,</span>
 <span>  list_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">...</span>,</span>
-<span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  list_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span>,</span>
 <span>  site_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -114,9 +109,9 @@ methods documented in <a href="https://rdrr.io/pkg/Microsoft365R/man/ms_list.htm
 <span><span class="fu">update_sp_list_item</span><span class="op">(</span></span>
 <span>  <span class="va">id</span>,</span>
 <span>  list_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">...</span>,</span>
-<span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  list_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span>,</span>
 <span>  site_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>

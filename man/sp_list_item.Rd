@@ -76,8 +76,16 @@ update_sp_list_item(
 \code{site_url}, \code{site}, \code{drive_name}, \code{drive_id}, \code{drive}, and any additional
 parameters passed to \code{...} are all ignored.}
 
-\item{...}{Additional parameters passed to
-\code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}} or \code{\link[=get_sp_site]{get_sp_site()}}.}
+\item{...}{
+  Arguments passed on to \code{\link[=get_sp_list]{get_sp_list}}
+  \describe{
+    \item{\code{list_name,list_id}}{SharePoint List name or ID string.}
+    \item{\code{metadata}}{If \code{TRUE}, \code{\link[=get_sp_list]{get_sp_list()}} applies the \code{get_column_info}
+method to the returned SharePoint list and returns a data frame with column
+metadata for the list.}
+    \item{\code{drive_name,drive_id}}{SharePoint Drive name or ID passed to \code{get_drive}
+method for SharePoint site object.}
+  }}
 
 \item{filter}{A string with \href{https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter}{an OData expression}
 apply as a filter to the results. Learn more in the \href{https://learn.microsoft.com/en-us/graph/filter-query-parameter}{Microsoft Graph API documentation}

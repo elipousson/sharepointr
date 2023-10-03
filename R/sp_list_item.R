@@ -11,6 +11,7 @@ NULL
 #' @name list_sp_list_items
 #' @inheritParams ms_graph_terms
 #' @inheritParams get_sp_list
+#' @inheritDotParams get_sp_list -as_data_frame
 #' @param select A character vector of column names to include in the returned
 #'   data frame of list items. If `NULL`, the data frame includes all columns
 #'   from the list.
@@ -42,6 +43,7 @@ list_sp_list_items <- function(list_name = NULL,
   sp_list <- sp_list %||% get_sp_list(
     list_name = list_name,
     list_id = list_id,
+    as_data_frame = FALSE,
     ...,
     site_url = site_url,
     site = site,
@@ -98,6 +100,7 @@ create_sp_list_items <- function(data,
     list_name = list_name,
     list_id = list_id,
     ...,
+    as_data_frame = FALSE,
     site_url = site_url,
     site = site,
     drive_name = drive_name,
@@ -136,6 +139,7 @@ get_sp_list_item <- function(id,
   sp_list <- sp_list %||% get_sp_list(
     list_name = list_name,
     list_id = list_id,
+    as_data_frame = FALSE,
     ...,
     site_url = site_url,
     site = site,
@@ -174,6 +178,7 @@ update_sp_list_item <- function(id,
                                 call = caller_env()) {
   sp_list <- sp_list %||% get_sp_list(
     list_name = list_name,
+    as_data_frame = FALSE,
     list_id = list_id,
     site_url = site_url,
     site = site,

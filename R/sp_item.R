@@ -45,14 +45,12 @@ get_sp_item <- function(path = NULL,
       call = call
     )
 
-    drive_name <- drive_name %||% sp_url_parts[["drive_name"]]
-
     if (is_null(item_id) && is_null(sp_url_parts[["item_id"]])) {
       path <- sp_url_parts[["file_path"]]
     }
 
+    drive_name <- drive_name %||% sp_url_parts[["drive_name"]]
     item_id <- item_id %||% sp_url_parts[["item_id"]]
-
     site_url <- site_url %||% sp_url_parts[["site_url"]]
   }
 
@@ -128,11 +126,26 @@ get_sp_item_properties <- function(path = NULL,
   )
 }
 
-#' Delete SharePoint items
+#' Delete SharePoint items (files and directories)
+#'
+#' [delete_sp_item()] deletes items including files and directories using the `delete` method for . By default
+#' `confirm = TRUE`, which requires the user to respond to a prompt: "Do you
+#' really want to delete the drive item ...? (yes/No/cancel)" to continue.
+#'
+#' @details Trouble-shooting errors
+#'
+#' If you get the error: "The resource you are attempting to access is locked",
+#' you or another user may have the file or a file within the directory open for
+#' editing. Close the file and try deleting the item again.
+#'
+#' If you get the error: "Request was cancelled by event received. If attempting
+#' to delete a non-empty folder, it's possible that it's on hold." set `by_item
+#' = TRUE` and try again.
 #'
 #' @name delete_sp_item
 #' @inheritParams get_sp_item
-#' @param confirm If `TRUE`, confirm before deleting item.
+#' @param confirm If `TRUE`, confirm before deleting item. If `TRUE` and session
+#'   is not interactive, the function will error.
 #' @param by_item For business OneDrive or SharePoint document libraries, you
 #'   may need to set `by_item = TRUE` to delete the contents of a folder
 #'   depending on the policies set up by your SharePoint administrator policies.
@@ -141,6 +154,7 @@ get_sp_item_properties <- function(path = NULL,
 delete_sp_item <- function(path = NULL,
                            ...,
                            item_id = NULL,
+                           item = NULL,
                            drive_name = NULL,
                            drive_id = NULL,
                            drive = NULL,
@@ -159,7 +173,24 @@ delete_sp_item <- function(path = NULL,
     call = call
   )
 
-  item$delete(confirm = confirm, by_item = by_item)
+  check_ms(item, "ms_drive_item", call = call)
+
+  if (!is_interactive() && is_true(confirm)) {
+    cli_abort(
+      "{.arg confirm} must be {.code FALSE} if the session is not interactive.",
+      call = call
+    )
+  }
+
+  try_fetch(
+    item$delete(confirm = confirm, by_item = by_item),
+    error = function(cnd) {
+      cli_abort(
+        cnd$message,
+        call = call
+      )
+    }
+  )
 }
 
 #' Download one or more items from SharePoint to a file or folder
@@ -169,7 +200,7 @@ delete_sp_item <- function(path = NULL,
 #' default valye for `path` is `""` so, by default, SharePoint items are
 #' downloaded to the current working directory. Set `overwrite = TRUE` to allow
 #' this function to overwrite an existing file. [download_sp_file()] is
-#' identical except for the name of the path paramter (which is file instead of
+#' identical except for the name of the path parameter (which is file instead of
 #' path).
 #'
 #' @name download_sp_item
@@ -181,14 +212,16 @@ delete_sp_item <- function(path = NULL,
 #' @inheritParams get_sp_item
 #' @param dest,overwrite,recursive,parallel Parameters passed to `download`
 #'   method for `ms_drive_item` object.
-#' @param item A `ms_drive_item` class object.
-#' @returns Invisibly returns the input dest or the dest parsed from the input
-#'   path or item.
+#' @param item A `ms_drive_item` class object. Optional if path or other
+#'   parameters to get an SharePoint item are supplied.
+#' @returns Invisibly returns the input `dest` or the `dest` parsed from the input
+#'   path or item properties.
 #' @inheritDotParams get_sp_item
 #' @export
-download_sp_item <- function(path,
+download_sp_item <- function(path = NULL,
                              new_path = "",
                              ...,
+                             item_id = NULL,
                              item = NULL,
                              drive_name = NULL,
                              drive_id = NULL,
@@ -206,6 +239,7 @@ download_sp_item <- function(path,
 
     item <- get_sp_item(
       path = path,
+      item_id = item_id,
       drive_name = drive_name,
       drive_id = drive_id,
       site_url = site_url,

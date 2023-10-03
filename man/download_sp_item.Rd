@@ -6,9 +6,10 @@
 \title{Download one or more items from SharePoint to a file or folder}
 \usage{
 download_sp_item(
-  path,
+  path = NULL,
   new_path = "",
   ...,
+  item_id = NULL,
   item = NULL,
   drive_name = NULL,
   drive_id = NULL,
@@ -34,8 +35,6 @@ supplied.}
 \item{...}{
   Arguments passed on to \code{\link[=get_sp_item]{get_sp_item}}
   \describe{
-    \item{\code{item_id}}{A SharePoint item ID passed to the \code{itemid} parameter of the
-\code{get_item} method for \code{ms_drive} objects.}
     \item{\code{drive_name,drive_id}}{SharePoint drive name or ID.}
     \item{\code{properties}}{If \code{TRUE}, use the \code{get_item_properties} method and return
 item properties instead of the item.}
@@ -43,7 +42,11 @@ item properties instead of the item.}
 return a \code{ms_item} or \code{ms_item_properties} object.}
   }}
 
-\item{item}{A \code{ms_drive_item} class object.}
+\item{item_id}{A SharePoint item ID passed to the \code{itemid} parameter of the
+\code{get_item} method for \code{ms_drive} objects.}
+
+\item{item}{A \code{ms_drive_item} class object. Optional if path or other
+parameters to get an SharePoint item are supplied.}
 
 \item{drive_name, drive_id}{SharePoint drive name or ID.}
 
@@ -64,8 +67,8 @@ mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \value{
-Invisibly returns the input dest or the dest parsed from the input
-path or item.
+Invisibly returns the input \code{dest} or the \code{dest} parsed from the input
+path or item properties.
 }
 \description{
 \code{\link[=download_sp_item]{download_sp_item()}} wraps the \code{download} method for SharePoint items making
@@ -73,6 +76,6 @@ it easier to download items based on a shared file URL or document URL. The
 default valye for \code{path} is \code{""} so, by default, SharePoint items are
 downloaded to the current working directory. Set \code{overwrite = TRUE} to allow
 this function to overwrite an existing file. \code{\link[=download_sp_file]{download_sp_file()}} is
-identical except for the name of the path paramter (which is file instead of
+identical except for the name of the path parameter (which is file instead of
 path).
 }

@@ -2,12 +2,13 @@
 % Please edit documentation in R/sp_item.R
 \name{delete_sp_item}
 \alias{delete_sp_item}
-\title{Delete SharePoint items}
+\title{Delete SharePoint items (files and directories)}
 \usage{
 delete_sp_item(
   path = NULL,
   ...,
   item_id = NULL,
+  item = NULL,
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
@@ -41,7 +42,8 @@ name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL can also be parsed to build a site URL using the tenant and site name
 included in the URL.}
 
-\item{confirm}{If \code{TRUE}, confirm before deleting item.}
+\item{confirm}{If \code{TRUE}, confirm before deleting item. If \code{TRUE} and session
+is not interactive, the function will error.}
 
 \item{by_item}{For business OneDrive or SharePoint document libraries, you
 may need to set \code{by_item = TRUE} to delete the contents of a folder
@@ -54,5 +56,17 @@ mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \description{
-Delete SharePoint items
+\code{\link[=delete_sp_item]{delete_sp_item()}} deletes items including files and directories using the \code{delete} method for . By default
+\code{confirm = TRUE}, which requires the user to respond to a prompt: "Do you
+really want to delete the drive item ...? (yes/No/cancel)" to continue.
+}
+\details{
+Trouble-shooting errors
+
+If you get the error: "The resource you are attempting to access is locked",
+you or another user may have the file or a file within the directory open for
+editing. Close the file and try deleting the item again.
+
+If you get the error: "Request was cancelled by event received. If attempting
+to delete a non-empty folder, it's possible that it's on hold." set \code{by_item = TRUE} and try again.
 }

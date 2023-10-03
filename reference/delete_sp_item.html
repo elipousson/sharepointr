@@ -62,6 +62,8 @@ really want to delete the drive item ...? (yes/No/cancel)" to continue.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">delete_sp_item</span><span class="op">(</span></span>
 <span>  path <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  confirm <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  by_item <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  item_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  item <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -69,8 +71,6 @@ really want to delete the drive item ...? (yes/No/cancel)" to continue.</p>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  confirm <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  by_item <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -86,14 +86,38 @@ is a document URL, the <code>.default_drive_name</code> argument is used as the
 <code>drive_name</code> and the <code>item_id</code> is extracted from the URL.</p></dd>
 
 
+<dt>confirm</dt>
+<dd><p>If <code>TRUE</code>, confirm before deleting item. If <code>TRUE</code> and session
+is not interactive, the function will error.</p></dd>
+
+
+<dt>by_item</dt>
+<dd><p>For business OneDrive or SharePoint document libraries, you
+may need to set <code>by_item = TRUE</code> to delete the contents of a folder
+depending on the policies set up by your SharePoint administrator policies.
+Note, that this method can be slow for large folders.</p></dd>
+
+
 <dt>...</dt>
-<dd><p>Additional parameters passed to
-<code><a href="https://rdrr.io/pkg/Microsoft365R/man/client.html" class="external-link">Microsoft365R::get_sharepoint_site()</a></code> or <code><a href="sp_site.html">get_sp_site()</a></code>.</p></dd>
+<dd><p>Arguments passed on to <code><a href="get_sp_item.html">get_sp_item</a></code></p><dl><dt><code>drive_name,drive_id</code></dt>
+<dd><p>SharePoint drive name or ID.</p></dd>
+
+    <dt><code>as_data_frame</code></dt>
+<dd><p>If <code>TRUE</code>, return a data frame. If <code>FALSE</code> (default),
+return a <code>ms_item</code> or <code>ms_item_properties</code> object.</p></dd>
+
+  
+</dl></dd>
 
 
 <dt>item_id</dt>
 <dd><p>A SharePoint item ID passed to the <code>itemid</code> parameter of the
 <code>get_item</code> method for <code>ms_drive</code> objects.</p></dd>
+
+
+<dt>item</dt>
+<dd><p>A <code>ms_drive_item</code> class object. Optional if path or other
+parameters to get an SharePoint item are supplied.</p></dd>
 
 
 <dt>drive_name, drive_id</dt>
@@ -110,18 +134,6 @@ is a document URL, the <code>.default_drive_name</code> argument is used as the
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL can also be parsed to build a site URL using the tenant and site name
 included in the URL.</p></dd>
-
-
-<dt>confirm</dt>
-<dd><p>If <code>TRUE</code>, confirm before deleting item. If <code>TRUE</code> and session
-is not interactive, the function will error.</p></dd>
-
-
-<dt>by_item</dt>
-<dd><p>For business OneDrive or SharePoint document libraries, you
-may need to set <code>by_item = TRUE</code> to delete the contents of a folder
-depending on the policies set up by your SharePoint administrator policies.
-Note, that this method can be slow for large folders.</p></dd>
 
 
 <dt>call</dt>

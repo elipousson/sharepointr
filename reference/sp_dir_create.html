@@ -123,6 +123,35 @@ mentioned in error messages as the source of the error. See the
 
 </dl></div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">drive_url</span> <span class="op">&lt;-</span> <span class="st">"&lt;link to SharePoint drive&gt;"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="is_sp_url.html">is_sp_url</a></span><span class="op">(</span><span class="va">drive_url</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu">sp_dir_create</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    path <span class="op">=</span> <span class="st">"parent_folder/subfolder"</span>,</span></span>
+<span class="r-in"><span>    drive_name <span class="op">=</span> <span class="va">drive_url</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="fu">sp_dir_create</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"subfolder1"</span>, <span class="st">"subfolder2"</span>, <span class="st">"subfolder3"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    relative <span class="op">=</span> <span class="st">"parent_folder"</span>,</span></span>
+<span class="r-in"><span>    drive_name <span class="op">=</span> <span class="va">drive_url</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">dir_url</span> <span class="op">&lt;-</span> <span class="st">"&lt;link to SharePoint directory&gt;"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="is_sp_url.html">is_sp_url</a></span><span class="op">(</span><span class="va">dir_url</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu">sp_dir_create</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"subfolder1"</span>, <span class="st">"subfolder2"</span>, <span class="st">"subfolder3"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    drive_name <span class="op">=</span> <span class="va">dir_url</span>,</span></span>
+<span class="r-in"><span>    relative <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -2,22 +2,35 @@
 #'
 #' @description
 #'
-#' [sp_dir_info()] is a wrapper for the `list_files` method.
+#' [sp_dir_info()] is a wrapper for the `list_files` method with some additional
+#' features based on [fs::dir_info()]. [sp_dir_ls()] returns a character vector
+#' and does not yet include support for the `recurse` argument.  If
+#' `{fs}` is installed, the size column is formatted using [fs::as_fs_bytes()]
+#' and an additional "type" factor column is added with values for directory and
+#' file.
 #'
 #' @param path Path to directory or folder. SharePoint folder URLs are allowed.
 #'   If `NULL`, path is set to default "/".
 #' @param info The information to return: "partial", "name" or "all". If
 #'   "partial", a data frame is returned containing the name, size, ID and
-#'   whether the item is a file or folder. If "all", a data frame is returned containing all the
-#'   properties for each item (this can be large).
-#' @param full_name If `TRUE` (default), return the full file path as the name
+#'   whether the item is a file or folder. If "all", a data frame is returned
+#'   containing all the properties for each item (this can be large).
+#' @param full_names If `TRUE` (default), return the full file path as the name
 #'   for each item.
 #' @param pagesize Maximum number of items to return. Defaults to 1000. Decrease
 #'   if you are experiencing timeouts.
+#' @param recurse If `TRUE`, get info for each directory at the supplied path
+#'   and combine this info with the item info for the supplied path.
+#' @param type Type of item to return. Can be "any", "file", or "directory".
+#'   "directory" is not a supported option for [sp_dir_ls()]
+#' @param regexp Regular expression passed to `grep()` and used to filter the
+#'   paths before they are returned.
 #' @inheritDotParams get_sp_drive -drive_name -drive_id -properties
+#' @inheritParams base::grep
 #' @inheritParams get_sp_drive
 #' @inheritParams get_sp_item
 #' @export
+#' @importFrom vctrs vec_slice vec_rbind
 sp_dir_info <- function(path = NULL,
                         ...,
                         info = "partial",
@@ -26,6 +39,11 @@ sp_dir_info <- function(path = NULL,
                         drive_name = NULL,
                         drive_id = NULL,
                         drive = NULL,
+                        recurse = FALSE,
+                        type = "any",
+                        regexp = NULL,
+                        invert = FALSE,
+                        perl = FALSE,
                         call = caller_env()) {
   if (!is.null(path) && is_sp_url(path)) {
     sp_url_parts <- sp_url_parse(path, call = call)
@@ -47,12 +65,91 @@ sp_dir_info <- function(path = NULL,
 
   info <- arg_match(info, values = c("partial", "name", "all"), call = call)
 
-  drive$list_items(
-    path = path,
-    info = info,
-    full_names = full_names,
-    pagesize = pagesize
+  type <- arg_match(type, c("any", "file", "directory"), error_call = call)
+
+  if (type == "file") {
+    item_list <- drive$list_files(
+      path = path,
+      info = info,
+      full_names = full_names,
+      pagesize = pagesize
+    )
+  } else {
+    item_list <- drive$list_items(
+      path = path,
+      info = info,
+      full_names = full_names,
+      pagesize = pagesize
+    )
+  }
+
+  if (!is.null(regexp)) {
+    path_name <- item_list
+    if (is.data.frame(item_list)) {
+      path_name <- item_list[["name"]]
+    }
+
+    item_list <- vctrs::vec_slice(
+      item_list,
+      i = grep(regexp, path_name, perl = perl, invert = invert),
+      error_call = call
+      )
+  }
+
+  if (!is.data.frame(item_list)) {
+    return(item_list)
+  }
+
+  item_list <- switch(type,
+    any = item_list,
+    file = item_list[!item_list[["isdir"]], ],
+    directory = item_list[item_list[["isdir"]], ]
   )
+
+  if (is_installed("fs")) {
+    item_list[["size"]] <- fs::as_fs_bytes(item_list[["size"]])
+
+    item_list[["type"]] <- factor(
+      vapply(
+        item_list[["isdir"]],
+        function(x) {
+          if (x) {
+            return("directory")
+          }
+          "file"
+        },
+        NA_character_
+      ),
+      levels = c("directory", "file")
+    )
+  }
+
+  if (!recurse || (type == "file") || !any(item_list[["isdir"]])) {
+    return(item_list)
+  }
+
+  dir_list <- item_list[item_list[["isdir"]], ]
+
+  dir_item_list <- lapply(
+    dir_list[["name"]],
+    function(x) {
+      sp_dir_info(
+        x,
+        drive = drive,
+        info = info,
+        full_names = full_names,
+        pagesize = pagesize,
+        recurse = recurse,
+        type = type,
+        regexp = regexp,
+        call = call
+      )
+    }
+  )
+
+  dir_item_list <- c(list(item_list), dir_item_list)
+
+  vctrs::vec_rbind(!!!dir_item_list, .error_call = call)
 }
 
 #' @rdname sp_dir_info
@@ -65,6 +162,10 @@ sp_dir_ls <- function(path = NULL,
                       drive_name = NULL,
                       drive_id = NULL,
                       drive = NULL,
+                      type = "any",
+                      regexp = NULL,
+                      invert = FALSE,
+                      perl = FALSE,
                       call = caller_env()) {
   sp_dir_info(
     path = path,
@@ -75,6 +176,10 @@ sp_dir_ls <- function(path = NULL,
     drive_name = drive_name,
     drive_id = drive_id,
     drive = drive,
+    type = type,
+    regexp = regexp,
+    invert = invert,
+    perl = perl,
     call = call
   )
 }
@@ -102,7 +207,7 @@ sp_dir_create <- function(path,
       ...,
       properties = FALSE,
       call = call
-      )
+    )
 
   for (dir in path) {
     drive$create_folder(path = path)

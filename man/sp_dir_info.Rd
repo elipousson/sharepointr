@@ -14,6 +14,11 @@ sp_dir_info(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
+  recurse = FALSE,
+  type = "any",
+  regexp = NULL,
+  invert = FALSE,
+  perl = FALSE,
   call = caller_env()
 )
 
@@ -25,6 +30,10 @@ sp_dir_ls(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
+  type = "any",
+  regexp = NULL,
+  invert = FALSE,
+  perl = FALSE,
   call = caller_env()
 )
 }
@@ -48,8 +57,11 @@ included in the URL.}
 
 \item{info}{The information to return: "partial", "name" or "all". If
 "partial", a data frame is returned containing the name, size, ID and
-whether the item is a file or folder. If "all", a data frame is returned containing all the
-properties for each item (this can be large).}
+whether the item is a file or folder. If "all", a data frame is returned
+containing all the properties for each item (this can be large).}
+
+\item{full_names}{If \code{TRUE} (default), return the full file path as the name
+for each item.}
 
 \item{pagesize}{Maximum number of items to return. Defaults to 1000. Decrease
 if you are experiencing timeouts.}
@@ -60,14 +72,30 @@ method for SharePoint site object.}
 \item{drive}{A \code{ms_drive} object. If drive is supplied, \code{drive_name},
 \code{site_url}, and any additional parameters passed to \code{...} are ignored.}
 
+\item{recurse}{If \code{TRUE}, get info for each directory at the supplied path
+and combine this info with the item info for the supplied path.}
+
+\item{type}{Type of item to return. Can be "any", "file", or "directory".
+"directory" is not a supported option for \code{\link[=sp_dir_ls]{sp_dir_ls()}}}
+
+\item{regexp}{Regular expression passed to \code{grep()} and used to filter the
+paths before they are returned.}
+
+\item{invert}{logical.  If \code{TRUE} return indices or values for
+    elements that do \emph{not} match.}
+
+\item{perl}{logical.  Should Perl-compatible regexps be used?}
+
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
-
-\item{full_name}{If \code{TRUE} (default), return the full file path as the name
-for each item.}
 }
 \description{
-\code{\link[=sp_dir_info]{sp_dir_info()}} is a wrapper for the \code{list_files} method.
+\code{\link[=sp_dir_info]{sp_dir_info()}} is a wrapper for the \code{list_files} method with some additional
+features based on \code{\link[fs:dir_ls]{fs::dir_info()}}. \code{\link[=sp_dir_ls]{sp_dir_ls()}} returns a character vector
+and does not yet include support for the \code{recurse} argument.  If
+\code{{fs}} is installed, the size column is formatted using \code{\link[fs:fs_bytes]{fs::as_fs_bytes()}}
+and an additional "type" factor column is added with values for directory and
+file.
 }

@@ -18,8 +18,10 @@ Imports:
     Microsoft365R,
     rlang (>= 1.1.0),
     stringr,
-    utils
+    utils,
+    vctrs
 Suggests: 
+    fs,
     knitr,
     officer,
     readr,
@@ -27,7 +29,6 @@ Suggests:
     rmarkdown,
     sf,
     testthat (>= 3.0.0),
-    vctrs,
     withr
 VignetteBuilder: 
     knitr

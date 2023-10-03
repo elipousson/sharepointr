@@ -29,6 +29,19 @@
 #' @inheritParams base::grep
 #' @inheritParams get_sp_drive
 #' @inheritParams get_sp_item
+#' @examples
+#' dir_url <- "<link to SharePoint directory or drive>"
+#'
+#' if (is_sp_url(dir_url)) {
+#'   sp_dir_info(
+#'     path = dir_url
+#'   )
+#'
+#'   sp_dir_ls(
+#'     path = dir_url
+#'   )
+#' }
+#'
 #' @export
 #' @importFrom vctrs vec_slice vec_rbind
 sp_dir_info <- function(path = NULL,
@@ -93,7 +106,7 @@ sp_dir_info <- function(path = NULL,
       item_list,
       i = grep(regexp, path_name, perl = perl, invert = invert),
       error_call = call
-      )
+    )
   }
 
   if (!is.data.frame(item_list)) {
@@ -199,7 +212,35 @@ sp_dir_ls <- function(path = NULL,
 #'   appended to path as a vector of parent directories. The second option takes
 #'   precedence over any file path parsed from the url.
 #' @inheritDotParams get_sp_drive -drive_name -drive_id -properties
+#' @examples
+#' drive_url <- "<link to SharePoint drive>"
+#'
+#' if (is_sp_url(drive_url)) {
+#'   sp_dir_create(
+#'     path = "parent_folder/subfolder",
+#'     drive_name = drive_url
+#'   )
+#'
+#'   sp_dir_create(
+#'     path = c("subfolder1", "subfolder2", "subfolder3"),
+#'     relative = "parent_folder",
+#'     drive_name = drive_url
+#'   )
+#' }
+#'
+#' dir_url <- "<link to SharePoint directory>"
+#'
+#' if (is_sp_url(dir_url)) {
+#'   sp_dir_create(
+#'     path = c("subfolder1", "subfolder2", "subfolder3"),
+#'     drive_name = dir_url,
+#'     relative = TRUE
+#'   )
+#' }
+#'
 #' @export
+#' @importFrom vctrs vec_recycle
+#' @importFrom cli cli_progress_along cli_warn cli_progress_done
 sp_dir_create <- function(path,
                           ...,
                           drive_name = NULL,
@@ -217,7 +258,6 @@ sp_dir_create <- function(path,
     )
 
   if (is_true(relative) || is_character(relative)) {
-
     if (!is_character(relative) && is_sp_folder_url(drive_name)) {
       relative <- str_remove_slash(sp_url_parse(drive_name)[["file_path"]])
     }

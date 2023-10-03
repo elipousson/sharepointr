@@ -99,3 +99,17 @@ and does not yet include support for the \code{recurse} argument.  If
 and an additional "type" factor column is added with values for directory and
 file.
 }
+\examples{
+dir_url <- "<link to SharePoint directory or drive>"
+
+if (is_sp_url(dir_url)) {
+  sp_dir_info(
+    path = dir_url
+  )
+
+  sp_dir_ls(
+    path = dir_url
+  )
+}
+
+}

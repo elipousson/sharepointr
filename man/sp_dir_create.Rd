@@ -53,3 +53,30 @@ mentioned in error messages as the source of the error. See the
 character vectors. If \code{drive_name} is a folder URL and \code{relative} is \code{TRUE},
 the values for \code{path} are appended to the file path parsed from the url.
 }
+\examples{
+drive_url <- "<link to SharePoint drive>"
+
+if (is_sp_url(drive_url)) {
+  sp_dir_create(
+    path = "parent_folder/subfolder",
+    drive_name = drive_url
+  )
+
+  sp_dir_create(
+    path = c("subfolder1", "subfolder2", "subfolder3"),
+    relative = "parent_folder",
+    drive_name = drive_url
+  )
+}
+
+dir_url <- "<link to SharePoint directory>"
+
+if (is_sp_url(dir_url)) {
+  sp_dir_create(
+    path = c("subfolder1", "subfolder2", "subfolder3"),
+    drive_name = dir_url,
+    relative = TRUE
+  )
+}
+
+}

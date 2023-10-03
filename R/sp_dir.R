@@ -187,11 +187,17 @@ sp_dir_ls <- function(path = NULL,
 #' Create SharePoint folders
 #'
 #' [sp_dir_create()] is a wrapper for the `create_folder` method that handles
-#' character vectors.
+#' character vectors. If `drive_name` is a folder URL and `relative` is `TRUE`,
+#' the values for `path` are appended to the file path parsed from the url.
 #'
 #' @param path A character vector of one or more paths.
 #' @inheritParams get_sp_drive
 #' @inheritParams get_sp_item
+#' @param relative If `TRUE` and `drive_name` is a folder URL, the values for
+#'   `path` are appended to the file path parsed from the url. If `relative` is
+#'   a character vector, it must be length 1 or the same length as path and
+#'   appended to path as a vector of parent directories. The second option takes
+#'   precedence over any file path parsed from the url.
 #' @inheritDotParams get_sp_drive -drive_name -drive_id -properties
 #' @export
 sp_dir_create <- function(path,
@@ -199,6 +205,7 @@ sp_dir_create <- function(path,
                           drive_name = NULL,
                           drive_id = NULL,
                           drive = NULL,
+                          relative = FALSE,
                           call = caller_env()) {
   drive <- drive %||%
     get_sp_drive(
@@ -209,9 +216,34 @@ sp_dir_create <- function(path,
       call = call
     )
 
-  for (dir in path) {
-    drive$create_folder(path = path)
+  if (is_true(relative) || is_character(relative)) {
+
+    if (!is_character(relative) && is_sp_folder_url(drive_name)) {
+      relative <- str_remove_slash(sp_url_parse(drive_name)[["file_path"]])
+    }
+
+    relative <- vctrs::vec_recycle(
+      relative,
+      size = length(path),
+      x_arg = "relative",
+      call = call
+    )
+
+    path <- str_c_url(relative, path)
   }
+
+  for (i in cli::cli_progress_along(path)) {
+    try_fetch(
+      drive$create_folder(path = path[[i]]),
+      error = function(cnd) {
+        cli::cli_warn(
+          cnd$message
+        )
+      }
+    )
+  }
+
+  cli::cli_progress_done()
 
   invisible(path)
 }

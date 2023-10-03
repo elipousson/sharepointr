@@ -10,6 +10,7 @@ sp_dir_create(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
+  relative = FALSE,
   call = caller_env()
 )
 }
@@ -36,6 +37,12 @@ method for SharePoint site object.}
 \item{drive}{A \code{ms_drive} object. If drive is supplied, \code{drive_name},
 \code{site_url}, and any additional parameters passed to \code{...} are ignored.}
 
+\item{relative}{If \code{TRUE} and \code{drive_name} is a folder URL, the values for
+\code{path} are appended to the file path parsed from the url. If \code{relative} is
+a character vector, it must be length 1 or the same length as path and
+appended to path as a vector of parent directories. The second option takes
+precedence over any file path parsed from the url.}
+
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
@@ -43,5 +50,6 @@ mentioned in error messages as the source of the error. See the
 }
 \description{
 \code{\link[=sp_dir_create]{sp_dir_create()}} is a wrapper for the \code{create_folder} method that handles
-character vectors.
+character vectors. If \code{drive_name} is a folder URL and \code{relative} is \code{TRUE},
+the values for \code{path} are appended to the file path parsed from the url.
 }

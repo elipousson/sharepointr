@@ -2,54 +2,215 @@
 title: "Using SharePoint URLs to work with items and lists"
 ---
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
 
-```{r setup}
+
+Note, this vignette is pre-computed to utilize the Microsoft Graphi login that is only available locally to me as a logged in SharePoint user. As a result, it is possible this documentation may be outdated or incomplete.
+
+
+```r
 library(sharepointr)
 ```
 
 This is a folder URL. It is a Shared link where people with existing access can use the link.
 
-```{r}
+
+```r
 dir_url <- "https://bmore.sharepoint.com/:f:/r/sites/DOP-CPR/Shared%20Documents/INSPIRE%20Program%20%F0%9F%8F%AB%F0%9F%9A%B8%F0%9F%8C%B3?csf=1&web=1&e=W5dbYz"
 ```
 
 There are a bunch of different types of URLs that SharePoint uses so they don't all work with this package yet. You can parse a URL into smaller parts:
 
-```{r}
+
+```r
 sp_url_parse(dir_url)
+#> $base_url
+#> [1] "https://bmore.sharepoint.com"
+#> 
+#> $tenant
+#> [1] "bmore"
+#> 
+#> $path
+#> [1] "/:f:/r/sites/DOP-CPR/Shared Documents/INSPIRE Program 🏫🚸🌳"
+#> 
+#> $url_type
+#> [1] "f"
+#> 
+#> $permissions
+#> [1] "r"
+#> 
+#> $site_name
+#> [1] "DOP-CPR"
+#> 
+#> $file_path
+#> [1] "/INSPIRE Program 🏫🚸🌳"
+#> 
+#> $drive_name
+#> [1] "Documents"
+#> 
+#> $item_id
+#> NULL
+#> 
+#> $csf
+#> [1] "1"
+#> 
+#> $web
+#> [1] "1"
+#> 
+#> $e
+#> [1] "W5dbYz"
+#> 
+#> $site_url
+#> [1] "https://bmore.sharepoint.com/sites/DOP-CPR"
 ```
 
 These parts can be used as the `path`, `site_url`, and other parameters can be used to get sites, drives, lists, and items from SharePoint:
 
-```{r}
+
+```r
 get_sp_site(dir_url)
+#> Loading Microsoft Graph login for default tenant
+#> <Sharepoint site 'DOP-CPR'>
+#>   directory id: bmore.sharepoint.com,67aec41a-38f7-471f-8409-a71c3bece3a0,f506465a-e433-42ae-a52b-cb7130b77d59 
+#>   web link: https://bmore.sharepoint.com/sites/DOP-CPR 
+#>   description:   
+#> ---
+#>   Methods:
+#>     delete, do_operation, get_drive,
+#>     get_group, get_list, get_list_pager,
+#>     get_lists, list_drives, list_subsites,
+#>     sync_fields, update
 
 get_sp_drive(dir_url)
+#> Loading Microsoft Graph login for default tenant
+#> <Document library 'Documents'>
+#>   directory id: b!GsSuZ_c4H0eECaccO-zjoFpGBvUz5K5CpSvLcTC3fVkj4DsIzWYXTaCOSKIsJAdy 
+#>   web link: https://bmore.sharepoint.com/sites/DOP-CPR/Shared%20Documents 
+#>   description:  
+#> ---
+#>   Methods:
+#>     copy_item, create_folder,
+#>     create_share_link, delete, delete_item,
+#>     do_operation, download_file,
+#>     download_folder, get_item,
+#>     get_item_properties, get_list_pager,
+#>     list_files, list_items,
+#>     list_shared_files, list_shared_items,
+#>     load_dataframe, load_rdata, load_rds,
+#>     move_item, open_item, save_dataframe,
+#>     save_rdata, save_rds,
+#>     set_item_properties, sync_fields,
+#>     update, upload_file, upload_folder
 ```
 
 With a directory URL, you can get a list of files:
 
-```{r}
+
+```r
 dir_info <- sp_dir_info(dir_url)
+#> Loading Microsoft Graph login for default tenant
 
 dir_info
+#>                                                                                  name
+#> 1                                INSPIRE Program 🏫🚸🌳/INSPIRE Plan Histories (CHAP)
+#> 2                                     INSPIRE Program 🏫🚸🌳/INSPIRE Plans Adopted ✅
+#> 3                                  INSPIRE Program 🏫🚸🌳/INSPIRE Plans In Progress ✏️
+#> 4                                        INSPIRE Program 🏫🚸🌳/INSPIRE Program Admin
+#> 5                                                       INSPIRE Program 🏫🚸🌳/Photos
+#> 6                                                   INSPIRE Program 🏫🚸🌳/References
+#> 7                               INSPIRE Program 🏫🚸🌳/_2021_Planner+School List.xlsx
+#> 8  INSPIRE Program 🏫🚸🌳/2023-05-17-dhcd-code-enforcement_recommendation-review.docx
+#> 9                                            INSPIRE Program 🏫🚸🌳/Budget scrap.xlsx
+#> 10                              INSPIRE Program 🏫🚸🌳/Historical Assessment Doc.docx
+#> 11                  INSPIRE Program 🏫🚸🌳/INSPIRE Community Engagement Notebook.xlsx
+#> 12                               INSPIRE Program 🏫🚸🌳/INSPIRE DOP Website Copy.docx
+#> 13                            INSPIRE Program 🏫🚸🌳/INSPIRE Master Contact List.xlsx
+#> 14                         INSPIRE Program 🏫🚸🌳/INSPIRE Plan Timelines 2021_08.docx
+#> 15                                 INSPIRE Program 🏫🚸🌳/INSPIRE Planning Guide.docx
+#> 16                                             INSPIRE Program 🏫🚸🌳/INSPIRE Program
+#> 17                               INSPIRE Program 🏫🚸🌳/INSPIRE Program Calendar.xlsx
+#> 18                                INSPIRE Program 🏫🚸🌳/INSPIRE Rec tables 2023.xlsx
+#> 19                                 INSPIRE Program 🏫🚸🌳/INSPIRE Workflow DRAFT.docx
+#> 20           INSPIRE Program 🏫🚸🌳/Middle Neighborhoods INSPIRE Assessment Plan.docx
+#> 21                         INSPIRE Program 🏫🚸🌳/Preparing for a Community Walk.docx
+#>       size isdir                                 id
+#> 1  427.81M  TRUE 01EK4O46W2BVSN34MWIJCZO45SX2RIMVRR
+#> 2  125.09M  TRUE 01EK4O46TWHR6QA77FQRAK3TFSP5Z5WGUV
+#> 3    1.39G  TRUE 01EK4O46XRFXKSJ4MSCVHIXD3E2JCCGZ4Y
+#> 4  898.35M  TRUE 01EK4O46TNZAXB5BWALZEJF4Y5NCBZPPKB
+#> 5  418.71M  TRUE 01EK4O46XP2EGVNL5XUNC2GGCWCXQOCBR6
+#> 6  150.88M  TRUE 01EK4O46S5WYIRFXP42ZBZ3XJBCAX5WRD2
+#> 7   43.01K FALSE 01EK4O46S42QAM2K6FSBAZPBQOS4VBT3YI
+#> 8   27.04K FALSE 01EK4O46VKEMUM7LD3YNHJ5IA67DXT6K42
+#> 9    15.3K FALSE 01EK4O46XFZKGJN3S4AVBYMIEB5OQTG3K7
+#> 10  20.97K FALSE 01EK4O46RLN3E7BWYST5GIKRJAVB7VDI3N
+#> 11   23.4K FALSE 01EK4O46TFJABPEPMTS5CINCRI7LRAN554
+#> 12  13.32M FALSE 01EK4O46VQJZ4S7SZ2EFB3N267A4U67XVG
+#> 13  29.34K FALSE 01EK4O46VTPF5MRFPSYZHYQ2YJN5C3A4PP
+#> 14  32.51K FALSE 01EK4O46RKC2EBRPKIVRC34NZGU2XDUGXF
+#> 15  53.45K FALSE 01EK4O46RYX55LJ6VAAZFINIOB2XF2UXLF
+#> 16   2.03M FALSE 01EK4O46XVR7PESI3HXZCJF2UDW6YZ53DD
+#> 17   20.3K FALSE 01EK4O46QCKIPTO4QQG5AY3V422XIJYQHZ
+#> 18  26.21K FALSE 01EK4O46S6CMHTD2335VFZS6VVEDMWRHJN
+#> 19  21.36K FALSE 01EK4O46UK2YTRIADBPBEIKM5ODDWX76JO
+#> 20  22.66K FALSE 01EK4O46TS3YMEYF4KTBF34FWZQ5ER7SF7
+#> 21  19.89K FALSE 01EK4O46W4HZJORDO57VBL6YIFK3VTDZST
+#>         type
+#> 1  directory
+#> 2  directory
+#> 3  directory
+#> 4  directory
+#> 5  directory
+#> 6  directory
+#> 7       file
+#> 8       file
+#> 9       file
+#> 10      file
+#> 11      file
+#> 12      file
+#> 13      file
+#> 14      file
+#> 15      file
+#> 16      file
+#> 17      file
+#> 18      file
+#> 19      file
+#> 20      file
+#> 21      file
 ```
 
 You can use the same URL to get a character vector of file names:
 
-```{r}
+
+```r
 sp_dir_ls(dir_url)
+#> Loading Microsoft Graph login for default tenant
+#>  [1] "INSPIRE Plan Histories (CHAP)"                              
+#>  [2] "INSPIRE Plans Adopted ✅"                                   
+#>  [3] "INSPIRE Plans In Progress ✏️"                                
+#>  [4] "INSPIRE Program Admin"                                      
+#>  [5] "Photos"                                                     
+#>  [6] "References"                                                 
+#>  [7] "_2021_Planner+School List.xlsx"                             
+#>  [8] "2023-05-17-dhcd-code-enforcement_recommendation-review.docx"
+#>  [9] "Budget scrap.xlsx"                                          
+#> [10] "Historical Assessment Doc.docx"                             
+#> [11] "INSPIRE Community Engagement Notebook.xlsx"                 
+#> [12] "INSPIRE DOP Website Copy.docx"                              
+#> [13] "INSPIRE Master Contact List.xlsx"                           
+#> [14] "INSPIRE Plan Timelines 2021_08.docx"                        
+#> [15] "INSPIRE Planning Guide.docx"                                
+#> [16] "INSPIRE Program"                                            
+#> [17] "INSPIRE Program Calendar.xlsx"                              
+#> [18] "INSPIRE Rec tables 2023.xlsx"                               
+#> [19] "INSPIRE Workflow DRAFT.docx"                                
+#> [20] "Middle Neighborhoods INSPIRE Assessment Plan.docx"          
+#> [21] "Preparing for a Community Walk.docx"
 ```
 
 But you can't use that URL to get a list (note the input checkin on this is incomplete so the error may not make much sense):
 
-```{r}
+
+```r
 try_fetch(
   get_sp_list(dir_url),
   error = function(cnd) {
@@ -57,36 +218,100 @@ try_fetch(
       cnd$message
     )
   }
-) 
+)
+#> Loading Microsoft Graph login for default tenant
+#> ℹ Getting list from SharePointattempt to apply non-function✖ Getting list from SharePoint [45ms]
+#> NULL
 ```
 
 SharePoint lists have two different styles of URLs (that I've seen). This one works:
 
-```{r}
+
+```r
 list_url <- "https://bmore.sharepoint.com/:l:/r/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker?e=0P1fFX"
 
 get_sp_list(list_url)
+#> Loading Microsoft Graph login for default tenant
+#> ℹ Getting list from SharePoint✔ Getting list from SharePoint [147ms]
+#>                                                                                                                                                         @odata.context
+#> 1 https://graph.microsoft.com/beta/$metadata#sites('bmore.sharepoint.com%2C1da01cb7-76c7-4487-b398-ec60dff8f52d%2C7abe409a-2aeb-4eb8-8dc3-8fe9106907af')/lists/$entity
+#>                                 @odata.etag
+#> 1 "5c21d327-7016-4b69-ae0d-dc95059a876c,43"
+#>        createdDateTime description
+#> 1 2022-06-29T18:10:45Z            
+#>                                        eTag
+#> 1 "5c21d327-7016-4b69-ae0d-dc95059a876c,43"
+#>                                     id
+#> 1 5c21d327-7016-4b69-ae0d-dc95059a876c
+#>   lastModifiedDateTime                             name
+#> 1 2023-09-22T11:07:27Z Data Governance Progress Tracker
+#>                                                                                                        webUrl
+#> 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker
+#>                        displayName
+#> 1 Data Governance Progress Tracker
+#>                                                                                 createdBy
+#> 1 Justin.Elszasz@baltimorecity.gov, a43c19f9-9a13-403d-9234-0c13f4e84b1c, Elszasz, Justin
+#>                                                                            lastModifiedBy
+#> 1 Justin.Elszasz@baltimorecity.gov, a43c19f9-9a13-403d-9234-0c13f4e84b1c, Elszasz, Justin
+#>                                                                                  parentReference
+#> 1 bmore.sharepoint.com,1da01cb7-76c7-4487-b398-ec60dff8f52d,7abe409a-2aeb-4eb8-8dc3-8fe9106907af
+#>                        list                    ms_list
+#> 1 FALSE, FALSE, genericList <environment: 0x133900cc0>
 ```
 
 List URLs that look like this one don't currently work with `get_sp_list()` but I expect to improve URL parsing to handle these in the future:
 
-```{r}
+
+```r
 "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"
+#> [1] "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"
 ```
 Shared URLs for files work with `get_sp_item()` and `get_sp_item_properties()`:
 
-```{r}
+
+```r
 file_url <- "https://bmore.sharepoint.com/:w:/r/sites/DOP-CPR/Shared%20Documents/INSPIRE%20Program%20%F0%9F%8F%AB%F0%9F%9A%B8%F0%9F%8C%B3/INSPIRE%20Plans%20In%20Progress%20%E2%9C%8F%EF%B8%8F/Govans%20ES/Govans%20Final%20Planning%20Document%20and%20related%20materials/Govans%20INSPIRE%20Plan%20-%20Final%20draft%20before%20layout.docx?d=w3408fbc67fa2462187409eb240eb4df2&csf=1&web=1&e=4dcgze"
- 
+
 get_sp_item(file_url)
+#> Loading Microsoft Graph login for default tenant
+#> <Drive item 'Govans INSPIRE Plan - Final draft before layout.docx'>
+#>   directory id: 01EK4O46WG7MEDJIT7EFDIOQE6WJAOWTPS 
+#>   web link: https://bmore.sharepoint.com/sites/DOP-CPR/_layouts/15/Doc.aspx?sourcedoc=%7B3408FBC6-7FA2-4621-8740-9EB240EB4DF2%7D&file=Govans%20INSPIRE%20Plan%20-%20Final%20draft%20before%20layout.docx&action=default&mobileredirect=true 
+#>   type: file 
+#> ---
+#>   Methods:
+#>     copy, create_folder, create_share_link,
+#>     delete, do_operation, download,
+#>     get_item, get_list_pager,
+#>     get_parent_folder, get_path, is_folder,
+#>     list_files, list_items, load_dataframe,
+#>     load_rdata, load_rds, move, open,
+#>     save_dataframe, save_rdata, save_rds,
+#>     sync_fields, update, upload
 ```
 
 Or you can also use a document URL (as long as the default library is set to match the document library of the supplied URL):
 
-```{r}
+
+```r
 document_url <- "https://bmore.sharepoint.com/:w:/r/sites/DOP-CPR/_layouts/15/Doc.aspx?sourcedoc=%7B3408FBC6-7FA2-4621-8740-9EB240EB4DF2%7D&file=Govans%20INSPIRE%20Plan%20-%20Final%20draft%20before%20layout.docx&action=default&mobileredirect=true"
 
 get_sp_item(document_url)
+#> Loading Microsoft Graph login for default tenant
+#> <Drive item 'Govans INSPIRE Plan - Final draft before layout.docx'>
+#>   directory id: 01EK4O46WG7MEDJIT7EFDIOQE6WJAOWTPS 
+#>   web link: https://bmore.sharepoint.com/sites/DOP-CPR/_layouts/15/Doc.aspx?sourcedoc=%7B3408FBC6-7FA2-4621-8740-9EB240EB4DF2%7D&file=Govans%20INSPIRE%20Plan%20-%20Final%20draft%20before%20layout.docx&action=default&mobileredirect=true 
+#>   type: file 
+#> ---
+#>   Methods:
+#>     copy, create_folder, create_share_link,
+#>     delete, do_operation, download,
+#>     get_item, get_list_pager,
+#>     get_parent_folder, get_path, is_folder,
+#>     list_files, list_items, load_dataframe,
+#>     load_rdata, load_rds, move, open,
+#>     save_dataframe, save_rdata, save_rds,
+#>     sync_fields, update, upload
 ```
 
 

@@ -145,7 +145,8 @@ get_sp_list <- function(list_name = NULL,
   ms_obj_as_data_frame(
     sp_list,
     obj_col = "ms_list",
-    keep_list_cols = c("createdBy", "lastModifiedBy")
+    keep_list_cols = c("createdBy", "lastModifiedBy"),
+    .error_call = call
   )
 }
 
@@ -161,7 +162,6 @@ list_sp_lists <- function(site_url = NULL,
                           drive_name = NULL,
                           drive_id = NULL,
                           drive = NULL,
-                          items = TRUE,
                           as_data_frame = TRUE,
                           call = caller_env()) {
   ms_list_obj <- get_ms_list_obj(

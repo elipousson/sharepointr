@@ -63,8 +63,11 @@ name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL can also be parsed to build a site URL using the tenant and site name
 included in the URL.}
 
-\item{properties}{If \code{TRUE}, use \code{get_item_properties} method and return item
-properties instead of the item.}
+\item{properties}{If \code{TRUE}, use the \code{get_item_properties} method and return
+item properties instead of the item.}
+
+\item{as_data_frame}{If \code{TRUE}, return a data frame. If \code{FALSE} (default),
+return a \code{ms_item} or \code{ms_item_properties} object.}
 
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be
@@ -74,7 +77,9 @@ mentioned in error messages as the source of the error. See the
 \description{
 \code{\link[=get_sp_item]{get_sp_item()}} wraps the \code{get_item} method for \code{ms_drive} objects and
 returns a \code{ms_drive_item} object by default. \code{\link[=get_sp_item_properties]{get_sp_item_properties()}} uses
-the \code{get_item_properties} method (also available by setting \code{properties = TRUE} for \code{\link[=get_sp_item]{get_sp_item()}}).
+the \code{get_item_properties} method (also available by setting \code{properties = TRUE} for \code{\link[=get_sp_item]{get_sp_item()}}). Additional parameters in \code{...} are passed to
+\code{\link[=get_sp_drive]{get_sp_drive()}} by \code{\link[=get_sp_item]{get_sp_item()}} or to \code{\link[=get_sp_item]{get_sp_item()}} by
+\code{\link[=get_sp_item_properties]{get_sp_item_properties()}} or \code{\link[=delete_sp_item]{delete_sp_item()}}.
 }
 \seealso{
 \link[Microsoft365R:ms_drive_item]{Microsoft365R::ms_drive_item}

@@ -107,7 +107,7 @@ get_sp_task <- function(task_title = NULL,
                         as_data_frame = TRUE,
                         call = caller_env()) {
   plan <- plan %||%
-    get_sp_plan(plan_title, plan_id, ..., site = site, call = call)
+    get_sp_plan(plan_title, plan_id, ..., call = call)
 
   check_ms(plan, "ms_plan")
 
@@ -119,7 +119,7 @@ get_sp_task <- function(task_title = NULL,
     return(task)
   }
 
-  ms_obj_as_data_frame(task, obj_col = "ms_plan_task", call = call)
+  ms_obj_as_data_frame(task, obj_col = "ms_plan_task", .error_call = call)
 }
 
 #' @rdname sp_tasks
@@ -127,6 +127,8 @@ get_sp_task <- function(task_title = NULL,
 #' @inheritParams Microsoft365R::ms_plan_task
 #' @inheritParams get_sp_plan
 #' @inheritParams ms_graph_terms
+#' @param plan A `ms_plan` object. If `plan` is supplied, `plan_title`,
+#'   `plan_id`, and any additional parameters passed to `...` are ignored.
 #' @returns For [list_sp_tasks()], a list of `ms_plan_task` class objects or a
 #'   data frame with a list column named "ms_plan_task".
 #' @export
@@ -152,5 +154,9 @@ list_sp_tasks <- function(plan_title = NULL,
     return(task_list)
   }
 
-  ms_obj_list_as_data_frame(task_list, obj_col = "ms_plan_task", call = call)
+  ms_obj_list_as_data_frame(
+    task_list,
+    obj_col = "ms_plan_task",
+    .error_call = call
+    )
 }

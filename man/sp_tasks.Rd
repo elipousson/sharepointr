@@ -37,6 +37,9 @@ list_sp_tasks(
 \item{plan_title, plan_id}{Planner title or ID. Exactly one of the two
 arguments must be supplied.}
 
+\item{plan}{A \code{ms_plan} object. If \code{plan} is supplied, \code{plan_title},
+\code{plan_id}, and any additional parameters passed to \code{...} are ignored.}
+
 \item{as_data_frame}{If \code{TRUE} (default), return a data frame with the plan
 tite, id, creation date/time, and owner ID with a list column named
 "ms_plan" containing \code{ms_plan} objects. If \code{FALSE}, return a list of

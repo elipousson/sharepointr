@@ -37,8 +37,10 @@ supplied.}
     \item{\code{item_id}}{A SharePoint item ID passed to the \code{itemid} parameter of the
 \code{get_item} method for \code{ms_drive} objects.}
     \item{\code{drive_name,drive_id}}{SharePoint drive name or ID.}
-    \item{\code{properties}}{If \code{TRUE}, use \code{get_item_properties} method and return item
-properties instead of the item.}
+    \item{\code{properties}}{If \code{TRUE}, use the \code{get_item_properties} method and return
+item properties instead of the item.}
+    \item{\code{as_data_frame}}{If \code{TRUE}, return a data frame. If \code{FALSE} (default),
+return a \code{ms_item} or \code{ms_item_properties} object.}
   }}
 
 \item{item}{A \code{ms_drive_item} class object.}

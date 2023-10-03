@@ -3,7 +3,9 @@
 #' [get_sp_item()] wraps the `get_item` method for `ms_drive` objects and
 #' returns a `ms_drive_item` object by default. [get_sp_item_properties()] uses
 #' the `get_item_properties` method (also available by setting `properties =
-#' TRUE` for [get_sp_item()]).
+#' TRUE` for [get_sp_item()]). Additional parameters in `...` are passed to
+#' [get_sp_drive()] by [get_sp_item()] or to [get_sp_item()] by
+#' [get_sp_item_properties()] or [delete_sp_item()].
 #'
 #' @param path A SharePoint file URL or the relative path to a file located in a
 #'   SharePoint drive. If input is a relative path, the string should *not*
@@ -17,9 +19,11 @@
 #' @param drive_name,drive_id SharePoint drive name or ID.
 #' @param drive A `ms_drive` object. If drive is supplied, `drive_name`,
 #'   `site_url`, and any additional parameters passed to `...` are ignored.
-#' @param properties If `TRUE`, use `get_item_properties` method and return item
-#'   properties instead of the item.
+#' @param properties If `TRUE`, use the `get_item_properties` method and return
+#'   item properties instead of the item.
 #' @inheritParams get_sp_drive
+#' @param as_data_frame If `TRUE`, return a data frame. If `FALSE` (default),
+#'   return a `ms_item` or `ms_item_properties` object.
 #' @seealso [Microsoft365R::ms_drive_item]
 #' @export
 get_sp_item <- function(path = NULL,
@@ -93,7 +97,8 @@ get_sp_item <- function(path = NULL,
   ms_obj_as_data_frame(
     item,
     obj_col = "ms_item",
-    keep_list_cols = c("createdBy", "lastModifiedBy")
+    keep_list_cols = c("createdBy", "lastModifiedBy"),
+    .error_call = call
     )
 }
 

@@ -20,6 +20,9 @@ NULL
 #'   `as_data_frame = FALSE`.
 #' @param pagesize Number of list items to return. Reduce from default of 5000
 #'   is experiencing timeouts.
+#' @param sp_list A `ms_list` object. If supplied, `list_name`, `list_id`,
+#'   `site_url`, `site`, `drive_name`, `drive_id`, `drive`, and any additional
+#'   parameters passed to `...` are all ignored.
 #' @export
 list_sp_list_items <- function(list_name = NULL,
                                list_id = NULL,
@@ -54,10 +57,10 @@ list_sp_list_items <- function(list_name = NULL,
     select <- paste0(select, collapse = ",")
   }
 
-  if (all_metadata && (!as_data_frame || is.null(n))) {
+  if (all_metadata && !as_data_frame) {
     cli::cli_warn(
       "{.arg all_metadata} can't be {.code TRUE} if
-        {.code n = NULL} or {.code as_data_frame = FALSE}"
+      {.code as_data_frame = FALSE}"
     )
   }
 
@@ -76,6 +79,8 @@ list_sp_list_items <- function(list_name = NULL,
 
 #' @rdname sp_list_item
 #' @name update_sp_list_item
+#' @param data Required. A data frame to import as items to the supplied or
+#'   identified SharePoint list.
 #' @export
 import_sp_list_items <- function(data,
                                  list_name = NULL,
@@ -105,7 +110,7 @@ import_sp_list_items <- function(data,
     call = call
   )
 
-  stopifnot(is.data.frame(data))
+  check_data_frame(data, call = call)
 
   cli_progress_step(
     "Importing {.arg data} into list"
@@ -116,6 +121,7 @@ import_sp_list_items <- function(data,
 
 #' @rdname sp_list_item
 #' @name get_sp_list_item
+#' @param id Required. A SharePoint list item ID.
 #' @export
 get_sp_list_item <- function(id,
                              list_name = NULL,
@@ -141,6 +147,7 @@ get_sp_list_item <- function(id,
   )
 
   check_ms(sp_list, "ms_list", call = call)
+  check_string(id, allow_empty = FALSE, call = call)
 
   cli::cli_progress_step(
     "Getting item {.val {id}}"

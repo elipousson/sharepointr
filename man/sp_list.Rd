@@ -29,7 +29,6 @@ list_sp_lists(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  items = TRUE,
   as_data_frame = TRUE,
   call = caller_env()
 )

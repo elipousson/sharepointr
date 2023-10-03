@@ -76,6 +76,10 @@ update_sp_list_item(
 \arguments{
 \item{list_name, list_id}{SharePoint List name or ID string.}
 
+\item{sp_list}{A \code{ms_list} object. If supplied, \code{list_name}, \code{list_id},
+\code{site_url}, \code{site}, \code{drive_name}, \code{drive_id}, \code{drive}, and any additional
+parameters passed to \code{...} are all ignored.}
+
 \item{...}{Additional parameters passed to
 \code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}} or \code{\link[=get_sp_site]{get_sp_site()}}.}
 
@@ -118,6 +122,11 @@ method for SharePoint site object.}
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
+
+\item{data}{Required. A data frame to import as items to the supplied or
+identified SharePoint list.}
+
+\item{id}{Required. A SharePoint list item ID.}
 }
 \description{
 \code{\link[=list_sp_list_items]{list_sp_list_items()}} lists \code{sp_list} items. Additional functions should be

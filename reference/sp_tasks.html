@@ -25,6 +25,12 @@ method. Both default to returning a data frame."><!-- mathjax --><script src="ht
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/sp_url.html">Using SharePoint URLs to work with items and lists</a>
+  </div>
+</li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
 
@@ -91,6 +97,11 @@ method. Both default to returning a data frame.</p>
 <dt>plan_title, plan_id</dt>
 <dd><p>Planner title or ID. Exactly one of the two
 arguments must be supplied.</p></dd>
+
+
+<dt>plan</dt>
+<dd><p>A <code>ms_plan</code> object. If <code>plan</code> is supplied, <code>plan_title</code>,
+<code>plan_id</code>, and any additional parameters passed to <code>...</code> are ignored.</p></dd>
 
 
 <dt>as_data_frame</dt>

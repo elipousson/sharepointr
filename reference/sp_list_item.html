@@ -25,6 +25,12 @@ methods documented in Microsoft365R::ms_list."><!-- mathjax --><script src="http
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/sp_url.html">Using SharePoint URLs to work with items and lists</a>
+  </div>
+</li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
 
@@ -126,6 +132,12 @@ methods documented in <a href="https://rdrr.io/pkg/Microsoft365R/man/ms_list.htm
 <dd><p>SharePoint List name or ID string.</p></dd>
 
 
+<dt>sp_list</dt>
+<dd><p>A <code>ms_list</code> object. If supplied, <code>list_name</code>, <code>list_id</code>,
+<code>site_url</code>, <code>site</code>, <code>drive_name</code>, <code>drive_id</code>, <code>drive</code>, and any additional
+parameters passed to <code>...</code> are all ignored.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional parameters passed to
 <code><a href="https://rdrr.io/pkg/Microsoft365R/man/client.html" class="external-link">Microsoft365R::get_sharepoint_site()</a></code> or <code><a href="sp_site.html">get_sp_site()</a></code>.</p></dd>
@@ -189,6 +201,15 @@ method for SharePoint site object.</p></dd>
 running function, e.g. <code>caller_env()</code>. The function will be
 mentioned in error messages as the source of the error. See the
 <code>call</code> argument of <code><a href="https://rlang.r-lib.org/reference/abort.html" class="external-link">abort()</a></code> for more information.</p></dd>
+
+
+<dt>data</dt>
+<dd><p>Required. A data frame to import as items to the supplied or
+identified SharePoint list.</p></dd>
+
+
+<dt>id</dt>
+<dd><p>Required. A SharePoint list item ID.</p></dd>
 
 </dl></div>
 

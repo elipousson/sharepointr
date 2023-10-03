@@ -1,8 +1,9 @@
 pandoc: 2.19.2
 pkgdown: 2.0.7
 pkgdown_sha: ~
-articles: {}
-last_built: 2023-10-02T13:05Z
+articles:
+  sp_url: sp_url.html
+last_built: 2023-10-03T03:36Z
 urls:
   reference: https://elipousson.github.io/sharepointr/reference
   article: https://elipousson.github.io/sharepointr/articles

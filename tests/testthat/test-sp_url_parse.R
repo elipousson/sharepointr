@@ -34,4 +34,15 @@ test_that("sp_url_parse works", {
     parsed_dir_url[["file"]],
     NULL
   )
+
+  skip("Parsing for SharePoint list URLs has incomplete support")
+
+  test_list_url <- "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"
+
+  parsed_list_url <- sp_url_parse(test_list_url)
+
+  expect_equal(
+    parsed_dir_url[["file"]],
+    "Data Governance Progress Tracker"
+  )
 })

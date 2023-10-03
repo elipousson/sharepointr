@@ -124,13 +124,12 @@ list_replace_empty <- function(x, replace = NULL) {
 #' column of objects
 #'
 #' @noRd
+#' @importFrom vctrs vec_rbind
 ms_obj_list_as_data_frame <- function(ms_obj_list,
                                       obj_col = "ms_plan",
                                       keep_list_cols = NULL,
                                       .name_repair = "universal_quiet",
                                       .error_call = caller_env()) {
-  check_installed("vctrs", call = .error_call)
-
   ms_obj_list <- lapply(
     ms_obj_list,
     function(obj) {
@@ -152,6 +151,7 @@ ms_obj_list_as_data_frame <- function(ms_obj_list,
 #' objects
 #'
 #' @noRd
+#' @importFrom vctrs list_sizes
 ms_obj_as_data_frame <- function(ms_obj,
                                  obj_col = "ms_plan",
                                  recursive = FALSE,
@@ -163,8 +163,6 @@ ms_obj_as_data_frame <- function(ms_obj,
   } else {
     properties <- ms_obj
   }
-
-  check_installed("vctrs", call = .error_call)
 
   sizes <- vctrs::list_sizes(properties)
   len1_props <- properties[sizes == 1]

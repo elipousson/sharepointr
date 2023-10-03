@@ -6,6 +6,8 @@
 \usage{
 delete_sp_item(
   path = NULL,
+  confirm = TRUE,
+  by_item = FALSE,
   ...,
   item_id = NULL,
   item = NULL,
@@ -13,8 +15,6 @@ delete_sp_item(
   drive_id = NULL,
   drive = NULL,
   site_url = NULL,
-  confirm = TRUE,
-  by_item = FALSE,
   call = caller_env()
 )
 }
@@ -26,11 +26,27 @@ is removed from the start of the SharePoint drive name by default. If file
 is a document URL, the \code{.default_drive_name} argument is used as the
 \code{drive_name} and the \code{item_id} is extracted from the URL.}
 
-\item{...}{Additional parameters passed to
-\code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}} or \code{\link[=get_sp_site]{get_sp_site()}}.}
+\item{confirm}{If \code{TRUE}, confirm before deleting item. If \code{TRUE} and session
+is not interactive, the function will error.}
+
+\item{by_item}{For business OneDrive or SharePoint document libraries, you
+may need to set \code{by_item = TRUE} to delete the contents of a folder
+depending on the policies set up by your SharePoint administrator policies.
+Note, that this method can be slow for large folders.}
+
+\item{...}{
+  Arguments passed on to \code{\link[=get_sp_item]{get_sp_item}}
+  \describe{
+    \item{\code{drive_name,drive_id}}{SharePoint drive name or ID.}
+    \item{\code{as_data_frame}}{If \code{TRUE}, return a data frame. If \code{FALSE} (default),
+return a \code{ms_item} or \code{ms_item_properties} object.}
+  }}
 
 \item{item_id}{A SharePoint item ID passed to the \code{itemid} parameter of the
 \code{get_item} method for \code{ms_drive} objects.}
+
+\item{item}{A \code{ms_drive_item} class object. Optional if path or other
+parameters to get an SharePoint item are supplied.}
 
 \item{drive_name, drive_id}{SharePoint drive name or ID.}
 
@@ -41,14 +57,6 @@ is a document URL, the \code{.default_drive_name} argument is used as the
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL can also be parsed to build a site URL using the tenant and site name
 included in the URL.}
-
-\item{confirm}{If \code{TRUE}, confirm before deleting item. If \code{TRUE} and session
-is not interactive, the function will error.}
-
-\item{by_item}{For business OneDrive or SharePoint document libraries, you
-may need to set \code{by_item = TRUE} to delete the contents of a folder
-depending on the policies set up by your SharePoint administrator policies.
-Note, that this method can be slow for large folders.}
 
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be

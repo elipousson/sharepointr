@@ -150,8 +150,12 @@ get_sp_item_properties <- function(path = NULL,
 #'   may need to set `by_item = TRUE` to delete the contents of a folder
 #'   depending on the policies set up by your SharePoint administrator policies.
 #'   Note, that this method can be slow for large folders.
+#' @inheritDotParams get_sp_item -properties
+#' @inheritParams download_sp_item
 #' @export
 delete_sp_item <- function(path = NULL,
+                           confirm = TRUE,
+                           by_item = FALSE,
                            ...,
                            item_id = NULL,
                            item = NULL,
@@ -159,8 +163,6 @@ delete_sp_item <- function(path = NULL,
                            drive_id = NULL,
                            drive = NULL,
                            site_url = NULL,
-                           confirm = TRUE,
-                           by_item = FALSE,
                            call = caller_env()) {
   item <- item %||% get_sp_item(
     path = path,
@@ -170,6 +172,7 @@ delete_sp_item <- function(path = NULL,
     drive = drive,
     site_url = site_url,
     ...,
+    properties = FALSE,
     call = call
   )
 

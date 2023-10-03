@@ -3,9 +3,10 @@
 \name{sp_list_item}
 \alias{sp_list_item}
 \alias{list_sp_list_items}
-\alias{update_sp_list_item}
+\alias{create_sp_list_items}
 \alias{import_sp_list_items}
 \alias{get_sp_list_item}
+\alias{update_sp_list_item}
 \title{Get, list, update, and delete SharePoint list items}
 \usage{
 list_sp_list_items(
@@ -26,17 +27,12 @@ list_sp_list_items(
   call = caller_env()
 )
 
-import_sp_list_items(
+create_sp_list_items(
   data,
   list_name = NULL,
   list_id = NULL,
-  id = NULL,
+  sp_list = NULL,
   ...,
-  filter = NULL,
-  select = NULL,
-  all_metadata = FALSE,
-  as_data_frame = TRUE,
-  pagesize = 5000,
   site_url = NULL,
   site = NULL,
   drive_name = NULL,
@@ -48,9 +44,9 @@ import_sp_list_items(
 get_sp_list_item(
   id,
   list_name = NULL,
-  ...,
-  sp_list = NULL,
   list_id = NULL,
+  sp_list = NULL,
+  ...,
   site_url = NULL,
   site = NULL,
   drive_name = NULL,
@@ -62,9 +58,9 @@ get_sp_list_item(
 update_sp_list_item(
   id,
   list_name = NULL,
-  ...,
-  sp_list = NULL,
   list_id = NULL,
+  sp_list = NULL,
+  ...,
   site_url = NULL,
   site = NULL,
   drive_name = NULL,

@@ -78,27 +78,23 @@ list_sp_list_items <- function(list_name = NULL,
 }
 
 #' @rdname sp_list_item
-#' @name update_sp_list_item
+#' @name create_sp_list_items
+#' @aliases import_sp_list_items
 #' @param data Required. A data frame to import as items to the supplied or
 #'   identified SharePoint list.
 #' @export
-import_sp_list_items <- function(data,
+create_sp_list_items <- function(data,
                                  list_name = NULL,
                                  list_id = NULL,
-                                 id = NULL,
+                                 sp_list = NULL,
                                  ...,
-                                 filter = NULL,
-                                 select = NULL,
-                                 all_metadata = FALSE,
-                                 as_data_frame = TRUE,
-                                 pagesize = 5000,
                                  site_url = NULL,
                                  site = NULL,
                                  drive_name = NULL,
                                  drive_id = NULL,
                                  drive = NULL,
                                  call = caller_env()) {
-  sp_list <- get_sp_list(
+  sp_list <- sp_list %||% get_sp_list(
     list_name = list_name,
     list_id = list_id,
     ...,
@@ -110,6 +106,7 @@ import_sp_list_items <- function(data,
     call = call
   )
 
+  check_ms(sp_list, "ms_list", call = call)
   check_data_frame(data, call = call)
 
   cli_progress_step(
@@ -117,6 +114,8 @@ import_sp_list_items <- function(data,
   )
 
   sp_list$bulk_import(data)
+
+  invisible(data)
 }
 
 #' @rdname sp_list_item
@@ -125,9 +124,9 @@ import_sp_list_items <- function(data,
 #' @export
 get_sp_list_item <- function(id,
                              list_name = NULL,
-                             ...,
-                             sp_list = NULL,
                              list_id = NULL,
+                             sp_list = NULL,
+                             ...,
                              site_url = NULL,
                              site = NULL,
                              drive_name = NULL,
@@ -154,6 +153,8 @@ get_sp_list_item <- function(id,
   )
 
   sp_list$get_item(id)
+
+  invisible(id)
 }
 
 
@@ -162,9 +163,9 @@ get_sp_list_item <- function(id,
 #' @export
 update_sp_list_item <- function(id,
                                 list_name = NULL,
-                                ...,
-                                sp_list = NULL,
                                 list_id = NULL,
+                                sp_list = NULL,
+                                ...,
                                 site_url = NULL,
                                 site = NULL,
                                 drive_name = NULL,
@@ -189,4 +190,6 @@ update_sp_list_item <- function(id,
   )
 
   sp_list$update_item(id, ...)
+
+  invisible(id)
 }

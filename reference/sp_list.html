@@ -79,7 +79,7 @@ to distinguish them from item metadata.</p>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  metadata <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  as_data_frame <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  as_data_frame <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -93,6 +93,19 @@ to distinguish them from item metadata.</p>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  as_data_frame <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">get_sp_list_metadata</span><span class="op">(</span></span>
+<span>  list_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  list_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  site_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -142,10 +155,11 @@ metadata for the list.</p></dd>
 
 
 <dt>as_data_frame</dt>
-<dd><p>If <code>TRUE</code> (default), return a data frame with a
-"ms_list" column. <code>get_sp_list()</code> returns a 1 row data frame and
-<code>list_sp_lists()</code> returns a data frame with n rows or all lists available
-for the SharePoint site or drive.</p></dd>
+<dd><p>If <code>TRUE</code>, return a data frame with a "ms_list" column.
+<code>get_sp_list()</code> returns a 1 row data frame and <code>list_sp_lists()</code> returns a
+data frame with n rows or all lists available for the SharePoint site or
+drive. Defaults to <code>FALSE</code>. Ignored is <code>metadata = TRUE</code> as list metadata
+is always returned as a data frame.</p></dd>
 
 
 <dt>call</dt>
@@ -164,6 +178,12 @@ on using filter query parameters.</p></dd>
 <dt>n</dt>
 <dd><p>Maximum number of lists, plans, tasks, or other items to return.
 Defaults to <code>NULL</code> which sets n to <code>Inf</code>.</p></dd>
+
+
+<dt>sp_list</dt>
+<dd><p>A <code>ms_list</code> object. If supplied, <code>list_name</code>, <code>list_id</code>,
+<code>site_url</code>, <code>site</code>, <code>drive_name</code>, <code>drive_id</code>, <code>drive</code>, and any additional
+parameters passed to <code>...</code> are all ignored.</p></dd>
 
 </dl></div>
     <div class="section level2">

@@ -72,10 +72,11 @@ NULL
 #' @rdname sp_list
 #' @name get_sp_list
 #' @param list_name,list_id SharePoint List name or ID string.
-#' @param as_data_frame If `TRUE` (default), return a data frame with a
-#'   "ms_list" column. [get_sp_list()] returns a 1 row data frame and
-#'   [list_sp_lists()] returns a data frame with n rows or all lists available
-#'   for the SharePoint site or drive.
+#' @param as_data_frame If `TRUE`, return a data frame with a "ms_list" column.
+#'   [get_sp_list()] returns a 1 row data frame and [list_sp_lists()] returns a
+#'   data frame with n rows or all lists available for the SharePoint site or
+#'   drive. Defaults to `FALSE`. Ignored is `metadata = TRUE` as list metadata
+#'   is always returned as a data frame.
 #' @param metadata If `TRUE`, [get_sp_list()] applies the `get_column_info`
 #'   method to the returned SharePoint list and returns a data frame with column
 #'   metadata for the list.
@@ -91,7 +92,7 @@ get_sp_list <- function(list_name = NULL,
                         drive_id = NULL,
                         drive = NULL,
                         metadata = FALSE,
-                        as_data_frame = TRUE,
+                        as_data_frame = FALSE,
                         call = caller_env()) {
   # FIXME: URL parsing is not set up for links to SharePoint lists
   if (is_url(list_name)) {
@@ -185,4 +186,43 @@ list_sp_lists <- function(site_url = NULL,
     obj_col = "ms_list",
     keep_list_cols = c("createdBy", "lastModifiedBy")
   )
+}
+
+#' @rdname sp_list
+#' @name get_sp_list_metadata
+#' @param sp_list A `ms_list` object. If supplied, `list_name`, `list_id`,
+#'   `site_url`, `site`, `drive_name`, `drive_id`, `drive`, and any additional
+#'   parameters passed to `...` are all ignored.
+#' @export
+get_sp_list_metadata <- function(list_name = NULL,
+                                 list_id = NULL,
+                                 sp_list = NULL,
+                                 ...,
+                                 site_url = NULL,
+                                 site = NULL,
+                                 drive_name = NULL,
+                                 drive_id = NULL,
+                                 drive = NULL,
+                                 call = caller_env()) {
+  if (is.null(sp_list)) {
+    sp_list_metadata <- get_sp_list(
+      list_name = list_name,
+      list_id = list_id,
+      ...,
+      as_data_frame = FALSE,
+      metadata = TRUE,
+      site_url = site_url,
+      site = site,
+      drive_name = drive_name,
+      drive_id = drive_id,
+      drive = drive,
+      call = call
+    )
+
+    return(sp_list_metadata)
+  }
+
+  check_ms(sp_list, "ms_list", call = call)
+
+  sp_list$get_column_info()
 }

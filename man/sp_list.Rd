@@ -4,6 +4,7 @@
 \alias{sp_list}
 \alias{get_sp_list}
 \alias{list_sp_lists}
+\alias{get_sp_list_metadata}
 \title{Get a SharePoint list or a list of SharePoint lists}
 \usage{
 get_sp_list(
@@ -16,7 +17,7 @@ get_sp_list(
   drive_id = NULL,
   drive = NULL,
   metadata = FALSE,
-  as_data_frame = TRUE,
+  as_data_frame = FALSE,
   call = caller_env()
 )
 
@@ -30,6 +31,19 @@ list_sp_lists(
   drive_id = NULL,
   drive = NULL,
   as_data_frame = TRUE,
+  call = caller_env()
+)
+
+get_sp_list_metadata(
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  ...,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
   call = caller_env()
 )
 }
@@ -62,10 +76,11 @@ method for SharePoint site object.}
 method to the returned SharePoint list and returns a data frame with column
 metadata for the list.}
 
-\item{as_data_frame}{If \code{TRUE} (default), return a data frame with a
-"ms_list" column. \code{\link[=get_sp_list]{get_sp_list()}} returns a 1 row data frame and
-\code{\link[=list_sp_lists]{list_sp_lists()}} returns a data frame with n rows or all lists available
-for the SharePoint site or drive.}
+\item{as_data_frame}{If \code{TRUE}, return a data frame with a "ms_list" column.
+\code{\link[=get_sp_list]{get_sp_list()}} returns a 1 row data frame and \code{\link[=list_sp_lists]{list_sp_lists()}} returns a
+data frame with n rows or all lists available for the SharePoint site or
+drive. Defaults to \code{FALSE}. Ignored is \code{metadata = TRUE} as list metadata
+is always returned as a data frame.}
 
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be
@@ -78,6 +93,10 @@ on using filter query parameters.}
 
 \item{n}{Maximum number of lists, plans, tasks, or other items to return.
 Defaults to \code{NULL} which sets n to \code{Inf}.}
+
+\item{sp_list}{A \code{ms_list} object. If supplied, \code{list_name}, \code{list_id},
+\code{site_url}, \code{site}, \code{drive_name}, \code{drive_id}, \code{drive}, and any additional
+parameters passed to \code{...} are all ignored.}
 }
 \value{
 A data frame \code{as_data_frame = TRUE} or a \code{ms_list} object (or list

@@ -5,6 +5,7 @@
 \alias{get_sp_list}
 \alias{list_sp_lists}
 \alias{get_sp_list_metadata}
+\alias{delete_sp_list}
 \title{Get a SharePoint list or a list of SharePoint lists}
 \usage{
 get_sp_list(
@@ -38,6 +39,20 @@ get_sp_list_metadata(
   list_name = NULL,
   list_id = NULL,
   sp_list = NULL,
+  ...,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  call = caller_env()
+)
+
+delete_sp_list(
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  confirm = TRUE,
   ...,
   site_url = NULL,
   site = NULL,
@@ -97,6 +112,8 @@ Defaults to \code{NULL} which sets n to \code{Inf}.}
 \item{sp_list}{A \code{ms_list} object. If supplied, \code{list_name}, \code{list_id},
 \code{site_url}, \code{site}, \code{drive_name}, \code{drive_id}, \code{drive}, and any additional
 parameters passed to \code{...} are all ignored.}
+
+\item{confirm}{If \code{TRUE}, confirm deletion of list before proceeding.}
 }
 \value{
 A data frame \code{as_data_frame = TRUE} or a \code{ms_list} object (or list

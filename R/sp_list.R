@@ -226,3 +226,38 @@ get_sp_list_metadata <- function(list_name = NULL,
 
   sp_list$get_column_info()
 }
+
+
+#' @rdname sp_list
+#' @name delete_sp_list
+#' @param confirm If `TRUE`, confirm deletion of list before proceeding.
+#' @export
+delete_sp_list <- function(list_name = NULL,
+                           list_id = NULL,
+                           sp_list = NULL,
+                           confirm = TRUE,
+                           ...,
+                           site_url = NULL,
+                           site = NULL,
+                           drive_name = NULL,
+                           drive_id = NULL,
+                           drive = NULL,
+                           call = caller_env()) {
+  sp_list <- sp_list %||% get_sp_list(
+    list_name = list_name,
+    list_id = list_id,
+    ...,
+    as_data_frame = FALSE,
+    metadata = TRUE,
+    site_url = site_url,
+    site = site,
+    drive_name = drive_name,
+    drive_id = drive_id,
+    drive = drive,
+    call = call
+  )
+
+  check_ms(sp_list, "ms_list", call = call)
+
+  sp_list$delete(confirm = confirm)
+}

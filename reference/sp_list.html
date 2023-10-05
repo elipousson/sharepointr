@@ -107,6 +107,20 @@ to distinguish them from item metadata.</p>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">delete_sp_list</span><span class="op">(</span></span>
+<span>  list_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  list_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  confirm <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  site_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -184,6 +198,10 @@ Defaults to <code>NULL</code> which sets n to <code>Inf</code>.</p></dd>
 <dd><p>A <code>ms_list</code> object. If supplied, <code>list_name</code>, <code>list_id</code>,
 <code>site_url</code>, <code>site</code>, <code>drive_name</code>, <code>drive_id</code>, <code>drive</code>, and any additional
 parameters passed to <code>...</code> are all ignored.</p></dd>
+
+
+<dt>confirm</dt>
+<dd><p>If <code>TRUE</code>, confirm deletion of list before proceeding.</p></dd>
 
 </dl></div>
     <div class="section level2">

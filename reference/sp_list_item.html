@@ -78,8 +78,8 @@ methods documented in <a href="https://rdrr.io/pkg/Microsoft365R/man/ms_list.htm
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">create_sp_list_items</span><span class="op">(</span></span>
-<span>  <span class="va">data</span>,</span>
+<span><span class="fu">get_sp_list_item</span><span class="op">(</span></span>
+<span>  <span class="va">id</span>,</span>
 <span>  list_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  list_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -92,8 +92,8 @@ methods documented in <a href="https://rdrr.io/pkg/Microsoft365R/man/ms_list.htm
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">get_sp_list_item</span><span class="op">(</span></span>
-<span>  <span class="va">id</span>,</span>
+<span><span class="fu">create_sp_list_items</span><span class="op">(</span></span>
+<span>  <span class="va">data</span>,</span>
 <span>  list_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  list_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -103,6 +103,9 @@ methods documented in <a href="https://rdrr.io/pkg/Microsoft365R/man/ms_list.htm
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  check_fields <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  sync_fields <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  strict <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -170,10 +173,11 @@ data frame named fields. This is always set to <code>FALSE</code> if <code>n = N
 
 
 <dt>as_data_frame</dt>
-<dd><p>If <code>TRUE</code> (default), return a data frame with a
-"ms_list" column. <code><a href="sp_list.html">get_sp_list()</a></code> returns a 1 row data frame and
-<code><a href="sp_list.html">list_sp_lists()</a></code> returns a data frame with n rows or all lists available
-for the SharePoint site or drive.</p></dd>
+<dd><p>If <code>TRUE</code>, return a data frame with a "ms_list" column.
+<code><a href="sp_list.html">get_sp_list()</a></code> returns a 1 row data frame and <code><a href="sp_list.html">list_sp_lists()</a></code> returns a
+data frame with n rows or all lists available for the SharePoint site or
+drive. Defaults to <code>FALSE</code>. Ignored is <code>metadata = TRUE</code> as list metadata
+is always returned as a data frame.</p></dd>
 
 
 <dt>pagesize</dt>
@@ -210,16 +214,58 @@ mentioned in error messages as the source of the error. See the
 <code>call</code> argument of <code><a href="https://rlang.r-lib.org/reference/abort.html" class="external-link">abort()</a></code> for more information.</p></dd>
 
 
+<dt>id</dt>
+<dd><p>Required. A SharePoint list item ID typically an integer for the
+record number starting from 1 with the first record.</p></dd>
+
+
 <dt>data</dt>
 <dd><p>Required. A data frame to import as items to the supplied or
 identified SharePoint list.</p></dd>
 
 
-<dt>id</dt>
-<dd><p>Required. A SharePoint list item ID.</p></dd>
+<dt>check_fields</dt>
+<dd><p>If <code>TRUE</code> (default), column names for the input data are
+matched to the fields of the list object. If <code>FALSE</code>, the function will
+error if any column names can't be matched to a field in the supplied
+SharePoint list.</p></dd>
+
+
+<dt>sync_fields</dt>
+<dd><p>If <code>TRUE</code>, use the <code>sync_fields</code> method to sync the fields
+of the local sp_list object with the fields of the SharePoint List source.</p></dd>
+
+
+<dt>strict</dt>
+<dd><p>If <code>TRUE</code>, all column names in data must be matched to field
+names in the supplied SharePoint list. If <code>FALSE</code> (default), unmatched
+columns will be dropped with a warning.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Creating new list items with <code>create_sp_list_items()</code></p>
+<p>The handling of item creation when column names in <code>data</code> do not match the
+fields names in the supplied list includes a few options:</p><ul><li><p>If no names in data match fields in the list, the function errors and lists the field names.</p></li>
+<li><p>If all names in data match fields in the list the records are created. Any fields that do not have corresponding names in data remain blank.</p></li>
+<li><p>If any names in data do not match fields in the list, by default, those columns are dropped before adding items to the list.</p></li>
+<li><p>If <code>strict = TRUE</code> and any names in data to not match fields, the function errors.</p></li>
+</ul></div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">sp_list_url</span> <span class="op">&lt;-</span> <span class="st">"&lt;SharePoint List URL with a Name field&gt;"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="is_sp_url.html">is_sp_url</a></span><span class="op">(</span><span class="va">sp_list_url</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu">create_sp_list_items</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>      Name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Jim"</span>, <span class="st">"Jane"</span>, <span class="st">"Jayden"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="op">)</span>,</span></span>
+<span class="r-in"><span>    list_name <span class="op">=</span> <span class="va">sp_list_url</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -66,6 +66,7 @@ of <code>ms_plan</code> objects.</p>
 <span>  <span class="va">...</span>,</span>
 <span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  as_data_frame <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -102,6 +103,13 @@ URL can also be parsed to build a site URL using the tenant and site name
 included in the URL.</p></dd>
 
 
+<dt>as_data_frame</dt>
+<dd><p>If <code>TRUE</code> (default for <code>list_sp_plans()</code>), return a data
+frame with the plan title, id, creation date/time, and owner ID with a list
+column named "ms_plan" containing <code>ms_plan</code> objects. If <code>FALSE</code> (default
+<code>get_sp_plan()</code>), return a <code>ms_plan</code> object or list of <code>ms_plan</code> objects.</p></dd>
+
+
 <dt>call</dt>
 <dd><p>The execution environment of a currently
 running function, e.g. <code>caller_env()</code>. The function will be
@@ -119,19 +127,13 @@ on using filter query parameters.</p></dd>
 <dd><p>Maximum number of lists, plans, tasks, or other items to return.
 Defaults to <code>NULL</code> which sets n to <code>Inf</code>.</p></dd>
 
-
-<dt>as_data_frame</dt>
-<dd><p>If <code>TRUE</code> (default), return a data frame with the plan
-tite, id, creation date/time, and owner ID with a list column named
-"ms_plan" containing <code>ms_plan</code> objects. If <code>FALSE</code>, return a list of
-<code>ms_plan</code> objects.</p></dd>
-
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>For <code>get_sp_plan()</code>, a <code>ms_plan</code> class object.</p>
+<p>For <code>get_sp_plan()</code>, a <code>ms_plan</code> class object or a 1 row data frame
+with a "ms_plan" column.</p>
 
 
 <p>For <code>list_sp_plans()</code>, A list of <code>ms_plan</code> class objects or a data

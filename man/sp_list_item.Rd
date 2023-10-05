@@ -166,3 +166,15 @@ fields names in the supplied list includes a few options:
 \item If \code{strict = TRUE} and any names in data to not match fields, the function errors.
 }
 }
+\examples{
+sp_list_url <- "<SharePoint List URL with a Name field>"
+
+if (is_sp_url(sp_list_url)) {
+  create_sp_list_items(
+    data = data.frame(
+      Name = c("Jim", "Jane", "Jayden")
+    ),
+    list_name = sp_list_url
+  )
+}
+}

@@ -146,6 +146,17 @@ get_sp_list_item <- function(id,
 #'   matched to the fields of the list object. If `FALSE`, the function will
 #'   error if any column names can't be matched to a field in the supplied
 #'   SharePoint list.
+#' @examples
+#' sp_list_url <- "<SharePoint List URL with a Name field>"
+#'
+#' if (is_sp_url(sp_list_url)) {
+#'   create_sp_list_items(
+#'     data = data.frame(
+#'       Name = c("Jim", "Jane", "Jayden")
+#'     ),
+#'     list_name = sp_list_url
+#'   )
+#' }
 #' @export
 create_sp_list_items <- function(data,
                                  list_name = NULL,
@@ -182,7 +193,7 @@ create_sp_list_items <- function(data,
       sync_fields = sync_fields,
       strict = strict,
       call = call
-      )
+    )
   }
 
   cli_progress_step(
@@ -226,43 +237,45 @@ validate_sp_list_data_fields <- function(data,
 
   if (all(nm_match)) {
     return(data)
-  # FIXME: If strict is `TRUE` should this required that all allowed_nm values
-  # are also present in nm? The following code does this but I'm unsure if it is
-  # a good approach.
-  #   if (!strict) return(data)
-  #
-  #   if (!all(allowed_nm %in% nm)) {
-  #     cli_abort(
-  #       c("{.arg data} must include all writable field names.",
-  #       "i" = allowed_nm_msg),
-  #       call = call
-  #     )
-  #   }
+    # FIXME: If strict is `TRUE` should this required that all allowed_nm values
+    # are also present in nm? The following code does this but I'm unsure if it is
+    # a good approach.
+    #   if (!strict) return(data)
+    #
+    #   if (!all(allowed_nm %in% nm)) {
+    #     cli_abort(
+    #       c("{.arg data} must include all writable field names.",
+    #       "i" = allowed_nm_msg),
+    #       call = call
+    #     )
+    #   }
   }
 
   if (all(!nm_match)) {
     cli_abort(
       c(
         "At least one column in {.arg data} must match field names from the supplied list.",
-        "i" = allowed_nm_msg),
+        "i" = allowed_nm_msg
+      ),
       call = call
     )
   }
 
   if (any(!nm_match)) {
-
     msg <- "All column names in {.arg data} must match field names from the supplied list."
 
     if (!strict) {
       cli_warn(
         c(msg,
-          "i" = "Column{?s} {.val {nm[!nm_match]}} dropped from {.arg data}")
+          "i" = "Column{?s} {.val {nm[!nm_match]}} dropped from {.arg data}"
+        )
       )
     } else {
       cli_abort(
         c(
           msg,
-          "i" = allowed_nm_msg),
+          "i" = allowed_nm_msg
+        ),
         call = call
       )
     }

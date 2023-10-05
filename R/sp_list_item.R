@@ -3,7 +3,6 @@
 #' [list_sp_list_items()] lists `sp_list` items. Additional functions should be
 #' completed for the `get_item`, `create_item`, `update_item`, and `delete_item`
 #' methods documented in [Microsoft365R::ms_list].
-#'
 #' @name sp_list_item
 NULL
 
@@ -21,9 +20,6 @@ NULL
 #'   `as_data_frame = FALSE`.
 #' @param pagesize Number of list items to return. Reduce from default of 5000
 #'   is experiencing timeouts.
-#' @param sp_list A `ms_list` object. If supplied, `list_name`, `list_id`,
-#'   `site_url`, `site`, `drive_name`, `drive_id`, `drive`, and any additional
-#'   parameters passed to `...` are all ignored.
 #' @export
 list_sp_list_items <- function(list_name = NULL,
                                list_id = NULL,
@@ -44,6 +40,7 @@ list_sp_list_items <- function(list_name = NULL,
     list_name = list_name,
     list_id = list_id,
     as_data_frame = FALSE,
+    metadata = FALSE,
     ...,
     site_url = site_url,
     site = site,
@@ -79,51 +76,11 @@ list_sp_list_items <- function(list_name = NULL,
   )
 }
 
-#' @rdname sp_list_item
-#' @name create_sp_list_items
-#' @aliases import_sp_list_items
-#' @param data Required. A data frame to import as items to the supplied or
-#'   identified SharePoint list.
-#' @export
-create_sp_list_items <- function(data,
-                                 list_name = NULL,
-                                 list_id = NULL,
-                                 sp_list = NULL,
-                                 ...,
-                                 site_url = NULL,
-                                 site = NULL,
-                                 drive_name = NULL,
-                                 drive_id = NULL,
-                                 drive = NULL,
-                                 call = caller_env()) {
-  sp_list <- sp_list %||% get_sp_list(
-    list_name = list_name,
-    list_id = list_id,
-    ...,
-    as_data_frame = FALSE,
-    site_url = site_url,
-    site = site,
-    drive_name = drive_name,
-    drive_id = drive_id,
-    drive = drive,
-    call = call
-  )
-
-  check_ms(sp_list, "ms_list", call = call)
-  check_data_frame(data, call = call)
-
-  cli_progress_step(
-    "Importing {.arg data} into list"
-  )
-
-  sp_list$bulk_import(data)
-
-  invisible(data)
-}
 
 #' @rdname sp_list_item
 #' @name get_sp_list_item
-#' @param id Required. A SharePoint list item ID.
+#' @param id Required. A SharePoint list item ID typically an integer for the
+#'   record number starting from 1 with the first record.
 #' @export
 get_sp_list_item <- function(id,
                              list_name = NULL,
@@ -140,6 +97,7 @@ get_sp_list_item <- function(id,
     list_name = list_name,
     list_id = list_id,
     as_data_frame = FALSE,
+    metadata = FALSE,
     ...,
     site_url = site_url,
     site = site,
@@ -150,6 +108,9 @@ get_sp_list_item <- function(id,
   )
 
   check_ms(sp_list, "ms_list", call = call)
+
+  check_required(id, call = call)
+  id <- as.character(id)
   check_string(id, allow_empty = FALSE, call = call)
 
   cli::cli_progress_step(
@@ -161,6 +122,154 @@ get_sp_list_item <- function(id,
   invisible(id)
 }
 
+#' @rdname sp_list_item
+#' @name create_sp_list_items
+#' @details Creating new list items with `create_sp_list_items()`
+#'
+#' The handling of item creation when column names in `data` do not match the
+#' fields names in the supplied list includes a few options:
+#'
+#' - If no names in data match fields in the list, the function errors and lists the field names.
+#' - If all names in data match fields in the list the records are created. Any fields that do not have corresponding names in data remain blank.
+#' - If any names in data do not match fields in the list, by default, those columns are dropped before adding items to the list.
+#' - If `strict = TRUE` and any names in data to not match fields, the function errors.
+#'
+#' @aliases import_sp_list_items
+#' @param data Required. A data frame to import as items to the supplied or
+#'   identified SharePoint list.
+#' @param strict If `TRUE`, all column names in data must be matched to field
+#'   names in the supplied SharePoint list. If `FALSE` (default), unmatched
+#'   columns will be dropped with a warning.
+#' @param sync_fields If `TRUE`, use the `sync_fields` method to sync the fields
+#'   of the local sp_list object with the fields of the SharePoint List source.
+#' @param check_fields If `TRUE` (default), column names for the input data are
+#'   matched to the fields of the list object. If `FALSE`, the function will
+#'   error if any column names can't be matched to a field in the supplied
+#'   SharePoint list.
+#' @export
+create_sp_list_items <- function(data,
+                                 list_name = NULL,
+                                 list_id = NULL,
+                                 sp_list = NULL,
+                                 ...,
+                                 site_url = NULL,
+                                 site = NULL,
+                                 drive_name = NULL,
+                                 drive_id = NULL,
+                                 drive = NULL,
+                                 check_fields = TRUE,
+                                 sync_fields = FALSE,
+                                 strict = FALSE,
+                                 call = caller_env()) {
+  sp_list <- sp_list %||% get_sp_list(
+    list_name = list_name,
+    list_id = list_id,
+    metadata = FALSE,
+    as_data_frame = FALSE,
+    ...,
+    site_url = site_url,
+    site = site,
+    drive_name = drive_name,
+    drive_id = drive_id,
+    drive = drive,
+    call = call
+  )
+
+  if (check_fields) {
+    data <- validate_sp_list_data_fields(
+      data,
+      sp_list = sp_list,
+      sync_fields = sync_fields,
+      strict = strict,
+      call = call
+      )
+  }
+
+  cli_progress_step(
+    "Importing {.arg data} into list"
+  )
+
+  try_fetch(
+    sp_list$bulk_import(data),
+    error = function(cnd) {
+      cli_abort(
+        cnd$message,
+        call = call
+      )
+    }
+  )
+
+  invisible(data)
+}
+
+#' @noRd
+validate_sp_list_data_fields <- function(data,
+                                         sp_list = NULL,
+                                         sync_fields = FALSE,
+                                         strict = FALSE,
+                                         call = caller_env()) {
+  check_data_frame(data, call = call)
+
+  if (sync_fields) {
+    sp_list <- sp_list$sync_fields()
+  }
+
+  sp_list_meta <- get_sp_list_metadata(sp_list = sp_list, call = call)
+
+  nm <- names(data)
+
+  allowed_nm <- sp_list_meta[!sp_list_meta[["readOnly"]], ][["name"]]
+
+  nm_match <- nm %in% allowed_nm
+
+  allowed_nm_msg <- "Field name{?s} from list are {.val {allowed_nm}}"
+
+  if (all(nm_match)) {
+    return(data)
+  # FIXME: If strict is `TRUE` should this required that all allowed_nm values
+  # are also present in nm? The following code does this but I'm unsure if it is
+  # a good approach.
+  #   if (!strict) return(data)
+  #
+  #   if (!all(allowed_nm %in% nm)) {
+  #     cli_abort(
+  #       c("{.arg data} must include all writable field names.",
+  #       "i" = allowed_nm_msg),
+  #       call = call
+  #     )
+  #   }
+  }
+
+  if (all(!nm_match)) {
+    cli_abort(
+      c(
+        "At least one column in {.arg data} must match field names from the supplied list.",
+        "i" = allowed_nm_msg),
+      call = call
+    )
+  }
+
+  if (any(!nm_match)) {
+
+    msg <- "All column names in {.arg data} must match field names from the supplied list."
+
+    if (!strict) {
+      cli_warn(
+        c(msg,
+          "i" = "Column{?s} {.val {nm[!nm_match]}} dropped from {.arg data}")
+      )
+    } else {
+      cli_abort(
+        c(
+          msg,
+          "i" = allowed_nm_msg),
+        call = call
+      )
+    }
+
+    return(data[, nm_match, drop = FALSE])
+  }
+}
 
 #' @rdname sp_list_item
 #' @name update_sp_list_item

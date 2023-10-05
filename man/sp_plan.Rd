@@ -12,6 +12,7 @@ get_sp_plan(
   ...,
   site = NULL,
   site_url = NULL,
+  as_data_frame = FALSE,
   call = caller_env()
 )
 
@@ -38,6 +39,11 @@ name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL can also be parsed to build a site URL using the tenant and site name
 included in the URL.}
 
+\item{as_data_frame}{If \code{TRUE} (default for \code{\link[=list_sp_plans]{list_sp_plans()}}), return a data
+frame with the plan title, id, creation date/time, and owner ID with a list
+column named "ms_plan" containing \code{ms_plan} objects. If \code{FALSE} (default
+\code{\link[=get_sp_plan]{get_sp_plan()}}), return a \code{ms_plan} object or list of \code{ms_plan} objects.}
+
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
@@ -49,14 +55,10 @@ on using filter query parameters.}
 
 \item{n}{Maximum number of lists, plans, tasks, or other items to return.
 Defaults to \code{NULL} which sets n to \code{Inf}.}
-
-\item{as_data_frame}{If \code{TRUE} (default), return a data frame with the plan
-tite, id, creation date/time, and owner ID with a list column named
-"ms_plan" containing \code{ms_plan} objects. If \code{FALSE}, return a list of
-\code{ms_plan} objects.}
 }
 \value{
-For \code{\link[=get_sp_plan]{get_sp_plan()}}, a \code{ms_plan} class object.
+For \code{\link[=get_sp_plan]{get_sp_plan()}}, a \code{ms_plan} class object or a 1 row data frame
+with a "ms_plan" column.
 
 For \code{\link[=list_sp_plans]{list_sp_plans()}}, A list of \code{ms_plan} class objects or a data
 frame with a list column named "ms_plan".

@@ -13,7 +13,7 @@ get_sp_task(
   plan_title = NULL,
   plan_id = NULL,
   plan = NULL,
-  as_data_frame = TRUE,
+  as_data_frame = FALSE,
   call = caller_env()
 )
 
@@ -40,10 +40,10 @@ arguments must be supplied.}
 \item{plan}{A \code{ms_plan} object. If \code{plan} is supplied, \code{plan_title},
 \code{plan_id}, and any additional parameters passed to \code{...} are ignored.}
 
-\item{as_data_frame}{If \code{TRUE} (default), return a data frame with the plan
-tite, id, creation date/time, and owner ID with a list column named
-"ms_plan" containing \code{ms_plan} objects. If \code{FALSE}, return a list of
-\code{ms_plan} objects.}
+\item{as_data_frame}{If \code{TRUE} (default for \code{\link[=list_sp_tasks]{list_sp_tasks()}}), return a data
+frame of object properties with with a list column named "ms_plan_task"
+containing \code{ms_plan_task} objects. If \code{FALSE} (default \code{\link[=get_sp_task]{get_sp_task()}}),
+return a \code{ms_plan_task} object or list of \code{ms_plan_task} objects.}
 
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be
@@ -64,7 +64,7 @@ data frame with a list column named "ms_plan_task".
 \description{
 \code{\link[=get_sp_task]{get_sp_task()}} gets an individual planner task using the \code{get_task} method.
 \code{\link[=list_sp_tasks]{list_sp_tasks()}} lists the tasks for a specified plan using the \code{list_tasks}
-method. Both default to returning a data frame.
+method.
 }
 \seealso{
 \link[Microsoft365R:ms_plan_task]{Microsoft365R::ms_plan_task}

@@ -57,11 +57,19 @@ get_sp_site <- function(site_url = NULL,
     check_exclusive_strings(site_url, site_id, call = call)
   }
 
-  Microsoft365R::get_sharepoint_site(
-    site_url = site_url,
-    site_name = site_name,
-    site_id = site_id,
-    ...
+  try_fetch(
+    Microsoft365R::get_sharepoint_site(
+      site_url = site_url,
+      site_name = site_name,
+      site_id = site_id,
+      ...
+    ),
+    error = function(cnd) {
+      cli_abort(
+        cnd$message,
+        call = call
+      )
+    }
   )
 }
 

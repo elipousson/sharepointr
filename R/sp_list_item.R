@@ -50,7 +50,7 @@ list_sp_list_items <- function(list_name = NULL,
     call = call
   )
 
-  check_ms(sp_list, "ms_list", call = call)
+  check_ms_obj(sp_list, "ms_list", call = call)
 
   if (is.character(select)) {
     select <- paste0(select, collapse = ",")
@@ -107,7 +107,7 @@ get_sp_list_item <- function(id,
     call = call
   )
 
-  check_ms(sp_list, "ms_list", call = call)
+  check_ms_obj(sp_list, "ms_list", call = call)
 
   check_required(id, call = call)
   id <- as.character(id)
@@ -310,7 +310,7 @@ update_sp_list_item <- function(id,
     call = call
   )
 
-  check_ms(sp_list, "ms_list", call = call)
+  check_ms_obj(sp_list, "ms_list", call = call)
 
   cli::cli_progress_step(
     "Updating item {.val {id}}"

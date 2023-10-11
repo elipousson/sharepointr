@@ -76,7 +76,7 @@ list_sp_plans <- function(...,
     call = call
   )
 
-  check_ms(grp, "az_group", call = call)
+  check_ms_obj(grp, "az_group", call = call)
 
   plan_list <- grp$list_plans(
     filter = filter,
@@ -124,7 +124,7 @@ get_sp_task <- function(task_title = NULL,
   plan <- plan %||%
     get_sp_plan(plan_title = plan_title, plan_id = plan_id, ..., call = call)
 
-  check_ms(plan, "ms_plan", call = call)
+  check_ms_obj(plan, "ms_plan", call = call)
 
   check_exclusive_strings(task_title, task_id, call = call)
 
@@ -138,7 +138,8 @@ get_sp_task <- function(task_title = NULL,
     task,
     obj_col = "ms_plan_task",
     .error_call = call
-  )}
+  )
+}
 
 #' @rdname sp_tasks
 #' @name list_sp_tasks
@@ -161,7 +162,7 @@ list_sp_tasks <- function(plan_title = NULL,
   plan <- plan %||%
     get_sp_plan(plan_title = plan_title, plan_id = plan_id, ..., call = call)
 
-  check_ms(plan, "ms_plan", call = call)
+  check_ms_obj(plan, "ms_plan", call = call)
 
   plan_tasks <- plan$list_tasks(
     filter = filter,
@@ -176,5 +177,5 @@ list_sp_tasks <- function(plan_title = NULL,
     plan_tasks,
     obj_col = "ms_plan_task",
     .error_call = call
-    )
+  )
 }

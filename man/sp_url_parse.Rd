@@ -16,7 +16,7 @@ sp_url_parse_path(
   url_type = "w|x|p|o|b|t|i|v|f|u|li",
   permissions = "r|s|t|u|g",
   drive_name_prefix = "Shared ",
-  .default_drive_name = "Documents"
+  default_drive_name = "Documents"
 )
 
 sp_url_parse_query(query)

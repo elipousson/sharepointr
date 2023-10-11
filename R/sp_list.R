@@ -222,7 +222,7 @@ get_sp_list_metadata <- function(list_name = NULL,
     return(sp_list_metadata)
   }
 
-  check_ms(sp_list, "ms_list", call = call)
+  check_ms_obj(sp_list, "ms_list", call = call)
 
   sp_list$get_column_info()
 }
@@ -257,7 +257,7 @@ delete_sp_list <- function(list_name = NULL,
     call = call
   )
 
-  check_ms(sp_list, "ms_list", call = call)
+  check_ms_obj(sp_list, "ms_list", call = call)
 
   sp_list$delete(confirm = confirm)
 }

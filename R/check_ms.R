@@ -1,21 +1,26 @@
 #' @noRd
+is_ms_obj <- function(x, what = NULL) {
+  inherits_all(x, c(what, "ms_object"))
+}
+
+#' @noRd
 is_ms_site <- function(x) {
-  inherits_all(x, c("ms_site", "ms_object"))
+  is_ms_obj(x, "ms_site")
 }
 
 #' @noRd
 is_ms_drive <- function(x) {
-  inherits_all(x, c("ms_drive", "ms_object"))
+  is_ms_obj(x, "ms_drive")
 }
 
 #' @noRd
-check_ms <- function(x,
-                     what,
-                     ...,
-                     allow_null = FALSE,
-                     arg = caller_arg(x),
-                     call = caller_env()) {
-  if (inherits_all(x, c(what, "ms_object"))) {
+check_ms_obj <- function(x,
+                         what,
+                         ...,
+                         allow_null = FALSE,
+                         arg = caller_arg(x),
+                         call = caller_env()) {
+  if (is_ms_obj(x, what)) {
     return(invisible(NULL))
   }
 
@@ -35,7 +40,7 @@ check_ms_site <- function(x,
                           allow_null = FALSE,
                           arg = caller_arg(x),
                           call = caller_env()) {
-  check_ms(
+  check_ms_obj(
     x,
     what = "ms_site",
     ...,
@@ -51,7 +56,7 @@ check_ms_drive <- function(x,
                            allow_null = FALSE,
                            arg = caller_arg(x),
                            call = caller_env()) {
-  check_ms(
+  check_ms_obj(
     x,
     what = "ms_drive",
     ...,

@@ -11,7 +11,7 @@
 #'   SharePoint drive. If input is a relative path, the string should *not*
 #'   include the drive name. If input is a shared file URL, the text "Shared "
 #'   is removed from the start of the SharePoint drive name by default. If file
-#'   is a document URL, the `.default_drive_name` argument is used as the
+#'   is a document URL, the `default_drive_name` argument is used as the
 #'   `drive_name` and the `item_id` is extracted from the URL.
 #' @param item_id A SharePoint item ID passed to the `itemid` parameter of the
 #'   `get_item` method for `ms_drive` objects.
@@ -97,7 +97,7 @@ get_sp_item <- function(path = NULL,
     obj_col = "ms_item",
     keep_list_cols = c("createdBy", "lastModifiedBy"),
     .error_call = call
-    )
+  )
 }
 
 #' @rdname get_sp_item
@@ -176,7 +176,7 @@ delete_sp_item <- function(path = NULL,
     call = call
   )
 
-  check_ms(item, "ms_drive_item", call = call)
+  check_ms_obj(item, "ms_drive_item", call = call)
 
   if (!is_interactive() && is_true(confirm)) {
     cli_abort(
@@ -251,7 +251,7 @@ download_sp_item <- function(path = NULL,
     )
   }
 
-  check_ms(item, "ms_drive_item", call = call)
+  check_ms_obj(item, "ms_drive_item", call = call)
 
   # FIXME: Take a closer look at why this is needed
   if ((new_path == "") || is.null(new_path)) {

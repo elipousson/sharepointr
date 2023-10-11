@@ -101,7 +101,7 @@ sp_url_parse_path <- function(path,
                               url_type = "w|x|p|o|b|t|i|v|f|u|li",
                               permissions = "r|s|t|u|g",
                               drive_name_prefix = "Shared ",
-                              .default_drive_name = "Documents") {
+                              default_drive_name = "Documents") {
   if (is.null(path)) {
     return(path)
   }
@@ -115,7 +115,7 @@ sp_url_parse_path <- function(path,
   if (str_detect(path, "_layouts")) {
     # If path is part a document URL, the parsed drive_name, file_path, and file
     # are assumed to be invalid
-    parts[["drive_name"]] <- .default_drive_name
+    parts[["drive_name"]] <- default_drive_name
     return(parts[c("url_type", "permissions", "site_name", "drive_name")])
   }
 

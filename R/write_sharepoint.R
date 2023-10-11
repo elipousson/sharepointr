@@ -93,11 +93,10 @@ write_sharepoint <- function(x,
 #'   specified in `file` or `src` already exists at the specified destination.
 #'   If `TRUE`, overwrite any existing items with the same name. The latter is
 #'   the default for the `upload_file` method.
+#' @inheritParams get_sp_item
 #' @inheritParams get_sp_drive
 #' @param blocksize,recursive,parallel Additional parameters passed to
 #'   `upload_folder` or `upload_file` method for `ms_drive` objects.
-#' @inheritParams get_sp_drive
-#' @inheritParams get_sp_item
 #' @export
 upload_sp_item <- function(file = NULL,
                            dest,

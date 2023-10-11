@@ -3,25 +3,38 @@
 \name{sp_drive}
 \alias{sp_drive}
 \alias{get_sp_drive}
-\alias{set_sp_drive}
+\alias{cache_sp_drive}
 \title{Get a SharePoint drive or set a default SharePoint drive}
 \usage{
 get_sp_drive(
   drive_name = NULL,
   drive_id = NULL,
+  properties = FALSE,
   ...,
   site_url = NULL,
   site = NULL,
-  .default_drive_name = getOption("sharepointr.default_drive_name", "Documents"),
-  properties = FALSE,
+  default_drive_name = getOption("sharepointr.default_drive_name", "Documents"),
+  cache = FALSE,
+  refresh = TRUE,
+  overwrite = FALSE,
+  cache_file = getOption("sharepointr.cache_file_drive", "sp_drive.rds"),
   call = caller_env()
 )
 
-set_sp_drive(..., overwrite = FALSE, call = caller_env())
+cache_sp_drive(
+  ...,
+  drive = NULL,
+  cache_file = getOption("sharepointr.cache_file_drive", "sp_drive.rds"),
+  overwrite = FALSE,
+  call = caller_env()
+)
 }
 \arguments{
 \item{drive_name, drive_id}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
+
+\item{properties}{If \code{TRUE}, return the drive properties instead of the
+\code{ms_drive} object. Defaults to \code{FALSE}.}
 
 \item{...}{
   Arguments passed on to \code{\link[=get_sp_site]{get_sp_site}}
@@ -39,26 +52,36 @@ included in the URL.}
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
 
-\item{.default_drive_name}{Drive name string used only if input is a document
+\item{default_drive_name}{Drive name string used only if input is a document
 URL and drive name is not part of the URL. Defaults to
 \code{getOption("sharepointr.default_drive_name", "Documents")}}
 
-\item{properties}{If \code{TRUE}, return the drive properties instead of the
-\code{ms_drive} object.}
+\item{cache}{If \code{TRUE}, cache drive to a file using \code{\link[=cache_sp_drive]{cache_sp_drive()}}.}
+
+\item{refresh}{If \code{TRUE}, get a new drive even if the existing drive is
+cached as a local option. If \code{FALSE}, use the cached \code{ms_drive} object if
+it exists.}
+
+\item{overwrite}{If \code{TRUE}, replace the existing cached object named by
+\code{cache_file} with the new object. If \code{FALSE}, error if a cached file with
+the same \code{cache_file} name already exists.}
+
+\item{cache_file}{File name for cached drive if \code{cache = TRUE}. Defaults to a
+option set with \code{sharepointr.cache_file_drive} (which defaults to
+\code{"sp_drive.rds"}).}
 
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
-\item{overwrite}{If \code{TRUE}, replace the existing option for
-\code{sharepointr.default_drive}. If \code{FALSE} and the option is a \code{ms_drive}
-object, return an error.}
+\item{drive}{A \code{ms_drive} object. If \code{drive} is supplied, \code{drive_name} and
+\code{drive_id} are ignored.}
 }
 \description{
 \code{\link[=get_sp_drive]{get_sp_drive()}} wraps the \code{get_drive} method returns a \code{ms_drive} object.
 
-\code{\link[=set_sp_drive]{set_sp_drive()}} allows you to set a default SharePoint drive for use by
+\code{\link[=cache_sp_drive]{cache_sp_drive()}} allows you to cache a default SharePoint drive for use by
 other functions. Additional parameters in \code{...} are passed to
 \code{\link[=get_sp_drive]{get_sp_drive()}}.
 }

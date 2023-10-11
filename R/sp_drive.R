@@ -3,7 +3,7 @@
 #' @description
 #' [get_sp_drive()] wraps the `get_drive` method returns a `ms_drive` object.
 #'
-#' [set_sp_drive()] allows you to set a default SharePoint drive for use by
+#' [cache_sp_drive()] allows you to cache a default SharePoint drive for use by
 #' other functions. Additional parameters in `...` are passed to
 #' [get_sp_drive()].
 #'
@@ -15,27 +15,48 @@ NULL
 #' @name get_sp_drive
 #' @param drive_name,drive_id SharePoint Drive name or ID passed to `get_drive`
 #'   method for SharePoint site object.
+#' @param properties If `TRUE`, return the drive properties instead of the
+#'   `ms_drive` object. Defaults to `FALSE`.
 #' @inheritParams sp_site
 #' @inheritDotParams get_sp_site
-#' @param .default_drive_name Drive name string used only if input is a document
+#' @param default_drive_name Drive name string used only if input is a document
 #'   URL and drive name is not part of the URL. Defaults to
 #'   `getOption("sharepointr.default_drive_name", "Documents")`
-#' @param properties If `TRUE`, return the drive properties instead of the
-#'   `ms_drive` object.
+#' @param cache If `TRUE`, cache drive to a file using [cache_sp_drive()].
+#' @param refresh If `TRUE`, get a new drive even if the existing drive is
+#'   cached as a local option. If `FALSE`, use the cached `ms_drive` object if
+#'   it exists.
 #' @export
 get_sp_drive <- function(drive_name = NULL,
                          drive_id = NULL,
+                         properties = FALSE,
                          ...,
                          site_url = NULL,
                          site = NULL,
-                         .default_drive_name = getOption(
+                         default_drive_name = getOption(
                            "sharepointr.default_drive_name",
                            "Documents"
                          ),
-                         properties = FALSE,
+                         cache = FALSE,
+                         refresh = TRUE,
+                         overwrite = FALSE,
+                         cache_file = getOption(
+                           "sharepointr.cache_file_drive",
+                           "sp_drive.rds"
+                         ),
                          call = caller_env()) {
-  if (is_ms_drive(getOption("sharepointr.default_drive"))) {
-    return(getOption("sharepointr.default_drive"))
+  if (!refresh && sp_cache_file_exists(cache_file, call = call)) {
+    drive <- try_fetch(
+      get_sp_cache(cache_file = cache_file, what = "ms_drive", call = call),
+      warning = function(cnd) NULL,
+      error = function(cnd) NULL
+    )
+
+    if (is_ms_drive(drive)) {
+      return(drive)
+    }
+
+    refresh <- TRUE
   }
 
   if (!is.null(drive_name) && is_sp_url(drive_name)) {
@@ -48,20 +69,36 @@ get_sp_drive <- function(drive_name = NULL,
     drive_id <- drive_id %||% sp_url_parts[["drive_id"]]
 
     if (is.null(drive_id)) {
-      drive_name <- drive_name %||% .default_drive_name
+      drive_name <- drive_name %||% default_drive_name
+    }
+
+    # FIXME: This is a work-around for incomplete URL parsing
+    if (identical(drive_name, "Lists")) {
+      drive_name <- default_drive_name
     }
   }
 
   site <- site %||% get_sp_site(
     site_url = site_url,
     ...,
+    refresh = refresh,
     call = call
-    )
+  )
 
   check_ms_site(site, call = call)
+
   check_exclusive_strings(drive_name, drive_id, call = call)
 
   drive <- site$get_drive(drive_name = drive_name, drive_id = drive_id)
+
+  if (cache) {
+    cache_sp_drive(
+      drive = drive,
+      cache_file = cache_file,
+      overwrite = overwrite,
+      call = call
+    )
+  }
 
   if (properties) {
     return(drive$properties)
@@ -71,23 +108,32 @@ get_sp_drive <- function(drive_name = NULL,
 }
 
 #' @rdname sp_drive
-#' @name set_sp_drive
-#' @param overwrite If `TRUE`, replace the existing option for
-#'   `sharepointr.default_drive`. If `FALSE` and the option is a `ms_drive`
-#'   object, return an error.
+#' @name cache_sp_drive
+#' @param drive description
+#' @param drive A `ms_drive` object. If `drive` is supplied, `drive_name` and
+#'   `drive_id` are ignored.
+#' @param cache_file File name for cached drive if `cache = TRUE`. Defaults to a
+#'   option set with `sharepointr.cache_file_drive` (which defaults to
+#'   `"sp_drive.rds"`).
+#' @inheritParams cache_ms_obj
 #' @export
-set_sp_drive <- function(..., overwrite = FALSE, call = caller_env()) {
-  new_sp_drive <- get_sp_drive(..., call = call)
+cache_sp_drive <- function(...,
+                           drive = NULL,
+                           cache_file = getOption(
+                             "sharepointr.cache_file_drive",
+                             "sp_drive.rds"
+                           ),
+                           overwrite = FALSE,
+                           call = caller_env()) {
+  drive <- drive %||% get_sp_drive(..., call = call)
 
-  if (is_ms_drive(getOption("sharepointr.default_drive")) && !overwrite) {
-    cli_abort(
-      "Set {.code overwrite = TRUE} to replace existing
-      {.envvar sharepointr.default_drive} option.",
-      call = call
-    )
-  }
+  check_ms_drive(drive, call = call)
 
-  options(
-    "sharepointr.default_drive" = new_sp_drive
+  cache_ms_obj(
+    drive,
+    cache_file = cache_file,
+    overwrite = overwrite,
+    what = "ms_drive",
+    call = call
   )
 }

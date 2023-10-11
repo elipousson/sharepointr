@@ -123,8 +123,8 @@ included in the URL.}
 \item{drive_name, drive_id}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
 
-\item{drive}{A \code{ms_drive} object. If drive is supplied, \code{drive_name},
-\code{site_url}, and any additional parameters passed to \code{...} are ignored.}
+\item{drive}{A \code{ms_drive} object. If \code{drive} is supplied, \code{drive_name} and
+\code{drive_id} are ignored.}
 
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be

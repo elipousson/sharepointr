@@ -46,8 +46,7 @@ specified in \code{file} or \code{src} already exists at the specified destinati
 If \code{TRUE}, overwrite any existing items with the same name. The latter is
 the default for the \code{upload_file} method.}
 
-\item{drive_name, drive_id}{SharePoint Drive name or ID passed to \code{get_drive}
-method for SharePoint site object.}
+\item{drive_name, drive_id}{SharePoint drive name or ID.}
 
 \item{drive}{A \code{ms_drive} object. If drive is supplied, \code{drive_name},
 \code{site_url}, and any additional parameters passed to \code{...} are ignored.}

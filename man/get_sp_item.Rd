@@ -35,7 +35,7 @@ get_sp_item_properties(
 SharePoint drive. If input is a relative path, the string should \emph{not}
 include the drive name. If input is a shared file URL, the text "Shared "
 is removed from the start of the SharePoint drive name by default. If file
-is a document URL, the \code{.default_drive_name} argument is used as the
+is a document URL, the \code{default_drive_name} argument is used as the
 \code{drive_name} and the \code{item_id} is extracted from the URL.}
 
 \item{item_id}{A SharePoint item ID passed to the \code{itemid} parameter of the
@@ -46,11 +46,21 @@ is a document URL, the \code{.default_drive_name} argument is used as the
   \describe{
     \item{\code{drive_name,drive_id}}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
-    \item{\code{.default_drive_name}}{Drive name string used only if input is a document
+    \item{\code{default_drive_name}}{Drive name string used only if input is a document
 URL and drive name is not part of the URL. Defaults to
 \code{getOption("sharepointr.default_drive_name", "Documents")}}
+    \item{\code{cache}}{If \code{TRUE}, cache drive to a file using \code{\link[=cache_sp_drive]{cache_sp_drive()}}.}
+    \item{\code{refresh}}{If \code{TRUE}, get a new drive even if the existing drive is
+cached as a local option. If \code{FALSE}, use the cached \code{ms_drive} object if
+it exists.}
+    \item{\code{cache_file}}{File name for cached drive if \code{cache = TRUE}. Defaults to a
+option set with \code{sharepointr.cache_file_drive} (which defaults to
+\code{"sp_drive.rds"}).}
     \item{\code{site}}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
+    \item{\code{overwrite}}{If \code{TRUE}, replace the existing cached object named by
+\code{cache_file} with the new object. If \code{FALSE}, error if a cached file with
+the same \code{cache_file} name already exists.}
   }}
 
 \item{drive_name, drive_id}{SharePoint drive name or ID.}

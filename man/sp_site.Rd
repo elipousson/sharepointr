@@ -3,7 +3,7 @@
 \name{sp_site}
 \alias{sp_site}
 \alias{get_sp_site}
-\alias{set_sp_site}
+\alias{cache_sp_site}
 \alias{get_sp_site_group}
 \title{Get a SharePoint site or set a default SharePoint site}
 \usage{
@@ -12,10 +12,21 @@ get_sp_site(
   site_name = NULL,
   site_id = NULL,
   ...,
+  cache = FALSE,
+  refresh = TRUE,
+  overwrite = FALSE,
+  cache_file = getOption("sharepointr.cache_file_site", "sp_site.rds"),
   call = caller_env()
 )
 
-set_sp_site(..., site = NULL, overwrite = FALSE, call = caller_env())
+cache_sp_site(
+  ...,
+  site = NULL,
+  cache_file = getOption("sharepointr.cache_file_site", "sp_site.rds"),
+  cache_dir = "sharepointr.cache_dir",
+  overwrite = FALSE,
+  call = caller_env()
+)
 
 get_sp_site_group(
   site_url = NULL,
@@ -45,6 +56,18 @@ alternative to the SharePoint site URL. Exactly one of  \code{site_url},
     \item{\code{tenant}}{For \code{get_business_onedrive}, \code{get_sharepoint_site} and \code{get_team}, the name of your Azure Active Directory (AAD) tenant. If not supplied, use the value of the \code{CLIMICROSOFT365_TENANT} environment variable, or "common" if that is unset.}
   }}
 
+\item{cache}{If \code{TRUE}, cache site to a file using \code{\link[=cache_sp_site]{cache_sp_site()}}.}
+
+\item{refresh}{If \code{TRUE}, get a new site even if the existing site is cached
+as a local option. If \code{FALSE}, use the cached \code{ms_site} object.}
+
+\item{overwrite}{If \code{TRUE}, replace the existing cached object named by
+\code{cache_file} with the new object. If \code{FALSE}, error if a cached file with
+the same \code{cache_file} name already exists.}
+
+\item{cache_file}{File name for cached file if \code{cache = TRUE}. Defaults to
+\code{"sp_site.rds"} or option set with \code{sharepointr.cache_file_site}.}
+
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
@@ -53,13 +76,13 @@ mentioned in error messages as the source of the error. See the
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
 
-\item{overwrite}{If \code{TRUE}, replace the existing option for
-\code{sharepointr.default_site}. Error if \code{FALSE} and the option is a \code{ms_site}
-object.}
+\item{cache_dir}{Cache directory. By default, uses an environmental variable
+named "sharepointr.cache_dir". If "sharepointr.cache_dir" is not set, the
+cache directory is set to \code{rappdirs::user_cache_dir("sharepointr")}.}
 }
 \description{
 \code{\link[=get_sp_site]{get_sp_site()}} is a wrapper for \code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}} and
-returns a \code{ms_site} object. \code{\link[=set_sp_site]{set_sp_site()}} allows you to set a default
+returns a \code{ms_site} object. \code{\link[=cache_sp_site]{cache_sp_site()}} allows you to cache a default
 SharePoint site for use by other functions. \code{\link[=get_sp_site_group]{get_sp_site_group()}} gets the
 group associated with an individual site using the \code{get_group} method.
 }

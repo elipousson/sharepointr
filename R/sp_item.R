@@ -36,7 +36,7 @@ get_sp_item <- function(path = NULL,
                         properties = FALSE,
                         as_data_frame = FALSE,
                         call = caller_env()) {
-  if (is_url(path)) {
+  if (is.null(drive) && is_url(path)) {
     url <- path
     path <- NULL
 

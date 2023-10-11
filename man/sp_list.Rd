@@ -68,9 +68,19 @@ delete_sp_list(
 \item{...}{
   Arguments passed on to \code{\link[=get_sp_drive]{get_sp_drive}}
   \describe{
-    \item{\code{.default_drive_name}}{Drive name string used only if input is a document
+    \item{\code{default_drive_name}}{Drive name string used only if input is a document
 URL and drive name is not part of the URL. Defaults to
 \code{getOption("sharepointr.default_drive_name", "Documents")}}
+    \item{\code{cache}}{If \code{TRUE}, cache drive to a file using \code{\link[=cache_sp_drive]{cache_sp_drive()}}.}
+    \item{\code{refresh}}{If \code{TRUE}, get a new drive even if the existing drive is
+cached as a local option. If \code{FALSE}, use the cached \code{ms_drive} object if
+it exists.}
+    \item{\code{cache_file}}{File name for cached drive if \code{cache = TRUE}. Defaults to a
+option set with \code{sharepointr.cache_file_drive} (which defaults to
+\code{"sp_drive.rds"}).}
+    \item{\code{overwrite}}{If \code{TRUE}, replace the existing cached object named by
+\code{cache_file} with the new object. If \code{FALSE}, error if a cached file with
+the same \code{cache_file} name already exists.}
   }}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
@@ -84,8 +94,8 @@ included in the URL.}
 \item{drive_name, drive_id}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
 
-\item{drive}{A \code{ms_drive} object. If drive is supplied, \code{drive_name},
-\code{site_url}, and any additional parameters passed to \code{...} are ignored.}
+\item{drive}{A \code{ms_drive} object. If \code{drive} is supplied, \code{drive_name} and
+\code{drive_id} are ignored.}
 
 \item{metadata}{If \code{TRUE}, \code{\link[=get_sp_list]{get_sp_list()}} applies the \code{get_column_info}
 method to the returned SharePoint list and returns a data frame with column

@@ -23,7 +23,7 @@ delete_sp_item(
 SharePoint drive. If input is a relative path, the string should \emph{not}
 include the drive name. If input is a shared file URL, the text "Shared "
 is removed from the start of the SharePoint drive name by default. If file
-is a document URL, the \code{.default_drive_name} argument is used as the
+is a document URL, the \code{default_drive_name} argument is used as the
 \code{drive_name} and the \code{item_id} is extracted from the URL.}
 
 \item{confirm}{If \code{TRUE}, confirm before deleting item. If \code{TRUE} and session

@@ -68,13 +68,13 @@ read_sharepoint(docx_shared_url)
 #> ℹ Getting item from SharePoint
 #> Loading Microsoft Graph login for default tenant
 #> Access token has expired or is no longer valid; refreshing
-#> ✔ Getting item from SharePoint [2.6s]
+#> ✔ Getting item from SharePoint [2.9s]
 #> 
 #> ℹ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_40000g…
 #> ✔ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_40000g…
 #> 
 #> ℹ Reading item with `officer::read_docx()`
-#> ✔ Reading item with `officer::read_docx()` [32ms]
+#> ✔ Reading item with `officer::read_docx()` [27ms]
 #> 
 #> rdocx document with 19 element(s)
 #> 
@@ -107,34 +107,23 @@ request if you have ideas of how to do this.
 
 ### Working with SharePoint items, lists, and plans
 
-This package currently support three main types of SharePoint objects:
-items, lists, and plans.
+This package currently support three main categories of SharePoint
+objects:
 
-- **Items and item properties**
+- **Items and item properties** including:
 
-  - **Items:** `get_sp_item()`; `download_sp_item()`;
-    `upload_sp_item()`; `delete_sp_item()`
+  - **Directories**
 
-  - **Item properties**: `get_sp_item_properties()`
-
-  - **Directories**: `sp_dir_info()`; `sp_dir_ls()`; `sp_dir_create()`
-
-  - **Files**: `download_sp_file()`
+  - **Files**
 
 - **Lists and list items**
 
-  - `get_sp_list()`; `list_sp_lists()`
-  - `list_sp_list_items()`; `import_sp_list_items()`;
-    `get_sp_list_item()`; `update_sp_list_item()`
-
 - **Plans and tasks**
 
-  - `get_sp_plan()`; `list_sp_plans()`
-  - `get_sp_task()`; `list_sp_tasks()`
-
-Typically these functions return a `ms_object` , a `ms_object` list, or
-a data frame. In some cases, the data frame is based on the object
-properties and includes a list column where the `ms_object` is stored.
+Typically these functions return a `ms_object` object, a list of
+`ms_object` objects, or a data frame. In some cases, the data frame is
+based on the object properties and includes a list column where the
+`ms_object` is stored.
 
 For example, `get_sp_item()` returns a `ms_drive_item` object and
 supports parsing for shared file and folder URLs:
@@ -165,7 +154,7 @@ get_sp_item(docx_shared_url, as_data_frame = TRUE)
 #>                                                                                                                           @odata.context
 #> 1 https://graph.microsoft.com/beta/$metadata#drives('b%21txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta613N3QJlbvrVKyTwO')/root/$entity
 #>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @microsoft.graph.downloadUrl
-#> 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/download.aspx?UniqueId=0a50d3cd-74ce-4a8d-a6d8-2596037f0148&Translate=false&tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvYm1vcmUuc2hhcmVwb2ludC5jb21AMzEyY2IxMjYtYzZhZS00ZmMyLTgwMGQtMzE4ZTY3OWNlNmM3IiwiaXNzIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwIiwibmJmIjoiMTY5NjM1MzU3MSIsImV4cCI6IjE2OTYzNTcxNzEiLCJlbmRwb2ludHVybCI6ImVWS1o5aHllbHVsNU9PdzR6OWQ1U01sOVBkZXpXTjNOU3NscWxGM3V2ME09IiwiZW5kcG9pbnR1cmxMZW5ndGgiOiIxNTAiLCJpc2xvb3BiYWNrIjoiVHJ1ZSIsImNpZCI6InptZnpobXh1cUVTdURuMFJ2K2FtY3c9PSIsInZlciI6Imhhc2hlZHByb29mdG9rZW4iLCJzaXRlaWQiOiJNV1JoTURGallqY3ROelpqTnkwME5EZzNMV0l6T1RndFpXTTJNR1JtWmpobU5USmsiLCJhcHBfZGlzcGxheW5hbWUiOiJBenVyZVIvTWljcm9zb2Z0MzY1UiIsImdpdmVuX25hbWUiOiJFbGkiLCJmYW1pbHlfbmFtZSI6IlBvdXNzb24iLCJhcHBpZCI6ImQ0NGEwNWQ1LWM2YTUtNGJiYi04MmQyLTQ0MzEyMzcyMjM4MCIsInRpZCI6IjMxMmNiMTI2LWM2YWUtNGZjMi04MDBkLTMxOGU2NzljZTZjNyIsInVwbiI6ImVsaS5wb3Vzc29uQGJhbHRpbW9yZWNpdHkuZ292IiwicHVpZCI6IjEwMDMyMDAxRkQ3Q0UxMjQiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzMjAwMWZkN2NlMTI0QGxpdmUuY29tIiwic2NwIjoiZ3JvdXAud3JpdGUgYWxsc2l0ZXMubWFuYWdlIGFsbHNpdGVzLndyaXRlIiwidHQiOiIyIiwiaXBhZGRyIjoiMjAuMTkwLjEzMC40MCJ9.W30mriAcmRX1wF0t4538Q2OGxPF1OPXTQ_0tIYHnHds&ApiVersion=2.0
+#> 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/download.aspx?UniqueId=0a50d3cd-74ce-4a8d-a6d8-2596037f0148&Translate=false&tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvYm1vcmUuc2hhcmVwb2ludC5jb21AMzEyY2IxMjYtYzZhZS00ZmMyLTgwMGQtMzE4ZTY3OWNlNmM3IiwiaXNzIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwIiwibmJmIjoiMTY5NzA0NTM4OSIsImV4cCI6IjE2OTcwNDg5ODkiLCJlbmRwb2ludHVybCI6ImVWS1o5aHllbHVsNU9PdzR6OWQ1U01sOVBkZXpXTjNOU3NscWxGM3V2ME09IiwiZW5kcG9pbnR1cmxMZW5ndGgiOiIxNTAiLCJpc2xvb3BiYWNrIjoiVHJ1ZSIsImNpZCI6IkU0NU16bWJvWTBlNjA1VEhYWnJsR0E9PSIsInZlciI6Imhhc2hlZHByb29mdG9rZW4iLCJzaXRlaWQiOiJNV1JoTURGallqY3ROelpqTnkwME5EZzNMV0l6T1RndFpXTTJNR1JtWmpobU5USmsiLCJhcHBfZGlzcGxheW5hbWUiOiJBenVyZVIvTWljcm9zb2Z0MzY1UiIsImdpdmVuX25hbWUiOiJFbGkiLCJmYW1pbHlfbmFtZSI6IlBvdXNzb24iLCJhcHBpZCI6ImQ0NGEwNWQ1LWM2YTUtNGJiYi04MmQyLTQ0MzEyMzcyMjM4MCIsInRpZCI6IjMxMmNiMTI2LWM2YWUtNGZjMi04MDBkLTMxOGU2NzljZTZjNyIsInVwbiI6ImVsaS5wb3Vzc29uQGJhbHRpbW9yZWNpdHkuZ292IiwicHVpZCI6IjEwMDMyMDAxRkQ3Q0UxMjQiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzMjAwMWZkN2NlMTI0QGxpdmUuY29tIiwic2NwIjoiZ3JvdXAud3JpdGUgYWxsc2l0ZXMubWFuYWdlIGFsbHNpdGVzLndyaXRlIiwidHQiOiIyIiwiaXBhZGRyIjoiNDAuMTI2LjIzLjE2MiJ9.4C4AEvCvCUSXuamiQcdfJgqWwjh97gEqv3Tp-aO7q3U&ApiVersion=2.0
 #>        createdDateTime                                        eTag
 #> 1 2023-01-13T16:42:07Z "{0A50D3CD-74CE-4A8D-A6D8-2596037F0148},56"
 #>                                   id lastModifiedDateTime
@@ -187,7 +176,7 @@ get_sp_item(docx_shared_url, as_data_frame = TRUE)
 #>                                                                                                    file
 #> 1 application/vnd.openxmlformats-officedocument.wordprocessingml.document, CftrnHpBa4HAhtv+a3TALjSSvS0=
 #>                               fileSystemInfo                    ms_item
-#> 1 2023-01-13T16:42:07Z, 2023-01-26T18:17:57Z <environment: 0x1126a98d0>
+#> 1 2023-01-13T16:42:07Z, 2023-01-26T18:17:57Z <environment: 0x1283d34b0>
 ```
 
 These basic functions to “get” objects are extended by functions like
@@ -202,7 +191,7 @@ withr::with_tempdir({
 })
 #> ℹ Getting item from SharePoint
 #> Loading Microsoft Graph login for default tenant
-#> ✔ Getting item from SharePoint [708ms]
+#> ✔ Getting item from SharePoint [506ms]
 #> 
 #> ℹ Downloading SharePoint item to 'Baltimore Data Academy Announcement Content.d…
 #> ✔ Downloading SharePoint item to 'Baltimore Data Academy Announcement Content.d…

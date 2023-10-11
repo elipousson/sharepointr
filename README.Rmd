@@ -68,29 +68,19 @@ I plan on adding features to allow the custom mapping of file extensions and obj
 
 ### Working with SharePoint items, lists, and plans
 
-This package currently support three main types of SharePoint objects: items, lists, and plans.
+This package currently support three main categories of SharePoint objects:
 
--   **Items and item properties**
+-   **Items and item properties** including:
 
-    -   **Items:** `get_sp_item()`; `download_sp_item()`; `upload_sp_item()`; `delete_sp_item()`
+    -   **Directories**
 
-    -   **Item properties**: `get_sp_item_properties()`
-
-    -   **Directories**: `sp_dir_info()`; `sp_dir_ls()`; `sp_dir_create()`
-
-    -   **Files**: `download_sp_file()`
+    -   **Files**
 
 -   **Lists and list items**
 
-    -   `get_sp_list()`; `list_sp_lists()`
-    -   `list_sp_list_items()`; `import_sp_list_items()`; `get_sp_list_item()`; `update_sp_list_item()`
-
 -   **Plans and tasks**
 
-    -   `get_sp_plan()`; `list_sp_plans()`
-    -   `get_sp_task()`; `list_sp_tasks()`
-
-Typically these functions return a `ms_object` , a `ms_object` list, or a data frame. In some cases, the data frame is based on the object properties and includes a list column where the `ms_object` is stored.
+Typically these functions return a `ms_object` object, a list of `ms_object` objects, or a data frame. In some cases, the data frame is based on the object properties and includes a list column where the `ms_object` is stored.
 
 For example, `get_sp_item()` returns a `ms_drive_item` object and supports parsing for shared file and folder URLs:
 

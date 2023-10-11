@@ -172,7 +172,11 @@ upload_sp_item <- function(file = NULL,
       recursive = recursive,
       parallel = parallel
     )
-  } else if (file.exists(src)) {
+
+    return(invisible(dest))
+  }
+
+  if (file.exists(src)) {
     cli_progress_step(
       msg = "Uploading file {.file {basename(src)}} to SharePoint drive",
       msg_done = "File upload complete"
@@ -183,12 +187,12 @@ upload_sp_item <- function(file = NULL,
       blocksize = blocksize,
       dest = dest
     )
-  } else {
-    cli_abort(
-      "{.arg file} or {.arg src} must be an existing file or directory",
-      call = call
-    )
+
+    return(invisible(dest))
   }
 
-  invisible(dest)
+  cli_abort(
+    "{.arg file} or {.arg src} must be an existing file or directory",
+    call = call
+  )
 }

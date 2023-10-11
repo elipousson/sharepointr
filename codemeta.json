@@ -204,6 +204,18 @@
     },
     "5": {
       "@type": "SoftwareApplication",
+      "identifier": "rappdirs",
+      "name": "rappdirs",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=rappdirs"
+    },
+    "6": {
+      "@type": "SoftwareApplication",
       "identifier": "rlang",
       "name": "rlang",
       "version": ">= 1.1.0",
@@ -215,7 +227,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=rlang"
     },
-    "6": {
+    "7": {
       "@type": "SoftwareApplication",
       "identifier": "stringr",
       "name": "stringr",
@@ -227,12 +239,12 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=stringr"
     },
-    "7": {
+    "8": {
       "@type": "SoftwareApplication",
       "identifier": "utils",
       "name": "utils"
     },
-    "8": {
+    "9": {
       "@type": "SoftwareApplication",
       "identifier": "vctrs",
       "name": "vctrs",
@@ -246,7 +258,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "140.598KB",
+  "fileSize": "175.557KB",
   "readme": "https://github.com/elipousson/sharepointr/blob/main/README.md",
   "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html#experimental",
   "keywords": ["microsoft-365", "r-package", "sharepoint-online"]

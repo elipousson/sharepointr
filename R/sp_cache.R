@@ -69,6 +69,8 @@ get_sp_cache <- function(cache_file,
   ms_obj
 }
 
+#' Get path to cached file
+#'
 #' @noRd
 sp_cache_path <- function(cache_file,
                           cache_dir = NULL,
@@ -78,8 +80,9 @@ sp_cache_path <- function(cache_file,
   file.path(sp_cache_dir(cache_dir, call), cache_file)
 }
 
+#' Get cache directory and create directory if it does not exist
+#'
 #' @noRd
-#' @importFrom rappdirs user_cache_dir
 sp_cache_dir <- function(cache_dir = NULL,
                          call = caller_env()) {
   check_string(cache_dir, call = call)
@@ -87,6 +90,7 @@ sp_cache_dir <- function(cache_dir = NULL,
   cache_dir <- cache_dir %||% Sys.getenv("sharepointr.cache_dir")
 
   if (identical(cache_dir, "")) {
+    check_installed("rappdirs", call = call)
     cache_dir <- rappdirs::user_cache_dir("sharepointr")
   }
 

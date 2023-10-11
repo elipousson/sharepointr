@@ -1,22 +1,22 @@
 Type: Package
 Package: sharepointr
-Title: Read SharePoint Files
+Title: Read and Write from SharePoint Sites
 Version: 0.1.0
 Authors@R: 
     person("Eli", "Pousson", , "eli.pousson@gmail.com", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0001-8280-1706"))
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line) Use four
-    spaces when indenting paragraphs within the Description.
+Maintainer: Eli Pousson <eli.pousson@gmail.com>
+Description: A R package extending {Microsoft365R} to make it easier to
+    read, write, and work with SharePoint items, lists, and plans.
 License: MIT + file LICENSE
-URL: https://github.com/elipousson/sharepointr, https://elipousson.github.io/sharepointr/
+URL: https://github.com/elipousson/sharepointr,
+    https://elipousson.github.io/sharepointr/
 BugReports: https://github.com/elipousson/sharepointr/issues
 Imports: 
     cli,
     glue,
     httr2,
     Microsoft365R,
-    rappdirs,
     rlang (>= 1.1.0),
     stringr,
     utils,
@@ -25,6 +25,7 @@ Suggests:
     fs,
     knitr,
     officer,
+    rappdirs,
     readr,
     readxl,
     rmarkdown,

@@ -109,13 +109,13 @@
 <span><span class="co">#&gt; ℹ Getting item from SharePoint</span></span>
 <span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
 <span><span class="co">#&gt; Access token has expired or is no longer valid; refreshing</span></span>
-<span><span class="co">#&gt; ✔ Getting item from SharePoint [2.6s]</span></span>
+<span><span class="co">#&gt; ✔ Getting item from SharePoint [2.9s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_40000g…</span></span>
 <span><span class="co">#&gt; ✔ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_40000g…</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Reading item with `officer::read_docx()`</span></span>
-<span><span class="co">#&gt; ✔ Reading item with `officer::read_docx()` [32ms]</span></span>
+<span><span class="co">#&gt; ✔ Reading item with `officer::read_docx()` [27ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; rdocx document with 19 element(s)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -142,41 +142,19 @@
 <div class="section level3">
 <h3 id="working-with-sharepoint-items-lists-and-plans">Working with SharePoint items, lists, and plans<a class="anchor" aria-label="anchor" href="#working-with-sharepoint-items-lists-and-plans"></a>
 </h3>
-<p>This package currently support three main types of SharePoint objects: items, lists, and plans.</p>
+<p>This package currently support three main categories of SharePoint objects:</p>
 <ul>
 <li>
-<p><strong>Items and item properties</strong></p>
+<p><strong>Items and item properties</strong> including:</p>
 <ul>
-<li><p><strong>Items:</strong> <code><a href="reference/get_sp_item.html">get_sp_item()</a></code>; <code><a href="reference/download_sp_item.html">download_sp_item()</a></code>; <code><a href="reference/upload_sp_item.html">upload_sp_item()</a></code>; <code><a href="reference/delete_sp_item.html">delete_sp_item()</a></code></p></li>
-<li><p><strong>Item properties</strong>: <code><a href="reference/get_sp_item.html">get_sp_item_properties()</a></code></p></li>
-<li><p><strong>Directories</strong>: <code><a href="reference/sp_dir_info.html">sp_dir_info()</a></code>; <code><a href="reference/sp_dir_info.html">sp_dir_ls()</a></code>; <code><a href="reference/sp_dir_create.html">sp_dir_create()</a></code></p></li>
-<li><p><strong>Files</strong>: <code><a href="reference/download_sp_item.html">download_sp_file()</a></code></p></li>
+<li><p><strong>Directories</strong></p></li>
+<li><p><strong>Files</strong></p></li>
 </ul>
 </li>
-<li>
-<p><strong>Lists and list items</strong></p>
-<ul>
-<li>
-<code><a href="reference/sp_list.html">get_sp_list()</a></code>; <code><a href="reference/sp_list.html">list_sp_lists()</a></code>
-</li>
-<li>
-<code><a href="reference/sp_list_item.html">list_sp_list_items()</a></code>; <code><a href="reference/sp_list_item.html">import_sp_list_items()</a></code>; <code><a href="reference/sp_list_item.html">get_sp_list_item()</a></code>; <code><a href="reference/sp_list_item.html">update_sp_list_item()</a></code>
-</li>
+<li><p><strong>Lists and list items</strong></p></li>
+<li><p><strong>Plans and tasks</strong></p></li>
 </ul>
-</li>
-<li>
-<p><strong>Plans and tasks</strong></p>
-<ul>
-<li>
-<code><a href="reference/sp_plan.html">get_sp_plan()</a></code>; <code><a href="reference/sp_plan.html">list_sp_plans()</a></code>
-</li>
-<li>
-<code><a href="reference/sp_tasks.html">get_sp_task()</a></code>; <code><a href="reference/sp_tasks.html">list_sp_tasks()</a></code>
-</li>
-</ul>
-</li>
-</ul>
-<p>Typically these functions return a <code>ms_object</code> , a <code>ms_object</code> list, or a data frame. In some cases, the data frame is based on the object properties and includes a list column where the <code>ms_object</code> is stored.</p>
+<p>Typically these functions return a <code>ms_object</code> object, a list of <code>ms_object</code> objects, or a data frame. In some cases, the data frame is based on the object properties and includes a list column where the <code>ms_object</code> is stored.</p>
 <p>For example, <code><a href="reference/get_sp_item.html">get_sp_item()</a></code> returns a <code>ms_drive_item</code> object and supports parsing for shared file and folder URLs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/get_sp_item.html">get_sp_item</a></span><span class="op">(</span><span class="va">docx_shared_url</span><span class="op">)</span></span>
@@ -200,7 +178,7 @@
 <span><span class="co">#&gt;                                                                                                                           @odata.context</span></span>
 <span><span class="co">#&gt; 1 https://graph.microsoft.com/beta/$metadata#drives('b%21txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta613N3QJlbvrVKyTwO')/root/$entity</span></span>
 <span><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @microsoft.graph.downloadUrl</span></span>
-<span><span class="co">#&gt; 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/download.aspx?UniqueId=0a50d3cd-74ce-4a8d-a6d8-2596037f0148&amp;Translate=false&amp;tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvYm1vcmUuc2hhcmVwb2ludC5jb21AMzEyY2IxMjYtYzZhZS00ZmMyLTgwMGQtMzE4ZTY3OWNlNmM3IiwiaXNzIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwIiwibmJmIjoiMTY5NjM1MzU3MSIsImV4cCI6IjE2OTYzNTcxNzEiLCJlbmRwb2ludHVybCI6ImVWS1o5aHllbHVsNU9PdzR6OWQ1U01sOVBkZXpXTjNOU3NscWxGM3V2ME09IiwiZW5kcG9pbnR1cmxMZW5ndGgiOiIxNTAiLCJpc2xvb3BiYWNrIjoiVHJ1ZSIsImNpZCI6InptZnpobXh1cUVTdURuMFJ2K2FtY3c9PSIsInZlciI6Imhhc2hlZHByb29mdG9rZW4iLCJzaXRlaWQiOiJNV1JoTURGallqY3ROelpqTnkwME5EZzNMV0l6T1RndFpXTTJNR1JtWmpobU5USmsiLCJhcHBfZGlzcGxheW5hbWUiOiJBenVyZVIvTWljcm9zb2Z0MzY1UiIsImdpdmVuX25hbWUiOiJFbGkiLCJmYW1pbHlfbmFtZSI6IlBvdXNzb24iLCJhcHBpZCI6ImQ0NGEwNWQ1LWM2YTUtNGJiYi04MmQyLTQ0MzEyMzcyMjM4MCIsInRpZCI6IjMxMmNiMTI2LWM2YWUtNGZjMi04MDBkLTMxOGU2NzljZTZjNyIsInVwbiI6ImVsaS5wb3Vzc29uQGJhbHRpbW9yZWNpdHkuZ292IiwicHVpZCI6IjEwMDMyMDAxRkQ3Q0UxMjQiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzMjAwMWZkN2NlMTI0QGxpdmUuY29tIiwic2NwIjoiZ3JvdXAud3JpdGUgYWxsc2l0ZXMubWFuYWdlIGFsbHNpdGVzLndyaXRlIiwidHQiOiIyIiwiaXBhZGRyIjoiMjAuMTkwLjEzMC40MCJ9.W30mriAcmRX1wF0t4538Q2OGxPF1OPXTQ_0tIYHnHds&amp;ApiVersion=2.0</span></span>
+<span><span class="co">#&gt; 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/download.aspx?UniqueId=0a50d3cd-74ce-4a8d-a6d8-2596037f0148&amp;Translate=false&amp;tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvYm1vcmUuc2hhcmVwb2ludC5jb21AMzEyY2IxMjYtYzZhZS00ZmMyLTgwMGQtMzE4ZTY3OWNlNmM3IiwiaXNzIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwIiwibmJmIjoiMTY5NzA0NTM4OSIsImV4cCI6IjE2OTcwNDg5ODkiLCJlbmRwb2ludHVybCI6ImVWS1o5aHllbHVsNU9PdzR6OWQ1U01sOVBkZXpXTjNOU3NscWxGM3V2ME09IiwiZW5kcG9pbnR1cmxMZW5ndGgiOiIxNTAiLCJpc2xvb3BiYWNrIjoiVHJ1ZSIsImNpZCI6IkU0NU16bWJvWTBlNjA1VEhYWnJsR0E9PSIsInZlciI6Imhhc2hlZHByb29mdG9rZW4iLCJzaXRlaWQiOiJNV1JoTURGallqY3ROelpqTnkwME5EZzNMV0l6T1RndFpXTTJNR1JtWmpobU5USmsiLCJhcHBfZGlzcGxheW5hbWUiOiJBenVyZVIvTWljcm9zb2Z0MzY1UiIsImdpdmVuX25hbWUiOiJFbGkiLCJmYW1pbHlfbmFtZSI6IlBvdXNzb24iLCJhcHBpZCI6ImQ0NGEwNWQ1LWM2YTUtNGJiYi04MmQyLTQ0MzEyMzcyMjM4MCIsInRpZCI6IjMxMmNiMTI2LWM2YWUtNGZjMi04MDBkLTMxOGU2NzljZTZjNyIsInVwbiI6ImVsaS5wb3Vzc29uQGJhbHRpbW9yZWNpdHkuZ292IiwicHVpZCI6IjEwMDMyMDAxRkQ3Q0UxMjQiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzMjAwMWZkN2NlMTI0QGxpdmUuY29tIiwic2NwIjoiZ3JvdXAud3JpdGUgYWxsc2l0ZXMubWFuYWdlIGFsbHNpdGVzLndyaXRlIiwidHQiOiIyIiwiaXBhZGRyIjoiNDAuMTI2LjIzLjE2MiJ9.4C4AEvCvCUSXuamiQcdfJgqWwjh97gEqv3Tp-aO7q3U&amp;ApiVersion=2.0</span></span>
 <span><span class="co">#&gt;        createdDateTime                                        eTag</span></span>
 <span><span class="co">#&gt; 1 2023-01-13T16:42:07Z "{0A50D3CD-74CE-4A8D-A6D8-2596037F0148},56"</span></span>
 <span><span class="co">#&gt;                                   id lastModifiedDateTime</span></span>
@@ -222,7 +200,7 @@
 <span><span class="co">#&gt;                                                                                                    file</span></span>
 <span><span class="co">#&gt; 1 application/vnd.openxmlformats-officedocument.wordprocessingml.document, CftrnHpBa4HAhtv+a3TALjSSvS0=</span></span>
 <span><span class="co">#&gt;                               fileSystemInfo                    ms_item</span></span>
-<span><span class="co">#&gt; 1 2023-01-13T16:42:07Z, 2023-01-26T18:17:57Z &lt;environment: 0x1126a98d0&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 2023-01-13T16:42:07Z, 2023-01-26T18:17:57Z &lt;environment: 0x1283d34b0&gt;</span></span></code></pre></div>
 <p>These basic functions to “get” objects are extended by functions like <code><a href="reference/download_sp_item.html">download_sp_item()</a></code> that adds support for downloading copies of your SharePoint files (this is the function that powers <code><a href="reference/read_sharepoint.html">read_sharepoint()</a></code>):</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_tempfile.html" class="external-link">with_tempdir</a></span><span class="op">(</span><span class="op">{</span></span>
@@ -232,7 +210,7 @@
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Getting item from SharePoint</span></span>
 <span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
-<span><span class="co">#&gt; ✔ Getting item from SharePoint [708ms]</span></span>
+<span><span class="co">#&gt; ✔ Getting item from SharePoint [506ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Downloading SharePoint item to 'Baltimore Data Academy Announcement Content.d…</span></span>
 <span><span class="co">#&gt; ✔ Downloading SharePoint item to 'Baltimore Data Academy Announcement Content.d…</span></span>

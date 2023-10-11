@@ -110,10 +110,23 @@ If <code>NULL</code>, path is set to default "/".</p></dd>
 
 
 <dt>...</dt>
-<dd><p>Arguments passed on to <code><a href="sp_drive.html">get_sp_drive</a></code></p><dl><dt><code>.default_drive_name</code></dt>
+<dd><p>Arguments passed on to <code><a href="sp_drive.html">get_sp_drive</a></code></p><dl><dt><code>default_drive_name</code></dt>
 <dd><p>Drive name string used only if input is a document
 URL and drive name is not part of the URL. Defaults to
 <code>getOption("sharepointr.default_drive_name", "Documents")</code></p></dd>
+
+    <dt><code>cache</code></dt>
+<dd><p>If <code>TRUE</code>, cache drive to a file using <code><a href="sp_drive.html">cache_sp_drive()</a></code>.</p></dd>
+
+    <dt><code>refresh</code></dt>
+<dd><p>If <code>TRUE</code>, get a new drive even if the existing drive is
+cached as a local option. If <code>FALSE</code>, use the cached <code>ms_drive</code> object if
+it exists.</p></dd>
+
+    <dt><code>cache_file</code></dt>
+<dd><p>File name for cached drive if <code>cache = TRUE</code>. Defaults to a
+option set with <code>sharepointr.cache_file_drive</code> (which defaults to
+<code>"sp_drive.rds"</code>).</p></dd>
 
     <dt><code>site_url</code></dt>
 <dd><p>A SharePoint site URL in the format "https://[tenant
@@ -124,6 +137,11 @@ included in the URL.</p></dd>
     <dt><code>site</code></dt>
 <dd><p>A <code>ms_site</code> object. If <code>site</code> is supplied, <code>site_url</code>,
 <code>site_name</code>, and <code>site_id</code> are ignored.</p></dd>
+
+    <dt><code>overwrite</code></dt>
+<dd><p>If <code>TRUE</code>, replace the existing cached object named by
+<code>cache_file</code> with the new object. If <code>FALSE</code>, error if a cached file with
+the same <code>cache_file</code> name already exists.</p></dd>
 
   
 </dl></dd>
@@ -152,8 +170,8 @@ method for SharePoint site object.</p></dd>
 
 
 <dt>drive</dt>
-<dd><p>A <code>ms_drive</code> object. If drive is supplied, <code>drive_name</code>,
-<code>site_url</code>, and any additional parameters passed to <code>...</code> are ignored.</p></dd>
+<dd><p>A <code>ms_drive</code> object. If <code>drive</code> is supplied, <code>drive_name</code> and
+<code>drive_id</code> are ignored.</p></dd>
 
 
 <dt>recurse</dt>

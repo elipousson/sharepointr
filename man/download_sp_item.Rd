@@ -77,5 +77,7 @@ default valye for \code{path} is \code{""} so, by default, SharePoint items are
 downloaded to the current working directory. Set \code{overwrite = TRUE} to allow
 this function to overwrite an existing file. \code{\link[=download_sp_file]{download_sp_file()}} is
 identical except for the name of the path parameter (which is file instead of
-path).
+path). Note, if the selected item is a folder and \code{recurse = TRUE}, it may
+take some time to download the enclosed items and {Microsoft365R} does not
+provide a progress bar for that operation.
 }

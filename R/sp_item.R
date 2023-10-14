@@ -1,11 +1,14 @@
 #' Get a SharePoint item or item properties
 #'
+#' @description
 #' [get_sp_item()] wraps the `get_item` method for `ms_drive` objects and
 #' returns a `ms_drive_item` object by default. [get_sp_item_properties()] uses
 #' the `get_item_properties` method (also available by setting `properties =
-#' TRUE` for [get_sp_item()]). Additional parameters in `...` are passed to
-#' [get_sp_drive()] by [get_sp_item()] or to [get_sp_item()] by
-#' [get_sp_item_properties()] or [delete_sp_item()].
+#' TRUE` for [get_sp_item()]).
+#'
+#' Additional parameters in `...` are passed to [get_sp_drive()] by
+#' [get_sp_item()] or to [get_sp_item()] by [get_sp_item_properties()] or
+#' [delete_sp_item()].
 #'
 #' @param path A SharePoint file URL or the relative path to a file located in a
 #'   SharePoint drive. If input is a relative path, the string should *not*
@@ -204,7 +207,9 @@ delete_sp_item <- function(path = NULL,
 #' downloaded to the current working directory. Set `overwrite = TRUE` to allow
 #' this function to overwrite an existing file. [download_sp_file()] is
 #' identical except for the name of the path parameter (which is file instead of
-#' path).
+#' path). Note, if the selected item is a folder and `recurse = TRUE`, it may
+#' take some time to download the enclosed items and {Microsoft365R} does not
+#' provide a progress bar for that operation.
 #'
 #' @name download_sp_item
 #' @param path,file Required. A SharePoint shared file URL, document URL, or, if
@@ -262,10 +267,34 @@ download_sp_item <- function(path = NULL,
 
   check_string(dest, call = call)
 
+  if (item$is_folder()) {
+    if (!dir.exists(dirname(dest))) {
+      cli::cli_abort(
+        c("{.arg new_path} or {.arg dest} must exist if item is a folder.",
+          "i" = "Create a new folder at {.path {dirname(dest)}} to
+          download the item."
+        ),
+        call = call
+      )
+    }
+
+    if (!recursive) {
+      cli::cli_bullets(
+        c(
+          "!" = "If the SharePoint item is a folder and {.arg recursive = FALSE},
+          only the folder is downloaded.",
+          "i" = "Set {.arg recursive = TRUE} to download folder contents."
+        )
+      )
+    }
+  }
+
   cli::cli_progress_step(
     "Downloading SharePoint item to {.file {dest}}"
   )
 
+  # TODO: Compare using the item level download method and the download_file and
+  # download_folder methods available for ms_drive objects
   item$download(
     dest = dest,
     overwrite = overwrite,
@@ -294,10 +323,17 @@ download_sp_file <- function(file,
 #' Set a file destination for a SharePoint file before downloading
 #'
 #' @noRd
-sp_file_dest <- function(file, path = tempdir()) {
+sp_file_dest <- function(file = NULL, path = tempdir()) {
   if (is_sp_url(file)) {
-    file <- sp_url_parse(file)[["file"]]
+    sp_url_parts <- sp_url_parse(file)
+
+    file <- sp_url_parts[["file"]] %||%
+      sp_url_parts[["file_path"]]
   }
 
-  str_c_fsep(path, basename(file))
+  if (!is.null(file)) {
+    file <- basename(file)
+  }
+
+  str_c_fsep(path, file)
 }

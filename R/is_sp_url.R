@@ -4,6 +4,10 @@
 #' @keywords internal
 #' @export
 is_sp_url <- function(x) {
+  if (!is_vector(x) || is_empty(x)) {
+    return(FALSE)
+  }
+
   is_url(x) & grepl("\\.sharepoint.com/", x)
 }
 

@@ -26,8 +26,8 @@ supplied.}
 \item{dest}{Destination on SharePoint for file to upload. SharePoint folder
 URLs are supported.}
 
-\item{...}{Additional parameters passed to
-\code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}} or \code{\link[=get_sp_site]{get_sp_site()}}.}
+\item{...}{Additional parameters passed to \code{\link[=get_sp_site]{get_sp_site()}} or
+\code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}}.}
 
 \item{src}{Data source path passed to \code{upload_folder} or \code{upload_file}
 method. Defaults to \code{NULL} and set to use file value by default.}

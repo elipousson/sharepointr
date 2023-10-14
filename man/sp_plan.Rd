@@ -29,7 +29,7 @@ list_sp_plans(
 \item{plan_title, plan_id}{Planner title or ID. Exactly one of the two
 arguments must be supplied.}
 
-\item{...}{Additional arguments passed to \code{\link[=get_sp_site_group]{get_sp_site_group()}}.}
+\item{...}{Additional arguments passed to \code{\link[=get_sp_group]{get_sp_group()}}.}
 
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}

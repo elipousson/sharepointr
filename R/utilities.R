@@ -1,3 +1,30 @@
+#' Shared general definitions for Microsoft Graph API parameters
+#'
+#' @name ms_graph_arg_terms
+#' @param filter A string with [an OData
+#'   expression](https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter)
+#'   apply as a filter to the results. Learn more in the [Microsoft Graph API
+#'   documentation](https://learn.microsoft.com/en-us/graph/filter-query-parameter)
+#'   on using filter query parameters.
+#' @param n Maximum number of lists, plans, tasks, or other items to return.
+#'   Defaults to `NULL` which sets n to `Inf`.
+#' @keywords internal
+NULL
+
+#' Shared general definitions for Microsoft Graph objects
+#'
+#' @name ms_graph_obj_terms
+#' @param site A `ms_site` object. If `site` is supplied, `site_url`,
+#'   `site_name`, and `site_id` are ignored.
+#' @param plan A `ms_plan` object. If `plan` is supplied, `plan_title`,
+#'   `plan_id`, and any additional parameters passed to `...` are ignored.
+#' @param sp_list A `ms_list` object. If supplied, `list_name`, `list_id`,
+#'   `site_url`, `site`, `drive_name`, `drive_id`, `drive`, and any additional
+#'   parameters passed to `...` are all ignored.
+#' @keywords internal
+NULL
+
+
 #' Does x match the pattern of a URL?
 #'
 #' @noRd

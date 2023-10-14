@@ -2,8 +2,7 @@
 #'
 #' [get_sp_site()] is a wrapper for [Microsoft365R::get_sharepoint_site()] and
 #' returns a `ms_site` object. [cache_sp_site()] allows you to cache a default
-#' SharePoint site for use by other functions. [get_sp_site_group()] gets the
-#' group associated with an individual site using the `get_group` method.
+#' SharePoint site for use by other functions.
 #'
 #' @name sp_site
 #' @seealso [Microsoft365R::ms_site]
@@ -18,8 +17,8 @@ NULL
 #' @param site_name,site_id Site name or ID of the SharePoint site as an
 #'   alternative to the SharePoint site URL. Exactly one of  `site_url`,
 #'   `site_name`, and `site_id` must be supplied.
-#' @param ... Additional parameters passed to
-#'   [Microsoft365R::get_sharepoint_site()] or [get_sp_site()].
+#' @param ... Additional parameters passed to [get_sp_site()] or
+#'   [Microsoft365R::get_sharepoint_site()].
 #' @inheritDotParams Microsoft365R::get_sharepoint_site -site_url -site_name -site_id
 #' @param refresh If `TRUE`, get a new site even if the existing site is cached
 #'   as a local option. If `FALSE`, use the cached `ms_site` object.
@@ -106,8 +105,7 @@ get_sp_site <- function(site_url = NULL,
 
 #' @rdname sp_site
 #' @name cache_sp_site
-#' @param site A `ms_site` object. If `site` is supplied, `site_url`,
-#'   `site_name`, and `site_id` are ignored.
+#' @inheritParams ms_graph_obj_terms
 #' @param cache_file File name for cached file if `cache = TRUE`. Defaults to
 #'   `"sp_site.rds"` or option set with `sharepointr.cache_file_site`.
 #' @inheritParams cache_ms_obj
@@ -131,31 +129,4 @@ cache_sp_site <- function(...,
     cache_dir = cache_dir,
     call = call
   )
-}
-
-#' @rdname sp_site
-#' @name get_sp_site_group
-#' @export
-get_sp_site_group <- function(site_url = NULL,
-                              site_name = NULL,
-                              site_id = NULL,
-                              ...,
-                              site = NULL,
-                              call = caller_env()) {
-  if (is_url(site)) {
-    site_url <- site
-    site <- NULL
-  }
-
-  site <- site %||% get_sp_site(
-    site_url = site_url,
-    site_name = site_name,
-    site_id = site_id,
-    ...,
-    call = call
-  )
-
-  check_ms_site(site, call = call)
-
-  site$get_group()
 }

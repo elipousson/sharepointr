@@ -4,7 +4,6 @@
 \alias{sp_site}
 \alias{get_sp_site}
 \alias{cache_sp_site}
-\alias{get_sp_site_group}
 \title{Get a SharePoint site or set a default SharePoint site}
 \usage{
 get_sp_site(
@@ -25,15 +24,6 @@ cache_sp_site(
   cache_file = getOption("sharepointr.cache_file_site", "sp_site.rds"),
   cache_dir = "sharepointr.cache_dir",
   overwrite = FALSE,
-  call = caller_env()
-)
-
-get_sp_site_group(
-  site_url = NULL,
-  site_name = NULL,
-  site_id = NULL,
-  ...,
-  site = NULL,
   call = caller_env()
 )
 }
@@ -83,8 +73,7 @@ cache directory is set to \code{rappdirs::user_cache_dir("sharepointr")}.}
 \description{
 \code{\link[=get_sp_site]{get_sp_site()}} is a wrapper for \code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}} and
 returns a \code{ms_site} object. \code{\link[=cache_sp_site]{cache_sp_site()}} allows you to cache a default
-SharePoint site for use by other functions. \code{\link[=get_sp_site_group]{get_sp_site_group()}} gets the
-group associated with an individual site using the \code{get_group} method.
+SharePoint site for use by other functions.
 }
 \seealso{
 \link[Microsoft365R:ms_site]{Microsoft365R::ms_site}

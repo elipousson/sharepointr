@@ -87,9 +87,11 @@ mentioned in error messages as the source of the error. See the
 \description{
 \code{\link[=get_sp_item]{get_sp_item()}} wraps the \code{get_item} method for \code{ms_drive} objects and
 returns a \code{ms_drive_item} object by default. \code{\link[=get_sp_item_properties]{get_sp_item_properties()}} uses
-the \code{get_item_properties} method (also available by setting \code{properties = TRUE} for \code{\link[=get_sp_item]{get_sp_item()}}). Additional parameters in \code{...} are passed to
-\code{\link[=get_sp_drive]{get_sp_drive()}} by \code{\link[=get_sp_item]{get_sp_item()}} or to \code{\link[=get_sp_item]{get_sp_item()}} by
-\code{\link[=get_sp_item_properties]{get_sp_item_properties()}} or \code{\link[=delete_sp_item]{delete_sp_item()}}.
+the \code{get_item_properties} method (also available by setting \code{properties = TRUE} for \code{\link[=get_sp_item]{get_sp_item()}}).
+
+Additional parameters in \code{...} are passed to \code{\link[=get_sp_drive]{get_sp_drive()}} by
+\code{\link[=get_sp_item]{get_sp_item()}} or to \code{\link[=get_sp_item]{get_sp_item()}} by \code{\link[=get_sp_item_properties]{get_sp_item_properties()}} or
+\code{\link[=delete_sp_item]{delete_sp_item()}}.
 }
 \seealso{
 \link[Microsoft365R:ms_drive_item]{Microsoft365R::ms_drive_item}

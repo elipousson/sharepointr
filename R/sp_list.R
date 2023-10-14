@@ -38,19 +38,6 @@ get_ms_list_obj <- function(list_name = NULL,
   site
 }
 
-#' Shared general definitions for Microsoft Graph API parameters
-#'
-#' @name ms_graph_terms
-#' @param filter A string with [an OData
-#'   expression](https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter)
-#'   apply as a filter to the results. Learn more in the [Microsoft Graph API
-#'   documentation](https://learn.microsoft.com/en-us/graph/filter-query-parameter)
-#'   on using filter query parameters.
-#' @param n Maximum number of lists, plans, tasks, or other items to return.
-#'   Defaults to `NULL` which sets n to `Inf`.
-#' @keywords internal
-NULL
-
 #' Get a SharePoint list or a list of SharePoint lists
 #'
 #' [get_sp_list()] is a wrapper for the `get_list` and `list_items` methods.
@@ -153,7 +140,7 @@ get_sp_list <- function(list_name = NULL,
 
 #' @rdname sp_list
 #' @name list_sp_lists
-#' @inheritParams ms_graph_terms
+#' @inheritParams ms_graph_arg_terms
 #' @export
 list_sp_lists <- function(site_url = NULL,
                           filter = NULL,
@@ -184,15 +171,14 @@ list_sp_lists <- function(site_url = NULL,
   ms_obj_list_as_data_frame(
     sp_lists,
     obj_col = "ms_list",
-    keep_list_cols = c("createdBy", "lastModifiedBy")
+    keep_list_cols = c("createdBy", "lastModifiedBy"),
+    .error_call = call
   )
 }
 
 #' @rdname sp_list
 #' @name get_sp_list_metadata
-#' @param sp_list A `ms_list` object. If supplied, `list_name`, `list_id`,
-#'   `site_url`, `site`, `drive_name`, `drive_id`, `drive`, and any additional
-#'   parameters passed to `...` are all ignored.
+#' @inheritParams ms_graph_obj_terms
 #' @export
 get_sp_list_metadata <- function(list_name = NULL,
                                  list_id = NULL,

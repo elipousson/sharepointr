@@ -4,9 +4,9 @@
 \name{sharepointr-package}
 \alias{sharepointr}
 \alias{sharepointr-package}
-\title{sharepointr: Read SharePoint Files}
+\title{sharepointr: Read and Write from SharePoint Sites}
 \description{
-More about what it does (maybe more than one line) Use four spaces when indenting paragraphs within the Description.
+A R package extending {Microsoft365R} to make it easier to read, write, and work with SharePoint items, lists, and plans.
 }
 \seealso{
 Useful links:

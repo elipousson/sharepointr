@@ -8,7 +8,7 @@ NULL
 
 #' @rdname sp_list_item
 #' @name list_sp_list_items
-#' @inheritParams ms_graph_terms
+#' @inheritParams ms_graph_arg_terms
 #' @inheritParams get_sp_list
 #' @inheritDotParams get_sp_list -as_data_frame
 #' @param select A character vector of column names to include in the returned

@@ -87,8 +87,6 @@ using:</p><ul><li><p><code><a href="https://r-spatial.github.io/sf/reference/st_
 <span>  site_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  blocksize <span class="op">=</span> <span class="fl">327680000</span>,</span>
-<span>  recursive <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  parallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -153,11 +151,6 @@ alternative to the SharePoint site URL. Exactly one of  <code>site_url</code>,
 <dt>site</dt>
 <dd><p>A <code>ms_site</code> object. If <code>site</code> is supplied, <code>site_url</code>,
 <code>site_name</code>, and <code>site_id</code> are ignored.</p></dd>
-
-
-<dt>blocksize, recursive, parallel</dt>
-<dd><p>Additional parameters passed to
-<code>upload_folder</code> or <code>upload_file</code> method for <code>ms_drive</code> objects.</p></dd>
 
 
 <dt>call</dt>

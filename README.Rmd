@@ -137,4 +137,4 @@ There are two similar packages available:
 -   [sharrpoint](https://gitlab.com/tolmay/sharrpoint): An R package to interact with Sharepoint API (files & lists).
 -   [sharepointr](https://github.com/LukasK13/sharepointr): A R package for reading from and writing to SharePoint lists.
 
-I may rename this package to avoid the name conflict with the existing sharepointr package---I didn't find it until after I set up the repository. However, it has a more limited feature set and may be no longer under development.
+I may rename this package to avoid the name conflict with the existing sharepointr package---I didn't find it until after I set up the repository. However, it has a more limited feature set and may be no longer under development so I may stick with the current name.

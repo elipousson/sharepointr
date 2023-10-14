@@ -67,14 +67,13 @@ docx_shared_url <- "https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGo
 read_sharepoint(docx_shared_url)
 #> ℹ Getting item from SharePoint
 #> Loading Microsoft Graph login for default tenant
-#> Access token has expired or is no longer valid; refreshing
-#> ✔ Getting item from SharePoint [2.9s]
+#> ✔ Getting item from SharePoint [1.4s]
 #> 
 #> ℹ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_40000g…
 #> ✔ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_40000g…
 #> 
 #> ℹ Reading item with `officer::read_docx()`
-#> ✔ Reading item with `officer::read_docx()` [27ms]
+#> ✔ Reading item with `officer::read_docx()` [31ms]
 #> 
 #> rdocx document with 19 element(s)
 #> 
@@ -154,7 +153,7 @@ get_sp_item(docx_shared_url, as_data_frame = TRUE)
 #>                                                                                                                           @odata.context
 #> 1 https://graph.microsoft.com/beta/$metadata#drives('b%21txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta613N3QJlbvrVKyTwO')/root/$entity
 #>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @microsoft.graph.downloadUrl
-#> 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/download.aspx?UniqueId=0a50d3cd-74ce-4a8d-a6d8-2596037f0148&Translate=false&tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvYm1vcmUuc2hhcmVwb2ludC5jb21AMzEyY2IxMjYtYzZhZS00ZmMyLTgwMGQtMzE4ZTY3OWNlNmM3IiwiaXNzIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwIiwibmJmIjoiMTY5NzA0NTM4OSIsImV4cCI6IjE2OTcwNDg5ODkiLCJlbmRwb2ludHVybCI6ImVWS1o5aHllbHVsNU9PdzR6OWQ1U01sOVBkZXpXTjNOU3NscWxGM3V2ME09IiwiZW5kcG9pbnR1cmxMZW5ndGgiOiIxNTAiLCJpc2xvb3BiYWNrIjoiVHJ1ZSIsImNpZCI6IkU0NU16bWJvWTBlNjA1VEhYWnJsR0E9PSIsInZlciI6Imhhc2hlZHByb29mdG9rZW4iLCJzaXRlaWQiOiJNV1JoTURGallqY3ROelpqTnkwME5EZzNMV0l6T1RndFpXTTJNR1JtWmpobU5USmsiLCJhcHBfZGlzcGxheW5hbWUiOiJBenVyZVIvTWljcm9zb2Z0MzY1UiIsImdpdmVuX25hbWUiOiJFbGkiLCJmYW1pbHlfbmFtZSI6IlBvdXNzb24iLCJhcHBpZCI6ImQ0NGEwNWQ1LWM2YTUtNGJiYi04MmQyLTQ0MzEyMzcyMjM4MCIsInRpZCI6IjMxMmNiMTI2LWM2YWUtNGZjMi04MDBkLTMxOGU2NzljZTZjNyIsInVwbiI6ImVsaS5wb3Vzc29uQGJhbHRpbW9yZWNpdHkuZ292IiwicHVpZCI6IjEwMDMyMDAxRkQ3Q0UxMjQiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzMjAwMWZkN2NlMTI0QGxpdmUuY29tIiwic2NwIjoiZ3JvdXAud3JpdGUgYWxsc2l0ZXMubWFuYWdlIGFsbHNpdGVzLndyaXRlIiwidHQiOiIyIiwiaXBhZGRyIjoiNDAuMTI2LjIzLjE2MiJ9.4C4AEvCvCUSXuamiQcdfJgqWwjh97gEqv3Tp-aO7q3U&ApiVersion=2.0
+#> 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/download.aspx?UniqueId=0a50d3cd-74ce-4a8d-a6d8-2596037f0148&Translate=false&tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvYm1vcmUuc2hhcmVwb2ludC5jb21AMzEyY2IxMjYtYzZhZS00ZmMyLTgwMGQtMzE4ZTY3OWNlNmM3IiwiaXNzIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwIiwibmJmIjoiMTY5NzI0OTkzMiIsImV4cCI6IjE2OTcyNTM1MzIiLCJlbmRwb2ludHVybCI6ImVWS1o5aHllbHVsNU9PdzR6OWQ1U01sOVBkZXpXTjNOU3NscWxGM3V2ME09IiwiZW5kcG9pbnR1cmxMZW5ndGgiOiIxNTAiLCJpc2xvb3BiYWNrIjoiVHJ1ZSIsImNpZCI6IklqOFZaK0tNMjBhMTdRWm1mbmtEaFE9PSIsInZlciI6Imhhc2hlZHByb29mdG9rZW4iLCJzaXRlaWQiOiJNV1JoTURGallqY3ROelpqTnkwME5EZzNMV0l6T1RndFpXTTJNR1JtWmpobU5USmsiLCJhcHBfZGlzcGxheW5hbWUiOiJBenVyZVIvTWljcm9zb2Z0MzY1UiIsImdpdmVuX25hbWUiOiJFbGkiLCJmYW1pbHlfbmFtZSI6IlBvdXNzb24iLCJhcHBpZCI6ImQ0NGEwNWQ1LWM2YTUtNGJiYi04MmQyLTQ0MzEyMzcyMjM4MCIsInRpZCI6IjMxMmNiMTI2LWM2YWUtNGZjMi04MDBkLTMxOGU2NzljZTZjNyIsInVwbiI6ImVsaS5wb3Vzc29uQGJhbHRpbW9yZWNpdHkuZ292IiwicHVpZCI6IjEwMDMyMDAxRkQ3Q0UxMjQiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzMjAwMWZkN2NlMTI0QGxpdmUuY29tIiwic2NwIjoiZ3JvdXAud3JpdGUgYWxsc2l0ZXMubWFuYWdlIGFsbHNpdGVzLndyaXRlIiwidHQiOiIyIiwiaXBhZGRyIjoiNDAuMTI2LjIzLjE2MyJ9._IiwMB1EySiQXt2kSImD4jeSxuVFirvA2skJQYIa8uw&ApiVersion=2.0
 #>        createdDateTime                                        eTag
 #> 1 2023-01-13T16:42:07Z "{0A50D3CD-74CE-4A8D-A6D8-2596037F0148},56"
 #>                                   id lastModifiedDateTime
@@ -171,12 +170,12 @@ get_sp_item(docx_shared_url, as_data_frame = TRUE)
 #> 1 Michael.Gottlieb@baltimorecity.gov, a2dedf36-3fce-4998-92f5-9350e749769f, Gottlieb, Michael (BCIT)
 #>   shared
 #> 1  users
-#>                                                                                                                                                                                                                                                                  parentReference
-#> 1 documentLibrary, b!txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta613N3QJlbvrVKyTwO, 017P4HV6NGOMGBBVI5GBBZU5BFDTPDKJ7W, /drives/b!txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta613N3QJlbvrVKyTwO/root:/General/Baltimore Data Academy, 1da01cb7-76c7-4487-b398-ec60dff8f52d
+#>                                                                                                                                                                                                                                                                                          parentReference
+#> 1 documentLibrary, b!txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta613N3QJlbvrVKyTwO, 017P4HV6NGOMGBBVI5GBBZU5BFDTPDKJ7W, Baltimore Data Academy, /drives/b!txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta613N3QJlbvrVKyTwO/root:/General/Baltimore Data Academy, 1da01cb7-76c7-4487-b398-ec60dff8f52d
 #>                                                                                                    file
 #> 1 application/vnd.openxmlformats-officedocument.wordprocessingml.document, CftrnHpBa4HAhtv+a3TALjSSvS0=
 #>                               fileSystemInfo                    ms_item
-#> 1 2023-01-13T16:42:07Z, 2023-01-26T18:17:57Z <environment: 0x1283d34b0>
+#> 1 2023-01-13T16:42:07Z, 2023-01-26T18:17:57Z <environment: 0x112094a58>
 ```
 
 These basic functions to “get” objects are extended by functions like
@@ -191,7 +190,7 @@ withr::with_tempdir({
 })
 #> ℹ Getting item from SharePoint
 #> Loading Microsoft Graph login for default tenant
-#> ✔ Getting item from SharePoint [506ms]
+#> ✔ Getting item from SharePoint [644ms]
 #> 
 #> ℹ Downloading SharePoint item to 'Baltimore Data Academy Announcement Content.d…
 #> ✔ Downloading SharePoint item to 'Baltimore Data Academy Announcement Content.d…
@@ -296,4 +295,4 @@ There are two similar packages available:
 I may rename this package to avoid the name conflict with the existing
 sharepointr package—I didn’t find it until after I set up the
 repository. However, it has a more limited feature set and may be no
-longer under development.
+longer under development so I may stick with the current name.

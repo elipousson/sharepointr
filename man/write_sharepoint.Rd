@@ -19,8 +19,6 @@ write_sharepoint(
   site_id = NULL,
   site = NULL,
   blocksize = 327680000,
-  recursive = FALSE,
-  parallel = FALSE,
   call = caller_env()
 )
 }
@@ -62,9 +60,6 @@ alternative to the SharePoint site URL. Exactly one of  \code{site_url},
 
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
-
-\item{blocksize, recursive, parallel}{Additional parameters passed to
-\code{upload_folder} or \code{upload_file} method for \code{ms_drive} objects.}
 
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be

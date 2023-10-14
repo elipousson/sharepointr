@@ -16,10 +16,7 @@ read_sharepoint(
   site_name = NULL,
   site_id = NULL,
   site = NULL,
-  dest = NULL,
-  overwrite = TRUE,
-  recursive = FALSE,
-  parallel = FALSE
+  dest = NULL
 )
 }
 \arguments{
@@ -49,9 +46,6 @@ alternative to the SharePoint site URL. Exactly one of  \code{site_url},
 
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
-
-\item{dest, overwrite, recursive, parallel}{Parameters passed to \code{download}
-method for \code{ms_drive_item} object.}
 }
 \description{
 \code{\link[=read_sharepoint]{read_sharepoint()}} is designed to download a SharePoint item to a temporary

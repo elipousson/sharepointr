@@ -37,8 +37,6 @@ write_sharepoint <- function(x,
                              site_id = NULL,
                              site = NULL,
                              blocksize = 327680000,
-                             recursive = FALSE,
-                             parallel = FALSE,
                              call = caller_env()) {
   check_string(file, call = call)
   file <- str_c_fsep(new_path, file)
@@ -69,8 +67,6 @@ write_sharepoint <- function(x,
     site_id = site_id,
     site = site,
     blocksize = blocksize,
-    recursive = recursive,
-    parallel = parallel,
     call = call
   )
 

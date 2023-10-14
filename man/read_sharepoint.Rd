@@ -15,8 +15,7 @@ read_sharepoint(
   site_url = NULL,
   site_name = NULL,
   site_id = NULL,
-  site = NULL,
-  dest = NULL
+  site = NULL
 )
 }
 \arguments{

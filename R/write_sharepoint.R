@@ -18,6 +18,8 @@
 #'   or `target` for `print()` (when working with `{officer}` class objects).
 #' @param ... Additional parameters passed to write function.
 #' @param new_path Path to write file to. Defaults to [tempdir()]
+#' @param blocksize Additional parameter passed to `upload_folder` or
+#'   `upload_file` method for `ms_drive` objects.
 #' @inheritParams upload_sp_item
 #' @inheritParams get_sp_drive
 #' @inheritParams get_sp_site

@@ -40,11 +40,11 @@ list_sp_plan_buckets <- function(plan_title = NULL,
   )
 
   if (!as_data_frame) {
-    return(plan_tasks)
+    return(plan_buckets)
   }
 
   ms_obj_list_as_data_frame(
-    plan_tasks,
+    plan_buckets,
     obj_col = "ms_plan_bucket",
     .error_call = call
   )

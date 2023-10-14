@@ -39,8 +39,7 @@ read_sharepoint <- function(file,
                             site_url = NULL,
                             site_name = NULL,
                             site_id = NULL,
-                            site = NULL,
-                            dest = NULL) {
+                            site = NULL) {
   dest <- download_sp_file(
     file = file,
     new_path = new_path,
@@ -50,8 +49,7 @@ read_sharepoint <- function(file,
     site_url = site_url,
     site_name = site_name,
     site_id = site_id,
-    site = site,
-    dest = dest
+    site = site
   )
 
   message <- "Reading item with "

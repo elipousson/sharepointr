@@ -9,6 +9,7 @@ read_sharepoint(
   file,
   ...,
   new_path = tempdir(),
+  overwrite = TRUE,
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
@@ -28,6 +29,10 @@ the description.}
 
 \item{new_path}{Path to directory for downloaded item. Optional if \code{dest} is
 supplied.}
+
+\item{overwrite}{If \code{TRUE}, replace the existing cached object named by
+\code{cache_file} with the new object. If \code{FALSE}, error if a cached file with
+the same \code{cache_file} name already exists.}
 
 \item{drive_name, drive_id}{SharePoint drive name or ID.}
 

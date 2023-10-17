@@ -33,6 +33,7 @@
 read_sharepoint <- function(file,
                             ...,
                             new_path = tempdir(),
+                            overwrite = TRUE,
                             drive_name = NULL,
                             drive_id = NULL,
                             drive = NULL,
@@ -49,7 +50,8 @@ read_sharepoint <- function(file,
     site_url = site_url,
     site_name = site_name,
     site_id = site_id,
-    site = site
+    site = site,
+    overwrite = overwrite
   )
 
   message <- "Reading item with "

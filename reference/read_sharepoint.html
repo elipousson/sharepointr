@@ -106,6 +106,7 @@ file with <code><a href="https://readr.tidyverse.org/reference/read_lines.html" 
 <span>  <span class="va">file</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  new_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -132,6 +133,12 @@ the description.</p></dd>
 <dt>new_path</dt>
 <dd><p>Path to directory for downloaded item. Optional if <code>dest</code> is
 supplied.</p></dd>
+
+
+<dt>overwrite</dt>
+<dd><p>If <code>TRUE</code>, replace the existing cached object named by
+<code>cache_file</code> with the new object. If <code>FALSE</code>, error if a cached file with
+the same <code>cache_file</code> name already exists.</p></dd>
 
 
 <dt>drive_name, drive_id</dt>

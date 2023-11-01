@@ -67,13 +67,13 @@ docx_shared_url <- "https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGo
 read_sharepoint(docx_shared_url)
 #> ℹ Getting item from SharePoint
 #> Loading Microsoft Graph login for default tenant
-#> ✔ Getting item from SharePoint [1.4s]
+#> ✔ Getting item from SharePoint [796ms]
 #> 
 #> ℹ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_40000g…
 #> ✔ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_40000g…
 #> 
 #> ℹ Reading item with `officer::read_docx()`
-#> ✔ Reading item with `officer::read_docx()` [31ms]
+#> ✔ Reading item with `officer::read_docx()` [29ms]
 #> 
 #> rdocx document with 19 element(s)
 #> 
@@ -152,8 +152,8 @@ get_sp_item(docx_shared_url, as_data_frame = TRUE)
 #> Loading Microsoft Graph login for default tenant
 #>                                                                                                                           @odata.context
 #> 1 https://graph.microsoft.com/beta/$metadata#drives('b%21txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta613N3QJlbvrVKyTwO')/root/$entity
-#>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @microsoft.graph.downloadUrl
-#> 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/download.aspx?UniqueId=0a50d3cd-74ce-4a8d-a6d8-2596037f0148&Translate=false&tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvYm1vcmUuc2hhcmVwb2ludC5jb21AMzEyY2IxMjYtYzZhZS00ZmMyLTgwMGQtMzE4ZTY3OWNlNmM3IiwiaXNzIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwIiwibmJmIjoiMTY5NzI0OTkzMiIsImV4cCI6IjE2OTcyNTM1MzIiLCJlbmRwb2ludHVybCI6ImVWS1o5aHllbHVsNU9PdzR6OWQ1U01sOVBkZXpXTjNOU3NscWxGM3V2ME09IiwiZW5kcG9pbnR1cmxMZW5ndGgiOiIxNTAiLCJpc2xvb3BiYWNrIjoiVHJ1ZSIsImNpZCI6IklqOFZaK0tNMjBhMTdRWm1mbmtEaFE9PSIsInZlciI6Imhhc2hlZHByb29mdG9rZW4iLCJzaXRlaWQiOiJNV1JoTURGallqY3ROelpqTnkwME5EZzNMV0l6T1RndFpXTTJNR1JtWmpobU5USmsiLCJhcHBfZGlzcGxheW5hbWUiOiJBenVyZVIvTWljcm9zb2Z0MzY1UiIsImdpdmVuX25hbWUiOiJFbGkiLCJmYW1pbHlfbmFtZSI6IlBvdXNzb24iLCJhcHBpZCI6ImQ0NGEwNWQ1LWM2YTUtNGJiYi04MmQyLTQ0MzEyMzcyMjM4MCIsInRpZCI6IjMxMmNiMTI2LWM2YWUtNGZjMi04MDBkLTMxOGU2NzljZTZjNyIsInVwbiI6ImVsaS5wb3Vzc29uQGJhbHRpbW9yZWNpdHkuZ292IiwicHVpZCI6IjEwMDMyMDAxRkQ3Q0UxMjQiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzMjAwMWZkN2NlMTI0QGxpdmUuY29tIiwic2NwIjoiZ3JvdXAud3JpdGUgYWxsc2l0ZXMubWFuYWdlIGFsbHNpdGVzLndyaXRlIiwidHQiOiIyIiwiaXBhZGRyIjoiNDAuMTI2LjIzLjE2MyJ9._IiwMB1EySiQXt2kSImD4jeSxuVFirvA2skJQYIa8uw&ApiVersion=2.0
+#>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @microsoft.graph.downloadUrl
+#> 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/download.aspx?UniqueId=0a50d3cd-74ce-4a8d-a6d8-2596037f0148&Translate=false&tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvYm1vcmUuc2hhcmVwb2ludC5jb21AMzEyY2IxMjYtYzZhZS00ZmMyLTgwMGQtMzE4ZTY3OWNlNmM3IiwiaXNzIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwIiwibmJmIjoiMTY5ODg1MzQ2MiIsImV4cCI6IjE2OTg4NTcwNjIiLCJlbmRwb2ludHVybCI6ImVWS1o5aHllbHVsNU9PdzR6OWQ1U01sOVBkZXpXTjNOU3NscWxGM3V2ME09IiwiZW5kcG9pbnR1cmxMZW5ndGgiOiIxNTAiLCJpc2xvb3BiYWNrIjoiVHJ1ZSIsImNpZCI6IkZmdEFuRUFFOEUyZmx2dXpvQjFPaHc9PSIsInZlciI6Imhhc2hlZHByb29mdG9rZW4iLCJzaXRlaWQiOiJNV1JoTURGallqY3ROelpqTnkwME5EZzNMV0l6T1RndFpXTTJNR1JtWmpobU5USmsiLCJhcHBfZGlzcGxheW5hbWUiOiJBenVyZVIvTWljcm9zb2Z0MzY1UiIsImdpdmVuX25hbWUiOiJFbGkiLCJmYW1pbHlfbmFtZSI6IlBvdXNzb24iLCJhcHBpZCI6ImQ0NGEwNWQ1LWM2YTUtNGJiYi04MmQyLTQ0MzEyMzcyMjM4MCIsInRpZCI6IjMxMmNiMTI2LWM2YWUtNGZjMi04MDBkLTMxOGU2NzljZTZjNyIsInVwbiI6ImVsaS5wb3Vzc29uQGJhbHRpbW9yZWNpdHkuZ292IiwicHVpZCI6IjEwMDMyMDAxRkQ3Q0UxMjQiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzMjAwMWZkN2NlMTI0QGxpdmUuY29tIiwic2NwIjoiZ3JvdXAud3JpdGUgYWxsc2l0ZXMubWFuYWdlIGFsbHNpdGVzLndyaXRlIiwidHQiOiIyIiwiaXBhZGRyIjoiNDAuMTI2LjIzLjk4In0.dZpR8dRYrGiPxTsYgoIMqEOjwKmPByJzlGb9FWmzoGc&ApiVersion=2.0
 #>        createdDateTime                                        eTag
 #> 1 2023-01-13T16:42:07Z "{0A50D3CD-74CE-4A8D-A6D8-2596037F0148},56"
 #>                                   id lastModifiedDateTime
@@ -175,7 +175,7 @@ get_sp_item(docx_shared_url, as_data_frame = TRUE)
 #>                                                                                                    file
 #> 1 application/vnd.openxmlformats-officedocument.wordprocessingml.document, CftrnHpBa4HAhtv+a3TALjSSvS0=
 #>                               fileSystemInfo                    ms_item
-#> 1 2023-01-13T16:42:07Z, 2023-01-26T18:17:57Z <environment: 0x112094a58>
+#> 1 2023-01-13T16:42:07Z, 2023-01-26T18:17:57Z <environment: 0x13b98d510>
 ```
 
 These basic functions to “get” objects are extended by functions like
@@ -190,7 +190,7 @@ withr::with_tempdir({
 })
 #> ℹ Getting item from SharePoint
 #> Loading Microsoft Graph login for default tenant
-#> ✔ Getting item from SharePoint [644ms]
+#> ✔ Getting item from SharePoint [376ms]
 #> 
 #> ℹ Downloading SharePoint item to 'Baltimore Data Academy Announcement Content.d…
 #> ✔ Downloading SharePoint item to 'Baltimore Data Academy Announcement Content.d…
@@ -285,14 +285,17 @@ get_sp_drive(docx_shared_url)
 
 ## Related packages
 
-There are two similar packages available:
+There are a few similar packages available:
 
 - [sharrpoint](https://gitlab.com/tolmay/sharrpoint): An R package to
   interact with Sharepoint API (files & lists).
 - [sharepointr](https://github.com/LukasK13/sharepointr): A R package
   for reading from and writing to SharePoint lists.
+- [msgraphr](https://github.com/davidski/msgraphr): A minimal R wrapper
+  of the SharePoint Online (Office 365) APIs (last updated 3 years ago).
 
-I may rename this package to avoid the name conflict with the existing
-sharepointr package—I didn’t find it until after I set up the
-repository. However, it has a more limited feature set and may be no
-longer under development so I may stick with the current name.
+I know this package name conflicts with the existing sharepointr
+package. Unfortunately, I didn’t notice find it until after I set up the
+repository. However, given that it appears that the sharepointr package
+may be no longer under development, I plan stick with the current name
+for the time being.

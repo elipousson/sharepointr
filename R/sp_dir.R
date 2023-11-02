@@ -80,6 +80,15 @@ sp_dir_info <- function(path = NULL,
 
   type <- arg_match(type, c("any", "file", "directory"), error_call = call)
 
+  return_type <- NULL
+
+  if (recurse && (type == "file")) {
+    cli::cli_alert_warning(
+      "{.arg type} is always set to {.val {any}} if {.code recurse = TRUE}"
+    )
+    type <- "any"
+  }
+
   if (type == "file") {
     item_list <- drive$list_files(
       path = path,
@@ -143,8 +152,14 @@ sp_dir_info <- function(path = NULL,
 
   dir_list <- item_list[item_list[["isdir"]], ]
 
+  dir_name <- dir_list[["name"]]
+
+  if (full_names) {
+    dir_name <- str_remove_slash(dir_name, before = TRUE)
+  }
+
   dir_item_list <- lapply(
-    dir_list[["name"]],
+    dir_name,
     function(x) {
       sp_dir_info(
         x,
@@ -272,6 +287,7 @@ sp_dir_create <- function(path,
     path <- str_c_url(relative, path)
   }
 
+  # FIXME: replace for loop with lapply
   for (i in cli::cli_progress_along(path)) {
     try_fetch(
       drive$create_folder(path = path[[i]]),

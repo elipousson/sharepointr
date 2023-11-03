@@ -169,10 +169,45 @@ mentioned in error messages as the source of the error. See the
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>Invisibly returns the input <code>dest</code> or the <code>dest</code> parsed from the input
-path or item properties.</p>
+<p>Invisibly returns the input <code>dest</code> or the <code>dest</code> parsed from the
+input path or item properties.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Batch downloads for SharePoint items</p>
+<p>If provided with a vector of paths or a vector of item ID values,
+<code>download_sp_item()</code> can execute a batch download on a set of files or
+folders. Make sure to supply a vector to new_path or dest vector with the
+directory names or file names to use as a destination for the downloads.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Example of a batch download from a SharePoint Drive</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">sp_drive_url</span> <span class="op">&lt;-</span> <span class="st">"&lt;SharePoint Drive url&gt;"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="is_sp_url.html">is_sp_url</a></span><span class="op">(</span><span class="va">sp_list_url</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">drive</span> <span class="op">&lt;-</span> <span class="fu"><a href="sp_drive.html">get_sp_drive</a></span><span class="op">(</span>drive_name <span class="op">=</span> <span class="va">sp_drive_url</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">drive_dir_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="sp_dir_info.html">sp_dir_info</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    drive <span class="op">=</span> <span class="va">drive</span>,</span></span>
+<span class="r-in"><span>    recurse <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>    type <span class="op">=</span> <span class="st">"dir"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="fu">download_sp_item</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    item_id <span class="op">=</span> <span class="va">drive_dir_list</span><span class="op">$</span><span class="va">id</span>,</span></span>
+<span class="r-in"><span>    dest <span class="op">=</span> <span class="va">drive_dir_list</span><span class="op">$</span><span class="va">name</span>,</span></span>
+<span class="r-in"><span>    recursive <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>    drive <span class="op">=</span> <span class="va">drive</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'sp_list_url' not found</span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 

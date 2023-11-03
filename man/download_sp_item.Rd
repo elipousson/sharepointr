@@ -2,7 +2,9 @@
 % Please edit documentation in R/sp_item.R
 \name{download_sp_item}
 \alias{download_sp_item}
+\alias{sp_item_download}
 \alias{download_sp_file}
+\alias{sp_file_download}
 \title{Download one or more items from SharePoint to a file or folder}
 \usage{
 download_sp_item(
@@ -67,8 +69,8 @@ mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \value{
-Invisibly returns the input \code{dest} or the \code{dest} parsed from the input
-path or item properties.
+Invisibly returns the input \code{dest} or the \code{dest} parsed from the
+input path or item properties.
 }
 \description{
 \code{\link[=download_sp_item]{download_sp_item()}} wraps the \code{download} method for SharePoint items making
@@ -80,4 +82,36 @@ identical except for the name of the path parameter (which is file instead of
 path). Note, if the selected item is a folder and \code{recurse = TRUE}, it may
 take some time to download the enclosed items and {Microsoft365R} does not
 provide a progress bar for that operation.
+}
+\details{
+Batch downloads for SharePoint items
+
+If provided with a vector of paths or a vector of item ID values,
+\code{\link[=download_sp_item]{download_sp_item()}} can execute a batch download on a set of files or
+folders. Make sure to supply a vector to new_path or dest vector with the
+directory names or file names to use as a destination for the downloads.
+}
+\examples{
+
+# Example of a batch download from a SharePoint Drive
+
+sp_drive_url <- "<SharePoint Drive url>"
+
+if (is_sp_url(sp_list_url)) {
+  drive <- get_sp_drive(drive_name = sp_drive_url)
+
+  drive_dir_list <- sp_dir_info(
+    drive = drive,
+    recurse = TRUE,
+    type = "dir"
+  )
+
+  download_sp_item(
+    item_id = drive_dir_list$id,
+    dest = drive_dir_list$name,
+    recursive = TRUE,
+    drive = drive
+  )
+}
+
 }

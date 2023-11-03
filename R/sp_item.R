@@ -222,9 +222,41 @@ delete_sp_item <- function(path = NULL,
 #'   method for `ms_drive_item` object.
 #' @param item A `ms_drive_item` class object. Optional if path or other
 #'   parameters to get an SharePoint item are supplied.
-#' @returns Invisibly returns the input `dest` or the `dest` parsed from the input
-#'   path or item properties.
+#' @returns Invisibly returns the input `dest` or the `dest` parsed from the
+#'   input path or item properties.
 #' @inheritDotParams get_sp_item
+#' @aliases sp_item_download
+#'
+#' @details Batch downloads for SharePoint items
+#'
+#' If provided with a vector of paths or a vector of item ID values,
+#' [download_sp_item()] can execute a batch download on a set of files or
+#' folders. You can also pass multiple items Make sure to supply a vector to new_path or dest vector with the
+#' directory names or file names to use as a destination for the downloads.
+#'
+#' @examples
+#'
+#' # Example of a batch download from a SharePoint Drive
+#'
+#' sp_drive_url <- "<SharePoint Drive url>"
+#'
+#' if (is_sp_url(sp_list_url)) {
+#'   drive <- get_sp_drive(drive_name = sp_drive_url)
+#'
+#'   drive_dir_list <- sp_dir_info(
+#'     drive = drive,
+#'     recurse = TRUE,
+#'     type = "dir"
+#'   )
+#'
+#'   download_sp_item(
+#'     item_id = drive_dir_list$id,
+#'     dest = drive_dir_list$name,
+#'     recursive = TRUE,
+#'     drive = drive
+#'   )
+#' }
+#'
 #' @export
 download_sp_item <- function(path = NULL,
                              new_path = "",
@@ -240,16 +272,35 @@ download_sp_item <- function(path = NULL,
                              recursive = FALSE,
                              parallel = FALSE,
                              call = caller_env()) {
-  if (is.null(item)) {
-    cli::cli_progress_step(
-      "Getting item from SharePoint"
+  if ((length(path) > 1) || (length(item_id) > 1) ||
+    (is_bare_list(item) && (length(item) > 1))) {
+    dest_list <- batch_download_sp_item(
+      path = path,
+      new_path = new_path,
+      ...,
+      item_id = item_id,
+      item = item,
+      drive_name = drive_name,
+      drive_id = drive_id,
+      drive = drive,
+      site_url = site_url,
+      dest = dest,
+      overwrite = overwrite,
+      recursive = recursive,
+      parallel = parallel,
+      call = call
     )
 
+    return(invisible(dest_list))
+  }
+
+  if (is.null(item)) {
     item <- get_sp_item(
       path = path,
       item_id = item_id,
       drive_name = drive_name,
       drive_id = drive_id,
+      drive = drive,
       site_url = site_url,
       ...,
       call = call
@@ -260,6 +311,10 @@ download_sp_item <- function(path = NULL,
 
   # FIXME: Take a closer look at why this is needed
   if ((new_path == "") || is.null(new_path)) {
+    if (dest == "") {
+      dest <- item$properties$name
+    }
+
     dest <- dest %||% item$properties$name
   } else {
     dest <- dest %||% sp_file_dest(file = path, path = new_path)
@@ -307,6 +362,7 @@ download_sp_item <- function(path = NULL,
 
 #' @rdname download_sp_item
 #' @name download_sp_file
+#' @aliases sp_file_download
 #' @export
 download_sp_file <- function(file,
                              new_path = "",
@@ -336,4 +392,94 @@ sp_file_dest <- function(file = NULL, path = tempdir()) {
   }
 
   str_c_fsep(path, file)
+}
+
+#' @noRd
+batch_download_sp_item <- function(path = NULL,
+                                   new_path = "",
+                                   ...,
+                                   item_id = NULL,
+                                   item = NULL,
+                                   drive_name = NULL,
+                                   drive_id = NULL,
+                                   drive = NULL,
+                                   site_url = NULL,
+                                   dest = NULL,
+                                   overwrite = FALSE,
+                                   recursive = FALSE,
+                                   parallel = FALSE,
+                                   call = caller_env()) {
+  if (is_bare_list(item)) {
+    size <- length(item)
+  } else {
+    size <- max(c(length(path), length(item_id)))
+
+    if (is.null(dest)) {
+      dest <- vctrs::vec_recycle(new_path, size, x_arg = "new_path", call = call)
+    } else {
+      dest <- vctrs::vec_recycle(dest, size, x_arg = "dest", call = call)
+    }
+  }
+
+  if (length(path) > 1) {
+    dest_list <- map2_chr(
+      path, dest,
+      \(x, y) {
+        download_sp_item(
+          path = x, dest = y,
+          ...,
+          drive_name = drive_name,
+          drive_id = drive_id,
+          drive = drive,
+          site_url = site_url,
+          overwrite = overwrite,
+          recursive = recursive,
+          parallel = parallel,
+          call = call
+        )
+      }
+    )
+  }
+
+  if (length(item_id) > 1) {
+    dest_list <- map2_chr(
+      item_id, dest,
+      \(x, y) {
+        download_sp_item(
+          item_id = x, dest = y,
+          ...,
+          drive_name = drive_name,
+          drive_id = drive_id,
+          drive = drive,
+          site_url = site_url,
+          overwrite = overwrite,
+          recursive = recursive,
+          parallel = parallel,
+          call = call
+        )
+      }
+    )
+  }
+
+  if (is_bare_list(item) && (length(item) > 1)) {
+    dest_list <- map2_chr(
+      item,
+      \(x) {
+        download_sp_item(
+          item = x, dest = dest, new_path = new_path,
+          ...,
+          drive_name = drive_name,
+          drive_id = drive_id,
+          drive = drive,
+          site_url = site_url,
+          overwrite = overwrite,
+          recursive = recursive,
+          parallel = parallel,
+          call = call
+        )
+      }
+    )
+  }
+
+  invisible(dest_list)
 }

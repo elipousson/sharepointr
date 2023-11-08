@@ -129,7 +129,7 @@ sp_dir_info <- function(path = NULL,
   )
 
   if (is_installed("fs")) {
-    item_list[["size"]] <- fs::as_fs_bytes(item_list[["size"]])
+    item_list[["size"]] <- fs::as_fs_bytes(as.double(item_list[["size"]]))
 
     item_list[["type"]] <- factor(
       vapply(
@@ -159,10 +159,10 @@ sp_dir_info <- function(path = NULL,
   }
 
   dir_item_list <- lapply(
-    dir_name,
-    function(x) {
+    cli::cli_progress_along(dir_name),
+    function(i) {
       sp_dir_info(
-        x,
+        dir_name[[i]],
         drive = drive,
         info = info,
         full_names = full_names,

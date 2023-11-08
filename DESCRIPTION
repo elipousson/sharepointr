@@ -25,6 +25,7 @@ Suggests:
     fs,
     knitr,
     officer,
+    openxlsx2,
     rappdirs,
     readr,
     readxl,

@@ -5,7 +5,8 @@
 #' using:
 #'
 #' - [sf::write_sf()] if x is an `sf` object
-#' - [readr::write_csv()] if x is a `data.frame`
+#' - [readr::write_csv()] if x is a `data.frame` and file does not include a xlsx extension
+#' - [openxlsx2::write_xlsx()] if x is a `data.frame` file does include a xlsx extension
 #' - The [print()] method from `{officer}` if x is a `rdocx`, `rpptx`, or `rxlsx` object
 #' - [readr::write_rds()] if x is any other class
 #'
@@ -46,9 +47,12 @@ write_sharepoint <- function(x,
   if (inherits(x, "sf")) {
     check_installed("sf", call = call)
     sf::write_sf(x, dsn = file, ...)
-  } else if (inherits(x, "data.frame")) {
+  } else if (inherits(x, "data.frame") && !stringr::str_detect(file, ".xlsx$")) {
     check_installed("readr", call = call)
     readr::write_csv(x, file = file, ...)
+  } else if (inherits(x, "data.frame") && stringr::str_detect(file, ".xlsx$")) {
+    check_installed("openxlsx2", call = call)
+    openxlsx2::write_xlsx(x, file = file, ...)
   } else if (inherits(x, c("rdocx", "rpptx", "rxslx"))) {
     check_installed("officer", call = call)
     print(x, target = file, ...)

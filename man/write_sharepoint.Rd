@@ -77,7 +77,8 @@ Invisibly returns the input object x.
 using:
 \itemize{
 \item \code{\link[sf:st_write]{sf::write_sf()}} if x is an \code{sf} object
-\item \code{\link[readr:write_delim]{readr::write_csv()}} if x is a \code{data.frame}
+\item \code{\link[readr:write_delim]{readr::write_csv()}} if x is a \code{data.frame} and file does not include a xlsx extension
+\item \code{\link[openxlsx2:write_xlsx]{openxlsx2::write_xlsx()}} if x is a \code{data.frame} file does include a xlsx extension
 \item The \code{\link[=print]{print()}} method from \code{{officer}} if x is a \code{rdocx}, \code{rpptx}, or \code{rxlsx} object
 \item \code{\link[readr:read_rds]{readr::write_rds()}} if x is any other class
 }

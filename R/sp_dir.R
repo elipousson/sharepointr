@@ -158,7 +158,7 @@ sp_dir_info <- function(path = NULL,
     dir_name <- str_remove_slash(dir_name, before = TRUE)
   }
 
-  dir_item_list <- lapply(
+  dir_item_list <- map(
     cli::cli_progress_along(dir_name),
     function(i) {
       sp_dir_info(
@@ -287,17 +287,19 @@ sp_dir_create <- function(path,
     path <- str_c_url(relative, path)
   }
 
-  # FIXME: replace for loop with lapply
-  for (i in cli::cli_progress_along(path)) {
-    try_fetch(
-      drive$create_folder(path = path[[i]]),
-      error = function(cnd) {
-        cli::cli_warn(
-          cnd$message
-        )
-      }
-    )
-  }
+  walk(
+    cli::cli_progress_along(path),
+    \(i) {
+      withCallingHandlers(
+        drive$create_folder(path = path[[i]]),
+        error = function(cnd) {
+          cli::cli_warn(
+            cnd$message
+          )
+        }
+      )
+    }
+  )
 
   cli::cli_progress_done()
 

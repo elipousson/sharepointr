@@ -14,7 +14,7 @@
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.3.0 (2023-04-21)",
+  "runtimePlatform": "R version 4.3.2 (2023-10-31)",
   "author": [
     {
       "@type": "Person",
@@ -78,6 +78,18 @@
         "url": "https://cran.r-project.org"
       },
       "sameAs": "https://CRAN.R-project.org/package=officer"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "openxlsx2",
+      "name": "openxlsx2",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=openxlsx2"
     },
     {
       "@type": "SoftwareApplication",
@@ -258,7 +270,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "175.637KB",
+  "fileSize": "202.49KB",
   "readme": "https://github.com/elipousson/sharepointr/blob/main/README.md",
   "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html#experimental",
   "keywords": ["microsoft-365", "r-package", "sharepoint-online"]

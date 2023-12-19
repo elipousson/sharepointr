@@ -28,9 +28,19 @@
 #' @param as_data_frame If `TRUE`, return a data frame. If `FALSE` (default),
 #'   return a `ms_item` or `ms_item_properties` object.
 #' @seealso [Microsoft365R::ms_drive_item]
+#' @examples
+#' sp_item_url <- "<SharePoint item url>"
+#'
+#' if (is_sp_url(sp_item_url)) {
+#'   get_sp_item(
+#'     item_url = sp_item_url
+#'   )
+#' }
+#'
 #' @export
 get_sp_item <- function(path = NULL,
                         item_id = NULL,
+                        item_url = NULL,
                         ...,
                         drive_name = NULL,
                         drive_id = NULL,
@@ -39,22 +49,26 @@ get_sp_item <- function(path = NULL,
                         properties = FALSE,
                         as_data_frame = FALSE,
                         call = caller_env()) {
-  if (is.null(drive) && is_url(path)) {
-    url <- path
-    path <- NULL
-
-    sp_url_parts <- sp_url_parse(
-      url = url,
-      call = call
-    )
-
-    if (is_null(item_id) && is_null(sp_url_parts[["item_id"]])) {
-      path <- sp_url_parts[["file_path"]]
+  if (is.null(drive)) {
+    if (is_url(path)) {
+      item_url <- path
+      path <- NULL
     }
 
-    drive_name <- drive_name %||% sp_url_parts[["drive_name"]]
-    item_id <- item_id %||% sp_url_parts[["item_id"]]
-    site_url <- site_url %||% sp_url_parts[["site_url"]]
+    if (is_url(item_url)) {
+      sp_url_parts <- sp_url_parse(
+        url = item_url,
+        call = call
+      )
+
+      if (is_null(item_id) && is_null(sp_url_parts[["item_id"]])) {
+        path <- sp_url_parts[["file_path"]]
+      }
+
+      drive_name <- drive_name %||% sp_url_parts[["drive_name"]]
+      item_id <- item_id %||% sp_url_parts[["item_id"]]
+      site_url <- site_url %||% sp_url_parts[["site_url"]]
+    }
   }
 
   drive <- drive %||% get_sp_drive(
@@ -108,6 +122,7 @@ get_sp_item <- function(path = NULL,
 #' @export
 get_sp_item_properties <- function(path = NULL,
                                    item_id = NULL,
+                                   item_url = NULL,
                                    ...,
                                    drive = NULL,
                                    drive_name = NULL,
@@ -118,6 +133,7 @@ get_sp_item_properties <- function(path = NULL,
   get_sp_item(
     path = path,
     item_id = item_id,
+    item_url = item_url,
     ...,
     drive = drive,
     drive_name = drive_name,
@@ -131,9 +147,10 @@ get_sp_item_properties <- function(path = NULL,
 
 #' Delete SharePoint items (files and directories)
 #'
-#' [delete_sp_item()] deletes items including files and directories using the `delete` method for . By default
-#' `confirm = TRUE`, which requires the user to respond to a prompt: "Do you
-#' really want to delete the drive item ...? (yes/No/cancel)" to continue.
+#' [delete_sp_item()] deletes items including files and directories using the
+#' `delete` method for . By default `confirm = TRUE`, which requires the user to
+#' respond to a prompt: "Do you really want to delete the drive item ...?
+#' (yes/No/cancel)" to continue.
 #'
 #' @details Trouble-shooting errors
 #'
@@ -161,6 +178,7 @@ delete_sp_item <- function(path = NULL,
                            by_item = FALSE,
                            ...,
                            item_id = NULL,
+                           item_url = NULL,
                            item = NULL,
                            drive_name = NULL,
                            drive_id = NULL,
@@ -170,6 +188,7 @@ delete_sp_item <- function(path = NULL,
   item <- item %||% get_sp_item(
     path = path,
     item_id = item_id,
+    item_url = item_url,
     drive_name = drive_name,
     drive_id = drive_id,
     drive = drive,
@@ -188,7 +207,7 @@ delete_sp_item <- function(path = NULL,
     )
   }
 
-  try_fetch(
+  withCallingHandlers(
     item$delete(confirm = confirm, by_item = by_item),
     error = function(cnd) {
       cli_abort(
@@ -202,12 +221,16 @@ delete_sp_item <- function(path = NULL,
 #' Download one or more items from SharePoint to a file or folder
 #'
 #' [download_sp_item()] wraps the `download` method for SharePoint items making
-#' it easier to download items based on a shared file URL or document URL. The
-#' default valye for `path` is `""` so, by default, SharePoint items are
+#' it easier to download items based on a shared file URL or document URL.
+#'
+#' @details
+#' The default value for `path` is `""` so, by default, SharePoint items are
 #' downloaded to the current working directory. Set `overwrite = TRUE` to allow
 #' this function to overwrite an existing file. [download_sp_file()] is
 #' identical except for the name of the path parameter (which is file instead of
-#' path). Note, if the selected item is a folder and `recurse = TRUE`, it may
+#' path).
+#'
+#' Note, if the selected item is a folder and `recurse = TRUE`, it may
 #' take some time to download the enclosed items and {Microsoft365R} does not
 #' provide a progress bar for that operation.
 #'
@@ -227,20 +250,37 @@ delete_sp_item <- function(path = NULL,
 #' @inheritDotParams get_sp_item
 #' @aliases sp_item_download
 #'
-#' @details Batch downloads for SharePoint items
+#' @section Batch downloads for SharePoint items:
 #'
 #' If provided with a vector of paths or a vector of item ID values,
 #' [download_sp_item()] can execute a batch download on a set of files or
-#' folders. You can also pass multiple items Make sure to supply a vector to new_path or dest vector with the
-#' directory names or file names to use as a destination for the downloads.
+#' folders. Make sure to supply a vector to `new_path` or `dest` vector with the
+#' directory names or file names to use as a destination for the downloads. With
+#' either option, you must supply a `drive`, a `drive_name` and `site`, or a
+#' `drive_url`. You can also pass a bare list of items and the value for the
+#' `dest` can be inferred from the item properties.
 #'
 #' @examples
 #'
-#' # Example of a batch download from a SharePoint Drive
+#' # Download a single directory
+#'
+#' sp_dir_url <- "<SharePoint directory url>"
+#'
+#' new_path <- "local file path"
+#'
+#' if (is_sp_url(sp_dir_url)) {
+#'   download_sp_item(
+#'     sp_dir_url,
+#'     new_path = new_path,
+#'     recursive = TRUE
+#'   )
+#' }
+#'
+#' # Batch download multiple directories from a SharePoint Drive
 #'
 #' sp_drive_url <- "<SharePoint Drive url>"
 #'
-#' if (is_sp_url(sp_list_url)) {
+#' if (is_sp_url(sp_drive_url)) {
 #'   drive <- get_sp_drive(drive_name = sp_drive_url)
 #'
 #'   drive_dir_list <- sp_dir_info(
@@ -262,6 +302,7 @@ download_sp_item <- function(path = NULL,
                              new_path = "",
                              ...,
                              item_id = NULL,
+                             item_url = NULL,
                              item = NULL,
                              drive_name = NULL,
                              drive_id = NULL,
@@ -298,6 +339,7 @@ download_sp_item <- function(path = NULL,
     item <- get_sp_item(
       path = path,
       item_id = item_id,
+      item_url = item_url,
       drive_name = drive_name,
       drive_id = drive_id,
       drive = drive,

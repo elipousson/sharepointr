@@ -9,6 +9,7 @@
 get_sp_drive(
   drive_name = NULL,
   drive_id = NULL,
+  drive_url = NULL,
   properties = FALSE,
   ...,
   site_url = NULL,
@@ -32,6 +33,9 @@ cache_sp_drive(
 \arguments{
 \item{drive_name, drive_id}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
+
+\item{drive_url}{A SharePoint Drive URL to parse for a Drive name and other
+information. If \code{drive_name} is a URL, it is used as \code{drive_url}.}
 
 \item{properties}{If \code{TRUE}, return the drive properties instead of the
 \code{ms_drive} object. Defaults to \code{FALSE}.}

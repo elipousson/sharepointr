@@ -8,6 +8,7 @@
 get_sp_item(
   path = NULL,
   item_id = NULL,
+  item_url = NULL,
   ...,
   drive_name = NULL,
   drive_id = NULL,
@@ -21,6 +22,7 @@ get_sp_item(
 get_sp_item_properties(
   path = NULL,
   item_id = NULL,
+  item_url = NULL,
   ...,
   drive = NULL,
   drive_name = NULL,
@@ -46,6 +48,8 @@ is a document URL, the \code{default_drive_name} argument is used as the
   \describe{
     \item{\code{drive_name,drive_id}}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
+    \item{\code{drive_url}}{A SharePoint Drive URL to parse for a Drive name and other
+information. If \code{drive_name} is a URL, it is used as \code{drive_url}.}
     \item{\code{default_drive_name}}{Drive name string used only if input is a document
 URL and drive name is not part of the URL. Defaults to
 \code{getOption("sharepointr.default_drive_name", "Documents")}}
@@ -92,6 +96,16 @@ the \code{get_item_properties} method (also available by setting \code{propertie
 Additional parameters in \code{...} are passed to \code{\link[=get_sp_drive]{get_sp_drive()}} by
 \code{\link[=get_sp_item]{get_sp_item()}} or to \code{\link[=get_sp_item]{get_sp_item()}} by \code{\link[=get_sp_item_properties]{get_sp_item_properties()}} or
 \code{\link[=delete_sp_item]{delete_sp_item()}}.
+}
+\examples{
+sp_item_url <- "<SharePoint item url>"
+
+if (is_sp_url(sp_item_url)) {
+  get_sp_item(
+    item_url = sp_item_url
+  )
+}
+
 }
 \seealso{
 \link[Microsoft365R:ms_drive_item]{Microsoft365R::ms_drive_item}

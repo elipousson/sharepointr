@@ -20,6 +20,8 @@ sp_dir_create(
 \item{...}{
   Arguments passed on to \code{\link[=get_sp_drive]{get_sp_drive}}
   \describe{
+    \item{\code{drive_url}}{A SharePoint Drive URL to parse for a Drive name and other
+information. If \code{drive_name} is a URL, it is used as \code{drive_url}.}
     \item{\code{default_drive_name}}{Drive name string used only if input is a document
 URL and drive name is not part of the URL. Defaults to
 \code{getOption("sharepointr.default_drive_name", "Documents")}}

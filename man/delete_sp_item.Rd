@@ -10,6 +10,7 @@ delete_sp_item(
   by_item = FALSE,
   ...,
   item_id = NULL,
+  item_url = NULL,
   item = NULL,
   drive_name = NULL,
   drive_id = NULL,
@@ -64,9 +65,10 @@ mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \description{
-\code{\link[=delete_sp_item]{delete_sp_item()}} deletes items including files and directories using the \code{delete} method for . By default
-\code{confirm = TRUE}, which requires the user to respond to a prompt: "Do you
-really want to delete the drive item ...? (yes/No/cancel)" to continue.
+\code{\link[=delete_sp_item]{delete_sp_item()}} deletes items including files and directories using the
+\code{delete} method for . By default \code{confirm = TRUE}, which requires the user to
+respond to a prompt: "Do you really want to delete the drive item ...?
+(yes/No/cancel)" to continue.
 }
 \details{
 Trouble-shooting errors

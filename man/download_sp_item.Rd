@@ -12,6 +12,7 @@ download_sp_item(
   new_path = "",
   ...,
   item_id = NULL,
+  item_url = NULL,
   item = NULL,
   drive_name = NULL,
   drive_id = NULL,
@@ -74,30 +75,52 @@ input path or item properties.
 }
 \description{
 \code{\link[=download_sp_item]{download_sp_item()}} wraps the \code{download} method for SharePoint items making
-it easier to download items based on a shared file URL or document URL. The
-default valye for \code{path} is \code{""} so, by default, SharePoint items are
+it easier to download items based on a shared file URL or document URL.
+}
+\details{
+The default value for \code{path} is \code{""} so, by default, SharePoint items are
 downloaded to the current working directory. Set \code{overwrite = TRUE} to allow
 this function to overwrite an existing file. \code{\link[=download_sp_file]{download_sp_file()}} is
 identical except for the name of the path parameter (which is file instead of
-path). Note, if the selected item is a folder and \code{recurse = TRUE}, it may
+path).
+
+Note, if the selected item is a folder and \code{recurse = TRUE}, it may
 take some time to download the enclosed items and {Microsoft365R} does not
 provide a progress bar for that operation.
 }
-\details{
-Batch downloads for SharePoint items
+\section{Batch downloads for SharePoint items}{
+
 
 If provided with a vector of paths or a vector of item ID values,
 \code{\link[=download_sp_item]{download_sp_item()}} can execute a batch download on a set of files or
-folders. Make sure to supply a vector to new_path or dest vector with the
-directory names or file names to use as a destination for the downloads.
+folders. Make sure to supply a vector to \code{new_path} or \code{dest} vector with the
+directory names or file names to use as a destination for the downloads. With
+either option, you must supply a \code{drive}, a \code{drive_name} and \code{site}, or a
+\code{drive_url}. You can also pass a bare list of items and the value for the
+\code{dest} can be inferred from the item properties.
 }
+
 \examples{
 
-# Example of a batch download from a SharePoint Drive
+# Download a single directory
+
+sp_dir_url <- "<SharePoint directory url>"
+
+new_path <- "local file path"
+
+if (is_sp_url(sp_dir_url)) {
+  download_sp_item(
+    sp_dir_url,
+    new_path = new_path,
+    recursive = TRUE
+  )
+}
+
+# Batch download multiple directories from a SharePoint Drive
 
 sp_drive_url <- "<SharePoint Drive url>"
 
-if (is_sp_url(sp_list_url)) {
+if (is_sp_url(sp_drive_url)) {
   drive <- get_sp_drive(drive_name = sp_drive_url)
 
   drive_dir_list <- sp_dir_info(

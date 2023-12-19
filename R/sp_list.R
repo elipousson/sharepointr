@@ -116,6 +116,50 @@ get_sp_list <- function(list_name = NULL,
 
   check_exclusive_strings(list_name, list_id, call = call)
 
+  if (!is.null(list_name)) {
+    # FIXME: This is a work around to handle lists that have been renamed
+
+    sp_lists <- list_sp_lists(
+      ...,
+      site_url = site_url,
+      site = site,
+      drive_name = drive_name,
+      drive_id = drive_id,
+      as_data_frame = FALSE,
+      drive = drive,
+      call = call
+    )
+
+    sp_list_id_pairs <- map(
+      sp_lists,
+      \(x){
+        list(
+          name = x$properties$name,
+          id = x$properties$id
+        )
+      }
+    )
+
+    nm_values <- map_chr(
+      sp_list_id_pairs,
+      \(x) {
+        x[["name"]]
+      }
+    )
+
+    list_name <- arg_match(list_name, values = nm_values, error_call = call)
+
+    list_ids <- map_chr(
+      sp_list_id_pairs,
+      \(x) {
+        x[["id"]]
+      }
+    )
+
+    list_id <- list_ids[nm_values == list_name]
+    list_name <- NULL
+  }
+
   cli::cli_progress_step(
     "Getting list from SharePoint"
   )

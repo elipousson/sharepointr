@@ -15,6 +15,8 @@ NULL
 #' @name get_sp_drive
 #' @param drive_name,drive_id SharePoint Drive name or ID passed to `get_drive`
 #'   method for SharePoint site object.
+#' @param drive_url A SharePoint Drive URL to parse for a Drive name and other
+#'   information. If `drive_name` is a URL, it is used as `drive_url`.
 #' @param properties If `TRUE`, return the drive properties instead of the
 #'   `ms_drive` object. Defaults to `FALSE`.
 #' @inheritParams sp_site
@@ -29,6 +31,7 @@ NULL
 #' @export
 get_sp_drive <- function(drive_name = NULL,
                          drive_id = NULL,
+                         drive_url = NULL,
                          properties = FALSE,
                          ...,
                          site_url = NULL,
@@ -46,7 +49,7 @@ get_sp_drive <- function(drive_name = NULL,
                          ),
                          call = caller_env()) {
   if (!refresh && sp_cache_file_exists(cache_file, call = call)) {
-    drive <- try_fetch(
+    drive <- withCallingHandlers(
       get_sp_cache(cache_file = cache_file, what = "ms_drive", call = call),
       warning = function(cnd) NULL,
       error = function(cnd) NULL
@@ -60,10 +63,19 @@ get_sp_drive <- function(drive_name = NULL,
   }
 
   if (!is.null(drive_name) && is_sp_url(drive_name)) {
-    url <- drive_name
+    drive_url <- drive_name
     drive_name <- NULL
+  }
 
-    sp_url_parts <- sp_url_parse(url, call = call)
+  if (!is.null(drive_url)) {
+    if (!is.null(drive_name)) {
+      cli::cli_bullets(
+        c("!" = "Any SharePoint Drive name contained in {.arg drive_url}
+          is ignored if {.arg drive_name} is also supplied.")
+      )
+    }
+
+    sp_url_parts <- sp_url_parse(drive_url, call = call)
     site_url <- site_url %||% sp_url_parts[["site_url"]]
     drive_name <- drive_name %||% sp_url_parts[["drive_name"]]
     drive_id <- drive_id %||% sp_url_parts[["drive_id"]]

@@ -200,7 +200,7 @@ create_sp_list_items <- function(data,
     "Importing {.arg data} into list"
   )
 
-  try_fetch(
+  withCallingHandlers(
     sp_list$bulk_import(data),
     error = function(cnd) {
       cli_abort(

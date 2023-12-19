@@ -39,7 +39,7 @@ get_sp_site <- function(site_url = NULL,
                         ),
                         call = caller_env()) {
   if (!refresh && sp_cache_file_exists(cache_file, call = call)) {
-    site <- try_fetch(
+    site <- withCallingHandlers(
       get_sp_cache(cache_file = cache_file, what = "ms_site", call = call),
       warning = function(cnd) NULL,
       error = function(cnd) NULL
@@ -76,7 +76,7 @@ get_sp_site <- function(site_url = NULL,
     check_exclusive_strings(site_url, site_id, call = call)
   }
 
-  site <- try_fetch(
+  site <- withCallingHandlers(
     Microsoft365R::get_sharepoint_site(
       site_url = site_url,
       site_name = site_name,

@@ -17,6 +17,8 @@
 #' @param file File to write to. Passed to `file` parameter for
 #'   [readr::write_csv()] or [readr::write_rds()], `dsn` for `sf::write_sf()`,
 #'   or `target` for `print()` (when working with `{officer}` class objects).
+#' @param .f Optional function to write the input data to disk before uploading
+#'   file to SharePoint.
 #' @param ... Additional parameters passed to write function.
 #' @param new_path Path to write file to. Defaults to [tempdir()]
 #' @param blocksize Additional parameter passed to `upload_folder` or
@@ -30,6 +32,7 @@ write_sharepoint <- function(x,
                              file,
                              dest,
                              ...,
+                             .f = NULL,
                              new_path = tempdir(),
                              overwrite = FALSE,
                              drive_name = NULL,
@@ -44,7 +47,10 @@ write_sharepoint <- function(x,
   check_string(file, call = call)
   file <- str_c_fsep(new_path, file)
 
-  if (inherits(x, "sf")) {
+  if (!is.null(.f)) {
+    .f <- as_function(.f)
+    .f(x, file, ...)
+  } else if (inherits(x, "sf")) {
     check_installed("sf", call = call)
     sf::write_sf(x, dsn = file, ...)
   } else if (inherits(x, "data.frame") && !stringr::str_detect(file, ".xlsx$")) {

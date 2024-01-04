@@ -9,6 +9,7 @@ write_sharepoint(
   file,
   dest,
   ...,
+  .f = NULL,
   new_path = tempdir(),
   overwrite = FALSE,
   drive_name = NULL,
@@ -36,6 +37,9 @@ or \code{target} for \code{print()} (when working with \code{{officer}} class ob
 URLs are supported.}
 
 \item{...}{Additional parameters passed to write function.}
+
+\item{.f}{Optional function to write the input data to disk before uploading
+file to SharePoint.}
 
 \item{new_path}{Path to write file to. Defaults to \code{\link[=tempdir]{tempdir()}}}
 

@@ -8,6 +8,7 @@ details}
 read_sharepoint(
   file,
   ...,
+  .f = NULL,
   new_path = tempdir(),
   overwrite = TRUE,
   drive_name = NULL,
@@ -25,7 +26,9 @@ read_sharepoint(
 set \code{dest} with location and filename for downloaded item.}
 
 \item{...}{Additional parameters passed to one of the functions identified in
-the description.}
+the description or supplied to \code{.f}}
+
+\item{.f}{Optional function to use to read file downloaded from SharePoint.}
 
 \item{new_path}{Path to directory for downloaded item. Optional if \code{dest} is
 supplied.}
@@ -53,7 +56,8 @@ alternative to the SharePoint site URL. Exactly one of  \code{site_url},
 }
 \description{
 \code{\link[=read_sharepoint]{read_sharepoint()}} is designed to download a SharePoint item to a temporary
-folder and read the file based on the file extension. The class of the
+folder and read the file based on the file extension. If a function is
+provided to .f, it is used to read the downloaded file. If not, class of the
 returned object depends on the file extension of the file parameter.
 \itemize{
 \item If the file is a csv, csv2, or tsv file or a Microsoft Excel file (xlsx or

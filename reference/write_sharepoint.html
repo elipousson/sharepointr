@@ -80,6 +80,7 @@ using:</p><ul><li><p><code><a href="https://r-spatial.github.io/sf/reference/st_
 <span>  <span class="va">file</span>,</span>
 <span>  <span class="va">dest</span>,</span>
 <span>  <span class="va">...</span>,</span>
+<span>  .f <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  new_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -116,6 +117,11 @@ URLs are supported.</p></dd>
 
 <dt>...</dt>
 <dd><p>Additional parameters passed to write function.</p></dd>
+
+
+<dt>.f</dt>
+<dd><p>Optional function to write the input data to disk before uploading
+file to SharePoint.</p></dd>
 
 
 <dt>new_path</dt>

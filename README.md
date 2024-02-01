@@ -65,15 +65,12 @@ common spatial data files):
 docx_shared_url <- "https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/General/Baltimore%20Data%20Academy/Baltimore%20Data%20Academy%20Announcement%20Content.docx?d=w0a50d3cd74ce4a8da6d82596037f0148&csf=1&web=1&e=cBURo2"
 
 read_sharepoint(docx_shared_url)
-#> ℹ Getting item from SharePoint
 #> Loading Microsoft Graph login for default tenant
-#> ✔ Getting item from SharePoint [796ms]
-#> 
 #> ℹ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_40000g…
 #> ✔ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_40000g…
 #> 
 #> ℹ Reading item with `officer::read_docx()`
-#> ✔ Reading item with `officer::read_docx()` [29ms]
+#> ✔ Reading item with `officer::read_docx()` [41ms]
 #> 
 #> rdocx document with 19 element(s)
 #> 
@@ -109,11 +106,8 @@ request if you have ideas of how to do this.
 This package currently support three main categories of SharePoint
 objects:
 
-- **Items and item properties** including:
-
-  - **Directories**
-
-  - **Files**
+- **Items** (including **directories** and **files**) and **item
+  properties**
 
 - **Lists and list items**
 
@@ -152,10 +146,10 @@ get_sp_item(docx_shared_url, as_data_frame = TRUE)
 #> Loading Microsoft Graph login for default tenant
 #>                                                                                                                           @odata.context
 #> 1 https://graph.microsoft.com/beta/$metadata#drives('b%21txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta613N3QJlbvrVKyTwO')/root/$entity
-#>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @microsoft.graph.downloadUrl
-#> 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/download.aspx?UniqueId=0a50d3cd-74ce-4a8d-a6d8-2596037f0148&Translate=false&tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvYm1vcmUuc2hhcmVwb2ludC5jb21AMzEyY2IxMjYtYzZhZS00ZmMyLTgwMGQtMzE4ZTY3OWNlNmM3IiwiaXNzIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwIiwibmJmIjoiMTY5ODg1MzQ2MiIsImV4cCI6IjE2OTg4NTcwNjIiLCJlbmRwb2ludHVybCI6ImVWS1o5aHllbHVsNU9PdzR6OWQ1U01sOVBkZXpXTjNOU3NscWxGM3V2ME09IiwiZW5kcG9pbnR1cmxMZW5ndGgiOiIxNTAiLCJpc2xvb3BiYWNrIjoiVHJ1ZSIsImNpZCI6IkZmdEFuRUFFOEUyZmx2dXpvQjFPaHc9PSIsInZlciI6Imhhc2hlZHByb29mdG9rZW4iLCJzaXRlaWQiOiJNV1JoTURGallqY3ROelpqTnkwME5EZzNMV0l6T1RndFpXTTJNR1JtWmpobU5USmsiLCJhcHBfZGlzcGxheW5hbWUiOiJBenVyZVIvTWljcm9zb2Z0MzY1UiIsImdpdmVuX25hbWUiOiJFbGkiLCJmYW1pbHlfbmFtZSI6IlBvdXNzb24iLCJhcHBpZCI6ImQ0NGEwNWQ1LWM2YTUtNGJiYi04MmQyLTQ0MzEyMzcyMjM4MCIsInRpZCI6IjMxMmNiMTI2LWM2YWUtNGZjMi04MDBkLTMxOGU2NzljZTZjNyIsInVwbiI6ImVsaS5wb3Vzc29uQGJhbHRpbW9yZWNpdHkuZ292IiwicHVpZCI6IjEwMDMyMDAxRkQ3Q0UxMjQiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzMjAwMWZkN2NlMTI0QGxpdmUuY29tIiwic2NwIjoiZ3JvdXAud3JpdGUgYWxsc2l0ZXMubWFuYWdlIGFsbHNpdGVzLndyaXRlIiwidHQiOiIyIiwiaXBhZGRyIjoiNDAuMTI2LjIzLjk4In0.dZpR8dRYrGiPxTsYgoIMqEOjwKmPByJzlGb9FWmzoGc&ApiVersion=2.0
+#>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @microsoft.graph.downloadUrl
+#> 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/download.aspx?UniqueId=0a50d3cd-74ce-4a8d-a6d8-2596037f0148&Translate=false&tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvYm1vcmUuc2hhcmVwb2ludC5jb21AMzEyY2IxMjYtYzZhZS00ZmMyLTgwMGQtMzE4ZTY3OWNlNmM3IiwiaXNzIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwIiwibmJmIjoiMTcwNjc1NDU1NyIsImV4cCI6IjE3MDY3NTgxNTciLCJlbmRwb2ludHVybCI6ImVWS1o5aHllbHVsNU9PdzR6OWQ1U01sOVBkZXpXTjNOU3NscWxGM3V2ME09IiwiZW5kcG9pbnR1cmxMZW5ndGgiOiIxNTAiLCJpc2xvb3BiYWNrIjoiVHJ1ZSIsImNpZCI6ImlUQVg3bGRUOWtDZy83UE5venJGV2c9PSIsInZlciI6Imhhc2hlZHByb29mdG9rZW4iLCJzaXRlaWQiOiJNV1JoTURGallqY3ROelpqTnkwME5EZzNMV0l6T1RndFpXTTJNR1JtWmpobU5USmsiLCJhcHBfZGlzcGxheW5hbWUiOiJBenVyZVIvTWljcm9zb2Z0MzY1UiIsImdpdmVuX25hbWUiOiJFbGkiLCJmYW1pbHlfbmFtZSI6IlBvdXNzb24iLCJhcHBpZCI6ImQ0NGEwNWQ1LWM2YTUtNGJiYi04MmQyLTQ0MzEyMzcyMjM4MCIsInRpZCI6IjMxMmNiMTI2LWM2YWUtNGZjMi04MDBkLTMxOGU2NzljZTZjNyIsInVwbiI6ImVsaS5wb3Vzc29uQGJhbHRpbW9yZWNpdHkuZ292IiwicHVpZCI6IjEwMDMyMDAxRkQ3Q0UxMjQiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzMjAwMWZkN2NlMTI0QGxpdmUuY29tIiwic2NwIjoiZ3JvdXAud3JpdGUgYWxsc2l0ZXMubWFuYWdlIGFsbHNpdGVzLndyaXRlIiwidHQiOiIyIiwiaXBhZGRyIjoiMjAuMTkwLjE1MS4zNyJ9.EP15oZ01FLz_6tPq0kgN3JLliBIPtAg3aYhscvPfpic&ApiVersion=2.0
 #>        createdDateTime                                        eTag
-#> 1 2023-01-13T16:42:07Z "{0A50D3CD-74CE-4A8D-A6D8-2596037F0148},56"
+#> 1 2023-01-13T16:42:07Z "{0A50D3CD-74CE-4A8D-A6D8-2596037F0148},57"
 #>                                   id lastModifiedDateTime
 #> 1 017P4HV6ON2NIAVTTURVFKNWBFSYBX6AKI 2023-01-26T18:17:57Z
 #>                                               name
@@ -163,7 +157,7 @@ get_sp_item(docx_shared_url, as_data_frame = TRUE)
 #>                                                                                                                                                                                                                                      webUrl
 #> 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/Doc.aspx?sourcedoc=%7B0A50D3CD-74CE-4A8D-A6D8-2596037F0148%7D&file=Baltimore%20Data%20Academy%20Announcement%20Content.docx&action=default&mobileredirect=true
 #>                                             cTag  size
-#> 1 "c:{0A50D3CD-74CE-4A8D-A6D8-2596037F0148},140" 76665
+#> 1 "c:{0A50D3CD-74CE-4A8D-A6D8-2596037F0148},141" 79504
 #>                                                                                 createdBy
 #> 1 Justin.Elszasz@baltimorecity.gov, a43c19f9-9a13-403d-9234-0c13f4e84b1c, Elszasz, Justin
 #>                                                                                       lastModifiedBy
@@ -173,9 +167,9 @@ get_sp_item(docx_shared_url, as_data_frame = TRUE)
 #>                                                                                                                                                                                                                                                                                          parentReference
 #> 1 documentLibrary, b!txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta613N3QJlbvrVKyTwO, 017P4HV6NGOMGBBVI5GBBZU5BFDTPDKJ7W, Baltimore Data Academy, /drives/b!txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta613N3QJlbvrVKyTwO/root:/General/Baltimore Data Academy, 1da01cb7-76c7-4487-b398-ec60dff8f52d
 #>                                                                                                    file
-#> 1 application/vnd.openxmlformats-officedocument.wordprocessingml.document, CftrnHpBa4HAhtv+a3TALjSSvS0=
+#> 1 application/vnd.openxmlformats-officedocument.wordprocessingml.document, HXogYD+5fQrvr/nsAemsu10d62M=
 #>                               fileSystemInfo                    ms_item
-#> 1 2023-01-13T16:42:07Z, 2023-01-26T18:17:57Z <environment: 0x13b98d510>
+#> 1 2023-01-13T16:42:07Z, 2023-01-26T18:17:57Z <environment: 0x11064c1b0>
 ```
 
 These basic functions to “get” objects are extended by functions like
@@ -188,10 +182,7 @@ withr::with_tempdir({
 
   file.exists(docx_dest)
 })
-#> ℹ Getting item from SharePoint
 #> Loading Microsoft Graph login for default tenant
-#> ✔ Getting item from SharePoint [376ms]
-#> 
 #> ℹ Downloading SharePoint item to 'Baltimore Data Academy Announcement Content.d…
 #> ✔ Downloading SharePoint item to 'Baltimore Data Academy Announcement Content.d…
 #> 
@@ -223,13 +214,13 @@ sp_dir_info("https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernanc
 #> 3  388.91K FALSE 017P4HV6N2LBZHX6ERCBCIQRJIXGTZMYCK      file
 #> 4  389.67K FALSE 017P4HV6ICFKFITU4WC5CYAFJUTZAMHP7K      file
 #> 5  391.34K FALSE 017P4HV6MQCBPQQD6VUVCJWMWAKTIBZNYQ      file
-#> 6   74.87K FALSE 017P4HV6ON2NIAVTTURVFKNWBFSYBX6AKI      file
-#> 7   53.95K FALSE 017P4HV6PKOSFTLSMOAJDK3OGKFUVCIICU      file
+#> 6   77.64K FALSE 017P4HV6ON2NIAVTTURVFKNWBFSYBX6AKI      file
+#> 7   53.98K FALSE 017P4HV6PKOSFTLSMOAJDK3OGKFUVCIICU      file
 #> 8   88.45K FALSE 017P4HV6OKNLH7UWTQJBEZXWNFXBGBC6OC      file
 #> 9   48.51K FALSE 017P4HV6L5XTQ7IOMVYBGKSYMSOYDXMMPZ      file
 #> 10 536.85K FALSE 017P4HV6KALORFIRC2IBB3RN52WE4V7QGU      file
 #> 11  618.2K FALSE 017P4HV6NWPAN6PTWC3FEJB3KRR2WDWXFM      file
-#> 12  15.74K FALSE 017P4HV6K2WP2LBTN6PFGLVY4PIWOY7IAR      file
+#> 12  18.51K FALSE 017P4HV6K2WP2LBTN6PFGLVY4PIWOY7IAR      file
 ```
 
 Others use the `as_data_frame` parameter to convert a list into a data

@@ -4,7 +4,7 @@ title: "Using SharePoint URLs to work with items and lists"
 
 
 
-Note, this vignette is pre-computed to utilize the Microsoft Graphi login that is only available locally to me as a logged in SharePoint user. As a result, it is possible this documentation may be outdated or incomplete.
+Note, this vignette is pre-computed to utilize the Microsoft Graph login that is only available locally to me as a logged in SharePoint user. As a result, it is possible this documentation may be outdated or incomplete.
 
 
 ```r
@@ -89,17 +89,18 @@ get_sp_drive(dir_url)
 #> ---
 #>   Methods:
 #>     copy_item, create_folder,
-#>     create_share_link, delete, delete_item,
-#>     do_operation, download_file,
-#>     download_folder, get_item,
-#>     get_item_properties, get_list_pager,
-#>     list_files, list_items,
-#>     list_shared_files, list_shared_items,
-#>     load_dataframe, load_rdata, load_rds,
-#>     move_item, open_item, save_dataframe,
-#>     save_rdata, save_rds,
-#>     set_item_properties, sync_fields,
-#>     update, upload_file, upload_folder
+#>     create_share_link, delete,
+#>     delete_item, do_operation,
+#>     download_file, download_folder,
+#>     get_item, get_item_properties,
+#>     get_list_pager, list_files,
+#>     list_items, list_shared_files,
+#>     list_shared_items, load_dataframe,
+#>     load_rdata, load_rds, move_item,
+#>     open_item, save_dataframe, save_rdata,
+#>     save_rds, set_item_properties,
+#>     sync_fields, update, upload_file,
+#>     upload_folder
 ```
 
 With a directory URL, you can get a list of files:
@@ -111,49 +112,55 @@ dir_info <- sp_dir_info(dir_url)
 
 dir_info
 #>                                                                                  name
-#> 1                                INSPIRE Program 🏫🚸🌳/INSPIRE Plan Histories (CHAP)
-#> 2                                     INSPIRE Program 🏫🚸🌳/INSPIRE Plans Adopted ✅
-#> 3                                  INSPIRE Program 🏫🚸🌳/INSPIRE Plans In Progress ✏️
-#> 4                                        INSPIRE Program 🏫🚸🌳/INSPIRE Program Admin
-#> 5                                                       INSPIRE Program 🏫🚸🌳/Photos
-#> 6                                                   INSPIRE Program 🏫🚸🌳/References
-#> 7                               INSPIRE Program 🏫🚸🌳/_2021_Planner+School List.xlsx
-#> 8  INSPIRE Program 🏫🚸🌳/2023-05-17-dhcd-code-enforcement_recommendation-review.docx
-#> 9                                            INSPIRE Program 🏫🚸🌳/Budget scrap.xlsx
-#> 10                              INSPIRE Program 🏫🚸🌳/Historical Assessment Doc.docx
-#> 11                  INSPIRE Program 🏫🚸🌳/INSPIRE Community Engagement Notebook.xlsx
-#> 12                               INSPIRE Program 🏫🚸🌳/INSPIRE DOP Website Copy.docx
-#> 13                            INSPIRE Program 🏫🚸🌳/INSPIRE Master Contact List.xlsx
-#> 14                         INSPIRE Program 🏫🚸🌳/INSPIRE Plan Timelines 2021_08.docx
-#> 15                                 INSPIRE Program 🏫🚸🌳/INSPIRE Planning Guide.docx
-#> 16                                             INSPIRE Program 🏫🚸🌳/INSPIRE Program
-#> 17                               INSPIRE Program 🏫🚸🌳/INSPIRE Program Calendar.xlsx
-#> 18                                INSPIRE Program 🏫🚸🌳/INSPIRE Rec tables 2023.xlsx
-#> 19                                 INSPIRE Program 🏫🚸🌳/INSPIRE Workflow DRAFT.docx
-#> 20           INSPIRE Program 🏫🚸🌳/Middle Neighborhoods INSPIRE Assessment Plan.docx
-#> 21                         INSPIRE Program 🏫🚸🌳/Preparing for a Community Walk.docx
+#> 1                                         INSPIRE Program 🏫🚸🌳/2024 SMART Goal Docs
+#> 2                                INSPIRE Program 🏫🚸🌳/INSPIRE Plan Histories (CHAP)
+#> 3                                     INSPIRE Program 🏫🚸🌳/INSPIRE Plans Adopted ✅
+#> 4                                  INSPIRE Program 🏫🚸🌳/INSPIRE Plans In Progress ✏️
+#> 5                                        INSPIRE Program 🏫🚸🌳/INSPIRE Program Admin
+#> 6                                                       INSPIRE Program 🏫🚸🌳/Photos
+#> 7                                                   INSPIRE Program 🏫🚸🌳/References
+#> 8                               INSPIRE Program 🏫🚸🌳/_2021_Planner+School List.xlsx
+#> 9  INSPIRE Program 🏫🚸🌳/2023-05-17-dhcd-code-enforcement_recommendation-review.docx
+#> 10                                           INSPIRE Program 🏫🚸🌳/Budget scrap.xlsx
+#> 11                              INSPIRE Program 🏫🚸🌳/Historical Assessment Doc.docx
+#> 12                  INSPIRE Program 🏫🚸🌳/INSPIRE Community Engagement Notebook.xlsx
+#> 13                INSPIRE Program 🏫🚸🌳/INSPIRE Comprehensive Plan Contribution.docx
+#> 14                               INSPIRE Program 🏫🚸🌳/INSPIRE DOP Website Copy.docx
+#> 15                            INSPIRE Program 🏫🚸🌳/INSPIRE Master Contact List.xlsx
+#> 16                         INSPIRE Program 🏫🚸🌳/INSPIRE Plan Timelines 2021_08.docx
+#> 17                       INSPIRE Program 🏫🚸🌳/INSPIRE Planning Guide - Updated.docx
+#> 18                                             INSPIRE Program 🏫🚸🌳/INSPIRE Program
+#> 19                               INSPIRE Program 🏫🚸🌳/INSPIRE Program Calendar.xlsx
+#> 20                                INSPIRE Program 🏫🚸🌳/INSPIRE Rec tables 2023.xlsx
+#> 21                                 INSPIRE Program 🏫🚸🌳/INSPIRE Workflow DRAFT.docx
+#> 22           INSPIRE Program 🏫🚸🌳/Middle Neighborhoods INSPIRE Assessment Plan.docx
+#> 23                         INSPIRE Program 🏫🚸🌳/Preparing for a Community Walk.docx
+#> 24                                    INSPIRE Program 🏫🚸🌳/Test Planner Import.xlsx
 #>       size isdir                                 id
-#> 1  427.81M  TRUE 01EK4O46W2BVSN34MWIJCZO45SX2RIMVRR
-#> 2  125.09M  TRUE 01EK4O46TWHR6QA77FQRAK3TFSP5Z5WGUV
-#> 3    1.39G  TRUE 01EK4O46XRFXKSJ4MSCVHIXD3E2JCCGZ4Y
-#> 4  898.35M  TRUE 01EK4O46TNZAXB5BWALZEJF4Y5NCBZPPKB
-#> 5  418.71M  TRUE 01EK4O46XP2EGVNL5XUNC2GGCWCXQOCBR6
-#> 6  150.88M  TRUE 01EK4O46S5WYIRFXP42ZBZ3XJBCAX5WRD2
-#> 7   43.01K FALSE 01EK4O46S42QAM2K6FSBAZPBQOS4VBT3YI
-#> 8   27.04K FALSE 01EK4O46VKEMUM7LD3YNHJ5IA67DXT6K42
-#> 9    15.3K FALSE 01EK4O46XFZKGJN3S4AVBYMIEB5OQTG3K7
-#> 10  20.97K FALSE 01EK4O46RLN3E7BWYST5GIKRJAVB7VDI3N
-#> 11   23.4K FALSE 01EK4O46TFJABPEPMTS5CINCRI7LRAN554
-#> 12  13.32M FALSE 01EK4O46VQJZ4S7SZ2EFB3N267A4U67XVG
-#> 13  29.34K FALSE 01EK4O46VTPF5MRFPSYZHYQ2YJN5C3A4PP
-#> 14  32.51K FALSE 01EK4O46RKC2EBRPKIVRC34NZGU2XDUGXF
-#> 15  53.45K FALSE 01EK4O46RYX55LJ6VAAZFINIOB2XF2UXLF
-#> 16   2.03M FALSE 01EK4O46XVR7PESI3HXZCJF2UDW6YZ53DD
-#> 17   20.3K FALSE 01EK4O46QCKIPTO4QQG5AY3V422XIJYQHZ
-#> 18  26.21K FALSE 01EK4O46S6CMHTD2335VFZS6VVEDMWRHJN
-#> 19  21.36K FALSE 01EK4O46UK2YTRIADBPBEIKM5ODDWX76JO
-#> 20  22.66K FALSE 01EK4O46TS3YMEYF4KTBF34FWZQ5ER7SF7
-#> 21  19.89K FALSE 01EK4O46W4HZJORDO57VBL6YIFK3VTDZST
+#> 1        0  TRUE 01EK4O46SKWLCBFTE2HRDYDHP5IJNW2OIU
+#> 2  427.82M  TRUE 01EK4O46W2BVSN34MWIJCZO45SX2RIMVRR
+#> 3   125.1M  TRUE 01EK4O46TWHR6QA77FQRAK3TFSP5Z5WGUV
+#> 4    2.27G  TRUE 01EK4O46XRFXKSJ4MSCVHIXD3E2JCCGZ4Y
+#> 5  903.26M  TRUE 01EK4O46TNZAXB5BWALZEJF4Y5NCBZPPKB
+#> 6  448.55M  TRUE 01EK4O46XP2EGVNL5XUNC2GGCWCXQOCBR6
+#> 7  150.88M  TRUE 01EK4O46S5WYIRFXP42ZBZ3XJBCAX5WRD2
+#> 8   43.01K FALSE 01EK4O46S42QAM2K6FSBAZPBQOS4VBT3YI
+#> 9   29.88K FALSE 01EK4O46VKEMUM7LD3YNHJ5IA67DXT6K42
+#> 10   15.3K FALSE 01EK4O46XFZKGJN3S4AVBYMIEB5OQTG3K7
+#> 11  20.97K FALSE 01EK4O46RLN3E7BWYST5GIKRJAVB7VDI3N
+#> 12   23.4K FALSE 01EK4O46TFJABPEPMTS5CINCRI7LRAN554
+#> 13  29.06K FALSE 01EK4O46UOLVTZZANSPJHZ3ICJBFFGO7P5
+#> 14  13.32M FALSE 01EK4O46VQJZ4S7SZ2EFB3N267A4U67XVG
+#> 15  29.34K FALSE 01EK4O46VTPF5MRFPSYZHYQ2YJN5C3A4PP
+#> 16  32.51K FALSE 01EK4O46RKC2EBRPKIVRC34NZGU2XDUGXF
+#> 17  63.33K FALSE 01EK4O46RYX55LJ6VAAZFINIOB2XF2UXLF
+#> 18   2.03M  TRUE 01EK4O46XVR7PESI3HXZCJF2UDW6YZ53DD
+#> 19  23.14K FALSE 01EK4O46QCKIPTO4QQG5AY3V422XIJYQHZ
+#> 20  26.21K FALSE 01EK4O46S6CMHTD2335VFZS6VVEDMWRHJN
+#> 21   24.2K FALSE 01EK4O46UK2YTRIADBPBEIKM5ODDWX76JO
+#> 22  25.49K FALSE 01EK4O46TS3YMEYF4KTBF34FWZQ5ER7SF7
+#> 23  22.73K FALSE 01EK4O46W4HZJORDO57VBL6YIFK3VTDZST
+#> 24  15.17K FALSE 01EK4O46XDUXMFXPTV4NAICXGZ2YGAYAJU
 #>         type
 #> 1  directory
 #> 2  directory
@@ -161,7 +168,7 @@ dir_info
 #> 4  directory
 #> 5  directory
 #> 6  directory
-#> 7       file
+#> 7  directory
 #> 8       file
 #> 9       file
 #> 10      file
@@ -172,10 +179,13 @@ dir_info
 #> 15      file
 #> 16      file
 #> 17      file
-#> 18      file
+#> 18 directory
 #> 19      file
 #> 20      file
 #> 21      file
+#> 22      file
+#> 23      file
+#> 24      file
 ```
 
 You can use the same URL to get a character vector of file names:
@@ -184,44 +194,39 @@ You can use the same URL to get a character vector of file names:
 ```r
 sp_dir_ls(dir_url)
 #> Loading Microsoft Graph login for default tenant
-#>  [1] "INSPIRE Plan Histories (CHAP)"                              
-#>  [2] "INSPIRE Plans Adopted ✅"                                   
-#>  [3] "INSPIRE Plans In Progress ✏️"                                
-#>  [4] "INSPIRE Program Admin"                                      
-#>  [5] "Photos"                                                     
-#>  [6] "References"                                                 
-#>  [7] "_2021_Planner+School List.xlsx"                             
-#>  [8] "2023-05-17-dhcd-code-enforcement_recommendation-review.docx"
-#>  [9] "Budget scrap.xlsx"                                          
-#> [10] "Historical Assessment Doc.docx"                             
-#> [11] "INSPIRE Community Engagement Notebook.xlsx"                 
-#> [12] "INSPIRE DOP Website Copy.docx"                              
-#> [13] "INSPIRE Master Contact List.xlsx"                           
-#> [14] "INSPIRE Plan Timelines 2021_08.docx"                        
-#> [15] "INSPIRE Planning Guide.docx"                                
-#> [16] "INSPIRE Program"                                            
-#> [17] "INSPIRE Program Calendar.xlsx"                              
-#> [18] "INSPIRE Rec tables 2023.xlsx"                               
-#> [19] "INSPIRE Workflow DRAFT.docx"                                
-#> [20] "Middle Neighborhoods INSPIRE Assessment Plan.docx"          
-#> [21] "Preparing for a Community Walk.docx"
+#>  [1] "2024 SMART Goal Docs"                                       
+#>  [2] "INSPIRE Plan Histories (CHAP)"                              
+#>  [3] "INSPIRE Plans Adopted ✅"                                   
+#>  [4] "INSPIRE Plans In Progress ✏️"                                
+#>  [5] "INSPIRE Program Admin"                                      
+#>  [6] "Photos"                                                     
+#>  [7] "References"                                                 
+#>  [8] "_2021_Planner+School List.xlsx"                             
+#>  [9] "2023-05-17-dhcd-code-enforcement_recommendation-review.docx"
+#> [10] "Budget scrap.xlsx"                                          
+#> [11] "Historical Assessment Doc.docx"                             
+#> [12] "INSPIRE Community Engagement Notebook.xlsx"                 
+#> [13] "INSPIRE Comprehensive Plan Contribution.docx"               
+#> [14] "INSPIRE DOP Website Copy.docx"                              
+#> [15] "INSPIRE Master Contact List.xlsx"                           
+#> [16] "INSPIRE Plan Timelines 2021_08.docx"                        
+#> [17] "INSPIRE Planning Guide - Updated.docx"                      
+#> [18] "INSPIRE Program"                                            
+#> [19] "INSPIRE Program Calendar.xlsx"                              
+#> [20] "INSPIRE Rec tables 2023.xlsx"                               
+#> [21] "INSPIRE Workflow DRAFT.docx"                                
+#> [22] "Middle Neighborhoods INSPIRE Assessment Plan.docx"          
+#> [23] "Preparing for a Community Walk.docx"                        
+#> [24] "Test Planner Import.xlsx"
 ```
 
-But you can't use that URL to get a list (note the input checkin on this is incomplete so the error may not make much sense):
+But you can't use that URL to get a list:
 
 
 ```r
-try_fetch(
-  get_sp_list(dir_url),
-  error = function(cnd) {
-    cli::cli_inform(
-      cnd$message
-    )
-  }
-)
-#> Loading Microsoft Graph login for default tenant
-#> ℹ Getting list from SharePointattempt to apply non-function✖ Getting list from SharePoint [45ms]
-#> NULL
+get_sp_list(dir_url)
+#> Error in `call_match()`:
+#> ! `fn` must be supplied.
 ```
 
 SharePoint lists have two different styles of URLs (that I've seen). This one works:
@@ -232,40 +237,29 @@ list_url <- "https://bmore.sharepoint.com/:l:/r/sites/MayorsOffice-DataGovernanc
 
 get_sp_list(list_url)
 #> Loading Microsoft Graph login for default tenant
-#> ℹ Getting list from SharePoint✔ Getting list from SharePoint [147ms]
-#>                                                                                                                                                         @odata.context
-#> 1 https://graph.microsoft.com/beta/$metadata#sites('bmore.sharepoint.com%2C1da01cb7-76c7-4487-b398-ec60dff8f52d%2C7abe409a-2aeb-4eb8-8dc3-8fe9106907af')/lists/$entity
-#>                                 @odata.etag
-#> 1 "5c21d327-7016-4b69-ae0d-dc95059a876c,43"
-#>        createdDateTime description
-#> 1 2022-06-29T18:10:45Z            
-#>                                        eTag
-#> 1 "5c21d327-7016-4b69-ae0d-dc95059a876c,43"
-#>                                     id
-#> 1 5c21d327-7016-4b69-ae0d-dc95059a876c
-#>   lastModifiedDateTime                             name
-#> 1 2023-09-22T11:07:27Z Data Governance Progress Tracker
-#>                                                                                                        webUrl
-#> 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker
-#>                        displayName
-#> 1 Data Governance Progress Tracker
-#>                                                                                 createdBy
-#> 1 Justin.Elszasz@baltimorecity.gov, a43c19f9-9a13-403d-9234-0c13f4e84b1c, Elszasz, Justin
-#>                                                                            lastModifiedBy
-#> 1 Justin.Elszasz@baltimorecity.gov, a43c19f9-9a13-403d-9234-0c13f4e84b1c, Elszasz, Justin
-#>                                                                                  parentReference
-#> 1 bmore.sharepoint.com,1da01cb7-76c7-4487-b398-ec60dff8f52d,7abe409a-2aeb-4eb8-8dc3-8fe9106907af
-#>                        list                    ms_list
-#> 1 FALSE, FALSE, genericList <environment: 0x133900cc0>
+#> Loading Microsoft Graph login for default tenant
+#> ℹ Getting list from SharePoint✔ Getting list from SharePoint [119ms]
+#> <Sharepoint list 'Data Governance Progress Tracker'>
+#>   directory id: 5c21d327-7016-4b69-ae0d-dc95059a876c 
+#>   web link: https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker 
+#>   description:  
+#> ---
+#>   Methods:
+#>     bulk_import, create_item, delete,
+#>     delete_item, do_operation,
+#>     get_column_info, get_item,
+#>     get_list_pager, list_items,
+#>     sync_fields, update, update_item
 ```
 
-List URLs that look like this one don't currently work with `get_sp_list()` but I expect to improve URL parsing to handle these in the future:
+As of January 2024, this one also works:
 
 
 ```r
 "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"
 #> [1] "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"
 ```
+
 Shared URLs for files work with `get_sp_item()` and `get_sp_item_properties()`:
 
 
@@ -280,11 +274,12 @@ get_sp_item(file_url)
 #>   type: file 
 #> ---
 #>   Methods:
-#>     copy, create_folder, create_share_link,
-#>     delete, do_operation, download,
-#>     get_item, get_list_pager,
-#>     get_parent_folder, get_path, is_folder,
-#>     list_files, list_items, load_dataframe,
+#>     copy, create_folder,
+#>     create_share_link, delete,
+#>     do_operation, download, get_item,
+#>     get_list_pager, get_parent_folder,
+#>     get_path, is_folder, list_files,
+#>     list_items, load_dataframe,
 #>     load_rdata, load_rds, move, open,
 #>     save_dataframe, save_rdata, save_rds,
 #>     sync_fields, update, upload
@@ -304,11 +299,12 @@ get_sp_item(document_url)
 #>   type: file 
 #> ---
 #>   Methods:
-#>     copy, create_folder, create_share_link,
-#>     delete, do_operation, download,
-#>     get_item, get_list_pager,
-#>     get_parent_folder, get_path, is_folder,
-#>     list_files, list_items, load_dataframe,
+#>     copy, create_folder,
+#>     create_share_link, delete,
+#>     do_operation, download, get_item,
+#>     get_list_pager, get_parent_folder,
+#>     get_path, is_folder, list_files,
+#>     list_items, load_dataframe,
 #>     load_rdata, load_rds, move, open,
 #>     save_dataframe, save_rdata, save_rds,
 #>     sync_fields, update, upload

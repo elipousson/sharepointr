@@ -17,7 +17,8 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 <!-- badges: end -->
 
@@ -70,11 +71,7 @@ I plan on adding features to allow the custom mapping of file extensions and obj
 
 This package currently support three main categories of SharePoint objects:
 
--   **Items and item properties** including:
-
-    -   **Directories**
-
-    -   **Files**
+-   **Items** (including **directories** and **files**) and **item properties**
 
 -   **Lists and list items**
 

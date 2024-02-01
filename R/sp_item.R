@@ -353,7 +353,7 @@ download_sp_item <- function(path = NULL,
 
   # FIXME: Take a closer look at why this is needed
   if ((new_path == "") || is.null(new_path)) {
-    if (dest == "") {
+    if (is_empty(dest) || dest == "") {
       dest <- item$properties$name
     }
 

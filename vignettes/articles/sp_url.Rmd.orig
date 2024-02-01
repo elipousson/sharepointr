@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-Note, this vignette is pre-computed to utilize the Microsoft Graphi login that is only available locally to me as a logged in SharePoint user. As a result, it is possible this documentation may be outdated or incomplete.
+Note, this vignette is pre-computed to utilize the Microsoft Graph login that is only available locally to me as a logged in SharePoint user. As a result, it is possible this documentation may be outdated or incomplete.
 
 ```{r setup}
 library(sharepointr)
@@ -49,17 +49,10 @@ You can use the same URL to get a character vector of file names:
 sp_dir_ls(dir_url)
 ```
 
-But you can't use that URL to get a list (note the input checkin on this is incomplete so the error may not make much sense):
+But you can't use that URL to get a list:
 
-```{r}
-try_fetch(
-  get_sp_list(dir_url),
-  error = function(cnd) {
-    cli::cli_inform(
-      cnd$message
-    )
-  }
-)
+```{r, error=TRUE}
+get_sp_list(dir_url)
 ```
 
 SharePoint lists have two different styles of URLs (that I've seen). This one works:
@@ -70,11 +63,12 @@ list_url <- "https://bmore.sharepoint.com/:l:/r/sites/MayorsOffice-DataGovernanc
 get_sp_list(list_url)
 ```
 
-List URLs that look like this one don't currently work with `get_sp_list()` but I expect to improve URL parsing to handle these in the future:
+As of January 2024, this one also works:
 
 ```{r}
 "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"
 ```
+
 Shared URLs for files work with `get_sp_item()` and `get_sp_item_properties()`:
 
 ```{r}

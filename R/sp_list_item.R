@@ -264,13 +264,7 @@ validate_sp_list_data_fields <- function(data,
   if (any(!nm_match)) {
     msg <- "All column names in {.arg data} must match field names from the supplied list."
 
-    if (!strict) {
-      cli_warn(
-        c(msg,
-          "i" = "Column{?s} {.val {nm[!nm_match]}} dropped from {.arg data}"
-        )
-      )
-    } else {
+    if (strict) {
       cli_abort(
         c(
           msg,
@@ -279,6 +273,12 @@ validate_sp_list_data_fields <- function(data,
         call = call
       )
     }
+
+    cli_warn(
+      c(msg,
+        "i" = "Column{?s} {.val {nm[!nm_match]}} dropped from {.arg data}"
+      )
+    )
 
     return(data[, nm_match, drop = FALSE])
   }

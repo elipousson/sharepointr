@@ -10,9 +10,13 @@ get_ms_list_obj <- function(list_name = NULL,
                             drive_id = NULL,
                             drive = NULL,
                             call = caller_env()) {
-  if (!is.null(drive) ||
-    (!is.null(drive_name) && !identical(drive_name, "Lists")) ||
-    !is.null(drive_id)) {
+  get_sp_drive_obj <- any(c(
+    !is.null(drive),
+    !is.null(drive_name) && !identical(drive_name, "Lists"),
+    !is.null(drive_id)
+  ))
+
+  if (get_sp_drive_obj) {
     drive <- drive %||% get_sp_drive(
       drive_name = drive_name,
       drive_id = drive_id,
@@ -86,6 +90,8 @@ get_sp_list <- function(list_name = NULL,
     url <- list_name
     list_name <- NULL
 
+    check_sp_list_url(url, call = call)
+
     sp_url_parts <- sp_url_parse(
       url = url,
       call = call
@@ -95,7 +101,7 @@ get_sp_list <- function(list_name = NULL,
     drive_name <- drive_name %||% sp_url_parts[["drive_name"]]
 
     if (is_null(list_id) && is_null(sp_url_parts[["item_id"]])) {
-      list_name <- sp_url_parts[["file_path"]]
+      list_name <- sp_url_parts[["list_name"]] %||% sp_url_parts[["file"]]
     }
 
     list_id <- list_id %||% sp_url_parts[["item_id"]]

@@ -39,7 +39,7 @@ is_url <- function(x) {
   )
 }
 
-#' Check is a URL is valid
+#' Check if a URL is valid
 #'
 #' @noRd
 check_url <- function(url,
@@ -58,6 +58,27 @@ check_url <- function(url,
   stop_input_type(
     url,
     what = "a valid url",
+    call = call
+  )
+}
+
+#' Check if x matches the pattern of a SharePoint List URL
+#'
+#' @noRd
+check_sp_list_url <- function(x,
+                              ...,
+                              allow_null = FALSE,
+                              arg = caller_arg(x),
+                              call = caller_env()) {
+  if (str_detect(x, ":l:|/Lists/") || allow_null && is.null(x)) {
+    return(invisible(NULL))
+  }
+
+  cli_abort(
+    "{.arg {arg}} must be a URL with {.val :l:} or {.val /Lists/}
+    to be a valid SharePoint list URL.",
+    ...,
+    arg = arg,
     call = call
   )
 }

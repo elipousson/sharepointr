@@ -78,7 +78,6 @@ check_sp_list_url <- function(x,
     "{.arg {arg}} must be a URL with {.val :l:} or {.val /Lists/}
     to be a valid SharePoint list URL.",
     ...,
-    arg = arg,
     call = call
   )
 }
@@ -176,6 +175,7 @@ list_replace_empty <- function(x, replace = NULL) {
 ms_obj_list_as_data_frame <- function(ms_obj_list,
                                       obj_col = "ms_plan",
                                       keep_list_cols = NULL,
+                                      unlist_cols = TRUE,
                                       .name_repair = "universal_quiet",
                                       .error_call = caller_env()) {
   ms_obj_list <- map(
@@ -185,6 +185,7 @@ ms_obj_list_as_data_frame <- function(ms_obj_list,
         obj,
         obj_col = obj_col,
         keep_list_cols = keep_list_cols,
+        unlist_cols = unlist_cols,
         .name_repair = .name_repair,
         .error_call = .error_call
       )
@@ -204,6 +205,7 @@ ms_obj_as_data_frame <- function(ms_obj,
                                  obj_col = "ms_plan",
                                  recursive = FALSE,
                                  keep_list_cols = NULL,
+                                 unlist_cols = TRUE,
                                  .name_repair = "universal_quiet",
                                  .error_call = caller_env()) {
   if (has_name(as.list(ms_obj), "properties")) {
@@ -214,18 +216,20 @@ ms_obj_as_data_frame <- function(ms_obj,
 
   sizes <- vctrs::list_sizes(properties)
   len1_props <- properties[sizes == 1]
-  list_props <- properties[sizes != 1]
+  list_props <- properties[sizes > 1]
+  len0_props <- properties[sizes == 0]
 
   df <- vctrs::vec_rbind(
     c(
       unlist(len1_props, recursive = recursive, use.names = FALSE),
+      len0_props,
       list_props
     ),
     .name_repair = .name_repair,
     .error_call = .error_call
   )
 
-  df <- set_names(df, nm = names(c(len1_props, list_props)))
+  df <- set_names(df, nm = names(c(len1_props, len0_props, list_props)))
 
   # Keep any supplied columns that need to stay as list columns
   # FIXME: This is only need for the "createdBy" and "lastModifiedBy" columns
@@ -236,8 +240,15 @@ ms_obj_as_data_frame <- function(ms_obj,
 
   # Unlist select columns to create vector, not list columns
   # FIXME: Must be a better way to do this
-  for (nm in names(len1_props)) {
-    df[[nm]] <- unlist(df[[nm]])
+  if (unlist_cols) {
+    for (nm in names(len1_props)) {
+      prop_col <- unlist(df[[nm]])
+      # FIXME: This fixed an issue for turning member lists into data frames but
+      # may create new issues
+      if (has_length(prop_col, 1)) {
+        df[[nm]] <- prop_col
+      }
+    }
   }
 
   df[[obj_col]] <- list(ms_obj)

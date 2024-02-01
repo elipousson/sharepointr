@@ -77,7 +77,7 @@
 
     
     
-<p>Note, this vignette is pre-computed to utilize the Microsoft Graphi
+<p>Note, this vignette is pre-computed to utilize the Microsoft Graph
 login that is only available locally to me as a logged in SharePoint
 user. As a result, it is possible this documentation may be outdated or
 incomplete.</p>
@@ -156,17 +156,18 @@ drives, lists, and items from SharePoint:</p>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt;   Methods:</span></span>
 <span><span class="co">#&gt;     copy_item, create_folder,</span></span>
-<span><span class="co">#&gt;     create_share_link, delete, delete_item,</span></span>
-<span><span class="co">#&gt;     do_operation, download_file,</span></span>
-<span><span class="co">#&gt;     download_folder, get_item,</span></span>
-<span><span class="co">#&gt;     get_item_properties, get_list_pager,</span></span>
-<span><span class="co">#&gt;     list_files, list_items,</span></span>
-<span><span class="co">#&gt;     list_shared_files, list_shared_items,</span></span>
-<span><span class="co">#&gt;     load_dataframe, load_rdata, load_rds,</span></span>
-<span><span class="co">#&gt;     move_item, open_item, save_dataframe,</span></span>
-<span><span class="co">#&gt;     save_rdata, save_rds,</span></span>
-<span><span class="co">#&gt;     set_item_properties, sync_fields,</span></span>
-<span><span class="co">#&gt;     update, upload_file, upload_folder</span></span></code></pre></div>
+<span><span class="co">#&gt;     create_share_link, delete,</span></span>
+<span><span class="co">#&gt;     delete_item, do_operation,</span></span>
+<span><span class="co">#&gt;     download_file, download_folder,</span></span>
+<span><span class="co">#&gt;     get_item, get_item_properties,</span></span>
+<span><span class="co">#&gt;     get_list_pager, list_files,</span></span>
+<span><span class="co">#&gt;     list_items, list_shared_files,</span></span>
+<span><span class="co">#&gt;     list_shared_items, load_dataframe,</span></span>
+<span><span class="co">#&gt;     load_rdata, load_rds, move_item,</span></span>
+<span><span class="co">#&gt;     open_item, save_dataframe, save_rdata,</span></span>
+<span><span class="co">#&gt;     save_rds, set_item_properties,</span></span>
+<span><span class="co">#&gt;     sync_fields, update, upload_file,</span></span>
+<span><span class="co">#&gt;     upload_folder</span></span></code></pre></div>
 <p>With a directory URL, you can get a list of files:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dir_info</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sp_dir_info.html">sp_dir_info</a></span><span class="op">(</span><span class="va">dir_url</span><span class="op">)</span></span>
@@ -174,49 +175,55 @@ drives, lists, and items from SharePoint:</p>
 <span></span>
 <span><span class="va">dir_info</span></span>
 <span><span class="co">#&gt;                                                                                  name</span></span>
-<span><span class="co">#&gt; 1                                INSPIRE Program 🏫🚸🌳/INSPIRE Plan Histories (CHAP)</span></span>
-<span><span class="co">#&gt; 2                                     INSPIRE Program 🏫🚸🌳/INSPIRE Plans Adopted ✅</span></span>
-<span><span class="co">#&gt; 3                                  INSPIRE Program 🏫🚸🌳/INSPIRE Plans In Progress ✏️</span></span>
-<span><span class="co">#&gt; 4                                        INSPIRE Program 🏫🚸🌳/INSPIRE Program Admin</span></span>
-<span><span class="co">#&gt; 5                                                       INSPIRE Program 🏫🚸🌳/Photos</span></span>
-<span><span class="co">#&gt; 6                                                   INSPIRE Program 🏫🚸🌳/References</span></span>
-<span><span class="co">#&gt; 7                               INSPIRE Program 🏫🚸🌳/_2021_Planner+School List.xlsx</span></span>
-<span><span class="co">#&gt; 8  INSPIRE Program 🏫🚸🌳/2023-05-17-dhcd-code-enforcement_recommendation-review.docx</span></span>
-<span><span class="co">#&gt; 9                                            INSPIRE Program 🏫🚸🌳/Budget scrap.xlsx</span></span>
-<span><span class="co">#&gt; 10                              INSPIRE Program 🏫🚸🌳/Historical Assessment Doc.docx</span></span>
-<span><span class="co">#&gt; 11                  INSPIRE Program 🏫🚸🌳/INSPIRE Community Engagement Notebook.xlsx</span></span>
-<span><span class="co">#&gt; 12                               INSPIRE Program 🏫🚸🌳/INSPIRE DOP Website Copy.docx</span></span>
-<span><span class="co">#&gt; 13                            INSPIRE Program 🏫🚸🌳/INSPIRE Master Contact List.xlsx</span></span>
-<span><span class="co">#&gt; 14                         INSPIRE Program 🏫🚸🌳/INSPIRE Plan Timelines 2021_08.docx</span></span>
-<span><span class="co">#&gt; 15                                 INSPIRE Program 🏫🚸🌳/INSPIRE Planning Guide.docx</span></span>
-<span><span class="co">#&gt; 16                                             INSPIRE Program 🏫🚸🌳/INSPIRE Program</span></span>
-<span><span class="co">#&gt; 17                               INSPIRE Program 🏫🚸🌳/INSPIRE Program Calendar.xlsx</span></span>
-<span><span class="co">#&gt; 18                                INSPIRE Program 🏫🚸🌳/INSPIRE Rec tables 2023.xlsx</span></span>
-<span><span class="co">#&gt; 19                                 INSPIRE Program 🏫🚸🌳/INSPIRE Workflow DRAFT.docx</span></span>
-<span><span class="co">#&gt; 20           INSPIRE Program 🏫🚸🌳/Middle Neighborhoods INSPIRE Assessment Plan.docx</span></span>
-<span><span class="co">#&gt; 21                         INSPIRE Program 🏫🚸🌳/Preparing for a Community Walk.docx</span></span>
+<span><span class="co">#&gt; 1                                         INSPIRE Program 🏫🚸🌳/2024 SMART Goal Docs</span></span>
+<span><span class="co">#&gt; 2                                INSPIRE Program 🏫🚸🌳/INSPIRE Plan Histories (CHAP)</span></span>
+<span><span class="co">#&gt; 3                                     INSPIRE Program 🏫🚸🌳/INSPIRE Plans Adopted ✅</span></span>
+<span><span class="co">#&gt; 4                                  INSPIRE Program 🏫🚸🌳/INSPIRE Plans In Progress ✏️</span></span>
+<span><span class="co">#&gt; 5                                        INSPIRE Program 🏫🚸🌳/INSPIRE Program Admin</span></span>
+<span><span class="co">#&gt; 6                                                       INSPIRE Program 🏫🚸🌳/Photos</span></span>
+<span><span class="co">#&gt; 7                                                   INSPIRE Program 🏫🚸🌳/References</span></span>
+<span><span class="co">#&gt; 8                               INSPIRE Program 🏫🚸🌳/_2021_Planner+School List.xlsx</span></span>
+<span><span class="co">#&gt; 9  INSPIRE Program 🏫🚸🌳/2023-05-17-dhcd-code-enforcement_recommendation-review.docx</span></span>
+<span><span class="co">#&gt; 10                                           INSPIRE Program 🏫🚸🌳/Budget scrap.xlsx</span></span>
+<span><span class="co">#&gt; 11                              INSPIRE Program 🏫🚸🌳/Historical Assessment Doc.docx</span></span>
+<span><span class="co">#&gt; 12                  INSPIRE Program 🏫🚸🌳/INSPIRE Community Engagement Notebook.xlsx</span></span>
+<span><span class="co">#&gt; 13                INSPIRE Program 🏫🚸🌳/INSPIRE Comprehensive Plan Contribution.docx</span></span>
+<span><span class="co">#&gt; 14                               INSPIRE Program 🏫🚸🌳/INSPIRE DOP Website Copy.docx</span></span>
+<span><span class="co">#&gt; 15                            INSPIRE Program 🏫🚸🌳/INSPIRE Master Contact List.xlsx</span></span>
+<span><span class="co">#&gt; 16                         INSPIRE Program 🏫🚸🌳/INSPIRE Plan Timelines 2021_08.docx</span></span>
+<span><span class="co">#&gt; 17                       INSPIRE Program 🏫🚸🌳/INSPIRE Planning Guide - Updated.docx</span></span>
+<span><span class="co">#&gt; 18                                             INSPIRE Program 🏫🚸🌳/INSPIRE Program</span></span>
+<span><span class="co">#&gt; 19                               INSPIRE Program 🏫🚸🌳/INSPIRE Program Calendar.xlsx</span></span>
+<span><span class="co">#&gt; 20                                INSPIRE Program 🏫🚸🌳/INSPIRE Rec tables 2023.xlsx</span></span>
+<span><span class="co">#&gt; 21                                 INSPIRE Program 🏫🚸🌳/INSPIRE Workflow DRAFT.docx</span></span>
+<span><span class="co">#&gt; 22           INSPIRE Program 🏫🚸🌳/Middle Neighborhoods INSPIRE Assessment Plan.docx</span></span>
+<span><span class="co">#&gt; 23                         INSPIRE Program 🏫🚸🌳/Preparing for a Community Walk.docx</span></span>
+<span><span class="co">#&gt; 24                                    INSPIRE Program 🏫🚸🌳/Test Planner Import.xlsx</span></span>
 <span><span class="co">#&gt;       size isdir                                 id</span></span>
-<span><span class="co">#&gt; 1  427.81M  TRUE 01EK4O46W2BVSN34MWIJCZO45SX2RIMVRR</span></span>
-<span><span class="co">#&gt; 2  125.09M  TRUE 01EK4O46TWHR6QA77FQRAK3TFSP5Z5WGUV</span></span>
-<span><span class="co">#&gt; 3    1.39G  TRUE 01EK4O46XRFXKSJ4MSCVHIXD3E2JCCGZ4Y</span></span>
-<span><span class="co">#&gt; 4  898.35M  TRUE 01EK4O46TNZAXB5BWALZEJF4Y5NCBZPPKB</span></span>
-<span><span class="co">#&gt; 5  418.71M  TRUE 01EK4O46XP2EGVNL5XUNC2GGCWCXQOCBR6</span></span>
-<span><span class="co">#&gt; 6  150.88M  TRUE 01EK4O46S5WYIRFXP42ZBZ3XJBCAX5WRD2</span></span>
-<span><span class="co">#&gt; 7   43.01K FALSE 01EK4O46S42QAM2K6FSBAZPBQOS4VBT3YI</span></span>
-<span><span class="co">#&gt; 8   27.04K FALSE 01EK4O46VKEMUM7LD3YNHJ5IA67DXT6K42</span></span>
-<span><span class="co">#&gt; 9    15.3K FALSE 01EK4O46XFZKGJN3S4AVBYMIEB5OQTG3K7</span></span>
-<span><span class="co">#&gt; 10  20.97K FALSE 01EK4O46RLN3E7BWYST5GIKRJAVB7VDI3N</span></span>
-<span><span class="co">#&gt; 11   23.4K FALSE 01EK4O46TFJABPEPMTS5CINCRI7LRAN554</span></span>
-<span><span class="co">#&gt; 12  13.32M FALSE 01EK4O46VQJZ4S7SZ2EFB3N267A4U67XVG</span></span>
-<span><span class="co">#&gt; 13  29.34K FALSE 01EK4O46VTPF5MRFPSYZHYQ2YJN5C3A4PP</span></span>
-<span><span class="co">#&gt; 14  32.51K FALSE 01EK4O46RKC2EBRPKIVRC34NZGU2XDUGXF</span></span>
-<span><span class="co">#&gt; 15  53.45K FALSE 01EK4O46RYX55LJ6VAAZFINIOB2XF2UXLF</span></span>
-<span><span class="co">#&gt; 16   2.03M FALSE 01EK4O46XVR7PESI3HXZCJF2UDW6YZ53DD</span></span>
-<span><span class="co">#&gt; 17   20.3K FALSE 01EK4O46QCKIPTO4QQG5AY3V422XIJYQHZ</span></span>
-<span><span class="co">#&gt; 18  26.21K FALSE 01EK4O46S6CMHTD2335VFZS6VVEDMWRHJN</span></span>
-<span><span class="co">#&gt; 19  21.36K FALSE 01EK4O46UK2YTRIADBPBEIKM5ODDWX76JO</span></span>
-<span><span class="co">#&gt; 20  22.66K FALSE 01EK4O46TS3YMEYF4KTBF34FWZQ5ER7SF7</span></span>
-<span><span class="co">#&gt; 21  19.89K FALSE 01EK4O46W4HZJORDO57VBL6YIFK3VTDZST</span></span>
+<span><span class="co">#&gt; 1        0  TRUE 01EK4O46SKWLCBFTE2HRDYDHP5IJNW2OIU</span></span>
+<span><span class="co">#&gt; 2  427.82M  TRUE 01EK4O46W2BVSN34MWIJCZO45SX2RIMVRR</span></span>
+<span><span class="co">#&gt; 3   125.1M  TRUE 01EK4O46TWHR6QA77FQRAK3TFSP5Z5WGUV</span></span>
+<span><span class="co">#&gt; 4    2.27G  TRUE 01EK4O46XRFXKSJ4MSCVHIXD3E2JCCGZ4Y</span></span>
+<span><span class="co">#&gt; 5  903.26M  TRUE 01EK4O46TNZAXB5BWALZEJF4Y5NCBZPPKB</span></span>
+<span><span class="co">#&gt; 6  448.55M  TRUE 01EK4O46XP2EGVNL5XUNC2GGCWCXQOCBR6</span></span>
+<span><span class="co">#&gt; 7  150.88M  TRUE 01EK4O46S5WYIRFXP42ZBZ3XJBCAX5WRD2</span></span>
+<span><span class="co">#&gt; 8   43.01K FALSE 01EK4O46S42QAM2K6FSBAZPBQOS4VBT3YI</span></span>
+<span><span class="co">#&gt; 9   29.88K FALSE 01EK4O46VKEMUM7LD3YNHJ5IA67DXT6K42</span></span>
+<span><span class="co">#&gt; 10   15.3K FALSE 01EK4O46XFZKGJN3S4AVBYMIEB5OQTG3K7</span></span>
+<span><span class="co">#&gt; 11  20.97K FALSE 01EK4O46RLN3E7BWYST5GIKRJAVB7VDI3N</span></span>
+<span><span class="co">#&gt; 12   23.4K FALSE 01EK4O46TFJABPEPMTS5CINCRI7LRAN554</span></span>
+<span><span class="co">#&gt; 13  29.06K FALSE 01EK4O46UOLVTZZANSPJHZ3ICJBFFGO7P5</span></span>
+<span><span class="co">#&gt; 14  13.32M FALSE 01EK4O46VQJZ4S7SZ2EFB3N267A4U67XVG</span></span>
+<span><span class="co">#&gt; 15  29.34K FALSE 01EK4O46VTPF5MRFPSYZHYQ2YJN5C3A4PP</span></span>
+<span><span class="co">#&gt; 16  32.51K FALSE 01EK4O46RKC2EBRPKIVRC34NZGU2XDUGXF</span></span>
+<span><span class="co">#&gt; 17  63.33K FALSE 01EK4O46RYX55LJ6VAAZFINIOB2XF2UXLF</span></span>
+<span><span class="co">#&gt; 18   2.03M  TRUE 01EK4O46XVR7PESI3HXZCJF2UDW6YZ53DD</span></span>
+<span><span class="co">#&gt; 19  23.14K FALSE 01EK4O46QCKIPTO4QQG5AY3V422XIJYQHZ</span></span>
+<span><span class="co">#&gt; 20  26.21K FALSE 01EK4O46S6CMHTD2335VFZS6VVEDMWRHJN</span></span>
+<span><span class="co">#&gt; 21   24.2K FALSE 01EK4O46UK2YTRIADBPBEIKM5ODDWX76JO</span></span>
+<span><span class="co">#&gt; 22  25.49K FALSE 01EK4O46TS3YMEYF4KTBF34FWZQ5ER7SF7</span></span>
+<span><span class="co">#&gt; 23  22.73K FALSE 01EK4O46W4HZJORDO57VBL6YIFK3VTDZST</span></span>
+<span><span class="co">#&gt; 24  15.17K FALSE 01EK4O46XDUXMFXPTV4NAICXGZ2YGAYAJU</span></span>
 <span><span class="co">#&gt;         type</span></span>
 <span><span class="co">#&gt; 1  directory</span></span>
 <span><span class="co">#&gt; 2  directory</span></span>
@@ -224,7 +231,7 @@ drives, lists, and items from SharePoint:</p>
 <span><span class="co">#&gt; 4  directory</span></span>
 <span><span class="co">#&gt; 5  directory</span></span>
 <span><span class="co">#&gt; 6  directory</span></span>
-<span><span class="co">#&gt; 7       file</span></span>
+<span><span class="co">#&gt; 7  directory</span></span>
 <span><span class="co">#&gt; 8       file</span></span>
 <span><span class="co">#&gt; 9       file</span></span>
 <span><span class="co">#&gt; 10      file</span></span>
@@ -235,88 +242,69 @@ drives, lists, and items from SharePoint:</p>
 <span><span class="co">#&gt; 15      file</span></span>
 <span><span class="co">#&gt; 16      file</span></span>
 <span><span class="co">#&gt; 17      file</span></span>
-<span><span class="co">#&gt; 18      file</span></span>
+<span><span class="co">#&gt; 18 directory</span></span>
 <span><span class="co">#&gt; 19      file</span></span>
 <span><span class="co">#&gt; 20      file</span></span>
-<span><span class="co">#&gt; 21      file</span></span></code></pre></div>
+<span><span class="co">#&gt; 21      file</span></span>
+<span><span class="co">#&gt; 22      file</span></span>
+<span><span class="co">#&gt; 23      file</span></span>
+<span><span class="co">#&gt; 24      file</span></span></code></pre></div>
 <p>You can use the same URL to get a character vector of file names:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sp_dir_info.html">sp_dir_ls</a></span><span class="op">(</span><span class="va">dir_url</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
-<span><span class="co">#&gt;  [1] "INSPIRE Plan Histories (CHAP)"                              </span></span>
-<span><span class="co">#&gt;  [2] "INSPIRE Plans Adopted ✅"                                   </span></span>
-<span><span class="co">#&gt;  [3] "INSPIRE Plans In Progress ✏️"                                </span></span>
-<span><span class="co">#&gt;  [4] "INSPIRE Program Admin"                                      </span></span>
-<span><span class="co">#&gt;  [5] "Photos"                                                     </span></span>
-<span><span class="co">#&gt;  [6] "References"                                                 </span></span>
-<span><span class="co">#&gt;  [7] "_2021_Planner+School List.xlsx"                             </span></span>
-<span><span class="co">#&gt;  [8] "2023-05-17-dhcd-code-enforcement_recommendation-review.docx"</span></span>
-<span><span class="co">#&gt;  [9] "Budget scrap.xlsx"                                          </span></span>
-<span><span class="co">#&gt; [10] "Historical Assessment Doc.docx"                             </span></span>
-<span><span class="co">#&gt; [11] "INSPIRE Community Engagement Notebook.xlsx"                 </span></span>
-<span><span class="co">#&gt; [12] "INSPIRE DOP Website Copy.docx"                              </span></span>
-<span><span class="co">#&gt; [13] "INSPIRE Master Contact List.xlsx"                           </span></span>
-<span><span class="co">#&gt; [14] "INSPIRE Plan Timelines 2021_08.docx"                        </span></span>
-<span><span class="co">#&gt; [15] "INSPIRE Planning Guide.docx"                                </span></span>
-<span><span class="co">#&gt; [16] "INSPIRE Program"                                            </span></span>
-<span><span class="co">#&gt; [17] "INSPIRE Program Calendar.xlsx"                              </span></span>
-<span><span class="co">#&gt; [18] "INSPIRE Rec tables 2023.xlsx"                               </span></span>
-<span><span class="co">#&gt; [19] "INSPIRE Workflow DRAFT.docx"                                </span></span>
-<span><span class="co">#&gt; [20] "Middle Neighborhoods INSPIRE Assessment Plan.docx"          </span></span>
-<span><span class="co">#&gt; [21] "Preparing for a Community Walk.docx"</span></span></code></pre></div>
-<p>But you can’t use that URL to get a list (note the input checkin on
-this is incomplete so the error may not make much sense):</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">try_fetch</span>(</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_sp_list</span>(dir_url),</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">error =</span> <span class="cf">function</span>(cnd) {</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    cli<span class="sc">::</span><span class="fu">cli_inform</span>(</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      cnd<span class="sc">$</span>message</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>ℹ Getting list from SharePoint</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>attempt to apply non<span class="sc">-</span><span class="cf">function</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>✖ Getting list from SharePoint [45ms]</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; NULL</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1] "2024 SMART Goal Docs"                                       </span></span>
+<span><span class="co">#&gt;  [2] "INSPIRE Plan Histories (CHAP)"                              </span></span>
+<span><span class="co">#&gt;  [3] "INSPIRE Plans Adopted ✅"                                   </span></span>
+<span><span class="co">#&gt;  [4] "INSPIRE Plans In Progress ✏️"                                </span></span>
+<span><span class="co">#&gt;  [5] "INSPIRE Program Admin"                                      </span></span>
+<span><span class="co">#&gt;  [6] "Photos"                                                     </span></span>
+<span><span class="co">#&gt;  [7] "References"                                                 </span></span>
+<span><span class="co">#&gt;  [8] "_2021_Planner+School List.xlsx"                             </span></span>
+<span><span class="co">#&gt;  [9] "2023-05-17-dhcd-code-enforcement_recommendation-review.docx"</span></span>
+<span><span class="co">#&gt; [10] "Budget scrap.xlsx"                                          </span></span>
+<span><span class="co">#&gt; [11] "Historical Assessment Doc.docx"                             </span></span>
+<span><span class="co">#&gt; [12] "INSPIRE Community Engagement Notebook.xlsx"                 </span></span>
+<span><span class="co">#&gt; [13] "INSPIRE Comprehensive Plan Contribution.docx"               </span></span>
+<span><span class="co">#&gt; [14] "INSPIRE DOP Website Copy.docx"                              </span></span>
+<span><span class="co">#&gt; [15] "INSPIRE Master Contact List.xlsx"                           </span></span>
+<span><span class="co">#&gt; [16] "INSPIRE Plan Timelines 2021_08.docx"                        </span></span>
+<span><span class="co">#&gt; [17] "INSPIRE Planning Guide - Updated.docx"                      </span></span>
+<span><span class="co">#&gt; [18] "INSPIRE Program"                                            </span></span>
+<span><span class="co">#&gt; [19] "INSPIRE Program Calendar.xlsx"                              </span></span>
+<span><span class="co">#&gt; [20] "INSPIRE Rec tables 2023.xlsx"                               </span></span>
+<span><span class="co">#&gt; [21] "INSPIRE Workflow DRAFT.docx"                                </span></span>
+<span><span class="co">#&gt; [22] "Middle Neighborhoods INSPIRE Assessment Plan.docx"          </span></span>
+<span><span class="co">#&gt; [23] "Preparing for a Community Walk.docx"                        </span></span>
+<span><span class="co">#&gt; [24] "Test Planner Import.xlsx"</span></span></code></pre></div>
+<p>But you can’t use that URL to get a list:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/sp_list.html">get_sp_list</a></span><span class="op">(</span><span class="va">dir_url</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error in `call_match()`:</span></span>
+<span><span class="co">#&gt; ! `fn` must be supplied.</span></span></code></pre></div>
 <p>SharePoint lists have two different styles of URLs (that I’ve seen).
 This one works:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>list_url <span class="ot">&lt;-</span> <span class="st">"https://bmore.sharepoint.com/:l:/r/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker?e=0P1fFX"</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">get_sp_list</span>(list_url)</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>ℹ Getting list from SharePoint</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>✔ Getting list from SharePoint [147ms]</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                                                                                                         @odata.context</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 https://graph.microsoft.com/beta/$metadata#sites('bmore.sharepoint.com%2C1da01cb7-76c7-4487-b398-ec60dff8f52d%2C7abe409a-2aeb-4eb8-8dc3-8fe9106907af')/lists/$entity</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                 @odata.etag</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 "5c21d327-7016-4b69-ae0d-dc95059a876c,43"</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        createdDateTime description</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 2022-06-29T18:10:45Z            </span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                        eTag</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 "5c21d327-7016-4b69-ae0d-dc95059a876c,43"</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                     id</span></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 5c21d327-7016-4b69-ae0d-dc95059a876c</span></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   lastModifiedDateTime                             name</span></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 2023-09-22T11:07:27Z Data Governance Progress Tracker</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                                                        webUrl</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker</span></span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                        displayName</span></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 Data Governance Progress Tracker</span></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                                 createdBy</span></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 Justin.Elszasz@baltimorecity.gov, a43c19f9-9a13-403d-9234-0c13f4e84b1c, Elszasz, Justin</span></span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                            lastModifiedBy</span></span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 Justin.Elszasz@baltimorecity.gov, a43c19f9-9a13-403d-9234-0c13f4e84b1c, Elszasz, Justin</span></span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                                  parentReference</span></span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 bmore.sharepoint.com,1da01cb7-76c7-4487-b398-ec60dff8f52d,7abe409a-2aeb-4eb8-8dc3-8fe9106907af</span></span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                        list                    ms_list</span></span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 FALSE, FALSE, genericList &lt;environment: 0x133900cc0&gt;</span></span></code></pre></div>
-<p>List URLs that look like this one don’t currently work with
-<code><a href="../reference/sp_list.html">get_sp_list()</a></code> but I expect to improve URL parsing to handle
-these in the future:</p>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>ℹ Getting list from SharePoint</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>✔ Getting list from SharePoint [119ms]</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;Sharepoint list 'Data Governance Progress Tracker'&gt;</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   directory id: 5c21d327-7016-4b69-ae0d-dc95059a876c </span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   web link: https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker </span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   description:  </span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Methods:</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     bulk_import, create_item, delete,</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     delete_item, do_operation,</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     get_column_info, get_item,</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     get_list_pager, list_items,</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     sync_fields, update, update_item</span></span></code></pre></div>
+<p>As of January 2024, this one also works:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="st">"https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"</span></span>
 <span><span class="co">#&gt; [1] "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"</span></span></code></pre></div>
@@ -333,11 +321,12 @@ these in the future:</p>
 <span><span class="co">#&gt;   type: file </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt;   Methods:</span></span>
-<span><span class="co">#&gt;     copy, create_folder, create_share_link,</span></span>
-<span><span class="co">#&gt;     delete, do_operation, download,</span></span>
-<span><span class="co">#&gt;     get_item, get_list_pager,</span></span>
-<span><span class="co">#&gt;     get_parent_folder, get_path, is_folder,</span></span>
-<span><span class="co">#&gt;     list_files, list_items, load_dataframe,</span></span>
+<span><span class="co">#&gt;     copy, create_folder,</span></span>
+<span><span class="co">#&gt;     create_share_link, delete,</span></span>
+<span><span class="co">#&gt;     do_operation, download, get_item,</span></span>
+<span><span class="co">#&gt;     get_list_pager, get_parent_folder,</span></span>
+<span><span class="co">#&gt;     get_path, is_folder, list_files,</span></span>
+<span><span class="co">#&gt;     list_items, load_dataframe,</span></span>
 <span><span class="co">#&gt;     load_rdata, load_rds, move, open,</span></span>
 <span><span class="co">#&gt;     save_dataframe, save_rdata, save_rds,</span></span>
 <span><span class="co">#&gt;     sync_fields, update, upload</span></span></code></pre></div>
@@ -354,11 +343,12 @@ set to match the document library of the supplied URL):</p>
 <span><span class="co">#&gt;   type: file </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt;   Methods:</span></span>
-<span><span class="co">#&gt;     copy, create_folder, create_share_link,</span></span>
-<span><span class="co">#&gt;     delete, do_operation, download,</span></span>
-<span><span class="co">#&gt;     get_item, get_list_pager,</span></span>
-<span><span class="co">#&gt;     get_parent_folder, get_path, is_folder,</span></span>
-<span><span class="co">#&gt;     list_files, list_items, load_dataframe,</span></span>
+<span><span class="co">#&gt;     copy, create_folder,</span></span>
+<span><span class="co">#&gt;     create_share_link, delete,</span></span>
+<span><span class="co">#&gt;     do_operation, download, get_item,</span></span>
+<span><span class="co">#&gt;     get_list_pager, get_parent_folder,</span></span>
+<span><span class="co">#&gt;     get_path, is_folder, list_files,</span></span>
+<span><span class="co">#&gt;     list_items, load_dataframe,</span></span>
 <span><span class="co">#&gt;     load_rdata, load_rds, move, open,</span></span>
 <span><span class="co">#&gt;     save_dataframe, save_rdata, save_rds,</span></span>
 <span><span class="co">#&gt;     sync_fields, update, upload</span></span></code></pre></div>

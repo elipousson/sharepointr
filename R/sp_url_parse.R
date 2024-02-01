@@ -21,6 +21,9 @@
 #' https://\[tenant\].sharepoint.com/sites/\[site name\]/Lists/\[list
 #' name\]/AllItems.aspx?env=WebViewList
 #'
+#' https://\[tenant\].sharepoint.com/:l:/r/sites/\[site name\]/Lists/\[list
+#' name\]
+#'
 #' SharePoint folder URL:
 #'
 #' https://\[tenant\].sharepoint.com/:\[url type\]:/\[permissions\]/sites/\[site
@@ -52,6 +55,7 @@ sp_url_parse <- function(url, call = caller_env()) {
     return(sp_url_parts)
   }
 
+  # FIXME: Should this be list_replace_na?
   sp_url_parts <- list_replace_empty(
     c(
       sp_url_parse_hostname(parts[["hostname"]]),
@@ -59,6 +63,23 @@ sp_url_parse <- function(url, call = caller_env()) {
       sp_url_parse_query(parts[["query"]])
     )
   )
+
+  is_alt_sp_list_url <- all(c(
+    !str_detect(parts[["path"]], ":l:"),
+    str_detect(parts[["path"]], "/Lists/"),
+    str_detect(parts[["path"]], "AllItems\\.asxp")
+  ))
+
+  if (is_alt_sp_list_url) {
+    sp_url_parts[["site_name"]] <- str_extract(
+      parts[["path"]],
+      "(?<=/sites/)([:alnum:]|-)+(?=/)"
+    )
+    sp_url_parts[["list_name"]] <- utils::URLdecode(str_extract(
+      parts[["path"]],
+      "(?<=/Lists/).+(?=/AllItems\\.asxp)"
+    ))
+  }
 
   sp_url_parts[["site_url"]] <- paste0(
     sp_url_parts[["base_url"]], "/sites/",

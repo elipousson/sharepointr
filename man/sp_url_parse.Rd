@@ -51,6 +51,9 @@ SharePoint List URL:
 https://[tenant].sharepoint.com/sites/[site name]/Lists/[list
 name]/AllItems.aspx?env=WebViewList
 
+https://[tenant].sharepoint.com/:l:/r/sites/[site name]/Lists/[list
+name]
+
 SharePoint folder URL:
 
 https://[tenant].sharepoint.com/:[url type]:/[permissions]/sites/[site

@@ -39,6 +39,7 @@ get_sp_group <- function(site_url = NULL,
 #'   data frame with a list column named `az_user` that contains the member
 #'   list and properties converted into columns.
 #' @rdname get_sp_group
+#' @export
 list_sp_group_members <- function(site_url = NULL,
                                   site_name = NULL,
                                   site_id = NULL,

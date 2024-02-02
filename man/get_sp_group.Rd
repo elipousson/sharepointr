@@ -3,6 +3,7 @@
 \name{get_sp_group}
 \alias{get_sp_group}
 \alias{get_sp_site_group}
+\alias{list_sp_group_members}
 \title{Get SharePoint group for a site}
 \usage{
 get_sp_group(
@@ -13,6 +14,8 @@ get_sp_group(
   site = NULL,
   call = caller_env()
 )
+
+list_sp_group_members(site = NULL, site_url = NULL, ..., call = caller_env())
 }
 \arguments{
 \item{site_url}{A SharePoint site URL in the format "https://[tenant

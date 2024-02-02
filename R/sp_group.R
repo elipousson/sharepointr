@@ -31,6 +31,39 @@ get_sp_group <- function(site_url = NULL,
   site$get_group()
 }
 
+#' @name list_sp_group_members
+#' @rdname get_sp_group
+list_sp_group_members <- function(site = NULL,
+                                  site_url = NULL,
+                                  ...,
+                                  call = caller_env()) {
+
+  group <- get_sp_group(..., call = call)
+
+  members <- ms_obj_list_as_data_frame(
+    group$list_members(),
+    obj_col = "az_user",
+    unlist_cols = FALSE,
+    call = call
+  )
+
+  # FIXME: This is a brittle and likely incomplete solution
+  for (nm in c("accountEnabled", "id", "employeeId", "mail", "displayName",
+               "jobTitle", "department", "givenName", "surname", "mailNickname",
+               "businessPhones", "mobilePhone", "officeLocation")) {
+
+    fn <- as.character
+    if (nm == "accountEnabled") {
+      fn <- as.logical
+    }
+
+    members[[nm]] <- fn(members[[nm]])
+  }
+
+  members
+}
+
+
 #
 # list_sp_members <- function(site = NULL,
 #                             site_url = NULL,

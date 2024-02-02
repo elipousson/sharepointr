@@ -1,7 +1,10 @@
-#' Get SharePoint group for a site
+#' Get SharePoint group for a site or list group members
 #'
-#' [get_sp_group()] gets the group associated with an individual site using
-#' the `get_group` method.
+#' [get_sp_group()] gets the group associated with an individual site using the
+#' `get_group` method. [list_sp_group_members()] lists members in the group.
+#' Note that, as of February 1, 2024, the returned member data frame when
+#' `as_data_frame = TRUE` contains a large number of list columns that could be
+#' coerced into character columns. This should be addressed in a later update.
 #'
 #' @inheritParams ms_graph_obj_terms
 #' @inheritParams get_sp_site
@@ -32,26 +35,41 @@ get_sp_group <- function(site_url = NULL,
 }
 
 #' @name list_sp_group_members
+#' @param as_data_frame If `TRUE` (default), converted list of members into a
+#'   data frame with a list column named `az_user` that contains the member
+#'   list and properties converted into columns.
 #' @rdname get_sp_group
-list_sp_group_members <- function(site = NULL,
-                                  site_url = NULL,
+list_sp_group_members <- function(site_url = NULL,
+                                  site_name = NULL,
+                                  site_id = NULL,
                                   ...,
+                                  as_data_frame = TRUE,
                                   call = caller_env()) {
-
-  group <- get_sp_group(..., call = call)
+  sp_group <- get_sp_group(
+    site_url = site_url,
+    site_name = site_name,
+    site_id = site_id,
+    ...,
+    call = call
+  )
 
   members <- ms_obj_list_as_data_frame(
-    group$list_members(),
+    sp_group$list_members(),
     obj_col = "az_user",
     unlist_cols = FALSE,
     call = call
   )
 
-  # FIXME: This is a brittle and likely incomplete solution
-  for (nm in c("accountEnabled", "id", "employeeId", "mail", "displayName",
-               "jobTitle", "department", "givenName", "surname", "mailNickname",
-               "businessPhones", "mobilePhone", "officeLocation")) {
+  if (!as_data_frame) {
+    return(members)
+  }
 
+  # FIXME: This is a brittle and likely incomplete solution
+  for (nm in c(
+    "accountEnabled", "id", "employeeId", "mail", "displayName",
+    "jobTitle", "department", "givenName", "surname", "mailNickname",
+    "businessPhones", "mobilePhone", "officeLocation"
+  )) {
     fn <- as.character
     if (nm == "accountEnabled") {
       fn <- as.logical
@@ -62,36 +80,3 @@ list_sp_group_members <- function(site = NULL,
 
   members
 }
-
-
-#
-# list_sp_members <- function(site = NULL,
-#                             site_url = NULL,
-#                             ...) {
-#   get_sp_group()
-# }
-#
-#
-# ms_obj_as_data_frame(
-#   members[[28]],
-#   "az_user", #
-#   keep_list_cols = c(
-#     "proxyAddresses",
-#     "otherMails",
-#     "infoCatalogs",
-#     "businessPhones",
-#     "assignedPlans",
-#     "identities",
-#     "assignedLicenses",
-#     "authorizationInfo",
-#     "deviceKeys",
-#     "cloudRealtimeCommunicationInfo",
-#     "imAddresses",
-#     "onPremisesExtensionAttributes",
-#     "onPremisesProvisioningErrors",
-#     "onPremisesSipInfo",
-#     "provisionedPlans",
-#     "serviceProvisioningErrors",
-#     "passwordProfile"
-#   )
-# )

@@ -4,7 +4,7 @@
 \alias{get_sp_group}
 \alias{get_sp_site_group}
 \alias{list_sp_group_members}
-\title{Get SharePoint group for a site}
+\title{Get SharePoint group for a site or list group members}
 \usage{
 get_sp_group(
   site_url = NULL,
@@ -15,7 +15,14 @@ get_sp_group(
   call = caller_env()
 )
 
-list_sp_group_members(site = NULL, site_url = NULL, ..., call = caller_env())
+list_sp_group_members(
+  site_url = NULL,
+  site_name = NULL,
+  site_id = NULL,
+  ...,
+  as_data_frame = TRUE,
+  call = caller_env()
+)
 }
 \arguments{
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
@@ -37,8 +44,15 @@ alternative to the SharePoint site URL. Exactly one of  \code{site_url},
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
+
+\item{as_data_frame}{If \code{TRUE} (default), converted list of members into a
+data frame with a list column named \code{az_user} that contains the member
+list and properties converted into columns.}
 }
 \description{
-\code{\link[=get_sp_group]{get_sp_group()}} gets the group associated with an individual site using
-the \code{get_group} method.
+\code{\link[=get_sp_group]{get_sp_group()}} gets the group associated with an individual site using the
+\code{get_group} method. \code{\link[=list_sp_group_members]{list_sp_group_members()}} lists members in the group.
+Note that, as of February 1, 2024, the returned member data frame when
+\code{as_data_frame = TRUE} contains a large number of list columns that could be
+coerced into character columns. This should be addressed in a later update.
 }

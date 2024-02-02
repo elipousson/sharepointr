@@ -58,7 +58,7 @@ list_sp_group_members <- function(site_url = NULL,
     sp_group$list_members(),
     obj_col = "az_user",
     unlist_cols = FALSE,
-    call = call
+    .error_call = call
   )
 
   if (!as_data_frame) {

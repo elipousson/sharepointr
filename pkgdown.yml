@@ -3,7 +3,7 @@ pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   sp_url: sp_url.html
-last_built: 2024-02-02T01:47Z
+last_built: 2024-02-02T02:04Z
 urls:
   reference: https://elipousson.github.io/sharepointr/reference
   article: https://elipousson.github.io/sharepointr/articles

@@ -42,22 +42,24 @@ is_url <- function(x) {
 #' Check if a URL is valid
 #'
 #' @noRd
-check_url <- function(url,
+check_url <- function(x,
                       allow_null = FALSE,
+                      arg = caller_arg(x),
                       call = caller_env()) {
-  check_string(url, allow_empty = FALSE, allow_null = allow_null, call = call)
+  check_string(x, allow_empty = FALSE, allow_null = allow_null, arg = arg, call = call)
 
-  if (allow_null && is_null(url)) {
+  if (allow_null && is_null(x)) {
     return(invisible(NULL))
   }
 
-  if (is_url(url)) {
+  if (is_url(x)) {
     return(invisible(NULL))
   }
 
   stop_input_type(
-    url,
+    x,
     what = "a valid url",
+    arg = arg,
     call = call
   )
 }
@@ -68,9 +70,24 @@ check_url <- function(url,
 check_sp_list_url <- function(x,
                               ...,
                               allow_null = FALSE,
+                              allow_personal = FALSE,
                               arg = caller_arg(x),
                               call = caller_env()) {
-  if (str_detect(x, ":l:|/Lists/") || allow_null && is.null(x)) {
+  if (allow_null && is.null(x)) {
+    return(invisible(NULL))
+  }
+
+  check_url(x, arg = arg, call = call)
+
+  if (!allow_personal && stringr::str_detect(x, "/personal/")) {
+    cli_abort(
+      "{.arg {arg}} can't be a personal SharePoint list URL.",
+      ...,
+      call = call
+    )
+  }
+
+  if (stringr::str_detect(x, ":l:|/Lists/")) {
     return(invisible(NULL))
   }
 

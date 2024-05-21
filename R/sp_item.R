@@ -239,7 +239,8 @@ delete_sp_item <- function(path = NULL,
 #'   `item_id` is supplied, a file name to use with `path` to set `dest` with
 #'   location and filename for downloaded item.
 #' @param new_path Path to directory for downloaded item. Optional if `dest` is
-#'   supplied.
+#'   supplied. If path contains a file name, the item will be downloaded using
+#'   that file name instead of the file name of the original item.
 #' @inheritParams get_sp_item
 #' @param dest,overwrite,recursive,parallel Parameters passed to `download`
 #'   method for `ms_drive_item` object.
@@ -354,12 +355,19 @@ download_sp_item <- function(path = NULL,
   # FIXME: Take a closer look at why this is needed
   if ((new_path == "") || is.null(new_path)) {
     if (is_empty(dest) || dest == "") {
-      dest <- item$properties$name
+      dest <- NULL
     }
 
     dest <- dest %||% item$properties$name
-  } else {
-    dest <- dest %||% sp_file_dest(file = path, path = new_path)
+  } else if (is.null(dest)) {
+    # FIXME: Consider adding a helper function to handle this or addressing the
+    # issue in sp_file_dest
+    # Added 2024-03-06 to fix issue when new_path contains a file name
+    if (fs::path_ext(new_path) != "") {
+      dest <- new_path
+    } else {
+      dest <- sp_file_dest(file = path, path = new_path)
+    }
   }
 
   check_string(dest, call = call)
@@ -389,6 +397,10 @@ download_sp_item <- function(path = NULL,
   cli::cli_progress_step(
     "Downloading SharePoint item to {.file {dest}}"
   )
+
+  if (overwrite && fs::file_exists(dest)) {
+    fs::file_delete(dest)
+  }
 
   # TODO: Compare using the item level download method and the download_file and
   # download_folder methods available for ms_drive objects
@@ -524,4 +536,49 @@ batch_download_sp_item <- function(path = NULL,
   }
 
   invisible(dest_list)
+}
+
+#' Download a SharePoint List
+#'
+#' @param sp_list SharePoint list object. If supplied, all parameters supplied
+#'   to `...` are ignored.
+#' @param fileext File extension to use for output file. Must be `"csv"` or
+#'   `"xlsx"`.
+#' @inheritDotParams get_sp_list
+#' @inheritParams ms_obj_as_data_frame
+download_sp_list <- function(...,
+                             sp_list = NULL,
+                             fileext = "csv",
+                             keep_list_cols = c("createdBy", "lastModifiedBy"),
+                             call = caller_env()) {
+  sp_list <- sp_list %||% get_sp_list(
+    ...
+  )
+
+  sp_list_df <- ms_obj_as_data_frame(
+    sp_list,
+    obj_col = "ms_list",
+    keep_list_cols = keep_list_cols,
+    .error_call = call
+  )
+
+  # FIXME: Take a closer look at why this is needed
+  if ((new_path == "") || is.null(new_path)) {
+    if (is_empty(dest) || dest == "") {
+      dest <- NULL
+    }
+
+    dest <- dest %||% item$properties$name
+  } else {
+    dest <- dest %||% sp_file_dest(file = path, path = new_path)
+  }
+
+  # TODO: Add option to write list directly to Google Sheets
+  if (!stringr::str_detect(file, ".xlsx$")) {
+    check_installed("readr", call = call)
+    readr::write_csv(x, file = file, ...)
+  } else if (stringr::str_detect(file, ".xlsx$")) {
+    check_installed("openxlsx2", call = call)
+    openxlsx2::write_xlsx(x, file = file, ...)
+  }
 }

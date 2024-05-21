@@ -149,3 +149,40 @@ cache_sp_drive <- function(...,
     call = call
   )
 }
+
+#' List drives for a SharePoint site
+#'
+#' [list_sp_drives()] loads a SharePoint site uses the `list_drives` method to
+#' returns a data frame with a list column or `ms_drive` objects or, if
+#' `as_data_frame = FALSE`. This is helpful if a drive has been renamed and
+#' can't easily be identified using a Drive URL alone.
+#'
+#' @seealso [Microsoft365R::ms_site]
+#' @inheritDotParams get_sp_site
+#' @param filter Filter to apply to query
+#' @param n Max number of drives to return
+#' @export
+list_sp_drives <- function(
+    ...,
+    site = NULL,
+    filter = NULL,
+    n = NULL,
+    as_data_frame = TRUE,
+    call = caller_env()
+) {
+  sp_site <- site %||% get_sp_site(..., call = call)
+
+  site_drives <- sp_site$list_drives(filter = filter, n = n %||% Inf)
+
+  if (!as_data_frame) {
+    return(site_drives)
+  }
+
+  # TODO: Move name column to the front
+  ms_obj_list_as_data_frame(
+    site_drives,
+    obj_col = "ms_drive",
+    keep_list_cols = c("lastModifiedBy", "createdBy"),
+    .error_call = call
+  )
+}

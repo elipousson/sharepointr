@@ -33,7 +33,8 @@ download_sp_file(file, new_path = "", ..., call = caller_env())
 location and filename for downloaded item.}
 
 \item{new_path}{Path to directory for downloaded item. Optional if \code{dest} is
-supplied.}
+supplied. If path contains a file name, the item will be downloaded using
+that file name instead of the file name of the original item.}
 
 \item{...}{
   Arguments passed on to \code{\link[=get_sp_item]{get_sp_item}}

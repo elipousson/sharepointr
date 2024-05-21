@@ -31,7 +31,8 @@ the description or supplied to \code{.f}}
 \item{.f}{Optional function to use to read file downloaded from SharePoint.}
 
 \item{new_path}{Path to directory for downloaded item. Optional if \code{dest} is
-supplied.}
+supplied. If path contains a file name, the item will be downloaded using
+that file name instead of the file name of the original item.}
 
 \item{overwrite}{If \code{TRUE}, replace the existing cached object named by
 \code{cache_file} with the new object. If \code{FALSE}, error if a cached file with

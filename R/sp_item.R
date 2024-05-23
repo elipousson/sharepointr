@@ -240,7 +240,9 @@ delete_sp_item <- function(path = NULL,
 #'   location and filename for downloaded item.
 #' @param new_path Path to directory for downloaded item. Optional if `dest` is
 #'   supplied. If path contains a file name, the item will be downloaded using
-#'   that file name instead of the file name of the original item.
+#'   that file name instead of the file name of the original item. If `new_path`
+#'   refers to a nonexistent directory and the item is a file, the directory
+#'   will be silently created using [fs::dir_create()].
 #' @inheritParams get_sp_item
 #' @param dest,overwrite,recursive,parallel Parameters passed to `download`
 #'   method for `ms_drive_item` object.
@@ -372,8 +374,11 @@ download_sp_item <- function(path = NULL,
 
   check_string(dest, call = call)
 
+  dest_dir <- dirname(dest)
+  dest_dir_exists <- dir.exists(dest_dir)
+
   if (item$is_folder()) {
-    if (!dir.exists(dirname(dest))) {
+    if (!dest_dir_exists) {
       cli::cli_abort(
         c("{.arg new_path} or {.arg dest} must exist if item is a folder.",
           "i" = "Create a new folder at {.path {dirname(dest)}} to
@@ -392,6 +397,8 @@ download_sp_item <- function(path = NULL,
         )
       )
     }
+  } else {
+    fs::dir_create(dest_dir)
   }
 
   cli::cli_progress_step(

@@ -34,7 +34,9 @@ location and filename for downloaded item.}
 
 \item{new_path}{Path to directory for downloaded item. Optional if \code{dest} is
 supplied. If path contains a file name, the item will be downloaded using
-that file name instead of the file name of the original item.}
+that file name instead of the file name of the original item. If \code{new_path}
+refers to a nonexistent directory and the item is a file, the directory
+will be silently created using \code{\link[fs:create]{fs::dir_create()}}.}
 
 \item{...}{
   Arguments passed on to \code{\link[=get_sp_item]{get_sp_item}}

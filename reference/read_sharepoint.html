@@ -138,7 +138,9 @@ the description or supplied to <code>.f</code></p></dd>
 <dt>new_path</dt>
 <dd><p>Path to directory for downloaded item. Optional if <code>dest</code> is
 supplied. If path contains a file name, the item will be downloaded using
-that file name instead of the file name of the original item.</p></dd>
+that file name instead of the file name of the original item. If <code>new_path</code>
+refers to a nonexistent directory and the item is a file, the directory
+will be silently created using <code><a href="https://fs.r-lib.org/reference/create.html" class="external-link">fs::dir_create()</a></code>.</p></dd>
 
 
 <dt>overwrite</dt>

@@ -129,7 +129,7 @@ sp_dir_info <- function(path = NULL,
   )
 
   if (is_installed("fs")) {
-    item_list[["size"]] <- fs::as_fs_bytes(as.double(item_list[["size"]]))
+    item_list[["size"]] <- vec_fmt_sp_item_size(item_list[["size"]])
 
     item_list[["type"]] <- factor(
       vapply(
@@ -178,6 +178,18 @@ sp_dir_info <- function(path = NULL,
   dir_item_list <- c(list(item_list), dir_item_list)
 
   vctrs::vec_rbind(!!!dir_item_list, .error_call = call)
+}
+
+#' @noRd
+vec_fmt_sp_item_size <- function(x) {
+  fs::as_fs_bytes(as.double(x))
+}
+
+#' @noRd
+fmt_sp_item_size <- function(data, size_col = "size") {
+  data[[size_col]] <- vec_fmt_sp_item_size(data[[size_col]])
+
+  data
 }
 
 #' @rdname sp_dir_info

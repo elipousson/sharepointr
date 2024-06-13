@@ -168,8 +168,7 @@ list_sp_drives <- function(
     filter = NULL,
     n = NULL,
     as_data_frame = TRUE,
-    call = caller_env()
-) {
+    call = caller_env()) {
   sp_site <- site %||% get_sp_site(..., call = call)
 
   site_drives <- sp_site$list_drives(filter = filter, n = n %||% Inf)

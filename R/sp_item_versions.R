@@ -48,4 +48,3 @@ fmt_sp_lastModifiedBy <- function(data) {
   check_data_frame(data)
   vctrs::vec_rbind(!!!data[["lastModifiedBy"]])
 }
-

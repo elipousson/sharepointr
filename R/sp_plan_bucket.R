@@ -1,4 +1,3 @@
-
 #' List SharePoint planner buckets
 #'
 #' [list_sp_plan_buckets()] lists the buckets for a specified plan using the

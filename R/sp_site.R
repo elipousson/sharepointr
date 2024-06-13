@@ -56,16 +56,11 @@ get_sp_site <- function(site_url = NULL,
     check_url(site_url, call = call)
 
     if (!is_sp_site_url(site_url)) {
-      parts <- sp_url_parse(site_url, call = call)
-
-      site_url <- sp_site_url_build(
-        parts[["tenant"]],
-        parts[["site_name"]]
-      )
+      site_url <- sp_url_parse(site_url, call = call)[["site_url"]]
     }
   }
 
-  if (is.null(site_url) && is.null(site_name) && is.null(site_id)) {
+  if (is.null(c(site_url, site_name, site_id))) {
     cli_abort(
       "{.arg site_url}, {.arg site_name}, or {.arg site_id} must be supplied.",
       call = call

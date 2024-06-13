@@ -42,51 +42,39 @@
 sp_url_parse <- function(url, call = caller_env()) {
   check_url(url, call = call)
 
+  if (is_sp_site_page_url(url)) {
+    return(sp_site_page_url_parse(url))
+  }
+
+  if (is_sp_webview_list_url(url)) {
+    return(sp_webview_list_url_parse(url))
+  }
+
+  if (is_sp_site_url(url)) {
+    return(sp_site_url_parse(url))
+  }
+
   parts <- httr2::url_parse(url)
 
-  if (is_sp_site_url(url) && !str_detect(url, "/Lists/")) {
-    sp_url_parts <- c(
-      sp_url_parse_hostname(parts[["hostname"]]),
-      list(
-        "site_url" = url
-      )
-    )
-
-    return(sp_url_parts)
-  }
+  sp_url_parts <- sp_url_parse_hostname(parts[["hostname"]])
 
   # FIXME: Should this be list_replace_na?
   sp_url_parts <- list_replace_empty(
     c(
-      sp_url_parse_hostname(parts[["hostname"]]),
+      sp_url_parts,
       sp_url_parse_path(parts[["path"]]),
       sp_url_parse_query(parts[["query"]])
     )
   )
 
-  is_alt_sp_list_url <- all(c(
-    !str_detect(parts[["path"]], ":l:"),
-    str_detect(parts[["path"]], "/Lists/"),
-    str_detect(parts[["path"]], "AllItems\\.asxp")
-  ))
-
-  if (is_alt_sp_list_url) {
-    sp_url_parts[["site_name"]] <- str_extract(
-      parts[["path"]],
-      "(?<=/sites/)([:alnum:]|-)+(?=/)"
-    )
-    sp_url_parts[["list_name"]] <- utils::URLdecode(str_extract(
-      parts[["path"]],
-      "(?<=/Lists/).+(?=/AllItems\\.asxp)"
-    ))
-  }
-
-  sp_url_parts[["site_url"]] <- paste0(
-    sp_url_parts[["base_url"]], "/sites/",
-    sp_url_parts[["site_name"]]
-  )
+  sp_url_parts[["site_url"]] <- sp_site_url_build(sp_url_parts)
 
   sp_url_parts
+}
+
+#' @noRd
+sp_site_url_build <- function(url) {
+  paste0(url[["base_url"]], "/sites/", url[["site_name"]])
 }
 
 #' @description
@@ -95,25 +83,28 @@ sp_url_parse <- function(url, call = caller_env()) {
 #' @rdname sp_url_parse
 #' @name sp_url_parse_hostname
 #' @export
+#' @importFrom httr2 url_parse
 sp_url_parse_hostname <- function(hostname,
                                   tenant = "[a-zA-Z0-9.-]+",
                                   scheme = "https") {
+  if (is_url(hostname)) {
+    hostname <- httr2::url_parse(hostname)[["hostname"]]
+  }
+
   parts <- str_match_list(
     hostname,
     pattern = glue("({tenant})\\.sharepoint\\.com"),
     nm = c("base_url", "tenant")
   )
 
-  parts[["base_url"]] <- paste0(
-    scheme, "://", parts[["base_url"]]
-  )
+  parts[["base_url"]] <- paste0(scheme, "://", parts[["base_url"]])
 
   parts
 }
 
 #' @description
-#' [sp_url_parse_hostname()] parses the hostname into a path into a url_type,
-#' permissions, site_name, file_path, and file.
+#' [sp_url_parse_path()] parses the path into a URL type, permissions, drive
+#' name, file path, and file name.
 #'
 #' @rdname sp_url_parse
 #' @name sp_url_parse_path
@@ -143,6 +134,8 @@ sp_url_parse_path <- function(path,
   parts[["drive_name"]] <- parts[["file_path"]] |>
     str_split_i(pattern = "/", i = 1)
 
+  parts[["drive_name"]] <- utils::URLdecode(parts[["drive_name"]])
+
   parts[["file_path"]] <- parts[["file_path"]] |>
     str_remove(paste0("^", parts[["drive_name"]], "/")) |>
     str_remove_slash(after = TRUE)
@@ -165,8 +158,7 @@ sp_url_parse_path <- function(path,
 }
 
 #' @description
-#' [sp_url_parse_hostname()] parses the query to turn the sourcedoc value into
-#' an item_id and return other query values as a named list.
+#' [sp_url_parse_query()] parses the item ID from a query.
 #'
 #' @rdname sp_url_parse
 #' @name sp_url_parse_query
@@ -186,7 +178,6 @@ sp_url_parse_query <- function(query) {
 }
 
 #' Helper to get matches from the path of a SharePoint URL
-#'
 #' @noRd
 #' @importFrom utils URLdecode
 str_match_sp_url_path <- function(path,
@@ -205,5 +196,54 @@ str_match_sp_url_path <- function(path,
       "(?:/(.+[/$])+)?(?:([^?]+))?"
     ),
     nm = nm
+  )
+}
+
+#' Helper for parsing a SharePoint List webview URL
+#' @noRd
+#' @importFrom stringr str_extract
+#' @importFrom utils URLdecode
+sp_webview_list_url_parse <- function(url) {
+  parts <- httr2::url_parse(url)
+
+  sp_url_parts <- sp_url_parse_hostname(parts[["hostname"]])
+
+  sp_url_parts[["site_name"]] <- stringr::str_extract(
+    parts[["path"]],
+    "(?<=/sites/)([:alnum:]|-)+(?=/)"
+  )
+
+  sp_url_parts[["list_name"]] <- stringr::str_extract(
+    parts[["path"]],
+    "(?<=/Lists/).+(?=/AllItems\\.aspx)"
+  )
+
+  sp_url_parts[["list_name"]] <- utils::URLdecode(sp_url_parts[["list_name"]])
+
+  sp_url_parts[["site_url"]] <- sp_site_url_build(sp_url_parts)
+
+  sp_url_parts
+}
+
+#' Helper for parsing a SharePoint site page URL
+#' @noRd
+#' @importFrom stringr str_remove
+sp_site_page_url_parse <- function(url) {
+  c(
+    sp_url_parse_hostname(url),
+    list(
+      "site_url" = stringr::str_remove(url, "/SitePages/[:graph:]+$"),
+      "page_name" = basename(url)
+    )
+  )
+}
+
+
+#' Helper for parsing a SharePoint site URL
+#' @noRd
+sp_site_url_parse <- function(url) {
+  c(
+    sp_url_parse_hostname(url),
+    list("site_url" = url)
   )
 }

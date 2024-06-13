@@ -3,6 +3,7 @@
 \name{is_sp_url}
 \alias{is_sp_url}
 \alias{is_sp_site_url}
+\alias{is_sp_site_page_url}
 \alias{is_sp_doc_url}
 \alias{is_sp_type_url}
 \alias{is_sp_folder_url}
@@ -11,6 +12,8 @@
 is_sp_url(x)
 
 is_sp_site_url(x)
+
+is_sp_site_page_url(x)
 
 is_sp_doc_url(x)
 

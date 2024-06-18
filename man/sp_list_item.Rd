@@ -19,6 +19,8 @@ list_sp_list_items(
   all_metadata = FALSE,
   as_data_frame = TRUE,
   pagesize = 5000,
+  names_from = "displayName",
+  name_repair = "unique",
   site_url = NULL,
   site = NULL,
   drive_name = NULL,
@@ -64,6 +66,7 @@ update_sp_list_item(
   list_id = NULL,
   sp_list = NULL,
   ...,
+  .fields = NULL,
   site_url = NULL,
   site = NULL,
   drive_name = NULL,
@@ -111,6 +114,12 @@ is always returned as a data frame.}
 
 \item{pagesize}{Number of list items to return. Reduce from default of 5000
 is experiencing timeouts.}
+
+\item{names_from}{Source for column names. Must be \code{"displayName"} (default)
+or \code{"name"}. Defaults value \code{"displayName"} uses display name values from
+list metadata for visible, non-read only columns.}
+
+\item{name_repair}{Defaults to  Passed to \code{repair} argument of \code{\link[vctrs:vec_as_names]{vctrs::vec_as_names()}}}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document

@@ -20,6 +20,10 @@ NULL
 #'   `as_data_frame = FALSE`.
 #' @param pagesize Number of list items to return. Reduce from default of 5000
 #'   is experiencing timeouts.
+#' @param names_from Source for column names. Must be `"displayName"` (default)
+#'   or `"name"`. Defaults value `"displayName"` uses display name values from
+#'   list metadata for visible, non-read only columns.
+#' @param name_repair Defaults to  Passed to `repair` argument of [vctrs::vec_as_names()]
 #' @export
 list_sp_list_items <- function(list_name = NULL,
                                list_id = NULL,
@@ -30,6 +34,8 @@ list_sp_list_items <- function(list_name = NULL,
                                all_metadata = FALSE,
                                as_data_frame = TRUE,
                                pagesize = 5000,
+                               names_from = "displayName",
+                               name_repair = "unique",
                                site_url = NULL,
                                site = NULL,
                                drive_name = NULL,
@@ -61,19 +67,87 @@ list_sp_list_items <- function(list_name = NULL,
       "{.arg all_metadata} can't be {.code TRUE} if
       {.code as_data_frame = FALSE}"
     )
+
+    all_metadata <- FALSE
   }
 
   cli::cli_progress_step(
     "Getting list items from SharePoint"
   )
 
-  sp_list$list_items(
+  sp_list_items <- sp_list$list_items(
     filter = filter,
     select = select,
     all_metadata = all_metadata,
     as_data_frame = as_data_frame,
     pagesize = pagesize
   )
+
+  names_from <- arg_match0(
+    names_from,
+    c("name", "displayName"),
+    error_call = call
+  )
+
+  # TODO: Add labels_from support
+  # if (!is.null(labels_from)) {
+  #   labels_from <- arg_match0(
+  #     labels_from,
+  #     c("name", "displayName"),
+  #     error_call = call
+  #   )
+  # }
+
+  if (names_from == "name") {
+    return(set_sp_data_names(sp_list_items, name_repair = name_repair, call = call))
+  }
+
+  # Get list item names
+  items_nm <- names(sp_list_items)
+
+  # Match names from items to list names
+  sp_list_meta <- get_sp_list_metadata(sp_list = sp_list, call = call)
+  sp_list_meta <- sp_list_meta[!sp_list_meta[["readOnly"]], ]
+  sp_list_names <- sp_list_meta[["name"]]
+  items_nm_match <- match(items_nm, sp_list_names)
+
+  # Drop unmatched and read only names
+  is_nm_match <- !is.na(items_nm_match)
+
+  # Insert display names into name vector
+  if (any(is_nm_match)) {
+    display_names <- sp_list_meta[["displayName"]]
+    items_nm[is_nm_match] <- display_names[items_nm_match[is_nm_match]]
+  }
+
+  set_sp_data_names(
+    sp_list_items,
+    nm = items_nm,
+    name_repair = name_repair,
+    call = call
+  )
+}
+
+#' @noRd
+set_sp_data_names <- function(data,
+                              nm = NULL,
+                              name_repair = "unique",
+                              repair_arg = "name_repair",
+                              call = caller_env()) {
+  if (is.null(name_repair)) {
+    return(data)
+  }
+
+  nm <- nm %||% names(data)
+
+  nm <- vctrs::vec_as_names(
+    nm,
+    repair = name_repair,
+    repair_arg = repair_arg,
+    call = call
+  )
+
+  set_names(data, nm = nm)
 }
 
 
@@ -118,8 +192,6 @@ get_sp_list_item <- function(id,
   )
 
   sp_list$get_item(id)
-
-  invisible(id)
 }
 
 #' @rdname sp_list_item
@@ -292,6 +364,7 @@ update_sp_list_item <- function(id,
                                 list_id = NULL,
                                 sp_list = NULL,
                                 ...,
+                                .fields = NULL,
                                 site_url = NULL,
                                 site = NULL,
                                 drive_name = NULL,
@@ -316,7 +389,11 @@ update_sp_list_item <- function(id,
     "Updating item {.val {id}}"
   )
 
-  sp_list$update_item(id, ...)
+  sp_list_item <- get_sp_list_item(id = id, sp_list = sp_list)
+
+  .fields <- .fields %||% list2(...)
+
+  sp_list_item$update(fields = .fields)
 
   invisible(id)
 }

@@ -32,7 +32,8 @@ Suggests:
     rmarkdown,
     sf,
     testthat (>= 3.0.0),
-    withr
+    withr,
+    xml2
 VignetteBuilder: 
     knitr
 Config/testthat/edition: 3

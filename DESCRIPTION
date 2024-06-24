@@ -1,7 +1,7 @@
 Type: Package
 Package: sharepointr
 Title: Read and Write from SharePoint Sites
-Version: 0.1.0
+Version: 0.1.0.9000
 Authors@R: 
     person("Eli", "Pousson", , "eli.pousson@gmail.com", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0001-8280-1706"))

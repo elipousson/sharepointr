@@ -2,6 +2,7 @@
 % Please edit documentation in R/write_sharepoint.R
 \name{upload_sp_item}
 \alias{upload_sp_item}
+\alias{upload_sp_items}
 \title{Upload a file or folder to a SharePoint Drive}
 \usage{
 upload_sp_item(
@@ -18,6 +19,8 @@ upload_sp_item(
   parallel = FALSE,
   call = caller_env()
 )
+
+upload_sp_items(file = NULL, dest, ..., src = NULL, call = caller_env())
 }
 \arguments{
 \item{file}{Path for file or directory to upload. Optional if \code{src} is

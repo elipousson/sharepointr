@@ -1,3 +1,12 @@
+#' @noRd
+sp_url_as_src_dest <- function(url, src, call = caller_env()) {
+  sp_url_parts <- sp_url_parse(url, call = call)
+  file_path <- sp_url_parts[["file_path"]] |>
+    str_remove_slash()
+
+  str_c_url(file_path, basename(src))
+}
+
 #' Write an object to file and upload file to SharePoint
 #'
 #' @description
@@ -166,6 +175,79 @@ upload_sp_item <- function(file = NULL,
     }
   }
 
+  upload_sp_src(
+    src = src,
+    dest = dest,
+    drive = drive,
+    overwrite = overwrite,
+    blocksize = blocksize,
+    recursive = recursive,
+    parallel = parallel,
+    call = call
+  )
+}
+
+#' @rdname upload_sp_item
+#' @export
+upload_sp_items <- function(file = NULL,
+                            dest,
+                            ...,
+                            src = NULL,
+                            call = caller_env()) {
+  if (!is_character(src)) {
+    if (!is_character(file)) {
+      cli_abort(
+        "One of {.arg file} or {.arg src} must be a character vector",
+        call = call
+      )
+    }
+
+    src <- file
+  }
+
+  check_character(file, call = call)
+
+  if (is_url(dest) && has_length(dest, 1)) {
+    dest <- map_chr(
+      src,
+      \(x) {
+        sp_url_as_src_dest(
+          url = dest,
+          src = x
+        )
+      }
+    )
+  }
+
+  dest <- vctrs::vec_recycle(
+    dest,
+    size = length(src)
+  )
+
+  dest_list <- map2_chr(
+    src, dest,
+    \(x, y) {
+      upload_sp_src(
+        src = x,
+        dest = y,
+        ...,
+        call = call
+      )
+    }
+  )
+
+  invisible(dest_list)
+}
+
+#' @noRd
+upload_sp_src <- function(src,
+                          dest = NULL,
+                          drive = NULL,
+                          blocksize = 327680000,
+                          recursive = FALSE,
+                          parallel = FALSE,
+                          overwrite = FALSE,
+                          call = caller_env()) {
   if (dir.exists(src)) {
     cli_progress_step(
       msg = "Uploading directory to SharePoint drive",

@@ -28,7 +28,7 @@ list_sp_item_versions <- function(...,
     ms_obj_list_as_data_frame(
       obj_col = "versions"
     ) |>
-    fmt_sp_lastModifiedBy()
+    fmt_sp_list_col()
 
   # FIXME: Figure out how/if to preserve the odata.context URL
   # attributes(sp_item_versions_data) <- set_names(
@@ -44,7 +44,14 @@ list_sp_item_versions <- function(...,
 }
 
 #' @noRd
-fmt_sp_lastModifiedBy <- function(data) {
+fmt_sp_list_col <- function(data, col = "lastModifiedBy") {
   check_data_frame(data)
-  vctrs::vec_rbind(!!!data[["lastModifiedBy"]])
+
+  list_col <- data[[col]]
+  data[[col]] <- NULL
+
+  vctrs::vec_cbind(
+    data,
+    vctrs::vec_rbind(!!!list_col)
+  )
 }

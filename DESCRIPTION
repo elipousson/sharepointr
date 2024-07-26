@@ -6,7 +6,7 @@ Authors@R:
     person("Eli", "Pousson", , "eli.pousson@gmail.com", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0001-8280-1706"))
 Maintainer: Eli Pousson <eli.pousson@gmail.com>
-Description: A R package extending {Microsoft365R} to make it easier to
+Description: A R package extending Microsoft365R to make it easier to
     read, write, and work with SharePoint items, lists, and plans.
 License: MIT + file LICENSE
 URL: https://github.com/elipousson/sharepointr,
@@ -39,4 +39,4 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2

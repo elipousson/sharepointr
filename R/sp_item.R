@@ -18,6 +18,8 @@
 #'   `drive_name` and the `item_id` is extracted from the URL.
 #' @param item_id A SharePoint item ID passed to the `itemid` parameter of the
 #'   `get_item` method for `ms_drive` objects.
+#' @param item_url A SharePoint item URL used to parse the item ID, drive name,
+#'   and site URL.
 #' @inheritDotParams get_sp_drive -properties
 #' @param drive_name,drive_id SharePoint drive name or ID.
 #' @param drive A `ms_drive` object. If drive is supplied, `drive_name`,
@@ -231,7 +233,7 @@ delete_sp_item <- function(path = NULL,
 #' path).
 #'
 #' Note, if the selected item is a folder and `recurse = TRUE`, it may
-#' take some time to download the enclosed items and {Microsoft365R} does not
+#' take some time to download the enclosed items and `{Microsoft365R}` does not
 #' provide a progress bar for that operation.
 #'
 #' @name download_sp_item
@@ -554,6 +556,7 @@ batch_download_sp_item <- function(path = NULL,
 #' @inheritDotParams get_sp_list
 #' @inheritParams ms_obj_as_data_frame
 download_sp_list <- function(...,
+                             new_path = "",
                              sp_list = NULL,
                              fileext = "csv",
                              keep_list_cols = c("createdBy", "lastModifiedBy"),
@@ -567,25 +570,27 @@ download_sp_list <- function(...,
     obj_col = "ms_list",
     keep_list_cols = keep_list_cols,
     .error_call = call
-  )
+  ) |>
+    fmt_sp_list_col()
 
-  # FIXME: Take a closer look at why this is needed
-  if ((new_path == "") || is.null(new_path)) {
-    if (is_empty(dest) || dest == "") {
-      dest <- NULL
-    }
-
-    dest <- dest %||% item$properties$name
-  } else {
-    dest <- dest %||% sp_file_dest(file = path, path = new_path)
+  if (new_path == "") {
+    new_path <- NULL
   }
 
+  list_filename <- paste0(sp_list[["properties"]][["name"]], ".", fileext)
+
+  if (is_installed("fs")) {
+    list_filename <- fs::path_sanitize(list_filename)
+  }
+
+  new_path <- new_path %||% list_filename
+
   # TODO: Add option to write list directly to Google Sheets
-  if (!stringr::str_detect(file, ".xlsx$")) {
+  if (stringr::str_detect(new_path, "csv$")) {
     check_installed("readr", call = call)
-    readr::write_csv(x, file = file, ...)
-  } else if (stringr::str_detect(file, ".xlsx$")) {
+    readr::write_csv(sp_list_df, file = new_path, ...)
+  } else if (stringr::str_detect(new_path, ".xlsx$")) {
     check_installed("openxlsx2", call = call)
-    openxlsx2::write_xlsx(x, file = file, ...)
+    openxlsx2::write_xlsx(sp_list_df, file = new_path, ...)
   }
 }

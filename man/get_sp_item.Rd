@@ -43,6 +43,9 @@ is a document URL, the \code{default_drive_name} argument is used as the
 \item{item_id}{A SharePoint item ID passed to the \code{itemid} parameter of the
 \code{get_item} method for \code{ms_drive} objects.}
 
+\item{item_url}{A SharePoint item URL used to parse the item ID, drive name,
+and site URL.}
+
 \item{...}{
   Arguments passed on to \code{\link[=get_sp_drive]{get_sp_drive}}
   \describe{

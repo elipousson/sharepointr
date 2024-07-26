@@ -6,6 +6,7 @@
 \usage{
 download_sp_list(
   ...,
+  new_path = "",
   sp_list = NULL,
   fileext = "csv",
   keep_list_cols = c("createdBy", "lastModifiedBy"),

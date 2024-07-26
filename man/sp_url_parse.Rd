@@ -42,7 +42,7 @@ SharePoint document editor URL:
 
 https://[tenant].sharepoint.com/:[url
 type]:/[permissions]/sites/[site
-name]/_layouts/15/Doc.aspx?sourcedoc={[item id]}&file=[file
+name]/_layouts/15/Doc.aspx?sourcedoc=\{[item id]\}&file=[file
 name]&[additional query parameters]
 
 SharePoint List URL:

@@ -18,6 +18,8 @@ is a document URL, the \code{default_drive_name} argument is used as the
 \code{drive_name} and the \code{item_id} is extracted from the URL.}
     \item{\code{item_id}}{A SharePoint item ID passed to the \code{itemid} parameter of the
 \code{get_item} method for \code{ms_drive} objects.}
+    \item{\code{item_url}}{A SharePoint item URL used to parse the item ID, drive name,
+and site URL.}
     \item{\code{drive_name,drive_id}}{SharePoint drive name or ID.}
     \item{\code{drive}}{A \code{ms_drive} object. If drive is supplied, \code{drive_name},
 \code{site_url}, and any additional parameters passed to \code{...} are ignored.}

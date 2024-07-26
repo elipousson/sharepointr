@@ -51,6 +51,9 @@ return a \code{ms_item} or \code{ms_item_properties} object.}
 \item{item_id}{A SharePoint item ID passed to the \code{itemid} parameter of the
 \code{get_item} method for \code{ms_drive} objects.}
 
+\item{item_url}{A SharePoint item URL used to parse the item ID, drive name,
+and site URL.}
+
 \item{item}{A \code{ms_drive_item} class object. Optional if path or other
 parameters to get an SharePoint item are supplied.}
 
@@ -88,7 +91,7 @@ identical except for the name of the path parameter (which is file instead of
 path).
 
 Note, if the selected item is a folder and \code{recurse = TRUE}, it may
-take some time to download the enclosed items and {Microsoft365R} does not
+take some time to download the enclosed items and \code{{Microsoft365R}} does not
 provide a progress bar for that operation.
 }
 \section{Batch downloads for SharePoint items}{

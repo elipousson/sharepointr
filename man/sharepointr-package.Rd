@@ -6,7 +6,7 @@
 \alias{sharepointr-package}
 \title{sharepointr: Read and Write from SharePoint Sites}
 \description{
-A R package extending {Microsoft365R} to make it easier to read, write, and work with SharePoint items, lists, and plans.
+A R package extending Microsoft365R to make it easier to read, write, and work with SharePoint items, lists, and plans.
 }
 \seealso{
 Useful links:

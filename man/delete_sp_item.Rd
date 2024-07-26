@@ -46,6 +46,9 @@ return a \code{ms_item} or \code{ms_item_properties} object.}
 \item{item_id}{A SharePoint item ID passed to the \code{itemid} parameter of the
 \code{get_item} method for \code{ms_drive} objects.}
 
+\item{item_url}{A SharePoint item URL used to parse the item ID, drive name,
+and site URL.}
+
 \item{item}{A \code{ms_drive_item} class object. Optional if path or other
 parameters to get an SharePoint item are supplied.}
 

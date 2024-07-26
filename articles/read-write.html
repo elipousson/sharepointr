@@ -85,10 +85,10 @@ folders from SharePoint:</p>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>ℹ Downloading SharePoint item to</span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; '/var/folders/3f/50m42dx1333_dfqb5772j6_4…</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; '/var/folders/3f/50m42dx1…</span></span>
 <span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; Error: Path exists and overwrite is FALSE</span></span>
 <span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>✖ Downloading SharePoint item to <span class="st">'/var/folders/3f/50m42dx1333_dfqb5772j6_4…</span></span></code></pre></div>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>✖ Downloading SharePoint item to <span class="st">'/var/folders/3f/50m42dx1…</span></span></code></pre></div>
 <p>For files on SharePoint, <code><a href="../reference/read_sharepoint.html">read_sharepoint()</a></code> extends
 <code><a href="../reference/download_sp_item.html">download_sp_item()</a></code> by downloading the selected item to a
 temporary folder by default and, depending on the file extension, tries
@@ -97,47 +97,61 @@ to read the file using <a href="https://readr.tidyverse.org" class="external-lin
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>docx <span class="ot">&lt;-</span> <span class="fu">read_sharepoint</span>(docx_url)</span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>ℹ Downloading SharePoint item to <span class="st">'/var/folders/3f/50m42dx1333_dfqb5772j6_4…</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>ℹ Downloading SharePoint item to <span class="st">'/var/folders/3f/50m42dx1…</span></span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="st">✔ Downloading SharePoint item to '</span><span class="sc">/</span>var<span class="sc">/</span>folders<span class="sc">/</span><span class="dv">3</span>f<span class="sc">/</span><span class="dv">50</span>m42dx1333_dfqb5772j6_4…</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="st">✔ Downloading SharePoint item to '</span><span class="sc">/</span>var<span class="sc">/</span>folders<span class="sc">/</span><span class="dv">3</span>f<span class="sc">/</span><span class="dv">50</span>m42dx1…</span>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>ℹ Reading item with <span class="st">`</span><span class="at">officer::read_docx()</span><span class="st">`</span></span>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>✔ Reading item with <span class="st">`</span><span class="at">officer::read_docx()</span><span class="st">`</span> [<span class="dv">37</span>ms]</span></code></pre></div>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>✔ Reading item with <span class="st">`</span><span class="at">officer::read_docx()</span><span class="st">`</span> [<span class="dv">44</span>ms]</span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">docx</span></span>
 <span><span class="co">#&gt; rdocx document with 62 element(s)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; * styles:</span></span>
-<span><span class="co">#&gt;                 Normal              heading 1              heading 2 </span></span>
-<span><span class="co">#&gt;            "paragraph"            "paragraph"            "paragraph" </span></span>
-<span><span class="co">#&gt; Default Paragraph Font           Normal Table                No List </span></span>
-<span><span class="co">#&gt;            "character"                "table"            "numbering" </span></span>
-<span><span class="co">#&gt;         Heading 1 Char             Table Grid         List Paragraph </span></span>
-<span><span class="co">#&gt;            "character"                "table"            "paragraph" </span></span>
-<span><span class="co">#&gt;         Heading 2 Char                  Title             Title Char </span></span>
-<span><span class="co">#&gt;            "character"            "paragraph"            "character" </span></span>
-<span><span class="co">#&gt;           Normal (Web)                 header            Header Char </span></span>
-<span><span class="co">#&gt;            "paragraph"            "paragraph"            "character" </span></span>
-<span><span class="co">#&gt;                 footer            Footer Char          markedcontent </span></span>
-<span><span class="co">#&gt;            "paragraph"            "character"            "character" </span></span>
-<span><span class="co">#&gt;            TOC Heading                  toc 1                  toc 2 </span></span>
-<span><span class="co">#&gt;            "paragraph"            "paragraph"            "paragraph" </span></span>
-<span><span class="co">#&gt;              Hyperlink                  toc 3                  toc 4 </span></span>
-<span><span class="co">#&gt;            "character"            "paragraph"            "paragraph" </span></span>
-<span><span class="co">#&gt;                  toc 5                  toc 6                  toc 7 </span></span>
-<span><span class="co">#&gt;            "paragraph"            "paragraph"            "paragraph" </span></span>
-<span><span class="co">#&gt;                  toc 8                  toc 9     Unresolved Mention </span></span>
-<span><span class="co">#&gt;            "paragraph"            "paragraph"            "character" </span></span>
-<span><span class="co">#&gt;      FollowedHyperlink               Revision    Unresolved Mention1 </span></span>
-<span><span class="co">#&gt;            "character"            "paragraph"            "character" </span></span>
-<span><span class="co">#&gt;   annotation reference        annotation text      Comment Text Char </span></span>
-<span><span class="co">#&gt;            "character"            "paragraph"            "character" </span></span>
-<span><span class="co">#&gt;     annotation subject   Comment Subject Char           Balloon Text </span></span>
-<span><span class="co">#&gt;            "paragraph"            "character"            "paragraph" </span></span>
-<span><span class="co">#&gt;      Balloon Text Char          footnote text     Footnote Text Char </span></span>
-<span><span class="co">#&gt;            "character"            "paragraph"            "character" </span></span>
+<span><span class="co">#&gt;                 Normal              heading 1 </span></span>
+<span><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
+<span><span class="co">#&gt;              heading 2 Default Paragraph Font </span></span>
+<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span><span class="co">#&gt;           Normal Table                No List </span></span>
+<span><span class="co">#&gt;                "table"            "numbering" </span></span>
+<span><span class="co">#&gt;         Heading 1 Char             Table Grid </span></span>
+<span><span class="co">#&gt;            "character"                "table" </span></span>
+<span><span class="co">#&gt;         List Paragraph         Heading 2 Char </span></span>
+<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span><span class="co">#&gt;                  Title             Title Char </span></span>
+<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span><span class="co">#&gt;           Normal (Web)                 header </span></span>
+<span><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
+<span><span class="co">#&gt;            Header Char                 footer </span></span>
+<span><span class="co">#&gt;            "character"            "paragraph" </span></span>
+<span><span class="co">#&gt;            Footer Char          markedcontent </span></span>
+<span><span class="co">#&gt;            "character"            "character" </span></span>
+<span><span class="co">#&gt;            TOC Heading                  toc 1 </span></span>
+<span><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
+<span><span class="co">#&gt;                  toc 2              Hyperlink </span></span>
+<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span><span class="co">#&gt;                  toc 3                  toc 4 </span></span>
+<span><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
+<span><span class="co">#&gt;                  toc 5                  toc 6 </span></span>
+<span><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
+<span><span class="co">#&gt;                  toc 7                  toc 8 </span></span>
+<span><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
+<span><span class="co">#&gt;                  toc 9     Unresolved Mention </span></span>
+<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span><span class="co">#&gt;      FollowedHyperlink               Revision </span></span>
+<span><span class="co">#&gt;            "character"            "paragraph" </span></span>
+<span><span class="co">#&gt;    Unresolved Mention1   annotation reference </span></span>
+<span><span class="co">#&gt;            "character"            "character" </span></span>
+<span><span class="co">#&gt;        annotation text      Comment Text Char </span></span>
+<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span><span class="co">#&gt;     annotation subject   Comment Subject Char </span></span>
+<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span><span class="co">#&gt;           Balloon Text      Balloon Text Char </span></span>
+<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span><span class="co">#&gt;          footnote text     Footnote Text Char </span></span>
+<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
 <span><span class="co">#&gt;     footnote reference </span></span>
 <span><span class="co">#&gt;            "character" </span></span>
 <span><span class="co">#&gt; </span></span>
@@ -160,7 +174,7 @@ SharePoint folder or document library.</p>
 <span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>ℹ Uploading file <span class="st">'nc.gpkg'</span> to SharePoint drive</span>
 <span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>✔ File upload complete [<span class="fl">1.1</span>s]                 </span></code></pre></div>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>✔ File upload complete [<span class="fl">1.9</span>s]                 </span></code></pre></div>
 <p>Using <code><a href="../reference/read_sharepoint.html">read_sharepoint()</a></code>, we can confirm that the file
 has been uploaded:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -173,18 +187,18 @@ has been uploaded:</p>
 <span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>)</span>
 <span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>ℹ Downloading SharePoint item to</span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; '/var/folders/3f/50m42dx1333_dfqb5772j6_4…</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; '/var/folders/3f/50m42dx1…</span></span>
 <span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>✔ Downloading SharePoint item to <span class="st">'/var/folders/3f/50m42dx1333_dfqb5772j6_4…</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>✔ Downloading SharePoint item to <span class="st">'/var/folders/3f/50m42dx1…</span></span>
 <span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="st">#&gt; </span></span>
 <span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="st">ℹ Reading item with `sf::read_sf()`</span></span>
 <span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a></span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="st">✔ Reading item with `sf::read_sf()` [29ms]</span></span></code></pre></div>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="st">✔ Reading item with `sf::read_sf()` [27ms]</span></span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">nc</span><span class="op">[</span><span class="st">"AREA"</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="figure/unnamed-chunk-20-1.png" alt="plot of chunk unnamed-chunk-20"><div class="figcaption">plot of chunk unnamed-chunk-20</div>
+<img src="figure/nc_plot-1.png" alt="plot of chunk nc_plot"><div class="figcaption">plot of chunk nc_plot</div>
 </div>
 <p><code><a href="../reference/write_sharepoint.html">write_sharepoint()</a></code> extends <code><a href="../reference/upload_sp_item.html">upload_sp_item()</a></code>
 by allowing you to pass an R object instead of a file path. Like
@@ -200,7 +214,7 @@ output function based on the object class.</p>
 <span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>ℹ Uploading file <span class="st">'mtcars.csv'</span> to SharePoint drive</span>
 <span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>✔ File upload complete [<span class="fl">1.1</span>s]                    </span></code></pre></div>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>✔ File upload complete [<span class="dv">970</span>ms]                   </span></code></pre></div>
 <p>To wrap up this example, we need to remove the uploaded files from
 SharePoint to keep a tidy shared file system.</p>
 <p><code><a href="../reference/delete_sp_item.html">delete_sp_item()</a></code> supports the option to use a shared
@@ -220,6 +234,50 @@ filepath:</p>
 <span>  drive <span class="op">=</span> <span class="va">sp_drive</span>,</span>
 <span>  confirm <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="listing-files">Listing files<a class="anchor" aria-label="anchor" href="#listing-files"></a>
+</h2>
+<p>If you do not know the URL or file path for an item on SharePoint you
+can also use the directory info functions to list items typically using
+the <code><a href="../reference/sp_dir_info.html">sp_dir_info()</a></code> function. This function supports
+recursive listings but this can be slow depending on the number of items
+in the SharePoint library.</p>
+<p>This last example is not computed but it shows how to list and remove
+empty nested directories left over from a failed manual import;</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># List directories</span></span>
+<span><span class="va">dir_info</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sp_dir_info.html">sp_dir_info</a></span><span class="op">(</span><span class="st">"&lt;SharePoint Folder URL&gt;"</span>, type <span class="op">=</span> <span class="st">"directory"</span>, recurse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Filter to empty directories and sort by depth</span></span>
+<span><span class="va">empty_dirs</span> <span class="op">&lt;-</span> <span class="va">dir_info</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">size</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span></span>
+<span>    path_depth <span class="op">=</span> <span class="fu">str_count</span><span class="op">(</span><span class="va">name</span>, <span class="st">"/"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="va">path_depth</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Get drive</span></span>
+<span><span class="va">drive</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sp_drive.html">get_sp_drive</a></span><span class="op">(</span></span>
+<span>  drive_name <span class="op">=</span> <span class="st">"&lt;SharePoint Document Library Name&gt;"</span>,</span>
+<span>  site_url <span class="op">=</span> <span class="st">"&lt;SharePoint Site URL&gt;"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Delete empty directories and skip confirmation</span></span>
+<span><span class="fu">walk</span><span class="op">(</span></span>
+<span>  <span class="va">empty_dirs</span><span class="op">[[</span><span class="st">"id"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>  \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="../reference/delete_sp_item.html">delete_sp_item</a></span><span class="op">(</span></span>
+<span>      item_id <span class="op">=</span> <span class="va">x</span>,</span>
+<span>      drive <span class="op">=</span> <span class="va">drive</span>,</span>
+<span>      confirm <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Overall, the intent of this package is to maximize flexibility in how
+and where you read and write files from SharePoint. Suggestions are
+welcome so please share your own tips on working with the Microsoft
+SharePoint API and the <a href="https://github.com/Azure/Microsoft365R" class="external-link">Microsoft365R</a> package.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

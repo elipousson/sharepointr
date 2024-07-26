@@ -9,7 +9,8 @@ list_sp_pages(
   ...,
   site = NULL,
   page_type = c("sitePage", "page"),
-  as_data_frame = TRUE
+  as_data_frame = TRUE,
+  call = caller_env()
 )
 
 get_sp_page(page_url = NULL, page_id = NULL, ..., site = NULL)
@@ -40,7 +41,10 @@ the same \code{cache_file} name already exists.}
   }}
 
 \item{page_type}{c("sitePage", "page")}
+
+\item{page_url, page_id}{SharePoint page URL or ID.}
 }
 \description{
-List SharePoint pages or get a single SharePoint page
+\code{\link[=list_sp_pages]{list_sp_pages()}} returns a list of SharePoint pages associated with s
+specified SharePoint site. \code{\link[=get_sp_page]{get_sp_page()}} returns a single SharePoint page.
 }

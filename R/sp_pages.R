@@ -1,15 +1,19 @@
 #' List SharePoint pages or get a single SharePoint page
 #'
+#' [list_sp_pages()] returns a list of SharePoint pages associated with s
+#' specified SharePoint site. [get_sp_page()] returns a single SharePoint page.
+#'
 #' @param page_type c("sitePage", "page")
 #' @inheritDotParams get_sp_site
 #' @export
 list_sp_pages <- function(...,
                           site = NULL,
                           page_type = c("sitePage", "page"),
-                          as_data_frame = TRUE) {
-  sp_site <- site %||% get_sp_site(...)
+                          as_data_frame = TRUE,
+                          call = caller_env()) {
+  sp_site <- site %||% get_sp_site(..., call = call)
 
-  page_type <- arg_match(page_type)
+  page_type <- arg_match(page_type, error_call = call)
 
   op <- switch(page_type,
     "page" = "pages",
@@ -25,10 +29,12 @@ list_sp_pages <- function(...,
   sp_pages[["value"]] |>
     ms_obj_list_as_data_frame(
       obj_col = "ms_page",
-      keep_list_cols = "createdBy"
+      keep_list_cols = "createdBy",
+      .error_call = call
     )
 }
 
+#' @param page_url,page_id SharePoint page URL or ID.
 #' @rdname list_sp_pages
 #' @export
 get_sp_page <- function(page_url = NULL, page_id = NULL, ..., site = NULL) {

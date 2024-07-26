@@ -1,114 +1,41 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/404.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/articles/sp_url.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/index.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/AzureR_config.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/cache_ms_obj.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/delete_sp_item.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/download_sp_item.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/download_sp_list.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/get_sp_group.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/get_sp_item.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/is_sp_url.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/list_sp_drives.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/list_sp_item_versions.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/list_sp_pages.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/ms_graph_arg_terms.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/ms_graph_obj_terms.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/ms_obj_as_data_frame.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/read_sharepoint.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/sharepointr-package.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/sp_dir_create.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/sp_dir_info.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/sp_drive.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/sp_list.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/sp_list_item.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/sp_plan.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/sp_plan_bucket.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/sp_site.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/sp_tasks.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/sp_url_parse.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/upload_sp_item.html</loc>
-  </url>
-  <url>
-    <loc>https://elipousson.github.io/sharepointr/reference/write_sharepoint.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://elipousson.github.io/sharepointr/404.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/LICENSE-text.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/LICENSE.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/articles/index.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/articles/read-write.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/articles/sp_url.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/authors.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/index.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/news/index.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/AzureR_config.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/cache_ms_obj.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/delete_sp_item.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/download_sp_item.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/download_sp_list.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/get_sp_group.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/get_sp_item.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/index.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/is_sp_url.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/list_sp_drives.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/list_sp_item_versions.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/list_sp_pages.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/ms_graph_arg_terms.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/ms_graph_obj_terms.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/ms_obj_as_data_frame.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/read_sharepoint.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/sharepointr-package.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/sp_dir_create.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/sp_dir_info.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/sp_drive.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/sp_list.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/sp_list_item.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/sp_plan.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/sp_plan_bucket.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/sp_site.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/sp_tasks.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/sp_url_parse.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/upload_sp_item.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/write_sharepoint.html</loc></url>
 </urlset>
+

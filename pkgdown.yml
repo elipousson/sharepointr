@@ -1,10 +1,10 @@
 pandoc: 3.1.11
-pkgdown: 2.0.9
+pkgdown: 2.1.0
 pkgdown_sha: ~
 articles:
-  sp_url: sp_url.html
-last_built: 2024-06-24T17:56Z
+  articles/read-write: read-write.html
+  articles/sp_url: sp_url.html
+last_built: 2024-07-26T02:13Z
 urls:
   reference: https://elipousson.github.io/sharepointr/reference
   article: https://elipousson.github.io/sharepointr/articles
-

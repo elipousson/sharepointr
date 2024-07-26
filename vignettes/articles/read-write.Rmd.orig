@@ -51,7 +51,7 @@ upload_sp_item(
 
 Using `read_sharepoint()`, we can confirm that the file has been uploaded:
 
-```{r}
+```{r nc_plot}
 sp_drive <- get_sp_drive(folder_url)
 
 nc <- read_sharepoint(
@@ -90,4 +90,43 @@ delete_sp_item(
   confirm = FALSE
 )
 ```
+
+## Listing files
+
+If you do not know the URL or file path for an item on SharePoint you can also use the directory info functions to list items typically using the `sp_dir_info()` function. This function supports recursive listings but this can be slow depending on the number of items in the SharePoint library.
+
+This last example is not computed but it shows how to list and remove empty nested directories left over from a failed manual import;
+
+```{r delete_empty_dirs, eval = FALSE}
+# List directories
+dir_info <- sp_dir_info("<SharePoint Folder URL>", type = "directory", recurse = TRUE)
+
+# Filter to empty directories and sort by depth
+empty_dirs <- dir_info |>
+  filter(size == 0) |>
+  mutate(
+    path_depth = str_count(name, "/")
+  ) |>
+  arrange(desc(path_depth))
+
+# Get drive
+drive <- get_sp_drive(
+  drive_name = "<SharePoint Document Library Name>",
+  site_url = "<SharePoint Site URL>"
+)
+
+# Delete empty directories and skip confirmation
+walk(
+  empty_dirs[["id"]],
+  \(x) {
+    delete_sp_item(
+      item_id = x,
+      drive = drive,
+      confirm = FALSE
+    )
+  }
+)
+```
+
+Overall, the intent of this package is to maximize flexibility in how and where you read and write files from SharePoint. Suggestions are welcome so please share your own tips on working with the Microsoft SharePoint API and the `{Microsoft365R}` package.
 

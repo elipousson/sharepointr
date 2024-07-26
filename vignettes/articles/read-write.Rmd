@@ -25,9 +25,9 @@ download_sp_item(
 )
 #> Loading Microsoft Graph login for default tenant
 #> ℹ Downloading SharePoint item to
-#> '/var/folders/3f/50m42dx1333_dfqb5772j6_4…
+#> '/var/folders/3f/50m42dx1…
 #> Error: Path exists and overwrite is FALSE
-#> ✖ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_4…
+#> ✖ Downloading SharePoint item to '/var/folders/3f/50m42dx1…
 ```
 
 For files on SharePoint, `read_sharepoint()` extends `download_sp_item()` by downloading the selected item to a temporary folder by default and, depending on the file extension, tries to read the file using `{readr}`, `{readxl}`, `{officer}`, or `{sf}`.
@@ -36,8 +36,8 @@ For files on SharePoint, `read_sharepoint()` extends `download_sp_item()` by dow
 ``` r
 docx <- read_sharepoint(docx_url)
 #> Loading Microsoft Graph login for default tenant
-#> ℹ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_4…✔ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_4…
-#> ℹ Reading item with `officer::read_docx()`✔ Reading item with `officer::read_docx()` [37ms]
+#> ℹ Downloading SharePoint item to '/var/folders/3f/50m42dx1…✔ Downloading SharePoint item to '/var/folders/3f/50m42dx1…
+#> ℹ Reading item with `officer::read_docx()`✔ Reading item with `officer::read_docx()` [44ms]
 ```
 
 ``` r
@@ -46,34 +46,48 @@ docx
 #> rdocx document with 62 element(s)
 #> 
 #> * styles:
-#>                 Normal              heading 1              heading 2 
-#>            "paragraph"            "paragraph"            "paragraph" 
-#> Default Paragraph Font           Normal Table                No List 
-#>            "character"                "table"            "numbering" 
-#>         Heading 1 Char             Table Grid         List Paragraph 
-#>            "character"                "table"            "paragraph" 
-#>         Heading 2 Char                  Title             Title Char 
-#>            "character"            "paragraph"            "character" 
-#>           Normal (Web)                 header            Header Char 
-#>            "paragraph"            "paragraph"            "character" 
-#>                 footer            Footer Char          markedcontent 
-#>            "paragraph"            "character"            "character" 
-#>            TOC Heading                  toc 1                  toc 2 
-#>            "paragraph"            "paragraph"            "paragraph" 
-#>              Hyperlink                  toc 3                  toc 4 
-#>            "character"            "paragraph"            "paragraph" 
-#>                  toc 5                  toc 6                  toc 7 
-#>            "paragraph"            "paragraph"            "paragraph" 
-#>                  toc 8                  toc 9     Unresolved Mention 
-#>            "paragraph"            "paragraph"            "character" 
-#>      FollowedHyperlink               Revision    Unresolved Mention1 
-#>            "character"            "paragraph"            "character" 
-#>   annotation reference        annotation text      Comment Text Char 
-#>            "character"            "paragraph"            "character" 
-#>     annotation subject   Comment Subject Char           Balloon Text 
-#>            "paragraph"            "character"            "paragraph" 
-#>      Balloon Text Char          footnote text     Footnote Text Char 
-#>            "character"            "paragraph"            "character" 
+#>                 Normal              heading 1 
+#>            "paragraph"            "paragraph" 
+#>              heading 2 Default Paragraph Font 
+#>            "paragraph"            "character" 
+#>           Normal Table                No List 
+#>                "table"            "numbering" 
+#>         Heading 1 Char             Table Grid 
+#>            "character"                "table" 
+#>         List Paragraph         Heading 2 Char 
+#>            "paragraph"            "character" 
+#>                  Title             Title Char 
+#>            "paragraph"            "character" 
+#>           Normal (Web)                 header 
+#>            "paragraph"            "paragraph" 
+#>            Header Char                 footer 
+#>            "character"            "paragraph" 
+#>            Footer Char          markedcontent 
+#>            "character"            "character" 
+#>            TOC Heading                  toc 1 
+#>            "paragraph"            "paragraph" 
+#>                  toc 2              Hyperlink 
+#>            "paragraph"            "character" 
+#>                  toc 3                  toc 4 
+#>            "paragraph"            "paragraph" 
+#>                  toc 5                  toc 6 
+#>            "paragraph"            "paragraph" 
+#>                  toc 7                  toc 8 
+#>            "paragraph"            "paragraph" 
+#>                  toc 9     Unresolved Mention 
+#>            "paragraph"            "character" 
+#>      FollowedHyperlink               Revision 
+#>            "character"            "paragraph" 
+#>    Unresolved Mention1   annotation reference 
+#>            "character"            "character" 
+#>        annotation text      Comment Text Char 
+#>            "paragraph"            "character" 
+#>     annotation subject   Comment Subject Char 
+#>            "paragraph"            "character" 
+#>           Balloon Text      Balloon Text Char 
+#>            "paragraph"            "character" 
+#>          footnote text     Footnote Text Char 
+#>            "paragraph"            "character" 
 #>     footnote reference 
 #>            "character" 
 #> 
@@ -95,7 +109,7 @@ upload_sp_item(
   dest = folder_url
 )
 #> Loading Microsoft Graph login for default tenant
-#> ℹ Uploading file 'nc.gpkg' to SharePoint drive✔ File upload complete [1.1s]                 
+#> ℹ Uploading file 'nc.gpkg' to SharePoint drive✔ File upload complete [1.9s]                 
 ```
 
 Using `read_sharepoint()`, we can confirm that the file has been uploaded:
@@ -113,9 +127,9 @@ nc <- read_sharepoint(
   drive = sp_drive
 )
 #> ℹ Downloading SharePoint item to
-#> '/var/folders/3f/50m42dx1333_dfqb5772j6_4…
-#> ✔ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_4…
-#> ℹ Reading item with `sf::read_sf()`✔ Reading item with `sf::read_sf()` [29ms]
+#> '/var/folders/3f/50m42dx1…
+#> ✔ Downloading SharePoint item to '/var/folders/3f/50m42dx1…
+#> ℹ Reading item with `sf::read_sf()`✔ Reading item with `sf::read_sf()` [27ms]
 ```
 
 ``` r
@@ -123,7 +137,7 @@ nc <- read_sharepoint(
 plot(nc["AREA"])
 ```
 
-![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-20-1.png)
+![plot of chunk nc_plot](figure/nc_plot-1.png)
 
 `write_sharepoint()` extends `upload_sp_item()` by allowing you to pass an R object instead of a file path. Like `read_sharepoint()` tries to guess the appropriate input function, `write_sharepoint()` tries to guess the appropriate output function based on the object class.
 
@@ -135,7 +149,7 @@ write_sharepoint(
   dest = folder_url
 )
 #> Loading Microsoft Graph login for default tenant
-#> ℹ Uploading file 'mtcars.csv' to SharePoint drive✔ File upload complete [1.1s]                    
+#> ℹ Uploading file 'mtcars.csv' to SharePoint drive✔ File upload complete [970ms]                   
 ```
 
 To wrap up this example, we need to remove the uploaded files from SharePoint to keep a tidy shared file system.
@@ -157,4 +171,44 @@ delete_sp_item(
   confirm = FALSE
 )
 ```
+
+## Listing files
+
+If you do not know the URL or file path for an item on SharePoint you can also use the directory info functions to list items typically using the `sp_dir_info()` function. This function supports recursive listings but this can be slow depending on the number of items in the SharePoint library.
+
+This last example is not computed but it shows how to list and remove empty nested directories left over from a failed manual import;
+
+
+``` r
+# List directories
+dir_info <- sp_dir_info("<SharePoint Folder URL>", type = "directory", recurse = TRUE)
+
+# Filter to empty directories and sort by depth
+empty_dirs <- dir_info |>
+  filter(size == 0) |>
+  mutate(
+    path_depth = str_count(name, "/")
+  ) |>
+  arrange(desc(path_depth))
+
+# Get drive
+drive <- get_sp_drive(
+  drive_name = "<SharePoint Document Library Name>",
+  site_url = "<SharePoint Site URL>"
+)
+
+# Delete empty directories and skip confirmation
+walk(
+  empty_dirs[["id"]],
+  \(x) {
+    delete_sp_item(
+      item_id = x,
+      drive = drive,
+      confirm = FALSE
+    )
+  }
+)
+```
+
+Overall, the intent of this package is to maximize flexibility in how and where you read and write files from SharePoint. Suggestions are welcome so please share your own tips on working with the Microsoft SharePoint API and the `{Microsoft365R}` package.
 

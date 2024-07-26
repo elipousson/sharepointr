@@ -8,8 +8,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-
-Note, this vignette is pre-computed to utilize the Microsoft Graph login that is only available locally to me as a logged in SharePoint user. As a result, it is possible this documentation may be outdated or incomplete.
+Note: this vignette is pre-computed to utilize the Microsoft Graph login that is only available locally to me as a logged in SharePoint user.
 
 ```{r setup}
 library(sharepointr)

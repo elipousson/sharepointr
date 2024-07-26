@@ -15,7 +15,7 @@
 #' - If the file is a pptx or docx file, [officer::read_docx()] or
 #' [officer::read_pptx()] are used to read the file into a `rdocx` or `rpptx`
 #' object.
-#' - If the file has a "gpkg", "geojson", "kml", "gdb", or "shp" file extension,
+#' - If the file has a "gpkg", "geojson", "kml", "gdb", or "zip" file extension,
 #' [sf::read_sf()] is used to read the file into a `sf` data frame.
 #'
 #' If the file has none of these file extensions, an attempt is made to read the
@@ -95,7 +95,7 @@ read_sharepoint <- function(file,
     officer::read_pptx(dest)
   }
 
-  if (is_fileext_path(dest, c("gpkg", "geojson", "kml", "gdb", "shp"))) {
+  if (is_fileext_path(dest, c("gpkg", "geojson", "kml", "gdb", "zip"))) {
     check_installed("sf")
     cli_progress_step("{message}{.fn sf::read_sf}")
     return(sf::read_sf(dest, ...))

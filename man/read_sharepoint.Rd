@@ -71,7 +71,7 @@ object.
 \item If the file is a pptx or docx file, \code{\link[officer:read_docx]{officer::read_docx()}} or
 \code{\link[officer:read_pptx]{officer::read_pptx()}} are used to read the file into a \code{rdocx} or \code{rpptx}
 object.
-\item If the file has a "gpkg", "geojson", "kml", "gdb", or "shp" file extension,
+\item If the file has a "gpkg", "geojson", "kml", "gdb", or "zip" file extension,
 \code{\link[sf:st_read]{sf::read_sf()}} is used to read the file into a \code{sf} data frame.
 }
 

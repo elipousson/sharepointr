@@ -161,6 +161,8 @@ cache_sp_drive <- function(...,
 #' @inheritDotParams get_sp_site
 #' @param filter Filter to apply to query
 #' @param n Max number of drives to return
+#' @param as_data_frame If `TRUE` (default), return list as a data frame.
+#' @inheritParams get_sp_site
 #' @export
 list_sp_drives <- function(
     ...,

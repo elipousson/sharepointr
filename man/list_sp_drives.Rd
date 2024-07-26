@@ -29,18 +29,24 @@ as a local option. If \code{FALSE}, use the cached \code{ms_site} object.}
     \item{\code{cache}}{If \code{TRUE}, cache site to a file using \code{\link[=cache_sp_site]{cache_sp_site()}}.}
     \item{\code{cache_file}}{File name for cached file if \code{cache = TRUE}. Defaults to
 \code{"sp_site.rds"} or option set with \code{sharepointr.cache_file_site}.}
-    \item{\code{call}}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
     \item{\code{overwrite}}{If \code{TRUE}, replace the existing cached object named by
 \code{cache_file} with the new object. If \code{FALSE}, error if a cached file with
 the same \code{cache_file} name already exists.}
   }}
 
+\item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
+\code{site_name}, and \code{site_id} are ignored.}
+
 \item{filter}{Filter to apply to query}
 
 \item{n}{Max number of drives to return}
+
+\item{as_data_frame}{If \code{TRUE} (default), return list as a data frame.}
+
+\item{call}{The execution environment of a currently
+running function, e.g. \code{caller_env()}. The function will be
+mentioned in error messages as the source of the error. See the
+\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \description{
 \code{\link[=list_sp_drives]{list_sp_drives()}} loads a SharePoint site uses the \code{list_drives} method to

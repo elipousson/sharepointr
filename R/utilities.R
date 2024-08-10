@@ -328,3 +328,49 @@ check_exclusive_args <- function(x = NULL,
 
   invisible(NULL)
 }
+
+#' Repair column names using `vctrs::vec_as_names` and `rlang::set_names`
+#' @noRd
+.set_as_names <- function(
+    data,
+    nm = NULL,
+    repair = "unique",
+    repair_arg = caller_arg(repair),
+    call = caller_env()) {
+  nm <- nm %||% names(data)
+
+  if (!is.null(repair)) {
+    nm <- vctrs::vec_as_names(
+      names = nm,
+      repair = repair,
+      repair_arg = repair_arg,
+      call = call
+    )
+  }
+
+  set_names(data, nm = nm)
+}
+
+
+#' Apply a label attribute value to each column of a data frame
+#' @noRd
+label_cols <- function(
+    data,
+    values) {
+  nm <- intersect(names(values), colnames(data))
+
+  for (v in nm) {
+    label_attr(data[[v]]) <- values[[v]]
+  }
+
+  data
+}
+
+#' Set label attribute
+#' @seealso [labelled::set_label_attribute()]
+#' @source <https://github.com/cran/labelled/blob/master/R/var_label.R>
+#' @noRd
+`label_attr<-` <- function(x, value) {
+  attr(x, "label") <- value
+  x
+}

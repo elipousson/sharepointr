@@ -40,6 +40,8 @@ get_sp_list_metadata(
   list_id = NULL,
   sp_list = NULL,
   ...,
+  keep = c("all", "editable", "visible"),
+  sync_fields = FALSE,
   site_url = NULL,
   site = NULL,
   drive_name = NULL,
@@ -124,6 +126,14 @@ Defaults to \code{NULL} which sets n to \code{Inf}.}
 \item{sp_list}{A \code{ms_list} object. If supplied, \code{list_name}, \code{list_id},
 \code{site_url}, \code{site}, \code{drive_name}, \code{drive_id}, \code{drive}, and any additional
 parameters passed to \code{...} are all ignored.}
+
+\item{keep}{One of "all" (default), "editable", "visible" (not yet
+supported). Argument determines if the returned list metadata includes read
+only columns or hidden columns.}
+
+\item{sync_fields}{If \code{TRUE}, use the \code{sync_fields} method to sync the fields
+of the local \code{ms_list} object with the fields of the SharePoint List source
+before retrieving list metadata.}
 
 \item{confirm}{If \code{TRUE}, confirm deletion of list before proceeding.}
 }

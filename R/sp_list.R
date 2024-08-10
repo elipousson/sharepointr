@@ -229,11 +229,19 @@ list_sp_lists <- function(site_url = NULL,
 #' @rdname sp_list
 #' @name get_sp_list_metadata
 #' @inheritParams ms_graph_obj_terms
+#' @param keep One of "all" (default), "editable", "visible" (not yet
+#'   supported). Argument determines if the returned list metadata includes read
+#'   only columns or hidden columns.
+#' @param sync_fields If `TRUE`, use the `sync_fields` method to sync the fields
+#'   of the local `ms_list` object with the fields of the SharePoint List source
+#'   before retrieving list metadata.
 #' @export
 get_sp_list_metadata <- function(list_name = NULL,
                                  list_id = NULL,
                                  sp_list = NULL,
                                  ...,
+                                 keep = c("all", "editable", "visible"),
+                                 sync_fields = FALSE,
                                  site_url = NULL,
                                  site = NULL,
                                  drive_name = NULL,
@@ -241,7 +249,7 @@ get_sp_list_metadata <- function(list_name = NULL,
                                  drive = NULL,
                                  call = caller_env()) {
   if (is.null(sp_list)) {
-    sp_list_metadata <- get_sp_list(
+    sp_list_meta <- get_sp_list(
       list_name = list_name,
       list_id = list_id,
       ...,
@@ -254,13 +262,25 @@ get_sp_list_metadata <- function(list_name = NULL,
       drive = drive,
       call = call
     )
+  } else {
+    check_ms_obj(sp_list, "ms_list", call = call)
 
-    return(sp_list_metadata)
+    if (sync_fields) {
+      sp_list <- sp_list$sync_fields()
+    }
+
+    sp_list_meta <- sp_list$get_column_info()
   }
 
-  check_ms_obj(sp_list, "ms_list", call = call)
+  keep <- arg_match(keep, error_call = call)
+  # FIXME: keep = "visible" is not yet supported
+  stopifnot(keep != "visible")
 
-  sp_list$get_column_info()
+  if (keep == "editable") {
+    sp_list_meta <- sp_list_meta[!sp_list_meta[["readOnly"]], ]
+  }
+
+  sp_list_meta
 }
 
 

@@ -29,6 +29,8 @@ list_sp_list_items <- function(list_name = NULL,
                                select = NULL,
                                all_metadata = FALSE,
                                as_data_frame = TRUE,
+                               display_nm = c("drop", "label", "replace"),
+                               name_repair = "unique",
                                pagesize = 5000,
                                site_url = NULL,
                                site = NULL,
@@ -52,7 +54,13 @@ list_sp_list_items <- function(list_name = NULL,
 
   check_ms_obj(sp_list, "ms_list", call = call)
 
+  # FIXME: I think this is not necessary since Microsoft365R already does the
+  # same thing
   if (is.character(select)) {
+    if ("id" %in% select) {
+      select[select == "id"] <- "ID"
+    }
+
     select <- paste0(select, collapse = ",")
   }
 
@@ -66,6 +74,56 @@ list_sp_list_items <- function(list_name = NULL,
   cli::cli_progress_step(
     "Getting list items from SharePoint"
   )
+
+  # List items
+  sp_list_items <- sp_list$list_items(
+    filter = filter,
+    select = select,
+    all_metadata = all_metadata,
+    as_data_frame = as_data_frame,
+    pagesize = pagesize
+  )
+
+  display_nm <- arg_match(display_nm, error_call = call)
+
+  # FIXME: Implement some way to reorder columns
+  # Reorder columns to put "id", "ContentType", "Modified", and "Created" first
+  # nm <- union(
+  #   c("id", "ContentType", "Modified", "Created"), names(sp_list_items)
+  # )
+  #
+  # sp_list_items <- vctrs::vec_slice(
+  #   sp_list_items,
+  #   i = nm,
+  #   error_call = call
+  # )
+
+  if (display_nm == "drop") {
+    return(sp_list_items)
+  }
+
+  # Pull display names
+  values <- pull_sp_list_display_nm(sp_list)
+
+  # Use display names as labels
+  if (display_nm == "label") {
+    sp_list_items <- label_cols(
+      sp_list_items,
+      values = values
+    )
+
+    return(sp_list_items)
+  }
+
+  # Replace matching names with display names
+  # NOTE: Column info includes fields that are not returned by the list_items method
+  nm <- names(sp_list_items)
+  values_i <- match(names(values), nm)
+  nm[values_i[!is.na(values_i)]] <- values[!is.na(values_i)]
+
+  # Repair names since display names may not be unique
+  .set_as_names(sp_list_items, nm, name_repair = name_repair)
+}
 
 #' Pull a vector of display names named with corresponding column names
 #' @noRd

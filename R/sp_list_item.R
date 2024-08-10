@@ -20,6 +20,13 @@ NULL
 #'   `as_data_frame = FALSE`.
 #' @param pagesize Number of list items to return. Reduce from default of 5000
 #'   is experiencing timeouts.
+#' @param display_nm Option of "drop" (default), "label", or "replace". If
+#'   "drop", display names are not accessed or used. If "label", display names
+#'   are used to label matching columns in the returned data frame. If
+#'   "replace", display names replace column names in the returned data frame.
+#'   When working with the last option, the `name_repair` argument is required
+#'   since there is no requirement on SharePoint for lists to use unique display
+#'   names and invalid data frames can result.
 #' @export
 list_sp_list_items <- function(list_name = NULL,
                                list_id = NULL,

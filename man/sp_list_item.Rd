@@ -15,6 +15,8 @@ list_sp_list_items(
   select = NULL,
   all_metadata = FALSE,
   as_data_frame = TRUE,
+  display_nm = c("drop", "label", "replace"),
+  name_repair = "unique",
   pagesize = 5000,
   site_url = NULL,
   site = NULL,
@@ -74,6 +76,14 @@ data frame named fields. This is always set to \code{FALSE} if \code{n = NULL} o
 data frame with n rows or all lists available for the SharePoint site or
 drive. Defaults to \code{FALSE}. Ignored is \code{metadata = TRUE} as list metadata
 is always returned as a data frame.}
+
+\item{display_nm}{Option of "drop" (default), "label", or "replace". If
+"drop", display names are not accessed or used. If "label", display names
+are used to label matching columns in the returned data frame. If
+"replace", display names replace column names in the returned data frame.
+When working with the last option, the \code{name_repair} argument is required
+since there is no requirement on SharePoint for lists to use unique display
+names and invalid data frames can result.}
 
 \item{pagesize}{Number of list items to return. Reduce from default of 5000
 is experiencing timeouts.}

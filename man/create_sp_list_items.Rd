@@ -3,8 +3,9 @@
 \name{create_sp_list_items}
 \alias{create_sp_list_items}
 \alias{import_sp_list_items}
+\alias{update_sp_list_items}
 \alias{update_sp_list_item}
-\title{Creating and update list items}
+\title{Create or update list items}
 \usage{
 create_sp_list_items(
   data,
@@ -12,6 +13,7 @@ create_sp_list_items(
   list_id = NULL,
   sp_list = NULL,
   ...,
+  allow_display_nm = TRUE,
   site_url = NULL,
   site = NULL,
   drive_name = NULL,
@@ -23,12 +25,26 @@ create_sp_list_items(
   call = caller_env()
 )
 
-update_sp_list_item(
-  id,
+update_sp_list_items(
+  data,
   list_name = NULL,
   list_id = NULL,
   sp_list = NULL,
   ...,
+  .id = "id",
+  allow_display_nm = TRUE,
+  call = caller_env()
+)
+
+update_sp_list_item(
+  ...,
+  .data = NULL,
+  id = NULL,
+  sp_list_item = NULL,
+  na_fields = c("drop", "replace"),
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
   site_url = NULL,
   site = NULL,
   drive_name = NULL,
@@ -50,6 +66,10 @@ parameters passed to \code{...} are all ignored.}
 \item{...}{Additional parameters passed to \code{\link[=get_sp_site]{get_sp_site()}} or
 \code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}}.}
 
+\item{allow_display_nm}{If \code{TRUE}, allow data to use list field display names
+instead of standard names. Note this requires a separate API call so may
+result in a slower request.}
+
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL can also be parsed to build a site URL using the tenant and site name
@@ -70,7 +90,8 @@ error if any column names can't be matched to a field in the supplied
 SharePoint list.}
 
 \item{sync_fields}{If \code{TRUE}, use the \code{sync_fields} method to sync the fields
-of the local sp_list object with the fields of the SharePoint List source.}
+of the local \code{ms_list} object with the fields of the SharePoint List source
+before retrieving list metadata.}
 
 \item{strict}{If \code{TRUE}, all column names in data must be matched to field
 names in the supplied SharePoint list. If \code{FALSE} (default), unmatched
@@ -80,9 +101,14 @@ columns will be dropped with a warning.}
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
+
+\item{.id}{Name of column in data to use for item ID values. Defaults to
+"id".}
+
+\item{.data}{A list or data frame with fields to update}
 }
 \description{
-Creating and update list items
+Create or update list items
 }
 \details{
 Validation of data with with \code{create_sp_list_items()}

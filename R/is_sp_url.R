@@ -25,6 +25,11 @@ is_sp_site_page_url <- function(x) {
   is_sp_url(x) & grepl("/SitePages/", x)
 }
 
+#' @noRd
+is_sp_site_form_url <- function(x) {
+  is_sp_url(x) & grepl("/Forms/", x)
+}
+
 #' @rdname is_sp_url
 #' @name is_sp_doc_url
 #' @export
@@ -47,7 +52,6 @@ is_sp_type_url <- function(x, type = "w") {
 is_sp_folder_url <- function(x) {
   is_sp_type_url(x, type = "f")
 }
-
 
 #' @noRd
 is_sp_webview_list_url <- function(x) {

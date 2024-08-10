@@ -118,8 +118,6 @@ get_sp_list_item <- function(id,
   )
 
   sp_list$get_item(id)
-
-  invisible(id)
 }
 
 #' @rdname sp_list_item

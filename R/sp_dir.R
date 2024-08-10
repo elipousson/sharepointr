@@ -74,6 +74,10 @@ sp_dir_info <- function(path = NULL,
 
   check_ms_drive(drive, call = call)
 
+  if (path == "") {
+    path <- NULL
+  }
+
   path <- path %||% "/"
 
   info <- arg_match(info, values = c("partial", "name", "all"), call = call)

@@ -4,9 +4,6 @@
 \alias{sp_list_item}
 \alias{list_sp_list_items}
 \alias{get_sp_list_item}
-\alias{create_sp_list_items}
-\alias{import_sp_list_items}
-\alias{update_sp_list_item}
 \title{Get, list, update, and delete SharePoint list items}
 \usage{
 list_sp_list_items(
@@ -28,37 +25,6 @@ list_sp_list_items(
 )
 
 get_sp_list_item(
-  id,
-  list_name = NULL,
-  list_id = NULL,
-  sp_list = NULL,
-  ...,
-  site_url = NULL,
-  site = NULL,
-  drive_name = NULL,
-  drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
-)
-
-create_sp_list_items(
-  data,
-  list_name = NULL,
-  list_id = NULL,
-  sp_list = NULL,
-  ...,
-  site_url = NULL,
-  site = NULL,
-  drive_name = NULL,
-  drive_id = NULL,
-  drive = NULL,
-  check_fields = TRUE,
-  sync_fields = FALSE,
-  strict = FALSE,
-  call = caller_env()
-)
-
-update_sp_list_item(
   id,
   list_name = NULL,
   list_id = NULL,
@@ -133,48 +99,9 @@ mentioned in error messages as the source of the error. See the
 
 \item{id}{Required. A SharePoint list item ID typically an integer for the
 record number starting from 1 with the first record.}
-
-\item{data}{Required. A data frame to import as items to the supplied or
-identified SharePoint list.}
-
-\item{check_fields}{If \code{TRUE} (default), column names for the input data are
-matched to the fields of the list object. If \code{FALSE}, the function will
-error if any column names can't be matched to a field in the supplied
-SharePoint list.}
-
-\item{sync_fields}{If \code{TRUE}, use the \code{sync_fields} method to sync the fields
-of the local sp_list object with the fields of the SharePoint List source.}
-
-\item{strict}{If \code{TRUE}, all column names in data must be matched to field
-names in the supplied SharePoint list. If \code{FALSE} (default), unmatched
-columns will be dropped with a warning.}
 }
 \description{
 \code{\link[=list_sp_list_items]{list_sp_list_items()}} lists \code{sp_list} items. Additional functions should be
 completed for the \code{get_item}, \code{create_item}, \code{update_item}, and \code{delete_item}
 methods documented in \link[Microsoft365R:ms_list]{Microsoft365R::ms_list}.
-}
-\details{
-Creating new list items with \code{create_sp_list_items()}
-
-The handling of item creation when column names in \code{data} do not match the
-fields names in the supplied list includes a few options:
-\itemize{
-\item If no names in data match fields in the list, the function errors and lists the field names.
-\item If all names in data match fields in the list the records are created. Any fields that do not have corresponding names in data remain blank.
-\item If any names in data do not match fields in the list, by default, those columns are dropped before adding items to the list.
-\item If \code{strict = TRUE} and any names in data to not match fields, the function errors.
-}
-}
-\examples{
-sp_list_url <- "<SharePoint List URL with a Name field>"
-
-if (is_sp_url(sp_list_url)) {
-  create_sp_list_items(
-    data = data.frame(
-      Name = c("Jim", "Jane", "Jayden")
-    ),
-    list_name = sp_list_url
-  )
-}
 }

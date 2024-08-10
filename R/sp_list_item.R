@@ -120,9 +120,9 @@ get_sp_list_item <- function(id,
   sp_list$get_item(id)
 }
 
-#' @rdname sp_list_item
-#' @name create_sp_list_items
-#' @details Creating new list items with `create_sp_list_items()`
+#' Creating and update list items
+#'
+#' @details Validation of data with with `create_sp_list_items()`
 #'
 #' The handling of item creation when column names in `data` do not match the
 #' fields names in the supplied list includes a few options:
@@ -144,6 +144,8 @@ get_sp_list_item <- function(id,
 #'   matched to the fields of the list object. If `FALSE`, the function will
 #'   error if any column names can't be matched to a field in the supplied
 #'   SharePoint list.
+#' @inheritParams ms_graph_arg_terms
+#' @inheritParams get_sp_list
 #' @examples
 #' sp_list_url <- "<SharePoint List URL with a Name field>"
 #'
@@ -282,7 +284,7 @@ validate_sp_list_data_fields <- function(data,
   }
 }
 
-#' @rdname sp_list_item
+#' @rdname create_sp_list_items
 #' @name update_sp_list_item
 #' @export
 update_sp_list_item <- function(id,

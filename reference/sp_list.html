@@ -91,6 +91,8 @@ to distinguish them from item metadata.</p>
 <span>  list_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
+<span>  keep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"editable"</span>, <span class="st">"visible"</span><span class="op">)</span>,</span>
+<span>  sync_fields <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  site_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -212,6 +214,18 @@ Defaults to <code>NULL</code> which sets n to <code>Inf</code>.</p></dd>
 <dd><p>A <code>ms_list</code> object. If supplied, <code>list_name</code>, <code>list_id</code>,
 <code>site_url</code>, <code>site</code>, <code>drive_name</code>, <code>drive_id</code>, <code>drive</code>, and any additional
 parameters passed to <code>...</code> are all ignored.</p></dd>
+
+
+<dt id="arg-keep">keep<a class="anchor" aria-label="anchor" href="#arg-keep"></a></dt>
+<dd><p>One of "all" (default), "editable", "visible" (not yet
+supported). Argument determines if the returned list metadata includes read
+only columns or hidden columns.</p></dd>
+
+
+<dt id="arg-sync-fields">sync_fields<a class="anchor" aria-label="anchor" href="#arg-sync-fields"></a></dt>
+<dd><p>If <code>TRUE</code>, use the <code>sync_fields</code> method to sync the fields
+of the local <code>ms_list</code> object with the fields of the SharePoint List source
+before retrieving list metadata.</p></dd>
 
 
 <dt id="arg-confirm">confirm<a class="anchor" aria-label="anchor" href="#arg-confirm"></a></dt>

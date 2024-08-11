@@ -110,7 +110,7 @@ list_sp_list_items <- function(list_name = NULL,
   }
 
   # Pull display names
-  values <- pull_sp_list_display_nm(sp_list)
+  values <- pull_sp_list_display_names(sp_list)
 
   # Use display names as labels
   if (display_nm == "label") {

@@ -129,7 +129,7 @@ list_sp_list_items <- function(list_name = NULL,
   nm[values_i[!is.na(values_i)]] <- values[!is.na(values_i)]
 
   # Repair names since display names may not be unique
-  .set_as_names(sp_list_items, nm, name_repair = name_repair)
+  .set_as_names(sp_list_items, nm, repair = name_repair)
 }
 
 #' Pull a vector of display names named with corresponding column names

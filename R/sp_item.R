@@ -549,12 +549,19 @@ batch_download_sp_item <- function(path = NULL,
 
 #' Download a SharePoint List
 #'
+#' [download_sp_list()] downloads a SharePoint list to a CSV or XLSX file.
+#'
 #' @param sp_list SharePoint list object. If supplied, all parameters supplied
 #'   to `...` are ignored.
 #' @param fileext File extension to use for output file. Must be `"csv"` or
 #'   `"xlsx"`.
+#' @param new_path Optional path to new file. If not `new_path` provided, the
+#'   file name is pulled from the name of the SharePoint list using the provided
+#'   `fileext`. If `new_path` is provided, `fileext` is ignored.
 #' @inheritDotParams get_sp_list
+#' @inheritParams rlang::args_error_context
 #' @inheritParams ms_obj_as_data_frame
+#' @export
 download_sp_list <- function(...,
                              new_path = "",
                              sp_list = NULL,
@@ -570,8 +577,9 @@ download_sp_list <- function(...,
     obj_col = "ms_list",
     keep_list_cols = keep_list_cols,
     .error_call = call
-  ) |>
-    fmt_sp_list_col()
+  )
+
+  sp_list_df <- fmt_sp_list_col(sp_list_df)
 
   if (new_path == "") {
     new_path <- NULL

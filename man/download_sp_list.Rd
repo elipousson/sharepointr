@@ -34,13 +34,13 @@ method for SharePoint site object.}
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL can also be parsed to build a site URL using the tenant and site name
 included in the URL.}
-    \item{\code{call}}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
     \item{\code{site}}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
   }}
+
+\item{new_path}{Optional path to new file. If not \code{new_path} provided, the
+file name is pulled from the name of the SharePoint list using the provided
+\code{fileext}. If \code{new_path} is provided, \code{fileext} is ignored.}
 
 \item{sp_list}{SharePoint list object. If supplied, all parameters supplied
 to \code{...} are ignored.}
@@ -50,7 +50,12 @@ to \code{...} are ignored.}
 
 \item{keep_list_cols}{Column names for those columns to maintain in a list
 format instead of attempting to convert to a character vector.}
+
+\item{call}{The execution environment of a currently
+running function, e.g. \code{caller_env()}. The function will be
+mentioned in error messages as the source of the error. See the
+\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \description{
-Download a SharePoint List
+\code{\link[=download_sp_list]{download_sp_list()}} downloads a SharePoint list to a CSV or XLSX file.
 }

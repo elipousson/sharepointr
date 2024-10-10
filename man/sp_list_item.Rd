@@ -85,6 +85,8 @@ When working with the last option, the \code{name_repair} argument is required
 since there is no requirement on SharePoint for lists to use unique display
 names and invalid data frames can result.}
 
+\item{name_repair}{Passed to repair argument of \code{\link[vctrs:vec_as_names]{vctrs::vec_as_names()}}}
+
 \item{pagesize}{Number of list items to return. Reduce from default of 5000
 is experiencing timeouts.}
 

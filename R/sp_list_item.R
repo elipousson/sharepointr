@@ -27,6 +27,7 @@ NULL
 #'   When working with the last option, the `name_repair` argument is required
 #'   since there is no requirement on SharePoint for lists to use unique display
 #'   names and invalid data frames can result.
+#' @param name_repair Passed to repair argument of [vctrs::vec_as_names()]
 #' @export
 list_sp_list_items <- function(list_name = NULL,
                                list_id = NULL,
@@ -211,6 +212,8 @@ get_sp_list_item <- function(id,
 #' @param allow_display_nm If `TRUE`, allow data to use list field display names
 #'   instead of standard names. Note this requires a separate API call so may
 #'   result in a slower request.
+#' @param .id Name of column in used for item ID values. Typically this should
+#'   not be changed and is only used if `allow_display_nm = TRUE`
 #' @examples
 #' sp_list_url <- "<SharePoint List URL with a Name field>"
 #'
@@ -229,6 +232,7 @@ create_sp_list_items <- function(data,
                                  sp_list = NULL,
                                  ...,
                                  allow_display_nm = TRUE,
+                                 .id = "id",
                                  site_url = NULL,
                                  site = NULL,
                                  drive_name = NULL,
@@ -425,7 +429,7 @@ update_sp_list_items <- function(data,
   invisible(data)
 }
 
-#' Replace names for a data frame or list with
+#' Replace names for a data frame or list with display names
 #' @noRd
 replace_with_sp_list_display_names <- function(data,
                                                .id = "id",
@@ -444,7 +448,12 @@ replace_with_sp_list_display_names <- function(data,
 
 #' @rdname create_sp_list_items
 #' @name update_sp_list_item
-#' @param .data A list or data frame with fields to update
+#' @param sp_list_item Optional. A SharePoint list item object to use.
+#' @param .data A list or data frame with fields to update.
+#' @param na_fields How to handle `NA` fields in input data. One of "drop"
+#'   (remove NA fields before updating list items, leaving existing values in
+#'   place) or "replace" (overwrite existing list values with new replacement NA
+#'   values).
 #' @export
 update_sp_list_item <- function(...,
                                 .data = NULL,

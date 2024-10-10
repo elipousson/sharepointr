@@ -14,6 +14,7 @@ create_sp_list_items(
   sp_list = NULL,
   ...,
   allow_display_nm = TRUE,
+  .id = "id",
   site_url = NULL,
   site = NULL,
   drive_name = NULL,
@@ -70,6 +71,9 @@ parameters passed to \code{...} are all ignored.}
 instead of standard names. Note this requires a separate API call so may
 result in a slower request.}
 
+\item{.id}{Name of column in data to use for item ID values. Defaults to
+"id".}
+
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL can also be parsed to build a site URL using the tenant and site name
@@ -103,10 +107,14 @@ running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
-\item{.id}{Name of column in data to use for item ID values. Defaults to
-"id".}
+\item{.data}{A list or data frame with fields to update.}
 
-\item{.data}{A list or data frame with fields to update}
+\item{sp_list_item}{Optional. A SharePoint list item object to use.}
+
+\item{na_fields}{How to handle \code{NA} fields in input data. One of "drop"
+(remove NA fields before updating list items, leaving existing values in
+place) or "replace" (overwrite existing list values with new replacement NA
+values).}
 }
 \description{
 Create or update list items

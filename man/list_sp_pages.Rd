@@ -31,16 +31,23 @@ as a local option. If \code{FALSE}, use the cached \code{ms_site} object.}
     \item{\code{cache}}{If \code{TRUE}, cache site to a file using \code{\link[=cache_sp_site]{cache_sp_site()}}.}
     \item{\code{cache_file}}{File name for cached file if \code{cache = TRUE}. Defaults to
 \code{"sp_site.rds"} or option set with \code{sharepointr.cache_file_site}.}
-    \item{\code{call}}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
     \item{\code{overwrite}}{If \code{TRUE}, replace the existing cached object named by
 \code{cache_file} with the new object. If \code{FALSE}, error if a cached file with
 the same \code{cache_file} name already exists.}
   }}
 
+\item{site}{Optional \code{ms_site} object to use. If not provided, the \code{...}
+arguments are passed to \code{\link[=get_sp_site]{get_sp_site()}}.}
+
 \item{page_type}{Page type to request. One of "sitePage" or "page".}
+
+\item{as_data_frame}{If \code{TRUE}, return a data frame with details on the
+SharePoint site pages. If \code{FALSE}, return a list.}
+
+\item{call}{The execution environment of a currently
+running function, e.g. \code{caller_env()}. The function will be
+mentioned in error messages as the source of the error. See the
+\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{page_url, page_id}{SharePoint page URL or ID.}
 }

@@ -6,6 +6,7 @@
 * Add vignette for reading and writing items from SharePoint (#9; 2024-07-25).
 * Add `update_sp_list_items()` function and refactor `update_sp_list_item()` to use `rlang::list2()` and `rlang::inject()` which adds support for data frame inputs. (2024-08-10)
 * Add `display_nm` argument to `list_sp_list_items()` allowing use of list display names as labels or replacements for field names in results. (2024-08-10)
+* Add `download_sp_list()` (2024-10-10).
 
 ## Fixes
 

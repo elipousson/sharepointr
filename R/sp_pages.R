@@ -1,9 +1,9 @@
 #' List SharePoint pages or get a single SharePoint page
 #'
-#' [list_sp_pages()] returns a list of SharePoint pages associated with s
+#' [list_sp_pages()] returns a list of SharePoint pages associated with a
 #' specified SharePoint site. [get_sp_page()] returns a single SharePoint page.
 #'
-#' @param page_type c("sitePage", "page")
+#' @param page_type Page type to request. One of "sitePage" or "page".
 #' @inheritDotParams get_sp_site
 #' @export
 list_sp_pages <- function(...,

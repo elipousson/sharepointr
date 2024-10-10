@@ -40,11 +40,11 @@ mentioned in error messages as the source of the error. See the
 the same \code{cache_file} name already exists.}
   }}
 
-\item{page_type}{c("sitePage", "page")}
+\item{page_type}{Page type to request. One of "sitePage" or "page".}
 
 \item{page_url, page_id}{SharePoint page URL or ID.}
 }
 \description{
-\code{\link[=list_sp_pages]{list_sp_pages()}} returns a list of SharePoint pages associated with s
+\code{\link[=list_sp_pages]{list_sp_pages()}} returns a list of SharePoint pages associated with a
 specified SharePoint site. \code{\link[=get_sp_page]{get_sp_page()}} returns a single SharePoint page.
 }

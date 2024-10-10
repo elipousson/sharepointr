@@ -51,6 +51,7 @@
 <span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  allow_display_nm <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  .id <span class="op">=</span> <span class="st">"id"</span>,</span>
 <span>  site_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -121,6 +122,11 @@ instead of standard names. Note this requires a separate API call so may
 result in a slower request.</p></dd>
 
 
+<dt id="arg--id">.id<a class="anchor" aria-label="anchor" href="#arg--id"></a></dt>
+<dd><p>Name of column in data to use for item ID values. Defaults to
+"id".</p></dd>
+
+
 <dt id="arg-site-url">site_url<a class="anchor" aria-label="anchor" href="#arg-site-url"></a></dt>
 <dd><p>A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
@@ -170,13 +176,19 @@ mentioned in error messages as the source of the error. See the
 <code>call</code> argument of <code><a href="https://rlang.r-lib.org/reference/abort.html" class="external-link">abort()</a></code> for more information.</p></dd>
 
 
-<dt id="arg--id">.id<a class="anchor" aria-label="anchor" href="#arg--id"></a></dt>
-<dd><p>Name of column in data to use for item ID values. Defaults to
-"id".</p></dd>
-
-
 <dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A list or data frame with fields to update</p></dd>
+<dd><p>A list or data frame with fields to update.</p></dd>
+
+
+<dt id="arg-sp-list-item">sp_list_item<a class="anchor" aria-label="anchor" href="#arg-sp-list-item"></a></dt>
+<dd><p>Optional. A SharePoint list item object to use.</p></dd>
+
+
+<dt id="arg-na-fields">na_fields<a class="anchor" aria-label="anchor" href="#arg-na-fields"></a></dt>
+<dd><p>How to handle <code>NA</code> fields in input data. One of "drop"
+(remove NA fields before updating list items, leaving existing values in
+place) or "replace" (overwrite existing list values with new replacement NA
+values).</p></dd>
 
 </dl></div>
     <div class="section level2">

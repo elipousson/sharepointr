@@ -93,9 +93,10 @@ SharePoint list.}
 of the local \code{ms_list} object with the fields of the SharePoint List source
 before retrieving list metadata.}
 
-\item{strict}{If \code{TRUE}, all column names in data must be matched to field
-names in the supplied SharePoint list. If \code{FALSE} (default), unmatched
-columns will be dropped with a warning.}
+\item{strict}{Not yet implemented as of 2024-08-12. If \code{TRUE}, all column
+names in data must be matched to field names in the supplied SharePoint
+list. If \code{FALSE} (default), unmatched columns will be dropped with a
+warning.}
 
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be

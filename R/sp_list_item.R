@@ -198,9 +198,10 @@ get_sp_list_item <- function(id,
 #' @aliases import_sp_list_items
 #' @param data Required. A data frame to import as items to the supplied or
 #'   identified SharePoint list.
-#' @param strict If `TRUE`, all column names in data must be matched to field
-#'   names in the supplied SharePoint list. If `FALSE` (default), unmatched
-#'   columns will be dropped with a warning.
+#' @param strict Not yet implemented as of 2024-08-12. If `TRUE`, all column
+#'   names in data must be matched to field names in the supplied SharePoint
+#'   list. If `FALSE` (default), unmatched columns will be dropped with a
+#'   warning.
 #' @param check_fields If `TRUE` (default), column names for the input data are
 #'   matched to the fields of the list object. If `FALSE`, the function will
 #'   error if any column names can't be matched to a field in the supplied

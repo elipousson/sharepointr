@@ -60,8 +60,9 @@ read_sharepoint <- function(file,
   message <- "Reading item with "
 
   if (!is.null(.f)) {
+    fn_label <- expr_text(substitute(.f))
     .f <- as_function(.f)
-    cli_progress_step("{message}{.fn {as_name(expr(.f))}}")
+    cli_progress_step("{message}{.fn {fn_label}}")
     return(.f(dest, ...))
   }
 
@@ -92,7 +93,7 @@ read_sharepoint <- function(file,
   if (is_fileext_path(dest, "pptx")) {
     check_installed("officer")
     cli_progress_step("{message}{.fn officer::read_pptx}")
-    officer::read_pptx(dest)
+    return(officer::read_pptx(dest))
   }
 
   if (is_fileext_path(dest, c("gpkg", "geojson", "kml", "gdb", "zip"))) {

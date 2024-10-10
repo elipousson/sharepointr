@@ -1,9 +1,7 @@
 #' @noRd
 sp_url_as_src_dest <- function(url, src, call = caller_env()) {
   sp_url_parts <- sp_url_parse(url, call = call)
-  file_path <- sp_url_parts[["file_path"]] |>
-    str_remove_slash()
-
+  file_path <- str_remove_slash(sp_url_parts[["file_path"]])
   str_c_url(file_path, basename(src))
 }
 
@@ -57,7 +55,7 @@ write_sharepoint <- function(x,
   file <- str_c_fsep(new_path, file)
 
   if (!is.null(.f)) {
-    .f <- as_function(.f)
+    .f <- as_function(.f, call = call)
     .f(x, file, ...)
   } else if (inherits(x, "sf")) {
     check_installed("sf", call = call)
@@ -72,7 +70,7 @@ write_sharepoint <- function(x,
     check_installed("officer", call = call)
     print(x, target = file, ...)
   } else {
-    check_installed("readr")
+    check_installed("readr", call = call)
     readr::write_rds(x, file = file, ...)
   }
 
@@ -127,14 +125,12 @@ upload_sp_item <- function(file = NULL,
                            recursive = FALSE,
                            parallel = FALSE,
                            call = caller_env()) {
-  if (!is_string(src)) {
-    if (!is_string(file)) {
-      cli_abort(
-        "One of {.arg file} or {.arg src} must be a string.",
-        call = call
-      )
-    }
-
+  if (!is_string(src) && !is_string(file)) {
+    cli_abort(
+      "One of {.arg file} or {.arg src} must be a string.",
+      call = call
+    )
+  } else if (!is_string(src)) {
     src <- file
   }
 
@@ -194,18 +190,16 @@ upload_sp_items <- function(file = NULL,
                             ...,
                             src = NULL,
                             call = caller_env()) {
-  if (!is_character(src)) {
-    if (!is_character(file)) {
-      cli_abort(
-        "One of {.arg file} or {.arg src} must be a character vector",
-        call = call
-      )
-    }
-
+  if (!is_character(src) && !is_character(file)) {
+    cli_abort(
+      "One of {.arg file} or {.arg src} must be a character vector",
+      call = call
+    )
+  } else if (!is_character(src)) {
     src <- file
   }
 
-  check_character(file, call = call)
+  check_character(src, call = call)
 
   if (is_url(dest) && has_length(dest, 1)) {
     dest <- map_chr(

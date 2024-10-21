@@ -33,7 +33,8 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/read-write.html">Reading and writing items from SharePoint</a></li>
+<li><a class="dropdown-item" href="../articles/file-management.html">Managing files and folders</a></li>
+    <li><a class="dropdown-item" href="../articles/read-write.html">Reading and writing items from SharePoint</a></li>
     <li><a class="dropdown-item" href="../articles/sp_url.html">Using SharePoint URLs to work with items and lists</a></li>
   </ul>
 </li>
@@ -66,10 +67,9 @@
 
     
     
-<p>Note, this vignette is pre-computed to utilize the Microsoft Graph
+<p>Note: this vignette is pre-computed to utilize the Microsoft Graph
 login that is only available locally to me as a logged in SharePoint
-user. As a result, it is possible this documentation may be outdated or
-incomplete.</p>
+user.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/elipousson/sharepointr" class="external-link">sharepointr</a></span><span class="op">)</span></span></code></pre></div>
 <p>This is a folder URL. It is a Shared link where people with existing
@@ -131,9 +131,8 @@ drives, lists, and items from SharePoint:</p>
 <span><span class="co">#&gt;   description:   </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt;   Methods:</span></span>
-<span><span class="co">#&gt;     delete, do_operation, get_drive,</span></span>
-<span><span class="co">#&gt;     get_group, get_list, get_list_pager,</span></span>
-<span><span class="co">#&gt;     get_lists, list_drives, list_subsites,</span></span>
+<span><span class="co">#&gt;     delete, do_operation, get_drive, get_group, get_list,</span></span>
+<span><span class="co">#&gt;     get_list_pager, get_lists, list_drives, list_subsites,</span></span>
 <span><span class="co">#&gt;     sync_fields, update</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/sp_drive.html">get_sp_drive</a></span><span class="op">(</span><span class="va">dir_url</span><span class="op">)</span></span>
@@ -144,19 +143,13 @@ drives, lists, and items from SharePoint:</p>
 <span><span class="co">#&gt;   description:  </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt;   Methods:</span></span>
-<span><span class="co">#&gt;     copy_item, create_folder,</span></span>
-<span><span class="co">#&gt;     create_share_link, delete,</span></span>
-<span><span class="co">#&gt;     delete_item, do_operation,</span></span>
-<span><span class="co">#&gt;     download_file, download_folder,</span></span>
-<span><span class="co">#&gt;     get_item, get_item_properties,</span></span>
-<span><span class="co">#&gt;     get_list_pager, list_files,</span></span>
-<span><span class="co">#&gt;     list_items, list_shared_files,</span></span>
-<span><span class="co">#&gt;     list_shared_items, load_dataframe,</span></span>
-<span><span class="co">#&gt;     load_rdata, load_rds, move_item,</span></span>
-<span><span class="co">#&gt;     open_item, save_dataframe, save_rdata,</span></span>
-<span><span class="co">#&gt;     save_rds, set_item_properties,</span></span>
-<span><span class="co">#&gt;     sync_fields, update, upload_file,</span></span>
-<span><span class="co">#&gt;     upload_folder</span></span></code></pre></div>
+<span><span class="co">#&gt;     copy_item, create_folder, create_share_link, delete,</span></span>
+<span><span class="co">#&gt;     delete_item, do_operation, download_file, download_folder,</span></span>
+<span><span class="co">#&gt;     get_item, get_item_properties, get_list_pager, list_files,</span></span>
+<span><span class="co">#&gt;     list_items, list_shared_files, list_shared_items,</span></span>
+<span><span class="co">#&gt;     load_dataframe, load_rdata, load_rds, move_item, open_item,</span></span>
+<span><span class="co">#&gt;     save_dataframe, save_rdata, save_rds, set_item_properties,</span></span>
+<span><span class="co">#&gt;     sync_fields, update, upload_file, upload_folder</span></span></code></pre></div>
 <p>With a directory URL, you can get a list of files:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dir_info</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sp_dir_info.html">sp_dir_info</a></span><span class="op">(</span><span class="va">dir_url</span><span class="op">)</span></span>
@@ -180,64 +173,43 @@ drives, lists, and items from SharePoint:</p>
 <span><span class="co">#&gt; 14                               INSPIRE Program 🏫🚸🌳/INSPIRE DOP Website Copy.docx</span></span>
 <span><span class="co">#&gt; 15                            INSPIRE Program 🏫🚸🌳/INSPIRE Master Contact List.xlsx</span></span>
 <span><span class="co">#&gt; 16                         INSPIRE Program 🏫🚸🌳/INSPIRE Plan Timelines 2021_08.docx</span></span>
-<span><span class="co">#&gt; 17                       INSPIRE Program 🏫🚸🌳/INSPIRE Planning Guide - Updated.docx</span></span>
+<span><span class="co">#&gt; 17          INSPIRE Program 🏫🚸🌳/INSPIRE Planning and Program Management Guide.docx</span></span>
 <span><span class="co">#&gt; 18                                             INSPIRE Program 🏫🚸🌳/INSPIRE Program</span></span>
 <span><span class="co">#&gt; 19                               INSPIRE Program 🏫🚸🌳/INSPIRE Program Calendar.xlsx</span></span>
 <span><span class="co">#&gt; 20                                INSPIRE Program 🏫🚸🌳/INSPIRE Rec tables 2023.xlsx</span></span>
 <span><span class="co">#&gt; 21                                 INSPIRE Program 🏫🚸🌳/INSPIRE Workflow DRAFT.docx</span></span>
-<span><span class="co">#&gt; 22           INSPIRE Program 🏫🚸🌳/Middle Neighborhoods INSPIRE Assessment Plan.docx</span></span>
-<span><span class="co">#&gt; 23                         INSPIRE Program 🏫🚸🌳/Preparing for a Community Walk.docx</span></span>
-<span><span class="co">#&gt; 24                                    INSPIRE Program 🏫🚸🌳/Test Planner Import.xlsx</span></span>
-<span><span class="co">#&gt;       size isdir                                 id</span></span>
-<span><span class="co">#&gt; 1        0  TRUE 01EK4O46SKWLCBFTE2HRDYDHP5IJNW2OIU</span></span>
-<span><span class="co">#&gt; 2  427.82M  TRUE 01EK4O46W2BVSN34MWIJCZO45SX2RIMVRR</span></span>
-<span><span class="co">#&gt; 3   125.1M  TRUE 01EK4O46TWHR6QA77FQRAK3TFSP5Z5WGUV</span></span>
-<span><span class="co">#&gt; 4    2.27G  TRUE 01EK4O46XRFXKSJ4MSCVHIXD3E2JCCGZ4Y</span></span>
-<span><span class="co">#&gt; 5  903.26M  TRUE 01EK4O46TNZAXB5BWALZEJF4Y5NCBZPPKB</span></span>
-<span><span class="co">#&gt; 6  448.55M  TRUE 01EK4O46XP2EGVNL5XUNC2GGCWCXQOCBR6</span></span>
-<span><span class="co">#&gt; 7  150.88M  TRUE 01EK4O46S5WYIRFXP42ZBZ3XJBCAX5WRD2</span></span>
-<span><span class="co">#&gt; 8   43.01K FALSE 01EK4O46S42QAM2K6FSBAZPBQOS4VBT3YI</span></span>
-<span><span class="co">#&gt; 9   29.88K FALSE 01EK4O46VKEMUM7LD3YNHJ5IA67DXT6K42</span></span>
-<span><span class="co">#&gt; 10   15.3K FALSE 01EK4O46XFZKGJN3S4AVBYMIEB5OQTG3K7</span></span>
-<span><span class="co">#&gt; 11  20.97K FALSE 01EK4O46RLN3E7BWYST5GIKRJAVB7VDI3N</span></span>
-<span><span class="co">#&gt; 12   23.4K FALSE 01EK4O46TFJABPEPMTS5CINCRI7LRAN554</span></span>
-<span><span class="co">#&gt; 13  29.06K FALSE 01EK4O46UOLVTZZANSPJHZ3ICJBFFGO7P5</span></span>
-<span><span class="co">#&gt; 14  13.32M FALSE 01EK4O46VQJZ4S7SZ2EFB3N267A4U67XVG</span></span>
-<span><span class="co">#&gt; 15  29.34K FALSE 01EK4O46VTPF5MRFPSYZHYQ2YJN5C3A4PP</span></span>
-<span><span class="co">#&gt; 16  32.51K FALSE 01EK4O46RKC2EBRPKIVRC34NZGU2XDUGXF</span></span>
-<span><span class="co">#&gt; 17  63.33K FALSE 01EK4O46RYX55LJ6VAAZFINIOB2XF2UXLF</span></span>
-<span><span class="co">#&gt; 18   2.03M  TRUE 01EK4O46XVR7PESI3HXZCJF2UDW6YZ53DD</span></span>
-<span><span class="co">#&gt; 19  23.14K FALSE 01EK4O46QCKIPTO4QQG5AY3V422XIJYQHZ</span></span>
-<span><span class="co">#&gt; 20  26.21K FALSE 01EK4O46S6CMHTD2335VFZS6VVEDMWRHJN</span></span>
-<span><span class="co">#&gt; 21   24.2K FALSE 01EK4O46UK2YTRIADBPBEIKM5ODDWX76JO</span></span>
-<span><span class="co">#&gt; 22  25.49K FALSE 01EK4O46TS3YMEYF4KTBF34FWZQ5ER7SF7</span></span>
-<span><span class="co">#&gt; 23  22.73K FALSE 01EK4O46W4HZJORDO57VBL6YIFK3VTDZST</span></span>
-<span><span class="co">#&gt; 24  15.17K FALSE 01EK4O46XDUXMFXPTV4NAICXGZ2YGAYAJU</span></span>
-<span><span class="co">#&gt;         type</span></span>
-<span><span class="co">#&gt; 1  directory</span></span>
-<span><span class="co">#&gt; 2  directory</span></span>
-<span><span class="co">#&gt; 3  directory</span></span>
-<span><span class="co">#&gt; 4  directory</span></span>
-<span><span class="co">#&gt; 5  directory</span></span>
-<span><span class="co">#&gt; 6  directory</span></span>
-<span><span class="co">#&gt; 7  directory</span></span>
-<span><span class="co">#&gt; 8       file</span></span>
-<span><span class="co">#&gt; 9       file</span></span>
-<span><span class="co">#&gt; 10      file</span></span>
-<span><span class="co">#&gt; 11      file</span></span>
-<span><span class="co">#&gt; 12      file</span></span>
-<span><span class="co">#&gt; 13      file</span></span>
-<span><span class="co">#&gt; 14      file</span></span>
-<span><span class="co">#&gt; 15      file</span></span>
-<span><span class="co">#&gt; 16      file</span></span>
-<span><span class="co">#&gt; 17      file</span></span>
-<span><span class="co">#&gt; 18 directory</span></span>
-<span><span class="co">#&gt; 19      file</span></span>
-<span><span class="co">#&gt; 20      file</span></span>
-<span><span class="co">#&gt; 21      file</span></span>
-<span><span class="co">#&gt; 22      file</span></span>
-<span><span class="co">#&gt; 23      file</span></span>
-<span><span class="co">#&gt; 24      file</span></span></code></pre></div>
+<span><span class="co">#&gt; 22              INSPIRE Program 🏫🚸🌳/inspire-area-plan-document-template Folder.zip</span></span>
+<span><span class="co">#&gt; 23           INSPIRE Program 🏫🚸🌳/Middle Neighborhoods INSPIRE Assessment Plan.docx</span></span>
+<span><span class="co">#&gt; 24                         INSPIRE Program 🏫🚸🌳/Preparing for a Community Walk.docx</span></span>
+<span><span class="co">#&gt; 25                                    INSPIRE Program 🏫🚸🌳/Test Planner Import.xlsx</span></span>
+<span><span class="co">#&gt; 26                                    INSPIRE Program 🏫🚸🌳/USP Interview notes.docx</span></span>
+<span><span class="co">#&gt;       size isdir                                 id      type</span></span>
+<span><span class="co">#&gt; 1        0  TRUE 01EK4O46SKWLCBFTE2HRDYDHP5IJNW2OIU directory</span></span>
+<span><span class="co">#&gt; 2  427.88M  TRUE 01EK4O46W2BVSN34MWIJCZO45SX2RIMVRR directory</span></span>
+<span><span class="co">#&gt; 3  125.24M  TRUE 01EK4O46TWHR6QA77FQRAK3TFSP5Z5WGUV directory</span></span>
+<span><span class="co">#&gt; 4    2.96G  TRUE 01EK4O46XRFXKSJ4MSCVHIXD3E2JCCGZ4Y directory</span></span>
+<span><span class="co">#&gt; 5  904.73M  TRUE 01EK4O46TNZAXB5BWALZEJF4Y5NCBZPPKB directory</span></span>
+<span><span class="co">#&gt; 6  469.83M  TRUE 01EK4O46XP2EGVNL5XUNC2GGCWCXQOCBR6 directory</span></span>
+<span><span class="co">#&gt; 7  150.88M  TRUE 01EK4O46S5WYIRFXP42ZBZ3XJBCAX5WRD2 directory</span></span>
+<span><span class="co">#&gt; 8   43.01K FALSE 01EK4O46S42QAM2K6FSBAZPBQOS4VBT3YI      file</span></span>
+<span><span class="co">#&gt; 9   29.88K FALSE 01EK4O46VKEMUM7LD3YNHJ5IA67DXT6K42      file</span></span>
+<span><span class="co">#&gt; 10   15.3K FALSE 01EK4O46XFZKGJN3S4AVBYMIEB5OQTG3K7      file</span></span>
+<span><span class="co">#&gt; 11  20.97K FALSE 01EK4O46RLN3E7BWYST5GIKRJAVB7VDI3N      file</span></span>
+<span><span class="co">#&gt; 12   23.4K FALSE 01EK4O46TFJABPEPMTS5CINCRI7LRAN554      file</span></span>
+<span><span class="co">#&gt; 13  29.06K FALSE 01EK4O46UOLVTZZANSPJHZ3ICJBFFGO7P5      file</span></span>
+<span><span class="co">#&gt; 14  13.32M FALSE 01EK4O46VQJZ4S7SZ2EFB3N267A4U67XVG      file</span></span>
+<span><span class="co">#&gt; 15  29.34K FALSE 01EK4O46VTPF5MRFPSYZHYQ2YJN5C3A4PP      file</span></span>
+<span><span class="co">#&gt; 16  32.51K FALSE 01EK4O46RKC2EBRPKIVRC34NZGU2XDUGXF      file</span></span>
+<span><span class="co">#&gt; 17  75.06K FALSE 01EK4O46RYX55LJ6VAAZFINIOB2XF2UXLF      file</span></span>
+<span><span class="co">#&gt; 18   2.03M  TRUE 01EK4O46XVR7PESI3HXZCJF2UDW6YZ53DD directory</span></span>
+<span><span class="co">#&gt; 19  23.14K FALSE 01EK4O46QCKIPTO4QQG5AY3V422XIJYQHZ      file</span></span>
+<span><span class="co">#&gt; 20  26.21K FALSE 01EK4O46S6CMHTD2335VFZS6VVEDMWRHJN      file</span></span>
+<span><span class="co">#&gt; 21   24.2K FALSE 01EK4O46UK2YTRIADBPBEIKM5ODDWX76JO      file</span></span>
+<span><span class="co">#&gt; 22   3.44M FALSE 01EK4O46WOYDIUE5PAFZA3RNIIEFOTXY36      file</span></span>
+<span><span class="co">#&gt; 23  25.49K FALSE 01EK4O46TS3YMEYF4KTBF34FWZQ5ER7SF7      file</span></span>
+<span><span class="co">#&gt; 24  22.73K FALSE 01EK4O46W4HZJORDO57VBL6YIFK3VTDZST      file</span></span>
+<span><span class="co">#&gt; 25  15.17K FALSE 01EK4O46XDUXMFXPTV4NAICXGZ2YGAYAJU      file</span></span>
+<span><span class="co">#&gt; 26   21.4K FALSE 01EK4O46S7HDHRZEKDC5BK46RX76SMB2BJ      file</span></span></code></pre></div>
 <p>You can use the same URL to get a character vector of file names:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sp_dir_info.html">sp_dir_ls</a></span><span class="op">(</span><span class="va">dir_url</span><span class="op">)</span></span>
@@ -258,19 +230,22 @@ drives, lists, and items from SharePoint:</p>
 <span><span class="co">#&gt; [14] "INSPIRE DOP Website Copy.docx"                              </span></span>
 <span><span class="co">#&gt; [15] "INSPIRE Master Contact List.xlsx"                           </span></span>
 <span><span class="co">#&gt; [16] "INSPIRE Plan Timelines 2021_08.docx"                        </span></span>
-<span><span class="co">#&gt; [17] "INSPIRE Planning Guide - Updated.docx"                      </span></span>
+<span><span class="co">#&gt; [17] "INSPIRE Planning and Program Management Guide.docx"         </span></span>
 <span><span class="co">#&gt; [18] "INSPIRE Program"                                            </span></span>
 <span><span class="co">#&gt; [19] "INSPIRE Program Calendar.xlsx"                              </span></span>
 <span><span class="co">#&gt; [20] "INSPIRE Rec tables 2023.xlsx"                               </span></span>
 <span><span class="co">#&gt; [21] "INSPIRE Workflow DRAFT.docx"                                </span></span>
-<span><span class="co">#&gt; [22] "Middle Neighborhoods INSPIRE Assessment Plan.docx"          </span></span>
-<span><span class="co">#&gt; [23] "Preparing for a Community Walk.docx"                        </span></span>
-<span><span class="co">#&gt; [24] "Test Planner Import.xlsx"</span></span></code></pre></div>
+<span><span class="co">#&gt; [22] "inspire-area-plan-document-template Folder.zip"             </span></span>
+<span><span class="co">#&gt; [23] "Middle Neighborhoods INSPIRE Assessment Plan.docx"          </span></span>
+<span><span class="co">#&gt; [24] "Preparing for a Community Walk.docx"                        </span></span>
+<span><span class="co">#&gt; [25] "Test Planner Import.xlsx"                                   </span></span>
+<span><span class="co">#&gt; [26] "USP Interview notes.docx"</span></span></code></pre></div>
 <p>But you can’t use that URL to get a list:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sp_list.html">get_sp_list</a></span><span class="op">(</span><span class="va">dir_url</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in `call_match()`:</span></span>
-<span><span class="co">#&gt; ! `fn` must be supplied.</span></span></code></pre></div>
+<span><span class="co">#&gt; Error:</span></span>
+<span><span class="co">#&gt; ! `url` must be a URL with ":l:" or "/Lists/" to be a valid SharePoint</span></span>
+<span><span class="co">#&gt;   list URL.</span></span></code></pre></div>
 <p>SharePoint lists have two different styles of URLs (that I’ve seen).
 This one works:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>list_url <span class="ot">&lt;-</span> <span class="st">"https://bmore.sharepoint.com/:l:/r/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker?e=0P1fFX"</span></span>
@@ -281,18 +256,16 @@ This one works:</p>
 <span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>ℹ Getting list from SharePoint</span>
 <span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a></span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>✔ Getting list from SharePoint [<span class="dv">119</span>ms]</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>✔ Getting list from SharePoint [<span class="dv">131</span>ms]</span>
 <span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; &lt;Sharepoint list 'Data Governance Progress Tracker'&gt;</span></span>
 <span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt;   directory id: 5c21d327-7016-4b69-ae0d-dc95059a876c </span></span>
 <span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt;   web link: https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker </span></span>
 <span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt;   description:  </span></span>
 <span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
 <span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt;   Methods:</span></span>
-<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt;     bulk_import, create_item, delete,</span></span>
-<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt;     delete_item, do_operation,</span></span>
-<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt;     get_column_info, get_item,</span></span>
-<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt;     get_list_pager, list_items,</span></span>
-<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt;     sync_fields, update, update_item</span></span></code></pre></div>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt;     bulk_import, create_item, delete, delete_item,</span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt;     do_operation, get_column_info, get_item, get_list_pager,</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt;     list_items, sync_fields, update, update_item</span></span></code></pre></div>
 <p>As of January 2024, this one also works:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="st">"https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"</span></span>
@@ -310,15 +283,12 @@ This one works:</p>
 <span><span class="co">#&gt;   type: file </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt;   Methods:</span></span>
-<span><span class="co">#&gt;     copy, create_folder,</span></span>
-<span><span class="co">#&gt;     create_share_link, delete,</span></span>
-<span><span class="co">#&gt;     do_operation, download, get_item,</span></span>
-<span><span class="co">#&gt;     get_list_pager, get_parent_folder,</span></span>
-<span><span class="co">#&gt;     get_path, is_folder, list_files,</span></span>
-<span><span class="co">#&gt;     list_items, load_dataframe,</span></span>
-<span><span class="co">#&gt;     load_rdata, load_rds, move, open,</span></span>
-<span><span class="co">#&gt;     save_dataframe, save_rdata, save_rds,</span></span>
-<span><span class="co">#&gt;     sync_fields, update, upload</span></span></code></pre></div>
+<span><span class="co">#&gt;     copy, create_folder, create_share_link, delete,</span></span>
+<span><span class="co">#&gt;     do_operation, download, get_item, get_list_pager,</span></span>
+<span><span class="co">#&gt;     get_parent_folder, get_path, is_folder, list_files,</span></span>
+<span><span class="co">#&gt;     list_items, load_dataframe, load_rdata, load_rds, move,</span></span>
+<span><span class="co">#&gt;     open, save_dataframe, save_rdata, save_rds, sync_fields,</span></span>
+<span><span class="co">#&gt;     update, upload</span></span></code></pre></div>
 <p>Or you can also use a document URL (as long as the default library is
 set to match the document library of the supplied URL):</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
@@ -332,15 +302,12 @@ set to match the document library of the supplied URL):</p>
 <span><span class="co">#&gt;   type: file </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt;   Methods:</span></span>
-<span><span class="co">#&gt;     copy, create_folder,</span></span>
-<span><span class="co">#&gt;     create_share_link, delete,</span></span>
-<span><span class="co">#&gt;     do_operation, download, get_item,</span></span>
-<span><span class="co">#&gt;     get_list_pager, get_parent_folder,</span></span>
-<span><span class="co">#&gt;     get_path, is_folder, list_files,</span></span>
-<span><span class="co">#&gt;     list_items, load_dataframe,</span></span>
-<span><span class="co">#&gt;     load_rdata, load_rds, move, open,</span></span>
-<span><span class="co">#&gt;     save_dataframe, save_rdata, save_rds,</span></span>
-<span><span class="co">#&gt;     sync_fields, update, upload</span></span></code></pre></div>
+<span><span class="co">#&gt;     copy, create_folder, create_share_link, delete,</span></span>
+<span><span class="co">#&gt;     do_operation, download, get_item, get_list_pager,</span></span>
+<span><span class="co">#&gt;     get_parent_folder, get_path, is_folder, list_files,</span></span>
+<span><span class="co">#&gt;     list_items, load_dataframe, load_rdata, load_rds, move,</span></span>
+<span><span class="co">#&gt;     open, save_dataframe, save_rdata, save_rds, sync_fields,</span></span>
+<span><span class="co">#&gt;     update, upload</span></span></code></pre></div>
   </main>
 </div>
 

@@ -1,15 +1,17 @@
 #' Get drive or site for list
 #'
 #' @noRd
-get_ms_list_obj <- function(list_name = NULL,
-                            list_id = NULL,
-                            ...,
-                            site_url = NULL,
-                            site = NULL,
-                            drive_name = NULL,
-                            drive_id = NULL,
-                            drive = NULL,
-                            call = caller_env()) {
+get_ms_list_obj <- function(
+  list_name = NULL,
+  list_id = NULL,
+  ...,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  call = caller_env()
+) {
   get_sp_drive_obj <- any(c(
     !is.null(drive),
     !is.null(drive_name) && !identical(drive_name, "Lists"),
@@ -17,25 +19,27 @@ get_ms_list_obj <- function(list_name = NULL,
   ))
 
   if (get_sp_drive_obj) {
-    drive <- drive %||% get_sp_drive(
-      drive_name = drive_name,
-      drive_id = drive_id,
-      ...,
-      properties = FALSE,
-      site_url = site_url,
-      call = call
-    )
+    drive <- drive %||%
+      get_sp_drive(
+        drive_name = drive_name,
+        drive_id = drive_id,
+        ...,
+        properties = FALSE,
+        site_url = site_url,
+        call = call
+      )
 
     check_ms_drive(drive, call = call)
 
     return(drive)
   }
 
-  site <- site %||% get_sp_site(
-    site_url = site_url,
-    ...,
-    call = call
-  )
+  site <- site %||%
+    get_sp_site(
+      site_url = site_url,
+      ...,
+      call = call
+    )
 
   check_ms_site(site, call = call)
 
@@ -74,17 +78,19 @@ NULL
 #' @returns A data frame `as_data_frame = TRUE` or a `ms_list` object (or list
 #'   of `ms_list` objects) if `FALSE`.
 #' @export
-get_sp_list <- function(list_name = NULL,
-                        list_id = NULL,
-                        ...,
-                        site_url = NULL,
-                        site = NULL,
-                        drive_name = NULL,
-                        drive_id = NULL,
-                        drive = NULL,
-                        metadata = FALSE,
-                        as_data_frame = FALSE,
-                        call = caller_env()) {
+get_sp_list <- function(
+  list_name = NULL,
+  list_id = NULL,
+  ...,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  metadata = FALSE,
+  as_data_frame = FALSE,
+  call = caller_env()
+) {
   # FIXME: URL parsing is not set up for links to SharePoint lists
   if (is_url(list_name)) {
     url <- list_name
@@ -138,7 +144,7 @@ get_sp_list <- function(list_name = NULL,
 
     sp_list_id_pairs <- map(
       sp_lists,
-      \(x){
+      \(x) {
         list(
           name = x$properties$name,
           id = x$properties$id
@@ -192,16 +198,18 @@ get_sp_list <- function(list_name = NULL,
 #' @name list_sp_lists
 #' @inheritParams ms_graph_arg_terms
 #' @export
-list_sp_lists <- function(site_url = NULL,
-                          filter = NULL,
-                          n = Inf,
-                          ...,
-                          site = NULL,
-                          drive_name = NULL,
-                          drive_id = NULL,
-                          drive = NULL,
-                          as_data_frame = TRUE,
-                          call = caller_env()) {
+list_sp_lists <- function(
+  site_url = NULL,
+  filter = NULL,
+  n = Inf,
+  ...,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  as_data_frame = TRUE,
+  call = caller_env()
+) {
   ms_list_obj <- get_ms_list_obj(
     site_url = site_url,
     ...,
@@ -236,18 +244,20 @@ list_sp_lists <- function(site_url = NULL,
 #'   of the local `ms_list` object with the fields of the SharePoint List source
 #'   before retrieving list metadata.
 #' @export
-get_sp_list_metadata <- function(list_name = NULL,
-                                 list_id = NULL,
-                                 sp_list = NULL,
-                                 ...,
-                                 keep = c("all", "editable", "visible"),
-                                 sync_fields = FALSE,
-                                 site_url = NULL,
-                                 site = NULL,
-                                 drive_name = NULL,
-                                 drive_id = NULL,
-                                 drive = NULL,
-                                 call = caller_env()) {
+get_sp_list_metadata <- function(
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  ...,
+  keep = c("all", "editable", "visible"),
+  sync_fields = FALSE,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  call = caller_env()
+) {
   if (is.null(sp_list)) {
     sp_list_meta <- get_sp_list(
       list_name = list_name,
@@ -288,32 +298,128 @@ get_sp_list_metadata <- function(list_name = NULL,
 #' @name delete_sp_list
 #' @param confirm If `TRUE`, confirm deletion of list before proceeding.
 #' @export
-delete_sp_list <- function(list_name = NULL,
-                           list_id = NULL,
-                           sp_list = NULL,
-                           confirm = TRUE,
-                           ...,
-                           site_url = NULL,
-                           site = NULL,
-                           drive_name = NULL,
-                           drive_id = NULL,
-                           drive = NULL,
-                           call = caller_env()) {
-  sp_list <- sp_list %||% get_sp_list(
-    list_name = list_name,
-    list_id = list_id,
-    ...,
-    as_data_frame = FALSE,
-    metadata = TRUE,
-    site_url = site_url,
-    site = site,
-    drive_name = drive_name,
-    drive_id = drive_id,
-    drive = drive,
-    call = call
-  )
+delete_sp_list <- function(
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  confirm = TRUE,
+  ...,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  call = caller_env()
+) {
+  sp_list <- sp_list %||%
+    get_sp_list(
+      list_name = list_name,
+      list_id = list_id,
+      ...,
+      as_data_frame = FALSE,
+      metadata = TRUE,
+      site_url = site_url,
+      site = site,
+      drive_name = drive_name,
+      drive_id = drive_id,
+      drive = drive,
+      call = call
+    )
 
   check_ms_obj(sp_list, "ms_list", call = call)
 
   sp_list$delete(confirm = confirm)
+}
+
+#' Create a SharePoint List
+#'
+#' [create_sp_list()] allows the creation of a SharePoint list for a site. See:
+#' <https://learn.microsoft.com/en-us/graph/api/list-create?view=graph-rest-1.0&tabs=http>
+#'
+#' @param list_name Required. List name used as `displayName` property.
+#' @param description Optional description.
+#' @param columns Optional. Use [create_column_definition()] to create a single
+#' column definition or use [create_column_definition_list()] to create a list
+#' of column definitions.
+#' @inheritParams create_list_info
+#' @inheritParams get_sp_site
+#' @keywords internal
+#' @export
+create_sp_list <- function(
+  list_name,
+  ...,
+  description = NULL,
+  columns = NULL,
+  template = "genericList",
+  content_types = NULL,
+  hidden = NULL,
+  site_url = NULL,
+  site = NULL,
+  call = caller_env()
+) {
+  site <- site %||%
+    get_sp_site(
+      site_url = site_url,
+      ...,
+      call = call
+    )
+
+  body <- vctrs::list_drop_empty(
+    list(
+      displayName = list_name,
+      description = description,
+      columns = columns,
+      list = create_list_info(
+        hidden = hidden,
+        content_types = content_types,
+        template = template,
+        call = call
+      )
+    )
+  )
+
+  site$do_operation(
+    op = "lists",
+    body = body,
+    encode = "json",
+    http_verb = "POST"
+  )
+}
+
+#' Create listinfo object
+#'
+#' Helper function to create a listInfo object for use internally by [create_sp_list()].
+#' See: <https://learn.microsoft.com/en-us/graph/api/resources/listinfo?view=graph-rest-1.0>
+#'
+#' @param template Type of template to use in creating the list.
+#' @param content_types Optional. Set `TRUE` for `contentTypesEnabled` to be enabled.
+#' @param hidden Optional. Set `TRUE` for list to be hidden.
+#' @keywords internal
+#' @export
+create_list_info <- function(
+  template = c(
+    "documentLibrary",
+    "genericList",
+    "task",
+    "survey",
+    "announcements",
+    "contacts"
+  ),
+  content_types = NULL,
+  hidden = NULL,
+  call = caller_env()
+) {
+  # Validate listinfo properties
+  template <- arg_match(template, error_call = call)
+
+  check_bool(content_types, allow_null = TRUE, call = call)
+  check_bool(hidden, allow_null = TRUE, call = call)
+
+  vctrs::list_drop_empty(
+    list(
+      hidden = hidden,
+      contentTypesEnabled = content_types,
+      template = template
+    )
+  )
 }

@@ -12,7 +12,15 @@ create_list_info(
   call = caller_env()
 )
 }
+\arguments{
+\item{template}{Type of template to use in creating the list.}
+
+\item{content_types}{Optional. Set \code{TRUE} for \code{contentTypesEnabled} to be enabled.}
+
+\item{hidden}{Optional. Set \code{TRUE} for list to be hidden.}
+}
 \description{
-Helper function for \code{\link[=create_sp_list]{create_sp_list()}}
+Helper function to create a listInfo object for use internally by \code{\link[=create_sp_list]{create_sp_list()}}.
+See: \url{https://learn.microsoft.com/en-us/graph/api/resources/listinfo?view=graph-rest-1.0}
 }
 \keyword{internal}

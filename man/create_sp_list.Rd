@@ -2,7 +2,7 @@
 % Please edit documentation in R/sp_list.R
 \name{create_sp_list}
 \alias{create_sp_list}
-\title{Create SharePoint List}
+\title{Create a SharePoint List}
 \usage{
 create_sp_list(
   list_name,
@@ -25,7 +25,15 @@ create_sp_list(
 
 \item{description}{Optional description.}
 
-\item{columns}{Optional. Use \code{\link[=create_column_definition]{create_column_definition()}} to create a single column definition or use \code{\link[=create_column_definition_list]{create_column_definition_list()}} to create a list of column definitions.}
+\item{columns}{Optional. Use \code{\link[=create_column_definition]{create_column_definition()}} to create a single
+column definition or use \code{\link[=create_column_definition_list]{create_column_definition_list()}} to create a list
+of column definitions.}
+
+\item{template}{Type of template to use in creating the list.}
+
+\item{content_types}{Optional. Set \code{TRUE} for \code{contentTypesEnabled} to be enabled.}
+
+\item{hidden}{Optional. Set \code{TRUE} for list to be hidden.}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
@@ -41,6 +49,7 @@ mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \description{
+\code{\link[=create_sp_list]{create_sp_list()}} allows the creation of a SharePoint list for a site. See:
 \url{https://learn.microsoft.com/en-us/graph/api/list-create?view=graph-rest-1.0&tabs=http}
 }
 \keyword{internal}

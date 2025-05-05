@@ -149,7 +149,10 @@ create_choice_column <- function(
     "radioButtons"
   )
 ) {
-  display_as <- arg_match(display_as)
+  if (!is.null(display_as)) {
+    display_as <- arg_match(display_as)
+  }
+
   check_bool(allow_text, allow_null = TRUE)
 
   create_column_definition(

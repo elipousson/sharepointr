@@ -45,7 +45,9 @@ create_choice_column(
   choices,
   ...,
   allow_text = TRUE,
-  display_as = c("checkBoxes", "dropDownMenu", "radioButtons")
+  display_as = c("checkBoxes", "dropDownMenu", "radioButtons"),
+  allow_na = TRUE,
+  na_replacement = "NA"
 )
 
 create_number_column(

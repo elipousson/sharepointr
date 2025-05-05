@@ -147,13 +147,17 @@ create_choice_column <- function(
     "checkBoxes",
     "dropDownMenu",
     "radioButtons"
-  )
+  ),
+  allow_na = TRUE,
+  na_replacement = "NA"
 ) {
   if (!is.null(display_as)) {
     display_as <- arg_match(display_as)
   }
 
   check_bool(allow_text, allow_null = TRUE)
+  check_character(choices, allow_na = allow_na)
+  choices <- stringr::str_replace_na(choices, replacement = na_replacement)
 
   create_column_definition(
     name = name,

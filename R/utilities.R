@@ -42,11 +42,19 @@ is_url <- function(x) {
 #' Check if a URL is valid
 #'
 #' @noRd
-check_url <- function(x,
-                      allow_null = FALSE,
-                      arg = caller_arg(x),
-                      call = caller_env()) {
-  check_string(x, allow_empty = FALSE, allow_null = allow_null, arg = arg, call = call)
+check_url <- function(
+  x,
+  allow_null = FALSE,
+  arg = caller_arg(x),
+  call = caller_env()
+) {
+  check_string(
+    x,
+    allow_empty = FALSE,
+    allow_null = allow_null,
+    arg = arg,
+    call = call
+  )
 
   if (allow_null && is_null(x)) {
     return(invisible(NULL))
@@ -67,12 +75,14 @@ check_url <- function(x,
 #' Check if x matches the pattern of a SharePoint List URL
 #'
 #' @noRd
-check_sp_list_url <- function(x,
-                              ...,
-                              allow_null = FALSE,
-                              allow_personal = FALSE,
-                              arg = caller_arg(x),
-                              call = caller_env()) {
+check_sp_list_url <- function(
+  x,
+  ...,
+  allow_null = FALSE,
+  allow_personal = FALSE,
+  arg = caller_arg(x),
+  call = caller_env()
+) {
   if (allow_null && is.null(x)) {
     return(invisible(NULL))
   }
@@ -189,12 +199,14 @@ list_replace_empty <- function(x, replace = NULL) {
 #'
 #' @noRd
 #' @importFrom vctrs vec_rbind
-ms_obj_list_as_data_frame <- function(ms_obj_list,
-                                      obj_col = "ms_plan",
-                                      keep_list_cols = NULL,
-                                      unlist_cols = TRUE,
-                                      .name_repair = "universal_quiet",
-                                      .error_call = caller_env()) {
+ms_obj_list_as_data_frame <- function(
+  ms_obj_list,
+  obj_col = "ms_plan",
+  keep_list_cols = NULL,
+  unlist_cols = TRUE,
+  .name_repair = "universal_quiet",
+  .error_call = caller_env()
+) {
   ms_obj_list <- map(
     ms_obj_list,
     function(obj) {
@@ -222,13 +234,15 @@ ms_obj_list_as_data_frame <- function(ms_obj_list,
 #'   format instead of attempting to convert to a character vector.
 #' @keywords internal
 #' @importFrom vctrs list_sizes
-ms_obj_as_data_frame <- function(ms_obj,
-                                 obj_col = "ms_plan",
-                                 recursive = FALSE,
-                                 keep_list_cols = NULL,
-                                 unlist_cols = TRUE,
-                                 .name_repair = "universal_quiet",
-                                 .error_call = caller_env()) {
+ms_obj_as_data_frame <- function(
+  ms_obj,
+  obj_col = "ms_plan",
+  recursive = FALSE,
+  keep_list_cols = NULL,
+  unlist_cols = TRUE,
+  .name_repair = "universal_quiet",
+  .error_call = caller_env()
+) {
   if (has_name(as.list(ms_obj), "properties")) {
     properties <- ms_obj$properties
   } else {
@@ -281,33 +295,50 @@ ms_obj_as_data_frame <- function(ms_obj,
 #' are supplied or if the supplied argument is not a string
 #'
 #' @noRd
-check_exclusive_strings <- function(x = NULL,
-                                    y = NULL,
-                                    x_arg = caller_arg(x),
-                                    y_arg = caller_arg(y),
-                                    allow_empty = FALSE,
-                                    require = TRUE,
-                                    call = caller_env()) {
+check_exclusive_strings <- function(
+  x = NULL,
+  y = NULL,
+  x_arg = caller_arg(x),
+  y_arg = caller_arg(y),
+  allow_empty = FALSE,
+  require = TRUE,
+  call = caller_env()
+) {
   check_exclusive_args(
-    x = x, y = y,
-    x_arg = x_arg, y_arg = y_arg,
-    require = require, call = call
+    x = x,
+    y = y,
+    x_arg = x_arg,
+    y_arg = y_arg,
+    require = require,
+    call = call
   )
 
-  check_string(x, allow_empty = allow_empty, allow_null = TRUE, call = call)
-  check_string(y, allow_empty = allow_empty, allow_null = TRUE, call = call)
+  check_string(
+    x,
+    allow_empty = allow_empty,
+    allow_null = TRUE,
+    call = call
+  )
+  check_string(
+    y,
+    allow_empty = allow_empty,
+    allow_null = TRUE,
+    call = call
+  )
 }
 
 
 #' Check if x or y is not `NULL` and error if neither or both are supplied
 #'
 #' @noRd
-check_exclusive_args <- function(x = NULL,
-                                 y = NULL,
-                                 x_arg = caller_arg(x),
-                                 y_arg = caller_arg(y),
-                                 require = TRUE,
-                                 call = caller_env()) {
+check_exclusive_args <- function(
+  x = NULL,
+  y = NULL,
+  x_arg = caller_arg(x),
+  y_arg = caller_arg(y),
+  require = TRUE,
+  call = caller_env()
+) {
   if (is_empty(c(x, y))) {
     if (!require) {
       return(invisible(NULL))
@@ -332,11 +363,12 @@ check_exclusive_args <- function(x = NULL,
 #' Repair column names using `vctrs::vec_as_names` and `rlang::set_names`
 #' @noRd
 .set_as_names <- function(
-    data,
-    nm = NULL,
-    repair = "unique",
-    repair_arg = caller_arg(repair),
-    call = caller_env()) {
+  data,
+  nm = NULL,
+  repair = "unique",
+  repair_arg = caller_arg(repair),
+  call = caller_env()
+) {
   nm <- nm %||% names(data)
 
   if (!is.null(repair)) {
@@ -355,8 +387,9 @@ check_exclusive_args <- function(x = NULL,
 #' Apply a label attribute value to each column of a data frame
 #' @noRd
 label_cols <- function(
-    data,
-    values) {
+  data,
+  values
+) {
   nm <- intersect(names(values), colnames(data))
 
   for (v in nm) {

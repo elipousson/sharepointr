@@ -9,6 +9,7 @@
 \alias{create_boolean_column}
 \alias{create_currency_column}
 \alias{create_calculated_column}
+\alias{create_lookup_column}
 \title{Create a column definition for use with the create column method for SharePoint lists}
 \usage{
 create_column_definition(
@@ -74,9 +75,35 @@ create_calculated_column(
   name,
   ...,
   formula,
-  format = NULL,
+  format = c("dateOnly", "dateTime"),
   output_type = c("boolean", "currency", "dateTime", "number", "text")
 )
+
+create_lookup_column(
+  name,
+  lookup_list_column,
+  ...,
+  lookup_list_id = NULL,
+  lookup_list = NULL,
+  allow_multiple = NULL,
+  allow_unlimited_length = NULL,
+  primary_lookup_column_id = NULL
+)
+}
+\arguments{
+\item{format}{"dateOnly" or "dateTime". Required if \code{output_type} is "dateTime" otherwise ignored.}
+
+\item{formula}{Required string with formula for calculated column definition.}
+
+\item{output_type}{Value type returned by calculated formula.}
+
+\item{lookup_list_id, lookup_list}{Lookup list ID string or "ms_list" class object with id value in list properties.}
+
+\item{allow_multiple}{If \code{TRUE}, allow lookup column to return multiple values.}
+
+\item{allow_unlimited_length}{If \code{TRUE}, allow lookup column to return any length value.}
+
+\item{primary_lookup_column_id}{If column definnition is for a secondary column, the primary lookup column ID must be supplied.}
 }
 \description{
 \code{\link[=create_column_definition]{create_column_definition()}} builds a named list with the properties of the

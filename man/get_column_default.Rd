@@ -4,9 +4,21 @@
 \alias{get_column_default}
 \title{Get a column default value or formula}
 \usage{
-get_column_default(value = NULL, formula = NULL, allow_null = TRUE)
+get_column_default(
+  value = NULL,
+  formula = NULL,
+  allow_null = TRUE,
+  call = caller_env()
+)
+}
+\arguments{
+\item{value}{Value used as default value.}
+
+\item{formula}{Formula used as default value.}
+
+\item{allow_null}{If \code{TRUE}, return \code{NULL} if both \code{value} and \code{formula} are \code{NULL}.}
 }
 \description{
-\code{\link[=get_column_default]{get_column_default()}} returns a formula or value or NULL
+\code{\link[=get_column_default]{get_column_default()}} returns a formula or value or NULL.
 }
 \keyword{internal}

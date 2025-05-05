@@ -243,7 +243,7 @@ create_datetime_column <- function(
   create_column_definition(
     name = name,
     ...,
-    .col_type = "number",
+    .col_type = "dateTime",
     format = format,
     displayAs = display_as
   )
@@ -272,12 +272,15 @@ create_currency_column <- function(name, ..., locale = "en-us") {
 }
 
 #' @rdname create_column_definition
+#' @param formula Required string with formula for calculated column definition.
+#' @param format "dateOnly" or "dateTime". Required if `output_type` is "dateTime" otherwise ignored.
+#' @param output_type Value type returned by calculated formula.
 #' @export
 create_calculated_column <- function(
   name,
   ...,
   formula,
-  format = NULL,
+  format = c("dateOnly", "dateTime"),
   output_type = c("boolean", "currency", "dateTime", "number", "text")
 ) {
   check_string(formula)
@@ -287,6 +290,8 @@ create_calculated_column <- function(
       format,
       c("dateOnly", "dateTime")
     )
+  } else {
+    format <- NULL
   }
 
   create_column_definition(
@@ -296,6 +301,46 @@ create_calculated_column <- function(
     formula = formula,
     outputType = output_type,
     .col_type = "calculated"
+  )
+}
+
+#' @rdname create_column_definition
+#' @param lookup_list_id,lookup_list Lookup list ID string or "ms_list" class object with id value in list properties.
+#' @param allow_multiple If `TRUE`, allow lookup column to return multiple values.
+#' @param allow_unlimited_length If `TRUE`, allow lookup column to return any length value.
+#' @param primary_lookup_column_id If column definnition is for a secondary column, the primary lookup column ID must be supplied.
+#' @export
+create_lookup_column <- function(
+  name,
+  lookup_list_column,
+  ...,
+  lookup_list_id = NULL,
+  lookup_list = NULL,
+  allow_multiple = NULL,
+  allow_unlimited_length = NULL,
+  primary_lookup_column_id = NULL
+) {
+  check_string(lookup_list_column, allow_empty = FALSE)
+  check_bool(allow_multiple, allow_null = TRUE)
+  check_bool(allow_unlimited_length, allow_null = TRUE)
+  check_name(primary_lookup_column_id, allow_null = TRUE)
+
+  if (is.null(lookup_list_id) && !is.null(lookup_list)) {
+    check_ms_obj(lookup_list, "ms_list")
+    lookup_list_id <- lookup_list[["properties"]][["id"]]
+  }
+
+  check_string(lookup_list_id, allow_empty = FALSE)
+
+  create_column_definition(
+    name = name,
+    ...,
+    allowMultipleValues = allow_multiple,
+    allowUnlimitedLength = allow_unlimited_length,
+    listId = lookup_list_id,
+    columnName = lookup_list_column,
+    primaryLookupColumnId = primary_lookup_column_id,
+    .col_type = "lookup"
   )
 }
 
@@ -330,19 +375,24 @@ create_column_definition_list <- function(
 
 #' Get a column default value or formula
 #'
-#' [get_column_default()] returns a formula or value or NULL
+#' [get_column_default()] returns a formula or value or NULL.
+#'
+#' @param formula Formula used as default value.
+#' @param value Value used as default value.
+#' @param allow_null If `TRUE`, return `NULL` if both `value` and `formula` are `NULL`.
 #' @keywords internal
 #' @export
 get_column_default <- function(
   value = NULL,
   formula = NULL,
-  allow_null = TRUE
+  allow_null = TRUE,
+  call = caller_env()
 ) {
   if (allow_null && is.null(formula) && is.null(value)) {
     return(invisible(NULL))
   }
 
-  check_exclusive_strings(formula, value)
+  check_exclusive_strings(formula, value, call = call)
 
   if (!is.null(value)) {
     return(list(value = value))

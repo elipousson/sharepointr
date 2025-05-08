@@ -364,7 +364,7 @@ create_sp_list <- function(
       call = call
     )
 
-  body <- vctrs::list_drop_empty(
+  body <- compact(
     list(
       displayName = list_name,
       description = description,
@@ -415,11 +415,190 @@ create_list_info <- function(
   check_bool(content_types, allow_null = TRUE, call = call)
   check_bool(hidden, allow_null = TRUE, call = call)
 
-  vctrs::list_drop_empty(
+  compact(
     list(
       hidden = hidden,
       contentTypesEnabled = content_types,
       template = template
     )
   )
+}
+
+#' Get SharePoint list column definition
+#'
+#' [get_sp_list_column()] get a list column definition.
+#'
+#' See Graph API documentation <https://learn.microsoft.com/en-us/graph/api/columndefinition-get?view=graph-rest-1.0&tabs=http>
+#'
+#' @inheritParams get_sp_list
+#' @keywords internal
+#' @export
+get_sp_list_column <- function(
+  sp_list = NULL,
+  column_name = NULL,
+  column_id = NULL,
+  list_name = NULL,
+  column_name_type = "name"
+) {
+  sp_list <- sp_list %||%
+    get_sp_list(
+      list_name = list_name,
+      as_data_frame = FALSE
+    )
+
+  if (!is.null(column_name) && is.null(column_id)) {
+    column_id <- sp_list_column_as_id(
+      column_name = column_name,
+      sp_list = sp_list,
+      column_name_type = column_name_type
+    )
+  }
+
+  sp_list$do_operation(
+    paste0(
+      "columns/",
+      column_id
+    ),
+    encode = "json",
+    http_verb = "GET"
+  )
+}
+
+#' Create, update, and delete SharePoint list columns
+#'
+#' [create_sp_list_column()] adds a column to a SharePoint list and
+#' [delete_sp_list_column()] removes a column to a SharePoint list.
+#' [update_sp_list_column()] updates a column definition for an existing column
+#' in a SharePoint list (but is not yet implemented).
+#'
+#' See documentation:
+#' <https://learn.microsoft.com/en-us/graph/api/list-post-columns?view=graph-rest-1.0&tabs=http>
+#'
+#' @inheritParams get_sp_list
+#' @inheritDotParams create_column_definition
+#' @param column_definition List with column definition created with
+#' [create_column_definition()] or a related function. Optional if `column_name` and any required additional parameters are provided.
+#' @keywords internal
+#' @export
+create_sp_list_column <- function(
+  sp_list = NULL,
+  ...,
+  column_name = NULL,
+  column_definition = NULL,
+  list_name = NULL
+) {
+  sp_list <- sp_list %||%
+    get_sp_list(
+      list_name = list_name,
+      as_data_frame = FALSE
+    )
+
+  sp_list$do_operation(
+    op = "columns",
+    body = column_definition %||%
+      create_column_definition(
+        name = column_name,
+        ...
+      ),
+    encode = "json",
+    http_verb = "POST"
+  )
+}
+
+# <https://learn.microsoft.com/en-us/graph/api/columndefinition-update?view=graph-rest-1.0&tabs=http>
+#' @rdname create_sp_list_column
+#' @export
+update_sp_list_column <- function(
+  sp_list = NULL,
+  column_name = NULL,
+  column_id = NULL,
+  ...,
+  list_name = NULL,
+  column_definition = NULL,
+  column_name_type = "name"
+) {
+  sp_list <- sp_list %||%
+    get_sp_list(
+      list_name = list_name,
+      as_data_frame = FALSE
+    )
+
+  if (!is.null(column_name) && is.null(column_id)) {
+    column_id <- sp_list_column_as_id(
+      column_name = column_name,
+      sp_list = sp_list,
+      column_name_type = column_name_type
+    )
+  }
+
+  existing_column <- get_sp_list_column(
+    sp_list = sp_list,
+    column_id = column_id
+  )
+
+  column_definition <- column_definition %||%
+    create_column_definition(
+      name = column_name,
+      ...
+    )
+
+  # TODO: Compare existing definition and proposed definition to use only
+  # different elements
+
+  sp_list$do_operation(
+    op = paste0(
+      "columns/",
+      column_id
+    ),
+    body = column_definition,
+    encode = "json",
+    http_verb = "PATCH"
+  )
+}
+
+# <https://learn.microsoft.com/en-us/graph/api/columndefinition-delete?view=graph-rest-1.0&tabs=http>
+#' @rdname create_sp_list_column
+#' @export
+delete_sp_list_column <- function(
+  sp_list = NULL,
+  column_name = NULL,
+  column_id = NULL,
+  list_name = NULL,
+  column_name_type = "name"
+) {
+  sp_list <- sp_list %||%
+    get_sp_list(
+      list_name = list_name,
+      as_data_frame = FALSE
+    )
+
+  if (!is.null(column_name) && is.null(column_id)) {
+    column_id <- sp_list_column_as_id(
+      column_name = column_name,
+      sp_list = sp_list,
+      column_name_type = column_name_type
+    )
+  }
+
+  sp_list$do_operation(
+    paste0(
+      "columns/",
+      column_id
+    ),
+    encode = "json",
+    http_verb = "DELETE"
+  )
+}
+
+#' @noRd
+sp_list_column_as_id <- function(
+  column_name,
+  sp_list = NULL,
+  column_name_type = "name"
+) {
+  column_name_type <- arg_match0(column_name_type, c("name", "displayName"))
+  column_info <- sp_list$get_column_info()
+  column_info[["id"]][
+    match(column_name, column_info[[column_name_type]])
+  ]
 }

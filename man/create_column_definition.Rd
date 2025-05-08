@@ -48,7 +48,8 @@ create_choice_column(
   allow_text = TRUE,
   display_as = c("checkBoxes", "dropDownMenu", "radioButtons"),
   allow_na = TRUE,
-  na_replacement = "NA"
+  na_replacement = "NA",
+  split = NULL
 )
 
 create_number_column(
@@ -96,6 +97,8 @@ create_lookup_column(
 \item{formula}{Required string with formula for calculated column definition.}
 
 \item{output_type}{Value type returned by calculated formula.}
+
+\item{lookup_list_column}{Name of lookup column in the lookup list to use.}
 
 \item{lookup_list_id, lookup_list}{Lookup list ID string or "ms_list" class object with id value in list properties.}
 

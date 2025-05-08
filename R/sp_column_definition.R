@@ -60,7 +60,7 @@ create_column_definition <- function(
     id = id
   )
 
-  col_definition <- vctrs::list_drop_empty(col_definition)
+  col_definition <- compact(col_definition)
 
   if (!is.null(.col_type)) {
     # The type-related properties are mutually exclusive;
@@ -84,9 +84,7 @@ create_column_definition <- function(
       )
     )
 
-    params <- vctrs::list_drop_empty(
-      list2(...)
-    )
+    params <- compact(list2(...))
 
     if (is_empty(params)) {
       params <- structure(list(), names = character(0))
@@ -149,15 +147,24 @@ create_choice_column <- function(
     "radioButtons"
   ),
   allow_na = TRUE,
-  na_replacement = "NA"
+  na_replacement = "NA",
+  split = NULL
 ) {
+  # Optionally validate `display_as`
   if (!is.null(display_as)) {
     display_as <- arg_match(display_as)
   }
 
   check_bool(allow_text, allow_null = TRUE)
+
+  # Validate and process choices
   check_character(choices, allow_na = allow_na)
   choices <- stringr::str_replace_na(choices, replacement = na_replacement)
+
+  # Split `choices` string if `split` is supplied
+  if (!is.null(split)) {
+    choices <- strsplit(choices, split = split)
+  }
 
   create_column_definition(
     name = name,
@@ -305,6 +312,7 @@ create_calculated_column <- function(
 }
 
 #' @rdname create_column_definition
+#' @param lookup_list_column Name of lookup column in the lookup list to use.
 #' @param lookup_list_id,lookup_list Lookup list ID string or "ms_list" class object with id value in list properties.
 #' @param allow_multiple If `TRUE`, allow lookup column to return multiple values.
 #' @param allow_unlimited_length If `TRUE`, allow lookup column to return any length value.

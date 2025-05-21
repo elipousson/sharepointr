@@ -10,6 +10,8 @@
 \alias{create_currency_column}
 \alias{create_calculated_column}
 \alias{create_lookup_column}
+\alias{create_person_column}
+\alias{create_group_column}
 \title{Create a column definition for use with the create column method for SharePoint lists}
 \usage{
 create_column_definition(
@@ -90,6 +92,22 @@ create_lookup_column(
   allow_unlimited_length = NULL,
   primary_lookup_column_id = NULL
 )
+
+create_person_column(
+  name,
+  ...,
+  allow_multiple = NULL,
+  display_as = NULL,
+  from_type = "peopleOnly"
+)
+
+create_group_column(
+  name,
+  ...,
+  allow_multiple = NULL,
+  display_as = NULL,
+  from_type = "peopleAndGroups"
+)
 }
 \arguments{
 \item{format}{"dateOnly" or "dateTime". Required if \code{output_type} is "dateTime" otherwise ignored.}
@@ -107,6 +125,8 @@ create_lookup_column(
 \item{allow_unlimited_length}{If \code{TRUE}, allow lookup column to return any length value.}
 
 \item{primary_lookup_column_id}{If column definnition is for a secondary column, the primary lookup column ID must be supplied.}
+
+\item{from_type}{What type of resources to choose from. Defaults to "peopleOnly" for \code{\link[=create_person_column]{create_person_column()}} or "peopleAndGroups" for \code{\link[=create_group_column]{create_group_column()}}}
 }
 \description{
 \code{\link[=create_column_definition]{create_column_definition()}} builds a named list with the properties of the
@@ -114,5 +134,12 @@ columnDefinition resource type.
 }
 \details{
 \url{https://learn.microsoft.com/en-us/graph/api/resources/columndefinition?view=graph-rest-1.0}
+
+Display as options
+
+Display as options vary by columnDefinition type:
+\itemize{
+\item Options for personOrGroupColumn: https://learn.microsoft.com/en-us/graph/api/resources/personorgroupcolumn?view=graph-rest-1.0#displayas-options
+}
 }
 \keyword{internal}

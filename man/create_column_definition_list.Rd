@@ -4,7 +4,10 @@
 \alias{create_column_definition_list}
 \title{Vectorized version of \code{create_column_definition()}}
 \usage{
-create_column_definition_list(name, .col_type = "text", ...)
+create_column_definition_list(definitions, col_type = "text", ignore_na = TRUE)
+}
+\arguments{
+\item{definitions}{A list or data frame with arguments to use in creation of column definitions.}
 }
 \description{
 Vectorized version of \code{create_column_definition()}

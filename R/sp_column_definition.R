@@ -11,6 +11,13 @@
 #'
 #' <https://learn.microsoft.com/en-us/graph/api/resources/columndefinition?view=graph-rest-1.0>
 #'
+#'
+#' @details Display as options
+#'
+#' Display as options vary by columnDefinition type:
+#'
+#' - Options for personOrGroupColumn: https://learn.microsoft.com/en-us/graph/api/resources/personorgroupcolumn?view=graph-rest-1.0#displayas-options
+#'
 #' @keywords internal
 #' @export
 create_column_definition <- function(
@@ -352,31 +359,92 @@ create_lookup_column <- function(
   )
 }
 
+#' @rdname create_column_definition
+#' @param from_type What type of resources to choose from. Defaults to "peopleOnly" for [create_person_column()] or "peopleAndGroups" for [create_group_column()]
+#' @export
+create_person_column <- function(
+  name,
+  ...,
+  allow_multiple = NULL,
+  display_as = NULL,
+  from_type = "peopleOnly"
+) {
+  check_string(display_as, allow_null = TRUE, allow_empty = FALSE)
+  check_bool(allow_multiple, allow_null = TRUE)
+  from_type <- arg_match0(from_type, c("peopleOnly", "peopleAndGroups"))
+
+  create_column_definition(
+    name = name,
+    ...,
+    displayAs = display_as,
+    allowMultipleSelection = allow_multiple,
+    chooseFromType = from_type,
+    .col_type = "personOrGroup"
+  )
+}
+
+#' @rdname create_column_definition
+#' @export
+create_group_column <- function(
+  name,
+  ...,
+  allow_multiple = NULL,
+  display_as = NULL,
+  from_type = "peopleAndGroups"
+) {
+  create_person_column(
+    name = name,
+    ...,
+    display_as = display_as,
+    allow_multiple = allow_multiple,
+    from_type = from_type
+  )
+}
+
 #' Vectorized version of `create_column_definition()`
 #' @keywords internal
+#' @param definitions A list or data frame with arguments to use in creation of column definitions.
 #' @export
 create_column_definition_list <- function(
-  name,
-  .col_type = "text",
-  ...
+  definitions,
+  col_type = "text",
+  ignore_na = TRUE
 ) {
+
   pmap(
-    vctrs::vec_recycle_common(
-      name = name,
-      .col_type = .col_type,
-      .size = length(name)
-    ),
-    \(name, .col_type) {
+    definitions,
+    \(name, ...) {
+      check_string(name, allow_empty = FALSE)
+      params <- rlang::list2(...)
+      # params <- vctrs::list_drop_empty(params)
+
+      if (!is_empty(params[["type"]]) && !is.na(params[["type"]])) {
+        col_type <- params[["type"]]
+        params[["type"]] <- NULL
+      }
+
       .f <- switch(
-        .col_type,
+        col_type,
         text = create_text_column,
+        choice = create_choice_column,
         number = create_number_column,
         datetime = create_datetime_column,
         boolean = create_boolean_column,
-        currency = create_currency_column
+        currency = create_currency_column,
+        lookup = create_lookup_column,
+        person = create_person_column,
+        group = create_group_column,
+        personorgroup = create_group_column
       )
 
-      .f(name)
+      if (ignore_na) {
+        params <- vctrs::vec_slice(
+          params,
+          i = !map_lgl(params, is.na)
+        )
+      }
+
+      rlang::exec(.f, name = name, !!!params)
     }
   )
 }

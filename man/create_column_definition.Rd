@@ -14,6 +14,8 @@
 \alias{create_group_column}
 \alias{create_hyperlink_column}
 \alias{create_picture_column}
+\alias{create_thumbnail_column}
+\alias{create_geolocation_column}
 \title{Create a column definition for use with the create column method for SharePoint lists}
 \usage{
 create_column_definition(
@@ -114,6 +116,10 @@ create_group_column(
 create_hyperlink_column(name, ..., is_picture = FALSE)
 
 create_picture_column(name, ..., is_picture = TRUE)
+
+create_thumbnail_column(name, ...)
+
+create_geolocation_column(name, ...)
 }
 \arguments{
 \item{format}{"dateOnly" or "dateTime". Required if \code{output_type} is "dateTime" otherwise ignored.}

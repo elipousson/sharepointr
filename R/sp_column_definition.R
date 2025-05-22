@@ -87,7 +87,8 @@ create_column_definition <- function(
         "term",
         "hyperlinkOrPicture",
         "thumbnail",
-        "contentApprovalStatus"
+        "contentApprovalStatus",
+        "geolocation"
       )
     )
 
@@ -401,6 +402,52 @@ create_group_column <- function(
   )
 }
 
+
+#' @rdname create_column_definition
+#' @param is_picture Logical indicator for display of hyperlink value as link
+#' (`FALSE`, default for [create_hyperlink_column()]) or image (`TRUE`, default
+#' for [create_picture_column()]).
+#' @export
+create_hyperlink_column <- function(name, ..., is_picture = FALSE) {
+  create_person_column(
+    name = name,
+    ...,
+    isPicture = is_picture,
+    .col_type = "hyperlinkOrPicture"
+  )
+}
+
+#' @rdname create_column_definition
+#' @export
+create_picture_column <- function(name, ..., is_picture = TRUE) {
+  create_person_column(
+    name = name,
+    ...,
+    isPicture = is_picture,
+    .col_type = "hyperlinkOrPicture"
+  )
+}
+
+#' @rdname create_column_definition
+#' @export
+create_thumbnail_column <- function(name, ...) {
+  create_column_definition(
+    name = name,
+    ...,
+    .col_type = "thumbnail"
+  )
+}
+
+#' @rdname create_column_definition
+#' @export
+create_geolocation_column <- function(name, ...) {
+  create_column_definition(
+    name = name,
+    ...,
+    .col_type = "geolocation"
+  )
+}
+
 #' Vectorized version of `create_column_definition()`
 #' @keywords internal
 #' @param definitions A list or data frame with arguments to use in creation of column definitions.
@@ -437,7 +484,9 @@ create_column_definition_list <- function(
         personorgroup = create_group_column,
         hyperlink = create_hyperlink_column,
         picture = create_picture_column,
-        hyperlinkorpicture = create_hyperlink_column
+        hyperlinkorpicture = create_hyperlink_column,
+        thumbnail = create_thumbnail_column,
+        geolocation = create_geolocation_column
       )
 
       if (ignore_na) {
@@ -449,31 +498,6 @@ create_column_definition_list <- function(
 
       rlang::exec(.f, name = name, !!!params)
     }
-  )
-}
-
-#' @rdname create_column_definition
-#' @param is_picture Logical indicator for display of hyperlink value as link
-#' (`FALSE`, default for [create_hyperlink_column()]) or image (`TRUE`, default
-#' for [create_picture_column()]).
-#' @export
-create_hyperlink_column <- function(name, ..., is_picture = FALSE) {
-  create_person_column(
-    name = name,
-    ...,
-    isPicture = is_picture,
-    .col_type = "personOrGroup"
-  )
-}
-
-#' @rdname create_column_definition
-#' @export
-create_picture_column <- function(name, ..., is_picture = TRUE) {
-  create_person_column(
-    name = name,
-    ...,
-    isPicture = is_picture,
-    .col_type = "personOrGroup"
   )
 }
 

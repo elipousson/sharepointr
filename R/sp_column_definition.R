@@ -424,7 +424,7 @@ create_column_definition_list <- function(
       }
 
       .f <- switch(
-        col_type,
+        tolower(col_type),
         text = create_text_column,
         choice = create_choice_column,
         number = create_number_column,
@@ -434,7 +434,10 @@ create_column_definition_list <- function(
         lookup = create_lookup_column,
         person = create_person_column,
         group = create_group_column,
-        personorgroup = create_group_column
+        personorgroup = create_group_column,
+        hyperlink = create_hyperlink_column,
+        picture = create_picture_column,
+        hyperlinkorpicture = create_hyperlink_column
       )
 
       if (ignore_na) {
@@ -446,6 +449,31 @@ create_column_definition_list <- function(
 
       rlang::exec(.f, name = name, !!!params)
     }
+  )
+}
+
+#' @rdname create_column_definition
+#' @param is_picture Logical indicator for display of hyperlink value as link
+#' (`FALSE`, default for [create_hyperlink_column()]) or image (`TRUE`, default
+#' for [create_picture_column()]).
+#' @export
+create_hyperlink_column <- function(name, ..., is_picture = FALSE) {
+  create_person_column(
+    name = name,
+    ...,
+    isPicture = is_picture,
+    .col_type = "personOrGroup"
+  )
+}
+
+#' @rdname create_column_definition
+#' @export
+create_picture_column <- function(name, ..., is_picture = TRUE) {
+  create_person_column(
+    name = name,
+    ...,
+    isPicture = is_picture,
+    .col_type = "personOrGroup"
   )
 }
 

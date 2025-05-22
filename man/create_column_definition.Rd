@@ -12,6 +12,8 @@
 \alias{create_lookup_column}
 \alias{create_person_column}
 \alias{create_group_column}
+\alias{create_hyperlink_column}
+\alias{create_picture_column}
 \title{Create a column definition for use with the create column method for SharePoint lists}
 \usage{
 create_column_definition(
@@ -108,6 +110,10 @@ create_group_column(
   display_as = NULL,
   from_type = "peopleAndGroups"
 )
+
+create_hyperlink_column(name, ..., is_picture = FALSE)
+
+create_picture_column(name, ..., is_picture = TRUE)
 }
 \arguments{
 \item{format}{"dateOnly" or "dateTime". Required if \code{output_type} is "dateTime" otherwise ignored.}
@@ -127,6 +133,10 @@ create_group_column(
 \item{primary_lookup_column_id}{If column definnition is for a secondary column, the primary lookup column ID must be supplied.}
 
 \item{from_type}{What type of resources to choose from. Defaults to "peopleOnly" for \code{\link[=create_person_column]{create_person_column()}} or "peopleAndGroups" for \code{\link[=create_group_column]{create_group_column()}}}
+
+\item{is_picture}{Logical indicator for display of hyperlink value as link
+(\code{FALSE}, default for \code{\link[=create_hyperlink_column]{create_hyperlink_column()}}) or image (\code{TRUE}, default
+for \code{\link[=create_picture_column]{create_picture_column()}}).}
 }
 \description{
 \code{\link[=create_column_definition]{create_column_definition()}} builds a named list with the properties of the

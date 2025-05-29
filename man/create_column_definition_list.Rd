@@ -7,7 +7,14 @@
 create_column_definition_list(definitions, col_type = "text", ignore_na = TRUE)
 }
 \arguments{
-\item{definitions}{A list or data frame with arguments to use in creation of column definitions.}
+\item{definitions}{A list or data frame with arguments to use in creation of
+column definitions.}
+
+\item{col_type}{Column type to use if not provided as a "type" column in the
+input definitions data frame. Allowed values include date and datetime,
+person, group, and personorgroup. Not case sensitive.}
+
+\item{ignore_na}{If \code{TRUE}, drop any parameters with a \code{NA} value.}
 }
 \description{
 Vectorized version of \code{create_column_definition()}

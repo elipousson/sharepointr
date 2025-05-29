@@ -16,7 +16,9 @@
 \alias{create_picture_column}
 \alias{create_thumbnail_column}
 \alias{create_geolocation_column}
-\title{Create a column definition for use with the create column method for SharePoint lists}
+\alias{create_term_column}
+\title{Create a column definition for use with the create column method for
+SharePoint lists}
 \usage{
 create_column_definition(
   name,
@@ -83,7 +85,7 @@ create_calculated_column(
   ...,
   formula,
   format = c("dateOnly", "dateTime"),
-  output_type = c("boolean", "currency", "dateTime", "number", "text")
+  output_type = c("text", "boolean", "currency", "dateTime", "number")
 )
 
 create_lookup_column(
@@ -120,25 +122,56 @@ create_picture_column(name, ..., is_picture = TRUE)
 create_thumbnail_column(name, ...)
 
 create_geolocation_column(name, ...)
+
+create_term_column(name, ..., allow_multiple = TRUE, show_full_name = NULL)
 }
 \arguments{
-\item{format}{"dateOnly" or "dateTime". Required if \code{output_type} is "dateTime" otherwise ignored.}
+\item{multiple_lines}{Logical. If \code{TRUE}, allow multiple lines of text.}
 
-\item{formula}{Required string with formula for calculated column definition.}
+\item{append_changes}{Logical. If \code{TRUE}, append changes to existing value
+for column.}
 
-\item{output_type}{Value type returned by calculated formula.}
+\item{lines}{Whole number.}
+
+\item{max_length}{Whole number. Max length in number of characters.}
+
+\item{text_type}{One of \code{c("plain", "richText")}}
+
+\item{display_as}{Value displayed as option. For \code{create_choice_column} one
+of\code{c("checkBoxes", "dropDownMenu", "radioButtons")}. For
+\code{create_number_column}, one of \code{c("number", "percentage")}. For
+\code{create_datetime_column}, one of \code{c("default", "friendly", "standard")}.}
+
+\item{decimals}{One of \code{c("none", "one", "two", "three", "four", "five")} or
+a numeric value between 0 and 5.}
+
+\item{max, min}{Minimum and maximum values allowed in number column.}
+
+\item{format}{\code{"dateOnly"} or \code{"dateTime"}. Required by
+\code{create_calculated_column} if \code{output_type} is "dateTime" otherwise ignored.}
+
+\item{locale}{Locale}
+
+\item{formula}{Required string with formula for calculated column definition.
+See \href{https://support.microsoft.com/en-us/office/examples-of-common-formulas-in-lists-d81f5f21-2b4e-45ce-b170-bf7ebf6988b3}{examples of common formulas in lists}.}
+
+\item{output_type}{Value type returned by calculated formula. One of
+\code{c("text", "boolean", "currency", "dateTime", "number")}}
 
 \item{lookup_list_column}{Name of lookup column in the lookup list to use.}
 
-\item{lookup_list_id, lookup_list}{Lookup list ID string or "ms_list" class object with id value in list properties.}
+\item{lookup_list_id, lookup_list}{Lookup list ID string or "ms_list" class
+object with id value in list properties.}
 
-\item{allow_multiple}{If \code{TRUE}, allow lookup column to return multiple values.}
+\item{allow_multiple}{If \code{TRUE}, allow lookup column to return multiple
+values. @param allow_unlimited_length If \code{TRUE}, allow lookup column to
+return any length value. @param primary_lookup_column_id If column
+definnition is for a secondary column, the primary lookup column ID must be
+supplied.}
 
-\item{allow_unlimited_length}{If \code{TRUE}, allow lookup column to return any length value.}
-
-\item{primary_lookup_column_id}{If column definnition is for a secondary column, the primary lookup column ID must be supplied.}
-
-\item{from_type}{What type of resources to choose from. Defaults to "peopleOnly" for \code{\link[=create_person_column]{create_person_column()}} or "peopleAndGroups" for \code{\link[=create_group_column]{create_group_column()}}}
+\item{from_type}{What type of resources to choose from. Defaults to
+"peopleOnly" for \code{\link[=create_person_column]{create_person_column()}} or "peopleAndGroups" for
+\code{\link[=create_group_column]{create_group_column()}}}
 
 \item{is_picture}{Logical indicator for display of hyperlink value as link
 (\code{FALSE}, default for \code{\link[=create_hyperlink_column]{create_hyperlink_column()}}) or image (\code{TRUE}, default

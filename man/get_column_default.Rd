@@ -16,7 +16,8 @@ get_column_default(
 
 \item{formula}{Formula used as default value.}
 
-\item{allow_null}{If \code{TRUE}, return \code{NULL} if both \code{value} and \code{formula} are \code{NULL}.}
+\item{allow_null}{If \code{TRUE}, return \code{NULL} if both \code{value} and \code{formula} are
+\code{NULL}.}
 }
 \description{
 \code{\link[=get_column_default]{get_column_default()}} returns a formula or value or NULL.

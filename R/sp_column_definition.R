@@ -4,7 +4,8 @@
 # get_column_definition <- function(...) {
 # }
 
-#' Create a column definition for use with the create column method for SharePoint lists
+#' Create a column definition for use with the create column method for
+#' SharePoint lists
 #'
 #' [create_column_definition()] builds a named list with the properties of the
 #' columnDefinition resource type.
@@ -19,6 +20,10 @@
 #' - Options for personOrGroupColumn: https://learn.microsoft.com/en-us/graph/api/resources/personorgroupcolumn?view=graph-rest-1.0#displayas-options
 #'
 #' @keywords internal
+#' @param display_as Value displayed as option. For `create_choice_column` one
+#' of`c("checkBoxes", "dropDownMenu", "radioButtons")`. For
+#' `create_number_column`, one of `c("number", "percentage")`. For
+#' `create_datetime_column`, one of `c("default", "friendly", "standard")`.
 #' @export
 create_column_definition <- function(
   name,
@@ -111,6 +116,12 @@ create_column_definition <- function(
 
 #' @rdname create_column_definition
 #' @keywords internal
+#' @param multiple_lines Logical. If `TRUE`, allow multiple lines of text.
+#' @param append_changes Logical. If `TRUE`, append changes to existing value
+#' for column.
+#' @param lines Whole number.
+#' @param max_length Whole number. Max length in number of characters.
+#' @param text_type One of `c("plain", "richText")`
 #' @export
 create_text_column <- function(
   name,
@@ -186,6 +197,9 @@ create_choice_column <- function(
 
 #' @rdname create_column_definition
 #' @keywords internal
+#' @param decimals One of `c("none", "one", "two", "three", "four", "five")` or
+#' a numeric value between 0 and 5.
+#' @param max,min Minimum and maximum values allowed in number column.
 #' @export
 create_number_column <- function(
   name,
@@ -275,6 +289,7 @@ create_boolean_column <- function(name, ...) {
 }
 
 #' @rdname create_column_definition
+#' @param locale Locale
 #' @export
 create_currency_column <- function(name, ..., locale = "en-us") {
   check_string(locale)
@@ -288,15 +303,19 @@ create_currency_column <- function(name, ..., locale = "en-us") {
 
 #' @rdname create_column_definition
 #' @param formula Required string with formula for calculated column definition.
-#' @param format "dateOnly" or "dateTime". Required if `output_type` is "dateTime" otherwise ignored.
-#' @param output_type Value type returned by calculated formula.
+#' See [examples of common formulas in
+#' lists](https://support.microsoft.com/en-us/office/examples-of-common-formulas-in-lists-d81f5f21-2b4e-45ce-b170-bf7ebf6988b3).
+#' @param format `"dateOnly"` or `"dateTime"`. Required by
+#' `create_calculated_column` if `output_type` is "dateTime" otherwise ignored.
+#' @param output_type Value type returned by calculated formula. One of
+#' `c("text", "boolean", "currency", "dateTime", "number")`
 #' @export
 create_calculated_column <- function(
   name,
   ...,
   formula,
   format = c("dateOnly", "dateTime"),
-  output_type = c("boolean", "currency", "dateTime", "number", "text")
+  output_type = c("text", "boolean", "currency", "dateTime", "number")
 ) {
   check_string(formula)
   output_type <- arg_match(output_type)
@@ -313,7 +332,7 @@ create_calculated_column <- function(
     name = name,
     ...,
     format = format,
-    formula = formula,
+    formula = trimws(formula),
     outputType = output_type,
     .col_type = "calculated"
   )
@@ -321,10 +340,13 @@ create_calculated_column <- function(
 
 #' @rdname create_column_definition
 #' @param lookup_list_column Name of lookup column in the lookup list to use.
-#' @param lookup_list_id,lookup_list Lookup list ID string or "ms_list" class object with id value in list properties.
-#' @param allow_multiple If `TRUE`, allow lookup column to return multiple values.
-#' @param allow_unlimited_length If `TRUE`, allow lookup column to return any length value.
-#' @param primary_lookup_column_id If column definnition is for a secondary column, the primary lookup column ID must be supplied.
+#' @param lookup_list_id,lookup_list Lookup list ID string or "ms_list" class
+#' object with id value in list properties.
+#' @param allow_multiple If `TRUE`, allow lookup column to return multiple
+#' values. @param allow_unlimited_length If `TRUE`, allow lookup column to
+#' return any length value. @param primary_lookup_column_id If column
+#' definnition is for a secondary column, the primary lookup column ID must be
+#' supplied.
 #' @export
 create_lookup_column <- function(
   name,
@@ -361,7 +383,9 @@ create_lookup_column <- function(
 }
 
 #' @rdname create_column_definition
-#' @param from_type What type of resources to choose from. Defaults to "peopleOnly" for [create_person_column()] or "peopleAndGroups" for [create_group_column()]
+#' @param from_type What type of resources to choose from. Defaults to
+#' "peopleOnly" for [create_person_column()] or "peopleAndGroups" for
+#' [create_group_column()]
 #' @export
 create_person_column <- function(
   name,
@@ -448,33 +472,58 @@ create_geolocation_column <- function(name, ...) {
   )
 }
 
+
+#' @rdname create_column_definition
+#' @export
+create_term_column <- function(
+  name,
+  ...,
+  allow_multiple = TRUE,
+  show_full_name = NULL
+) {
+  create_column_definition(
+    name = name,
+    ...,
+    showFullyQualifiedName = show_full_name,
+    allowMultipleValues = allow_multiple,
+    .col_type = "termColumn"
+  )
+}
+
 #' Vectorized version of `create_column_definition()`
 #' @keywords internal
-#' @param definitions A list or data frame with arguments to use in creation of column definitions.
+#' @param definitions A list or data frame with arguments to use in creation of
+#' column definitions.
+#' @param col_type Column type to use if not provided as a "type" column in the
+#' input definitions data frame. Allowed values include date and datetime,
+#' person, group, and personorgroup. Not case sensitive.
+#' @param ignore_na If `TRUE`, drop any parameters with a `NA` value.
 #' @export
 create_column_definition_list <- function(
   definitions,
   col_type = "text",
   ignore_na = TRUE
 ) {
-
   pmap(
     definitions,
-    \(name, ...) {
+    function(name, ...) {
       check_string(name, allow_empty = FALSE)
       params <- rlang::list2(...)
       # params <- vctrs::list_drop_empty(params)
 
       if (!is_empty(params[["type"]]) && !is.na(params[["type"]])) {
-        col_type <- params[["type"]]
+        type <- params[["type"]]
         params[["type"]] <- NULL
+      } else {
+        type <- col_type
       }
 
-      .f <- switch(
-        tolower(col_type),
+      .fn <- switch(
+        tolower(type),
         text = create_text_column,
         choice = create_choice_column,
         number = create_number_column,
+        date = create_datetime_column,
         datetime = create_datetime_column,
         boolean = create_boolean_column,
         currency = create_currency_column,
@@ -486,7 +535,8 @@ create_column_definition_list <- function(
         picture = create_picture_column,
         hyperlinkorpicture = create_hyperlink_column,
         thumbnail = create_thumbnail_column,
-        geolocation = create_geolocation_column
+        geolocation = create_geolocation_column,
+        term = create_term_column
       )
 
       if (ignore_na) {
@@ -496,7 +546,8 @@ create_column_definition_list <- function(
         )
       }
 
-      rlang::exec(.f, name = name, !!!params)
+      params[["name"]] <- name
+      rlang::exec(.fn, !!!params)
     }
   )
 }
@@ -507,7 +558,8 @@ create_column_definition_list <- function(
 #'
 #' @param formula Formula used as default value.
 #' @param value Value used as default value.
-#' @param allow_null If `TRUE`, return `NULL` if both `value` and `formula` are `NULL`.
+#' @param allow_null If `TRUE`, return `NULL` if both `value` and `formula` are
+#' `NULL`.
 #' @keywords internal
 #' @export
 get_column_default <- function(
@@ -527,4 +579,78 @@ get_column_default <- function(
   }
 
   list(formula = formula)
+}
+
+#' Convert a data frame to a column definition list
+#'
+#'
+#' [data_as_column_definition_list()] is used to create a column definition list
+#' based on an existing data frame.
+#' @param data A data frame input. Column types are used to infer the
+#' appropriate Microsoft Lists column definition.
+#' @inheritParams create_column_definition_list
+#' @examples
+#' data_as_column_definition_list(mtcars)
+#'
+#' @export
+data_as_column_definition_list <- function(
+  data,
+  ...,
+  split = "|",
+  ignore_na = TRUE
+) {
+  col_types <- vapply(
+    data,
+    \(x) {
+      switch(
+        vctrs::vec_ptype_abbr(x),
+        "chr" = "text",
+        "fct" = "choice",
+        "dbl" = "number",
+        "int" = "number",
+        "lgl" = "boolean",
+        "date" = "date",
+        "dttm" = "datetime",
+        "text"
+        # NA_character_
+      )
+    },
+    character(1)
+  )
+
+  # FIXME: Replace purrr::map_dfr
+  definitions_list <- map(
+    seq_along(col_types),
+    \(x) {
+      def <- list(
+        name = names(data)[[x]],
+        type = col_types[[x]]
+      )
+
+      # TODO: Add check for length for text columns
+
+      if (def[["type"]] == "choice") {
+        if (is.factor(data[, x])) {
+          def[["choices"]] <- paste0(levels(data[[x]]), collapse = split)
+        } else {
+          def[["choices"]] <- paste0(unique(data[[x]]), collapse = split)
+        }
+        # FIXME: Add warning if split in levels/choices
+        def[["split"]] <- split
+      }
+
+      if ((def[["type"]] == "number") && is.integer(data[1, x])) {
+        def[["decimals"]] <- "none"
+      }
+
+      as.data.frame(def)
+    }
+  )
+
+  definitions <- vctrs::vec_rbind(!!!definitions_list)
+
+  create_column_definition_list(
+    definitions,
+    ignore_na = ignore_na
+  )
 }

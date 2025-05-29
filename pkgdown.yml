@@ -1,11 +1,11 @@
 pandoc: 3.1.11
-pkgdown: 2.1.2
+pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   articles/file-management: file-management.html
   articles/read-write: read-write.html
   articles/sp_url: sp_url.html
-last_built: 2025-05-22T15:32Z
+last_built: 2025-05-29T16:04Z
 urls:
   reference: https://elipousson.github.io/sharepointr/reference
   article: https://elipousson.github.io/sharepointr/articles

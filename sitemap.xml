@@ -16,6 +16,7 @@
 <url><loc>https://elipousson.github.io/sharepointr/reference/create_list_info.html</loc></url>
 <url><loc>https://elipousson.github.io/sharepointr/reference/create_sp_list.html</loc></url>
 <url><loc>https://elipousson.github.io/sharepointr/reference/create_sp_list_column.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/create_sp_list_item.html</loc></url>
 <url><loc>https://elipousson.github.io/sharepointr/reference/create_sp_list_items.html</loc></url>
 <url><loc>https://elipousson.github.io/sharepointr/reference/data_as_column_definition_list.html</loc></url>
 <url><loc>https://elipousson.github.io/sharepointr/reference/delete_sp_item.html</loc></url>
@@ -30,6 +31,7 @@
 <url><loc>https://elipousson.github.io/sharepointr/reference/list_sp_drives.html</loc></url>
 <url><loc>https://elipousson.github.io/sharepointr/reference/list_sp_item_versions.html</loc></url>
 <url><loc>https://elipousson.github.io/sharepointr/reference/list_sp_pages.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/list_sp_site_user_info.html</loc></url>
 <url><loc>https://elipousson.github.io/sharepointr/reference/ms_graph_arg_terms.html</loc></url>
 <url><loc>https://elipousson.github.io/sharepointr/reference/ms_graph_obj_terms.html</loc></url>
 <url><loc>https://elipousson.github.io/sharepointr/reference/ms_obj_as_data_frame.html</loc></url>
@@ -45,6 +47,7 @@
 <url><loc>https://elipousson.github.io/sharepointr/reference/sp_site.html</loc></url>
 <url><loc>https://elipousson.github.io/sharepointr/reference/sp_tasks.html</loc></url>
 <url><loc>https://elipousson.github.io/sharepointr/reference/sp_url_parse.html</loc></url>
+<url><loc>https://elipousson.github.io/sharepointr/reference/sp_user_id_as_lookup_id.html</loc></url>
 <url><loc>https://elipousson.github.io/sharepointr/reference/upload_sp_item.html</loc></url>
 <url><loc>https://elipousson.github.io/sharepointr/reference/write_sharepoint.html</loc></url>
 </urlset>

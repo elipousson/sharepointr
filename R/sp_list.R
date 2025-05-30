@@ -128,9 +128,12 @@ get_sp_list <- function(
 
   check_exclusive_strings(list_name, list_id, call = call)
 
-  if (!is.null(list_name)) {
+  hidden_lists <- c("User Information List")
+
+  if (!is.null(list_name) && !(list_name %in% hidden_lists)) {
     # FIXME: This is a work around to handle lists that have been renamed
 
+    # TODO: Add handling for displayName validation
     sp_lists <- list_sp_lists(
       ...,
       site_url = site_url,

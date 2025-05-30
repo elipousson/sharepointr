@@ -161,8 +161,8 @@ create_choice_column <- function(
   ...,
   allow_text = TRUE,
   display_as = c(
-    "checkBoxes",
     "dropDownMenu",
+    "checkBoxes",
     "radioButtons"
   ),
   allow_na = TRUE,
@@ -181,8 +181,8 @@ create_choice_column <- function(
   choices <- stringr::str_replace_na(choices, replacement = na_replacement)
 
   # Split `choices` string if `split` is supplied
-  if (!is.null(split)) {
-    choices <- strsplit(choices, split = split)
+  if (!is.null(split) && is_string(chocies)) {
+    choices <- strsplit(choices, split = split, fixed = TRUE)[[1]]
   }
 
   create_column_definition(
@@ -630,12 +630,10 @@ data_as_column_definition_list <- function(
       # TODO: Add check for length for text columns
 
       if (def[["type"]] == "choice") {
-        if (is.factor(data[, x])) {
-          def[["choices"]] <- paste0(levels(data[[x]]), collapse = split)
-        } else {
-          def[["choices"]] <- paste0(unique(data[[x]]), collapse = split)
-        }
-        # FIXME: Add warning if split in levels/choices
+        # type is only "choices" if column value is factor
+        # TODO: Explore passing choices as a list column
+        # FIXME: Add warning if `split` in levels/choices
+        def[["choices"]] <- paste0(levels(data[[x]]), collapse = split)
         def[["split"]] <- split
       }
 

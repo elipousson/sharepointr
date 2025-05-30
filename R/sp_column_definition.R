@@ -181,7 +181,7 @@ create_choice_column <- function(
   choices <- stringr::str_replace_na(choices, replacement = na_replacement)
 
   # Split `choices` string if `split` is supplied
-  if (!is.null(split) && is_string(chocies)) {
+  if (!is.null(split) && is_string(choices)) {
     choices <- strsplit(choices, split = split, fixed = TRUE)[[1]]
   }
 

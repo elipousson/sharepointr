@@ -29,36 +29,39 @@ NULL
 #'   names and invalid data frames can result.
 #' @param name_repair Passed to repair argument of [vctrs::vec_as_names()]
 #' @export
-list_sp_list_items <- function(list_name = NULL,
-                               list_id = NULL,
-                               sp_list = NULL,
-                               ...,
-                               filter = NULL,
-                               select = NULL,
-                               all_metadata = FALSE,
-                               as_data_frame = TRUE,
-                               display_nm = c("drop", "label", "replace"),
-                               name_repair = "unique",
-                               pagesize = 5000,
-                               site_url = NULL,
-                               site = NULL,
-                               drive_name = NULL,
-                               drive_id = NULL,
-                               drive = NULL,
-                               call = caller_env()) {
-  sp_list <- sp_list %||% get_sp_list(
-    list_name = list_name,
-    list_id = list_id,
-    as_data_frame = FALSE,
-    metadata = FALSE,
-    ...,
-    site_url = site_url,
-    site = site,
-    drive_name = drive_name,
-    drive_id = drive_id,
-    drive = drive,
-    call = call
-  )
+list_sp_list_items <- function(
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  ...,
+  filter = NULL,
+  select = NULL,
+  all_metadata = FALSE,
+  as_data_frame = TRUE,
+  display_nm = c("drop", "label", "replace"),
+  name_repair = "unique",
+  pagesize = 5000,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  call = caller_env()
+) {
+  sp_list <- sp_list %||%
+    get_sp_list(
+      list_name = list_name,
+      list_id = list_id,
+      as_data_frame = FALSE,
+      metadata = FALSE,
+      ...,
+      site_url = site_url,
+      site = site,
+      drive_name = drive_name,
+      drive_id = drive_id,
+      drive = drive,
+      call = call
+    )
 
   check_ms_obj(sp_list, "ms_list", call = call)
 
@@ -146,30 +149,33 @@ pull_sp_list_display_names <- function(sp_list) {
 #' @param id Required. A SharePoint list item ID typically an integer for the
 #'   record number starting from 1 with the first record.
 #' @export
-get_sp_list_item <- function(id,
-                             list_name = NULL,
-                             list_id = NULL,
-                             sp_list = NULL,
-                             ...,
-                             site_url = NULL,
-                             site = NULL,
-                             drive_name = NULL,
-                             drive_id = NULL,
-                             drive = NULL,
-                             call = caller_env()) {
-  sp_list <- sp_list %||% get_sp_list(
-    list_name = list_name,
-    list_id = list_id,
-    as_data_frame = FALSE,
-    metadata = FALSE,
-    ...,
-    site_url = site_url,
-    site = site,
-    drive_name = drive_name,
-    drive_id = drive_id,
-    drive = drive,
-    call = call
-  )
+get_sp_list_item <- function(
+  id,
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  ...,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  call = caller_env()
+) {
+  sp_list <- sp_list %||%
+    get_sp_list(
+      list_name = list_name,
+      list_id = list_id,
+      as_data_frame = FALSE,
+      metadata = FALSE,
+      ...,
+      site_url = site_url,
+      site = site,
+      drive_name = drive_name,
+      drive_id = drive_id,
+      drive = drive,
+      call = call
+    )
 
   check_ms_obj(sp_list, "ms_list", call = call)
 
@@ -226,37 +232,41 @@ get_sp_list_item <- function(id,
 #'   )
 #' }
 #' @export
-create_sp_list_items <- function(data,
-                                 list_name = NULL,
-                                 list_id = NULL,
-                                 sp_list = NULL,
-                                 ...,
-                                 allow_display_nm = TRUE,
-                                 .id = "id",
-                                 site_url = NULL,
-                                 site = NULL,
-                                 drive_name = NULL,
-                                 drive_id = NULL,
-                                 drive = NULL,
-                                 check_fields = TRUE,
-                                 sync_fields = FALSE,
-                                 strict = FALSE,
-                                 call = caller_env()) {
-  sp_list <- sp_list %||% get_sp_list(
-    list_name = list_name,
-    list_id = list_id,
-    metadata = FALSE,
-    as_data_frame = FALSE,
-    ...,
-    site_url = site_url,
-    site = site,
-    drive_name = drive_name,
-    drive_id = drive_id,
-    drive = drive,
-    call = call
-  )
+create_sp_list_items <- function(
+  data,
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  ...,
+  allow_display_nm = TRUE,
+  .id = "id",
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  check_fields = TRUE,
+  sync_fields = FALSE,
+  strict = FALSE,
+  call = caller_env()
+) {
+  sp_list <- sp_list %||%
+    get_sp_list(
+      list_name = list_name,
+      list_id = list_id,
+      metadata = FALSE,
+      as_data_frame = FALSE,
+      ...,
+      site_url = site_url,
+      site = site,
+      drive_name = drive_name,
+      drive_id = drive_id,
+      drive = drive,
+      call = call
+    )
 
   if (allow_display_nm) {
+    # FIXME: Figure out why this errors for some input data
     data <- replace_with_sp_list_display_names(
       data,
       .id = .id,
@@ -274,12 +284,24 @@ create_sp_list_items <- function(data,
     )
   }
 
+  check_data_frame(data, call = call)
+
   cli_progress_step(
     "Importing {.arg data} into list"
   )
 
   withCallingHandlers(
-    sp_list$bulk_import(data),
+    # FIXME: Replace this with
+    # sp_list$bulk_import(data),
+    map(
+      seq_len(nrow(data)),
+      \(i) {
+        create_sp_list_item(
+          .sp_list = sp_list,
+          .fields = data[i, , drop = FALSE]
+        )
+      }
+    ),
     error = function(cnd) {
       cli_abort(
         cnd$message,
@@ -292,14 +314,16 @@ create_sp_list_items <- function(data,
 }
 
 #' @noRd
-validate_sp_list_data_fields <- function(data,
-                                         sp_list = NULL,
-                                         values = NULL,
-                                         sync_fields = FALSE,
-                                         keep = "editable",
-                                         strict = FALSE,
-                                         values_from = "name",
-                                         call = caller_env()) {
+validate_sp_list_data_fields <- function(
+  data,
+  sp_list = NULL,
+  values = NULL,
+  sync_fields = FALSE,
+  keep = "editable",
+  strict = FALSE,
+  values_from = "name",
+  call = caller_env()
+) {
   if (is.null(values)) {
     sp_list_meta <- get_sp_list_metadata(
       sp_list = sp_list,
@@ -359,9 +383,7 @@ validate_sp_list_data_fields <- function(data,
     }
 
     cli_warn(
-      c(msg,
-        "i" = "Column{?s} {.val {nm[!nm_match]}} dropped from {.arg data}"
-      )
+      c(msg, "i" = "Column{?s} {.val {nm[!nm_match]}} dropped from {.arg data}")
     )
 
     if (is.data.frame(data)) {
@@ -379,21 +401,24 @@ validate_sp_list_data_fields <- function(data,
 #' @param .id Name of column in data to use for item ID values. Defaults to
 #'   "id".
 #' @export
-update_sp_list_items <- function(data,
-                                 list_name = NULL,
-                                 list_id = NULL,
-                                 sp_list = NULL,
-                                 ...,
-                                 .id = "id",
-                                 allow_display_nm = TRUE,
-                                 call = caller_env()) {
-  sp_list <- sp_list %||% get_sp_list(
-    list_name = list_name,
-    as_data_frame = FALSE,
-    list_id = list_id,
-    ...,
-    call = call
-  )
+update_sp_list_items <- function(
+  data,
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  ...,
+  .id = "id",
+  allow_display_nm = TRUE,
+  call = caller_env()
+) {
+  sp_list <- sp_list %||%
+    get_sp_list(
+      list_name = list_name,
+      as_data_frame = FALSE,
+      list_id = list_id,
+      ...,
+      call = call
+    )
 
   check_ms_obj(sp_list, "ms_list", call = call)
 
@@ -431,12 +456,14 @@ update_sp_list_items <- function(data,
 
 #' Replace names for a data frame or list with display names
 #' @noRd
-replace_with_sp_list_display_names <- function(data,
-                                               .id = "id",
-                                               sp_list = NULL,
-                                               values = NULL,
-                                               ...,
-                                               call = caller_env()) {
+replace_with_sp_list_display_names <- function(
+  data,
+  .id = "id",
+  sp_list = NULL,
+  values = NULL,
+  ...,
+  call = caller_env()
+) {
   nm <- names(data)
   list_display_nm <- values %||% pull_sp_list_display_names(sp_list)
   nm_i <- match(nm, list_display_nm, incomparables = .id)
@@ -455,20 +482,22 @@ replace_with_sp_list_display_names <- function(data,
 #'   place) or "replace" (overwrite existing list values with new replacement NA
 #'   values).
 #' @export
-update_sp_list_item <- function(...,
-                                .data = NULL,
-                                id = NULL,
-                                sp_list_item = NULL,
-                                na_fields = c("drop", "replace"),
-                                list_name = NULL,
-                                list_id = NULL,
-                                sp_list = NULL,
-                                site_url = NULL,
-                                site = NULL,
-                                drive_name = NULL,
-                                drive_id = NULL,
-                                drive = NULL,
-                                call = caller_env()) {
+update_sp_list_item <- function(
+  ...,
+  .data = NULL,
+  id = NULL,
+  sp_list_item = NULL,
+  na_fields = c("drop", "replace"),
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  call = caller_env()
+) {
   .data <- .data %||% list2(...)
 
   check_exclusive_args(id, sp_list_item, call = call)
@@ -512,17 +541,18 @@ update_sp_list_item <- function(...,
   }
 
   if (is.null(sp_list_item) && !is.null(id)) {
-    sp_list <- sp_list %||% get_sp_list(
-      list_name = list_name,
-      as_data_frame = FALSE,
-      list_id = list_id,
-      site_url = site_url,
-      site = site,
-      drive_name = drive_name,
-      drive_id = drive_id,
-      drive = drive,
-      call = call
-    )
+    sp_list <- sp_list %||%
+      get_sp_list(
+        list_name = list_name,
+        as_data_frame = FALSE,
+        list_id = list_id,
+        site_url = site_url,
+        site = site,
+        drive_name = drive_name,
+        drive_id = drive_id,
+        drive = drive,
+        call = call
+      )
 
     check_ms_obj(sp_list, "ms_list", call = call)
 
@@ -544,4 +574,55 @@ update_sp_list_item <- function(...,
   }
 
   invisible(.data)
+}
+
+
+#' Alternate syntax for create list item
+#'
+#' [create_sp_list_item()] is an alternative to the `create_item` method for
+#' `Microsoft365R::ms_list` objects. This is used by [create_sp_list_items()]
+#' (instead of the `bulk_import` method) to better handle NA values that broken
+#' for number columns.
+#'
+#' @param .sp_list A `ms_list` object.
+#' @param .fields A named list or single row data frame.
+#' @param ... Ignored if .fields is supplied.
+#' @keywords internal
+#' @export
+create_sp_list_item <- function(
+  ...,
+  .sp_list = NULL,
+  .fields = NULL,
+  .keep_na = FALSE
+) {
+  if (!is.null(.fields) && is.data.frame(.fields)) {
+    stopifnot(nrow(.fields) == 1)
+    .fields <- as.list(.fields)
+  }
+
+  .fields <- .fields %||% rlang::list2(...)
+
+  if (!.keep_na) {
+    # Required for numeric fields
+    .fields <- purrr::discard(.fields, is.na)
+  }
+
+  # Drop NULL values
+  .fields <- compact(.fields)
+
+  if (is_empty(.fields)) {
+    # FIXME: Add warning if .fields has no valid input
+    return(.fields)
+  }
+
+  resp <- .sp_list$do_operation(
+    "items",
+    body = list(
+      fields = .fields
+    ),
+    http_verb = "POST"
+  )
+
+  # TODO: Add printing for resp info
+  invisible(.fields)
 }

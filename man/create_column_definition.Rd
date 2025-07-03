@@ -142,6 +142,15 @@ of\code{c("checkBoxes", "dropDownMenu", "radioButtons")}. For
 \code{create_number_column}, one of \code{c("number", "percentage")}. For
 \code{create_datetime_column}, one of \code{c("default", "friendly", "standard")}.}
 
+\item{split}{
+    character vector (or object which can be coerced to such)
+    containing \link[base]{regular expression}(s) (unless \code{fixed = TRUE})
+    to use for splitting.  If empty matches occur, in particular if
+    \code{split} has length 0, \code{x} is split into single characters.
+    If \code{split} has length greater than 1, it is re-cycled along
+    \code{x}.
+  }
+
 \item{decimals}{One of \code{c("none", "one", "two", "three", "four", "five")} or
 a numeric value between 0 and 5.}
 

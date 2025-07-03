@@ -10,6 +10,17 @@ data_as_column_definition_list(data, ..., split = "|", ignore_na = TRUE)
 \item{data}{A data frame input. Column types are used to infer the
 appropriate Microsoft Lists column definition.}
 
+\item{...}{Ignored.}
+
+\item{split}{
+    character vector (or object which can be coerced to such)
+    containing \link[base]{regular expression}(s) (unless \code{fixed = TRUE})
+    to use for splitting.  If empty matches occur, in particular if
+    \code{split} has length 0, \code{x} is split into single characters.
+    If \code{split} has length greater than 1, it is re-cycled along
+    \code{x}.
+  }
+
 \item{ignore_na}{If \code{TRUE}, drop any parameters with a \code{NA} value.}
 }
 \description{

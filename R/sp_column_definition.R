@@ -153,6 +153,7 @@ create_text_column <- function(
 }
 
 #' @rdname create_column_definition
+#' @inheritParams base::strsplit
 #' @keywords internal
 #' @export
 create_choice_column <- function(
@@ -588,7 +589,9 @@ get_column_default <- function(
 #' based on an existing data frame.
 #' @param data A data frame input. Column types are used to infer the
 #' appropriate Microsoft Lists column definition.
+#' @param ... Ignored.
 #' @inheritParams create_column_definition_list
+#' @inheritParams create_choice_column
 #' @examples
 #' data_as_column_definition_list(mtcars)
 #'

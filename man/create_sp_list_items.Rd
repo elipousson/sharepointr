@@ -109,6 +109,8 @@ mentioned in error messages as the source of the error. See the
 
 \item{.data}{A list or data frame with fields to update.}
 
+\item{id}{A SharePoint list item id. Either \code{id} or \code{sp_list_item} must be provided but not both.}
+
 \item{sp_list_item}{Optional. A SharePoint list item object to use.}
 
 \item{na_fields}{How to handle \code{NA} fields in input data. One of "drop"

@@ -186,6 +186,15 @@ of<code>c("checkBoxes", "dropDownMenu", "radioButtons")</code>. For
 <code>create_datetime_column</code>, one of <code>c("default", "friendly", "standard")</code>.</p></dd>
 
 
+<dt id="arg-split">split<a class="anchor" aria-label="anchor" href="#arg-split"></a></dt>
+<dd><p>character vector (or object which can be coerced to such)
+    containing <a href="https://rdrr.io/r/base/regex.html" class="external-link">regular expression</a>(s) (unless <code>fixed = TRUE</code>)
+    to use for splitting.  If empty matches occur, in particular if
+    <code>split</code> has length 0, <code>x</code> is split into single characters.
+    If <code>split</code> has length greater than 1, it is re-cycled along
+    <code>x</code>.</p></dd>
+
+
 <dt id="arg-decimals">decimals<a class="anchor" aria-label="anchor" href="#arg-decimals"></a></dt>
 <dd><p>One of <code>c("none", "one", "two", "three", "four", "five")</code> or
 a numeric value between 0 and 5.</p></dd>

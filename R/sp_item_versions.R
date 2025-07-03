@@ -46,6 +46,7 @@ list_sp_item_versions <- function(...,
 #' @noRd
 fmt_sp_list_col <- function(data, col = "lastModifiedBy") {
   check_data_frame(data)
+  check_string(col)
 
   list_col <- data[[col]]
   data[[col]] <- NULL

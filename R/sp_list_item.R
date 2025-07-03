@@ -476,6 +476,7 @@ replace_with_sp_list_display_names <- function(
 #' @rdname create_sp_list_items
 #' @name update_sp_list_item
 #' @param sp_list_item Optional. A SharePoint list item object to use.
+#' @param id A SharePoint list item id. Either `id` or `sp_list_item` must be provided but not both.
 #' @param .data A list or data frame with fields to update.
 #' @param na_fields How to handle `NA` fields in input data. One of "drop"
 #'   (remove NA fields before updating list items, leaving existing values in
@@ -604,7 +605,7 @@ create_sp_list_item <- function(
 
   if (!.keep_na) {
     # Required for numeric fields
-    .fields <- purrr::discard(.fields, is.na)
+    .fields <- discard(.fields, is.na)
   }
 
   # Drop NULL values

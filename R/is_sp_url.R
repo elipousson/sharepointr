@@ -19,6 +19,13 @@ is_sp_site_url <- function(x) {
 }
 
 #' @rdname is_sp_url
+#' @name is_sp_drive_url
+#' @export
+is_sp_drive_url <- function(x) {
+  is_sp_url(x) & grepl("/Forms/AllItems\\.aspx$", x)
+}
+
+#' @rdname is_sp_url
 #' @name is_sp_site_page_url
 #' @export
 is_sp_site_page_url <- function(x) {

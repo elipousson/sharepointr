@@ -19,7 +19,7 @@ Imports:
     glue,
     httr2,
     Microsoft365R,
-    rlang (>= 1.1.0),
+    rlang,
     stringr,
     utils,
     vctrs

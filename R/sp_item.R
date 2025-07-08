@@ -40,17 +40,19 @@
 #' }
 #'
 #' @export
-get_sp_item <- function(path = NULL,
-                        item_id = NULL,
-                        item_url = NULL,
-                        ...,
-                        drive_name = NULL,
-                        drive_id = NULL,
-                        drive = NULL,
-                        site_url = NULL,
-                        properties = FALSE,
-                        as_data_frame = FALSE,
-                        call = caller_env()) {
+get_sp_item <- function(
+  path = NULL,
+  item_id = NULL,
+  item_url = NULL,
+  ...,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  site_url = NULL,
+  properties = FALSE,
+  as_data_frame = FALSE,
+  call = caller_env()
+) {
   if (is.null(drive)) {
     if (is_url(path)) {
       item_url <- path
@@ -73,14 +75,15 @@ get_sp_item <- function(path = NULL,
     }
   }
 
-  drive <- drive %||% get_sp_drive(
-    drive_name = drive_name,
-    drive_id = drive_id,
-    ...,
-    properties = FALSE,
-    site_url = site_url,
-    call = call
-  )
+  drive <- drive %||%
+    get_sp_drive(
+      drive_name = drive_name,
+      drive_id = drive_id,
+      ...,
+      properties = FALSE,
+      site_url = site_url,
+      call = call
+    )
 
   check_ms_drive(drive, call = call)
   check_exclusive_strings(path, item_id, call = call)
@@ -122,16 +125,18 @@ get_sp_item <- function(path = NULL,
 #' @rdname get_sp_item
 #' @name get_sp_item_properties
 #' @export
-get_sp_item_properties <- function(path = NULL,
-                                   item_id = NULL,
-                                   item_url = NULL,
-                                   ...,
-                                   drive = NULL,
-                                   drive_name = NULL,
-                                   drive_id = NULL,
-                                   site_url = NULL,
-                                   as_data_frame = FALSE,
-                                   call = caller_env()) {
+get_sp_item_properties <- function(
+  path = NULL,
+  item_id = NULL,
+  item_url = NULL,
+  ...,
+  drive = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  site_url = NULL,
+  as_data_frame = FALSE,
+  call = caller_env()
+) {
   get_sp_item(
     path = path,
     item_id = item_id,
@@ -175,30 +180,33 @@ get_sp_item_properties <- function(path = NULL,
 #' @inheritDotParams get_sp_item -properties
 #' @inheritParams download_sp_item
 #' @export
-delete_sp_item <- function(path = NULL,
-                           confirm = TRUE,
-                           by_item = FALSE,
-                           ...,
-                           item_id = NULL,
-                           item_url = NULL,
-                           item = NULL,
-                           drive_name = NULL,
-                           drive_id = NULL,
-                           drive = NULL,
-                           site_url = NULL,
-                           call = caller_env()) {
-  item <- item %||% get_sp_item(
-    path = path,
-    item_id = item_id,
-    item_url = item_url,
-    drive_name = drive_name,
-    drive_id = drive_id,
-    drive = drive,
-    site_url = site_url,
-    ...,
-    properties = FALSE,
-    call = call
-  )
+delete_sp_item <- function(
+  path = NULL,
+  confirm = TRUE,
+  by_item = FALSE,
+  ...,
+  item_id = NULL,
+  item_url = NULL,
+  item = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  site_url = NULL,
+  call = caller_env()
+) {
+  item <- item %||%
+    get_sp_item(
+      path = path,
+      item_id = item_id,
+      item_url = item_url,
+      drive_name = drive_name,
+      drive_id = drive_id,
+      drive = drive,
+      site_url = site_url,
+      ...,
+      properties = FALSE,
+      call = call
+    )
 
   check_ms_obj(item, "ms_drive_item", call = call)
 
@@ -303,23 +311,28 @@ delete_sp_item <- function(path = NULL,
 #' }
 #'
 #' @export
-download_sp_item <- function(path = NULL,
-                             new_path = "",
-                             ...,
-                             item_id = NULL,
-                             item_url = NULL,
-                             item = NULL,
-                             drive_name = NULL,
-                             drive_id = NULL,
-                             drive = NULL,
-                             site_url = NULL,
-                             dest = NULL,
-                             overwrite = FALSE,
-                             recursive = FALSE,
-                             parallel = FALSE,
-                             call = caller_env()) {
-  if ((length(path) > 1) || (length(item_id) > 1) ||
-    (is_bare_list(item) && (length(item) > 1))) {
+download_sp_item <- function(
+  path = NULL,
+  new_path = "",
+  ...,
+  item_id = NULL,
+  item_url = NULL,
+  item = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  site_url = NULL,
+  dest = NULL,
+  overwrite = FALSE,
+  recursive = FALSE,
+  parallel = FALSE,
+  call = caller_env()
+) {
+  if (
+    (length(path) > 1) ||
+      (length(item_id) > 1) ||
+      (is_bare_list(item) && (length(item) > 1))
+  ) {
     dest_list <- batch_download_sp_item(
       path = path,
       new_path = new_path,
@@ -382,7 +395,8 @@ download_sp_item <- function(path = NULL,
   if (item$is_folder()) {
     if (!dest_dir_exists) {
       cli::cli_abort(
-        c("{.arg new_path} or {.arg dest} must exist if item is a folder.",
+        c(
+          "{.arg new_path} or {.arg dest} must exist if item is a folder.",
           "i" = "Create a new folder at {.path {dirname(dest)}} to
           download the item."
         ),
@@ -427,10 +441,7 @@ download_sp_item <- function(path = NULL,
 #' @name download_sp_file
 #' @aliases sp_file_download
 #' @export
-download_sp_file <- function(file,
-                             new_path = "",
-                             ...,
-                             call = caller_env()) {
+download_sp_file <- function(file, new_path = "", ..., call = caller_env()) {
   download_sp_item(
     path = file,
     new_path = new_path,
@@ -458,27 +469,34 @@ sp_file_dest <- function(file = NULL, path = tempdir()) {
 }
 
 #' @noRd
-batch_download_sp_item <- function(path = NULL,
-                                   new_path = "",
-                                   ...,
-                                   item_id = NULL,
-                                   item = NULL,
-                                   drive_name = NULL,
-                                   drive_id = NULL,
-                                   drive = NULL,
-                                   site_url = NULL,
-                                   dest = NULL,
-                                   overwrite = FALSE,
-                                   recursive = FALSE,
-                                   parallel = FALSE,
-                                   call = caller_env()) {
+batch_download_sp_item <- function(
+  path = NULL,
+  new_path = "",
+  ...,
+  item_id = NULL,
+  item = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  site_url = NULL,
+  dest = NULL,
+  overwrite = FALSE,
+  recursive = FALSE,
+  parallel = FALSE,
+  call = caller_env()
+) {
   if (is_bare_list(item)) {
     size <- length(item)
   } else {
     size <- max(c(length(path), length(item_id)))
 
     if (is.null(dest)) {
-      dest <- vctrs::vec_recycle(new_path, size, x_arg = "new_path", call = call)
+      dest <- vctrs::vec_recycle(
+        new_path,
+        size,
+        x_arg = "new_path",
+        call = call
+      )
     } else {
       dest <- vctrs::vec_recycle(dest, size, x_arg = "dest", call = call)
     }
@@ -486,10 +504,12 @@ batch_download_sp_item <- function(path = NULL,
 
   if (length(path) > 1) {
     dest_list <- map2_chr(
-      path, dest,
+      path,
+      dest,
       \(x, y) {
         download_sp_item(
-          path = x, dest = y,
+          path = x,
+          dest = y,
           ...,
           drive_name = drive_name,
           drive_id = drive_id,
@@ -506,10 +526,12 @@ batch_download_sp_item <- function(path = NULL,
 
   if (length(item_id) > 1) {
     dest_list <- map2_chr(
-      item_id, dest,
+      item_id,
+      dest,
       \(x, y) {
         download_sp_item(
-          item_id = x, dest = y,
+          item_id = x,
+          dest = y,
           ...,
           drive_name = drive_name,
           drive_id = drive_id,
@@ -529,7 +551,9 @@ batch_download_sp_item <- function(path = NULL,
       item,
       \(x) {
         download_sp_item(
-          item = x, dest = dest, new_path = new_path,
+          item = x,
+          dest = dest,
+          new_path = new_path,
           ...,
           drive_name = drive_name,
           drive_id = drive_id,
@@ -562,15 +586,18 @@ batch_download_sp_item <- function(path = NULL,
 #' @inheritParams rlang::args_error_context
 #' @inheritParams ms_obj_as_data_frame
 #' @export
-download_sp_list <- function(...,
-                             new_path = "",
-                             sp_list = NULL,
-                             fileext = "csv",
-                             keep_list_cols = c("createdBy", "lastModifiedBy"),
-                             call = caller_env()) {
-  sp_list <- sp_list %||% get_sp_list(
-    ...
-  )
+download_sp_list <- function(
+  ...,
+  new_path = "",
+  sp_list = NULL,
+  fileext = "csv",
+  keep_list_cols = c("createdBy", "lastModifiedBy"),
+  call = caller_env()
+) {
+  sp_list <- sp_list %||%
+    get_sp_list(
+      ...
+    )
 
   sp_list_df <- ms_obj_as_data_frame(
     sp_list,

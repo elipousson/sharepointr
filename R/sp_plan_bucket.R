@@ -20,14 +20,16 @@ NULL
 #' @returns For [list_sp_plan_buckets()], a list of `ms_plan_bucket` class
 #'   objects or a data frame with a list column named "ms_plan_task".
 #' @export
-list_sp_plan_buckets <- function(plan_title = NULL,
-                                 plan_id = NULL,
-                                 ...,
-                                 filter = NULL,
-                                 n = NULL,
-                                 plan = NULL,
-                                 as_data_frame = TRUE,
-                                 call = caller_env()) {
+list_sp_plan_buckets <- function(
+  plan_title = NULL,
+  plan_id = NULL,
+  ...,
+  filter = NULL,
+  n = NULL,
+  plan = NULL,
+  as_data_frame = TRUE,
+  call = caller_env()
+) {
   plan <- plan %||%
     get_sp_plan(plan_title = plan_title, plan_id = plan_id, ..., call = call)
 

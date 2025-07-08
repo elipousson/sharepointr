@@ -29,25 +29,27 @@ NULL
 #'   cached as a local option. If `FALSE`, use the cached `ms_drive` object if
 #'   it exists.
 #' @export
-get_sp_drive <- function(drive_name = NULL,
-                         drive_id = NULL,
-                         drive_url = NULL,
-                         properties = FALSE,
-                         ...,
-                         site_url = NULL,
-                         site = NULL,
-                         default_drive_name = getOption(
-                           "sharepointr.default_drive_name",
-                           "Documents"
-                         ),
-                         cache = FALSE,
-                         refresh = TRUE,
-                         overwrite = FALSE,
-                         cache_file = getOption(
-                           "sharepointr.cache_file_drive",
-                           "sp_drive.rds"
-                         ),
-                         call = caller_env()) {
+get_sp_drive <- function(
+  drive_name = NULL,
+  drive_id = NULL,
+  drive_url = NULL,
+  properties = FALSE,
+  ...,
+  site_url = NULL,
+  site = NULL,
+  default_drive_name = getOption(
+    "sharepointr.default_drive_name",
+    "Documents"
+  ),
+  cache = FALSE,
+  refresh = TRUE,
+  overwrite = FALSE,
+  cache_file = getOption(
+    "sharepointr.cache_file_drive",
+    "sp_drive.rds"
+  ),
+  call = caller_env()
+) {
   if (!refresh && sp_cache_file_exists(cache_file, call = call)) {
     drive <- withCallingHandlers(
       get_sp_cache(cache_file = cache_file, what = "ms_drive", call = call),
@@ -70,8 +72,10 @@ get_sp_drive <- function(drive_name = NULL,
   if (!is.null(drive_url)) {
     if (!is.null(drive_name)) {
       cli::cli_bullets(
-        c("!" = "Any SharePoint Drive name contained in {.arg drive_url}
-          is ignored if {.arg drive_name} is also supplied.")
+        c(
+          "!" = "Any SharePoint Drive name contained in {.arg drive_url}
+          is ignored if {.arg drive_name} is also supplied."
+        )
       )
     }
 
@@ -90,12 +94,13 @@ get_sp_drive <- function(drive_name = NULL,
     }
   }
 
-  site <- site %||% get_sp_site(
-    site_url = site_url,
-    ...,
-    refresh = refresh,
-    call = call
-  )
+  site <- site %||%
+    get_sp_site(
+      site_url = site_url,
+      ...,
+      refresh = refresh,
+      call = call
+    )
 
   check_ms_site(site, call = call)
 
@@ -129,14 +134,16 @@ get_sp_drive <- function(drive_name = NULL,
 #'   `"sp_drive.rds"`).
 #' @inheritParams cache_ms_obj
 #' @export
-cache_sp_drive <- function(...,
-                           drive = NULL,
-                           cache_file = getOption(
-                             "sharepointr.cache_file_drive",
-                             "sp_drive.rds"
-                           ),
-                           overwrite = FALSE,
-                           call = caller_env()) {
+cache_sp_drive <- function(
+  ...,
+  drive = NULL,
+  cache_file = getOption(
+    "sharepointr.cache_file_drive",
+    "sp_drive.rds"
+  ),
+  overwrite = FALSE,
+  call = caller_env()
+) {
   drive <- drive %||% get_sp_drive(..., call = call)
 
   check_ms_drive(drive, call = call)
@@ -165,12 +172,13 @@ cache_sp_drive <- function(...,
 #' @inheritParams get_sp_site
 #' @export
 list_sp_drives <- function(
-    ...,
-    site = NULL,
-    filter = NULL,
-    n = NULL,
-    as_data_frame = TRUE,
-    call = caller_env()) {
+  ...,
+  site = NULL,
+  filter = NULL,
+  n = NULL,
+  as_data_frame = TRUE,
+  call = caller_env()
+) {
   sp_site <- site %||% get_sp_site(..., call = call)
 
   site_drives <- sp_site$list_drives(filter = filter, n = n %||% Inf)

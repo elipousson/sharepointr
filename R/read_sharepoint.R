@@ -32,18 +32,20 @@
 #' @inheritParams get_sp_drive
 #' @inheritParams get_sp_site
 #' @export
-read_sharepoint <- function(file,
-                            ...,
-                            .f = NULL,
-                            new_path = tempdir(),
-                            overwrite = TRUE,
-                            drive_name = NULL,
-                            drive_id = NULL,
-                            drive = NULL,
-                            site_url = NULL,
-                            site_name = NULL,
-                            site_id = NULL,
-                            site = NULL) {
+read_sharepoint <- function(
+  file,
+  ...,
+  .f = NULL,
+  new_path = tempdir(),
+  overwrite = TRUE,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  site_url = NULL,
+  site_name = NULL,
+  site_id = NULL,
+  site = NULL
+) {
   dest <- download_sp_file(
     file = file,
     new_path = new_path,

@@ -10,24 +10,27 @@
 #' @inheritParams get_sp_site
 #' @aliases get_sp_site_group
 #' @export
-get_sp_group <- function(site_url = NULL,
-                         site_name = NULL,
-                         site_id = NULL,
-                         ...,
-                         site = NULL,
-                         call = caller_env()) {
+get_sp_group <- function(
+  site_url = NULL,
+  site_name = NULL,
+  site_id = NULL,
+  ...,
+  site = NULL,
+  call = caller_env()
+) {
   if (is_url(site)) {
     site_url <- site
     site <- NULL
   }
 
-  site <- site %||% get_sp_site(
-    site_url = site_url,
-    site_name = site_name,
-    site_id = site_id,
-    ...,
-    call = call
-  )
+  site <- site %||%
+    get_sp_site(
+      site_url = site_url,
+      site_name = site_name,
+      site_id = site_id,
+      ...,
+      call = call
+    )
 
   check_ms_site(site, call = call)
 
@@ -40,12 +43,14 @@ get_sp_group <- function(site_url = NULL,
 #'   list and properties converted into columns.
 #' @rdname get_sp_group
 #' @export
-list_sp_group_members <- function(site_url = NULL,
-                                  site_name = NULL,
-                                  site_id = NULL,
-                                  ...,
-                                  as_data_frame = TRUE,
-                                  call = caller_env()) {
+list_sp_group_members <- function(
+  site_url = NULL,
+  site_name = NULL,
+  site_id = NULL,
+  ...,
+  as_data_frame = TRUE,
+  call = caller_env()
+) {
   sp_group <- get_sp_group(
     site_url = site_url,
     site_name = site_name,
@@ -67,9 +72,19 @@ list_sp_group_members <- function(site_url = NULL,
 
   # FIXME: This is a brittle and likely incomplete solution
   for (nm in c(
-    "accountEnabled", "id", "employeeId", "mail", "displayName",
-    "jobTitle", "department", "givenName", "surname", "mailNickname",
-    "businessPhones", "mobilePhone", "officeLocation"
+    "accountEnabled",
+    "id",
+    "employeeId",
+    "mail",
+    "displayName",
+    "jobTitle",
+    "department",
+    "givenName",
+    "surname",
+    "mailNickname",
+    "businessPhones",
+    "mobilePhone",
+    "officeLocation"
   )) {
     fn <- as.character
     if (nm == "accountEnabled") {

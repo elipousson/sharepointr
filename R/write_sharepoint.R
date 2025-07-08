@@ -35,22 +35,24 @@ sp_url_as_src_dest <- function(url, src, call = caller_env()) {
 #' @inheritParams get_sp_site
 #' @returns Invisibly returns the input object x.
 #' @export
-write_sharepoint <- function(x,
-                             file,
-                             dest,
-                             ...,
-                             .f = NULL,
-                             new_path = tempdir(),
-                             overwrite = FALSE,
-                             drive_name = NULL,
-                             drive_id = NULL,
-                             drive = NULL,
-                             site_url = NULL,
-                             site_name = NULL,
-                             site_id = NULL,
-                             site = NULL,
-                             blocksize = 327680000,
-                             call = caller_env()) {
+write_sharepoint <- function(
+  x,
+  file,
+  dest,
+  ...,
+  .f = NULL,
+  new_path = tempdir(),
+  overwrite = FALSE,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  site_url = NULL,
+  site_name = NULL,
+  site_id = NULL,
+  site = NULL,
+  blocksize = 327680000,
+  call = caller_env()
+) {
   check_string(file, call = call)
   file <- str_c_fsep(new_path, file)
 
@@ -60,7 +62,9 @@ write_sharepoint <- function(x,
   } else if (inherits(x, "sf")) {
     check_installed("sf", call = call)
     sf::write_sf(x, dsn = file, ...)
-  } else if (inherits(x, "data.frame") && !stringr::str_detect(file, ".xlsx$")) {
+  } else if (
+    inherits(x, "data.frame") && !stringr::str_detect(file, ".xlsx$")
+  ) {
     check_installed("readr", call = call)
     readr::write_csv(x, file = file, ...)
   } else if (inherits(x, "data.frame") && stringr::str_detect(file, ".xlsx$")) {
@@ -113,18 +117,20 @@ write_sharepoint <- function(x,
 #' @param blocksize,recursive,parallel Additional parameters passed to
 #'   `upload_folder` or `upload_file` method for `ms_drive` objects.
 #' @export
-upload_sp_item <- function(file = NULL,
-                           dest,
-                           ...,
-                           src = NULL,
-                           overwrite = FALSE,
-                           drive_name = NULL,
-                           drive_id = NULL,
-                           drive = NULL,
-                           blocksize = 327680000,
-                           recursive = FALSE,
-                           parallel = FALSE,
-                           call = caller_env()) {
+upload_sp_item <- function(
+  file = NULL,
+  dest,
+  ...,
+  src = NULL,
+  overwrite = FALSE,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  blocksize = 327680000,
+  recursive = FALSE,
+  parallel = FALSE,
+  call = caller_env()
+) {
   if (!is_string(src) && !is_string(file)) {
     cli_abort(
       "One of {.arg file} or {.arg src} must be a string.",
@@ -185,11 +191,13 @@ upload_sp_item <- function(file = NULL,
 
 #' @rdname upload_sp_item
 #' @export
-upload_sp_items <- function(file = NULL,
-                            dest,
-                            ...,
-                            src = NULL,
-                            call = caller_env()) {
+upload_sp_items <- function(
+  file = NULL,
+  dest,
+  ...,
+  src = NULL,
+  call = caller_env()
+) {
   if (!is_character(src) && !is_character(file)) {
     cli_abort(
       "One of {.arg file} or {.arg src} must be a character vector",
@@ -219,7 +227,8 @@ upload_sp_items <- function(file = NULL,
   )
 
   dest_list <- map2_chr(
-    src, dest,
+    src,
+    dest,
     \(x, y) {
       upload_sp_src(
         src = x,
@@ -234,14 +243,16 @@ upload_sp_items <- function(file = NULL,
 }
 
 #' @noRd
-upload_sp_src <- function(src,
-                          dest = NULL,
-                          drive = NULL,
-                          blocksize = 327680000,
-                          recursive = FALSE,
-                          parallel = FALSE,
-                          overwrite = FALSE,
-                          call = caller_env()) {
+upload_sp_src <- function(
+  src,
+  dest = NULL,
+  drive = NULL,
+  blocksize = 327680000,
+  recursive = FALSE,
+  parallel = FALSE,
+  overwrite = FALSE,
+  call = caller_env()
+) {
   if (dir.exists(src)) {
     cli_progress_step(
       msg = "Uploading directory to SharePoint drive",

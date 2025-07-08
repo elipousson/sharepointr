@@ -17,14 +17,16 @@ NULL
 #' @param task_title,task_id Planner task title and id. Exactly one of
 #'   `task_title` and `task_id` must be supplied.
 #' @export
-get_sp_task <- function(task_title = NULL,
-                        task_id = NULL,
-                        ...,
-                        plan_title = NULL,
-                        plan_id = NULL,
-                        plan = NULL,
-                        as_data_frame = FALSE,
-                        call = caller_env()) {
+get_sp_task <- function(
+  task_title = NULL,
+  task_id = NULL,
+  ...,
+  plan_title = NULL,
+  plan_id = NULL,
+  plan = NULL,
+  as_data_frame = FALSE,
+  call = caller_env()
+) {
   plan <- plan %||%
     get_sp_plan(plan_title = plan_title, plan_id = plan_id, ..., call = call)
 
@@ -54,14 +56,16 @@ get_sp_task <- function(task_title = NULL,
 #' @returns For [list_sp_tasks()], a list of `ms_plan_task` class objects or a
 #'   data frame with a list column named "ms_plan_task".
 #' @export
-list_sp_tasks <- function(plan_title = NULL,
-                          plan_id = NULL,
-                          ...,
-                          filter = NULL,
-                          n = NULL,
-                          plan = NULL,
-                          as_data_frame = TRUE,
-                          call = caller_env()) {
+list_sp_tasks <- function(
+  plan_title = NULL,
+  plan_id = NULL,
+  ...,
+  filter = NULL,
+  n = NULL,
+  plan = NULL,
+  as_data_frame = TRUE,
+  call = caller_env()
+) {
   plan <- plan %||%
     get_sp_plan(plan_title = plan_title, plan_id = plan_id, ..., call = call)
 

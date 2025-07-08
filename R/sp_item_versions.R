@@ -12,13 +12,10 @@
 #'   return a list.
 #' @export
 #' @returns A data frame if `as_data_frame = TRUE` or a list if `FALSE`.
-list_sp_item_versions <- function(...,
-                                  sp_item = NULL,
-                                  as_data_frame = TRUE) {
+list_sp_item_versions <- function(..., sp_item = NULL, as_data_frame = TRUE) {
   sp_item <- sp_item %||% get_sp_item(...)
 
   sp_item_versions <- sp_item$do_operation("versions")
-
 
   if (!as_data_frame) {
     return(sp_item_versions)

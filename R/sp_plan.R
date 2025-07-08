@@ -21,13 +21,15 @@ NULL
 #' @returns For [get_sp_plan()], a `ms_plan` class object or a 1 row data frame
 #'   with a "ms_plan" column.
 #' @export
-get_sp_plan <- function(plan_title = NULL,
-                        plan_id = NULL,
-                        ...,
-                        site = NULL,
-                        site_url = NULL,
-                        as_data_frame = FALSE,
-                        call = caller_env()) {
+get_sp_plan <- function(
+  plan_title = NULL,
+  plan_id = NULL,
+  ...,
+  site = NULL,
+  site_url = NULL,
+  as_data_frame = FALSE,
+  call = caller_env()
+) {
   if (is_url(plan_title)) {
     site_url <- site_url %||% plan_title
   }
@@ -65,12 +67,14 @@ get_sp_plan <- function(plan_title = NULL,
 #' @returns For [list_sp_plans()], A list of `ms_plan` class objects or a data
 #'   frame with a list column named "ms_plan".
 #' @export
-list_sp_plans <- function(...,
-                          filter = NULL,
-                          n = NULL,
-                          site = NULL,
-                          as_data_frame = TRUE,
-                          call = caller_env()) {
+list_sp_plans <- function(
+  ...,
+  filter = NULL,
+  n = NULL,
+  site = NULL,
+  as_data_frame = TRUE,
+  call = caller_env()
+) {
   grp <- get_sp_group(
     ...,
     site = site,

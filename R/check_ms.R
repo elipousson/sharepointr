@@ -14,12 +14,14 @@ is_ms_drive <- function(x) {
 }
 
 #' @noRd
-check_ms_obj <- function(x,
-                         what,
-                         ...,
-                         allow_null = FALSE,
-                         arg = caller_arg(x),
-                         call = caller_env()) {
+check_ms_obj <- function(
+  x,
+  what,
+  ...,
+  allow_null = FALSE,
+  arg = caller_arg(x),
+  call = caller_env()
+) {
   if (is_ms_obj(x, what)) {
     return(invisible(NULL))
   }
@@ -35,11 +37,13 @@ check_ms_obj <- function(x,
 }
 
 #' @noRd
-check_ms_site <- function(x,
-                          ...,
-                          allow_null = FALSE,
-                          arg = caller_arg(x),
-                          call = caller_env()) {
+check_ms_site <- function(
+  x,
+  ...,
+  allow_null = FALSE,
+  arg = caller_arg(x),
+  call = caller_env()
+) {
   check_ms_obj(
     x,
     what = "ms_site",
@@ -51,11 +55,13 @@ check_ms_site <- function(x,
 }
 
 #' @noRd
-check_ms_drive <- function(x,
-                           ...,
-                           allow_null = FALSE,
-                           arg = caller_arg(x),
-                           call = caller_env()) {
+check_ms_drive <- function(
+  x,
+  ...,
+  allow_null = FALSE,
+  arg = caller_arg(x),
+  call = caller_env()
+) {
   check_ms_obj(
     x,
     what = "ms_drive",

@@ -19,25 +19,28 @@ NULL
 #'   `site_name`, and `site_id` must be supplied.
 #' @param ... Additional parameters passed to [get_sp_site()] or
 #'   [Microsoft365R::get_sharepoint_site()].
-#' @inheritDotParams Microsoft365R::get_sharepoint_site -site_url -site_name -site_id
+#' @inheritDotParams Microsoft365R::get_sharepoint_site -site_url -site_name
+#' -site_id
 #' @param refresh If `TRUE`, get a new site even if the existing site is cached
 #'   as a local option. If `FALSE`, use the cached `ms_site` object.
 #' @param cache If `TRUE`, cache site to a file using [cache_sp_site()].
 #' @inheritParams rlang::args_error_context
 #' @export
 #' @importFrom Microsoft365R get_sharepoint_site
-get_sp_site <- function(site_url = NULL,
-                        site_name = NULL,
-                        site_id = NULL,
-                        ...,
-                        cache = FALSE,
-                        refresh = TRUE,
-                        overwrite = FALSE,
-                        cache_file = getOption(
-                          "sharepointr.cache_file_site",
-                          "sp_site.rds"
-                        ),
-                        call = caller_env()) {
+get_sp_site <- function(
+  site_url = NULL,
+  site_name = NULL,
+  site_id = NULL,
+  ...,
+  cache = FALSE,
+  refresh = TRUE,
+  overwrite = FALSE,
+  cache_file = getOption(
+    "sharepointr.cache_file_site",
+    "sp_site.rds"
+  ),
+  call = caller_env()
+) {
   if (!refresh && sp_cache_file_exists(cache_file, call = call)) {
     site <- withCallingHandlers(
       get_sp_cache(cache_file = cache_file, what = "ms_site", call = call),
@@ -105,15 +108,17 @@ get_sp_site <- function(site_url = NULL,
 #'   `"sp_site.rds"` or option set with `sharepointr.cache_file_site`.
 #' @inheritParams cache_ms_obj
 #' @export
-cache_sp_site <- function(...,
-                          site = NULL,
-                          cache_file = getOption(
-                            "sharepointr.cache_file_site",
-                            "sp_site.rds"
-                          ),
-                          cache_dir = "sharepointr.cache_dir",
-                          overwrite = FALSE,
-                          call = caller_env()) {
+cache_sp_site <- function(
+  ...,
+  site = NULL,
+  cache_file = getOption(
+    "sharepointr.cache_file_site",
+    "sp_site.rds"
+  ),
+  cache_dir = "sharepointr.cache_dir",
+  overwrite = FALSE,
+  call = caller_env()
+) {
   site <- site %||% get_sp_site(..., call = call)
 
   cache_ms_obj(

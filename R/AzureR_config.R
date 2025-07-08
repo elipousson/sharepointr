@@ -18,8 +18,7 @@ NULL
 #' @rdname AzureR_config
 #' @name AzureR_config_ls
 #' @export
-AzureR_config_ls <- function(path = NULL,
-                             glob = "*.json") {
+AzureR_config_ls <- function(path = NULL, glob = "*.json") {
   check_installed(c("rappdirs", "fs"))
   path <- path %||% rappdirs::user_config_dir("AzureR")
   fs::dir_ls(path = path, glob = glob)
@@ -28,8 +27,7 @@ AzureR_config_ls <- function(path = NULL,
 #' @rdname AzureR_config
 #' @name AzureR_config_delete
 #' @export
-AzureR_config_delete <- function(path = NULL,
-                                 filename = "graph_logins.json") {
+AzureR_config_delete <- function(path = NULL, filename = "graph_logins.json") {
   check_installed(c("rappdirs", "fs"))
   path <- path %||% rappdirs::user_config_dir("AzureR")
   fs::file_delete(path = str_c_fsep(path, filename))

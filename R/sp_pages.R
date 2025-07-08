@@ -11,16 +11,19 @@
 #'   SharePoint site pages. If `FALSE`, return a list.
 #' @inheritParams rlang::args_error_context
 #' @export
-list_sp_pages <- function(...,
-                          site = NULL,
-                          page_type = c("sitePage", "page"),
-                          as_data_frame = TRUE,
-                          call = caller_env()) {
+list_sp_pages <- function(
+  ...,
+  site = NULL,
+  page_type = c("sitePage", "page"),
+  as_data_frame = TRUE,
+  call = caller_env()
+) {
   sp_site <- site %||% get_sp_site(..., call = call)
 
   page_type <- arg_match(page_type, error_call = call)
 
-  op <- switch(page_type,
+  op <- switch(
+    page_type,
     "page" = "pages",
     "sitePage" = "pages/microsoft.graph.sitePage"
   )
@@ -78,22 +81,23 @@ get_sp_page <- function(page_url = NULL, page_id = NULL, ..., site = NULL) {
 
 #' @noRd
 list_sp_page_parts <- function(
-    page_url = NULL,
-    page_id = NULL,
-    sp_page = NULL,
-    ...,
-    sp_site = NULL,
-    site_url = NULL,
-    part_type = c(
-      "webparts",
-      "verticalSection",
-      "horizontalSections",
-      "horizontalSectionColumns",
-      "horizontalSectionColumn_webparts"
-    ),
-    h_section_id = NULL,
-    h_section_col_id = NULL,
-    as_data_frame = TRUE) {
+  page_url = NULL,
+  page_id = NULL,
+  sp_page = NULL,
+  ...,
+  sp_site = NULL,
+  site_url = NULL,
+  part_type = c(
+    "webparts",
+    "verticalSection",
+    "horizontalSections",
+    "horizontalSectionColumns",
+    "horizontalSectionColumn_webparts"
+  ),
+  h_section_id = NULL,
+  h_section_col_id = NULL,
+  as_data_frame = TRUE
+) {
   if (!is.null(page_url) && is.null(site_url)) {
     site_url <- site_url %||% sp_url_parse(page_url)[["site_url"]]
   }
@@ -116,7 +120,8 @@ list_sp_page_parts <- function(
 
   part_type <- arg_match(part_type)
 
-  part <- switch(part_type,
+  part <- switch(
+    part_type,
     "webparts" = "webparts",
     "verticalSection" = "canvasLayout/verticalSection/webparts",
     "horizontalSections" = "canvasLayout/horizontalSections", #

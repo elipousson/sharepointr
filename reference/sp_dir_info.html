@@ -99,7 +99,9 @@ file.</p>
 
 <dl><dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
 <dd><p>Path to directory or folder. SharePoint folder URLs are allowed.
-If <code>NULL</code>, path is set to default "/".</p></dd>
+If <code>NULL</code>, path is set to default "/". <code>path</code> can be a string or a
+character vector. If a vector or path of URLs are supplied, provide a
+<code>drive</code> object to improve performance.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -187,7 +189,7 @@ paths before they are returned.</p></dd>
 
 
 <dt id="arg-invert">invert<a class="anchor" aria-label="anchor" href="#arg-invert"></a></dt>
-<dd><p>logical.  If <code>TRUE</code> return indices or values for
+<dd><p>logical. If <code>TRUE</code> return indices or values for
     elements that do <em>not</em> match.</p></dd>
 
 

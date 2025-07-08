@@ -345,6 +345,7 @@ delete_sp_list <- function(
 #' column definition or use [create_column_definition_list()] to create a list
 #' of column definitions.
 #' @inheritParams create_list_info
+#' @param title_definition Named list used to update the column definition of the default `"Title"` column created when using the `"genericList"` template. By default, makes Title column optional.
 #' @inheritParams get_sp_site
 #' @keywords internal
 #' @export
@@ -356,6 +357,9 @@ create_sp_list <- function(
   template = "genericList",
   content_types = NULL,
   hidden = NULL,
+  title_definition = list(
+    required = FALSE
+  ),
   site_url = NULL,
   site = NULL,
   call = caller_env()
@@ -381,12 +385,59 @@ create_sp_list <- function(
     )
   )
 
-  site$do_operation(
+  cli_progress_step(
+    "Creating list {.str {list_name}} with {length(columns)} column{?s}."
+  )
+
+  resp <- site$do_operation(
     op = "lists",
     body = body,
     encode = "json",
     http_verb = "POST"
   )
+
+  cli_progress_step(
+    "List created at {.url {resp[['webUrl']]}}."
+  )
+
+  sp_list <- suppressMessages(
+    get_sp_list(
+      list_id = resp[["id"]],
+      site = site
+    )
+  )
+
+  if (template != "genericList" || is.null(title_definition)) {
+    return(sp_list)
+  }
+
+  # Update default Title column definition
+  # Title is set up as required when using `"genericList"` template
+  title_col <- get_sp_list_column(
+    sp_list = sp_list,
+    column_name = "Title"
+  )
+
+  title_col_definition <- title_col[unique(
+    c(
+      "name",
+      "displayName",
+      "hidden",
+      "required",
+      "text",
+      names(title_definition)
+    )
+  )]
+
+  title_col_definition[names(title_definition)] <- title_definition
+
+  update_sp_list_column(
+    sp_list = sp_list,
+    column_id = title_col[["id"]],
+    column_definition = title_col_definition
+  )
+
+  invisible(sp_list)
 }
 
 #' Create listinfo object
@@ -496,6 +547,8 @@ create_sp_list_column <- function(
       as_data_frame = FALSE
     )
 
+  # TODO: Add check for mismatch between `column_name` and column_definition[["column_name"]]
+
   sp_list$do_operation(
     op = "columns",
     body = column_definition %||%
@@ -525,6 +578,10 @@ update_sp_list_column <- function(
       list_name = list_name,
       as_data_frame = FALSE
     )
+
+  if (is.null(column_name) && !is.null(column_definition[[column_name_type]])) {
+    column_name <- column_definition[[column_name_type]]
+  }
 
   if (!is.null(column_name) && is.null(column_id)) {
     column_id <- sp_list_column_as_id(
@@ -557,6 +614,8 @@ update_sp_list_column <- function(
     encode = "json",
     http_verb = "PATCH"
   )
+
+  invisible(sp_list)
 }
 
 # <https://learn.microsoft.com/en-us/graph/api/columndefinition-delete?view=graph-rest-1.0&tabs=http>

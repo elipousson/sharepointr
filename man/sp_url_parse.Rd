@@ -63,5 +63,10 @@ SharePoint Planner URL:
 
 https://tasks.office.com/[tenant].onmicrosoft.com/en-US/Home/Planner/#/plantaskboard?groupId=[Group
 ID]&planId=[Plan ID]
+
+SharePoint Document Library (or Drive) URL:
+
+https://[tenant].sharepoint.com/sites/[tenant]/[drive name (with
+possible "Shared" prefix)]/Forms/AllItems.aspx
 }
 \keyword{internal}

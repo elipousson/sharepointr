@@ -39,7 +39,9 @@ sp_dir_ls(
 }
 \arguments{
 \item{path}{Path to directory or folder. SharePoint folder URLs are allowed.
-If \code{NULL}, path is set to default "/".}
+If \code{NULL}, path is set to default "/". \code{path} can be a string or a
+character vector. If a vector or path of URLs are supplied, provide a
+\code{drive} object to improve performance.}
 
 \item{...}{
   Arguments passed on to \code{\link[=get_sp_drive]{get_sp_drive}}
@@ -93,7 +95,7 @@ and combine this info with the item info for the supplied path.}
 \item{regexp}{Regular expression passed to \code{grep()} and used to filter the
 paths before they are returned.}
 
-\item{invert}{logical.  If \code{TRUE} return indices or values for
+\item{invert}{logical. If \code{TRUE} return indices or values for
     elements that do \emph{not} match.}
 
 \item{perl}{logical.  Should Perl-compatible regexps be used?}

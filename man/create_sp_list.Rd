@@ -12,6 +12,7 @@ create_sp_list(
   template = "genericList",
   content_types = NULL,
   hidden = NULL,
+  title_definition = list(required = FALSE),
   site_url = NULL,
   site = NULL,
   call = caller_env()
@@ -34,6 +35,8 @@ of column definitions.}
 \item{content_types}{Optional. Set \code{TRUE} for \code{contentTypesEnabled} to be enabled.}
 
 \item{hidden}{Optional. Set \code{TRUE} for list to be hidden.}
+
+\item{title_definition}{Named list used to update the column definition of the default \code{"Title"} column created when using the \code{"genericList"} template. By default, makes Title column optional.}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document

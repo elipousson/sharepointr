@@ -35,6 +35,11 @@
 #' https://tasks.office.com/\[tenant\].onmicrosoft.com/en-US/Home/Planner/#/plantaskboard?groupId=\[Group
 #' ID\]&planId=\[Plan ID\]
 #'
+#' SharePoint Document Library (or Drive) URL:
+#'
+#' https://\[tenant\].sharepoint.com/sites/\[tenant\]/\[drive name (with
+#' possible "Shared" prefix)\]/Forms/AllItems.aspx
+#'
 #' @keywords internal
 #' @export
 #' @importFrom httr2 url_parse
@@ -52,6 +57,10 @@ sp_url_parse <- function(url, call = caller_env()) {
 
   if (is_sp_site_url(url)) {
     return(sp_site_url_parse(url))
+  }
+
+  if (is_sp_drive_url(url)) {
+    return(sp_drive_url_parse(url))
   }
 
   parts <- httr2::url_parse(url)
@@ -73,8 +82,8 @@ sp_url_parse <- function(url, call = caller_env()) {
 }
 
 #' @noRd
-sp_site_url_build <- function(url) {
-  paste0(url[["base_url"]], "/sites/", url[["site_name"]])
+sp_site_url_build <- function(x) {
+  paste0(x[["base_url"]], "/sites/", x[["site_name"]])
 }
 
 #' @description
@@ -84,9 +93,11 @@ sp_site_url_build <- function(url) {
 #' @name sp_url_parse_hostname
 #' @export
 #' @importFrom httr2 url_parse
-sp_url_parse_hostname <- function(hostname,
-                                  tenant = "[a-zA-Z0-9.-]+",
-                                  scheme = "https") {
+sp_url_parse_hostname <- function(
+  hostname,
+  tenant = "[a-zA-Z0-9.-]+",
+  scheme = "https"
+) {
   if (is_url(hostname)) {
     hostname <- httr2::url_parse(hostname)[["hostname"]]
   }
@@ -109,11 +120,13 @@ sp_url_parse_hostname <- function(hostname,
 #' @rdname sp_url_parse
 #' @name sp_url_parse_path
 #' @export
-sp_url_parse_path <- function(path,
-                              url_type = "w|x|p|o|b|t|i|v|f|u|li",
-                              permissions = "r|s|t|u|g",
-                              drive_name_prefix = "Shared ",
-                              default_drive_name = "Documents") {
+sp_url_parse_path <- function(
+  path,
+  url_type = "w|x|p|o|b|t|i|v|f|u|li",
+  permissions = "r|s|t|u|g",
+  drive_name_prefix = "Shared ",
+  default_drive_name = "Documents"
+) {
   if (is.null(path)) {
     return(path)
   }
@@ -124,9 +137,9 @@ sp_url_parse_path <- function(path,
     permissions = permissions
   )
 
+  # If path is part a document URL, the parsed drive_name, file_path, and file
+  # are assumed to be invalid
   if (str_detect(path, "_layouts")) {
-    # If path is part a document URL, the parsed drive_name, file_path, and file
-    # are assumed to be invalid
     parts[["drive_name"]] <- default_drive_name
     return(parts[c("url_type", "permissions", "site_name", "drive_name")])
   }
@@ -180,13 +193,19 @@ sp_url_parse_query <- function(query) {
 #' Helper to get matches from the path of a SharePoint URL
 #' @noRd
 #' @importFrom utils URLdecode
-str_match_sp_url_path <- function(path,
-                                  url_type = "w|x|p|o|b|t|i|v|f|u|li",
-                                  permissions = "r|s|t|u|g",
-                                  nm = c(
-                                    "path", "url_type", "permissions",
-                                    "site_name", "file_path", "file"
-                                  )) {
+str_match_sp_url_path <- function(
+  path,
+  url_type = "w|x|p|o|b|t|i|v|f|u|li",
+  permissions = "r|s|t|u|g",
+  nm = c(
+    "path",
+    "url_type",
+    "permissions",
+    "site_name",
+    "file_path",
+    "file"
+  )
+) {
   str_match_list(
     utils::URLdecode(path),
     # regex created with support from GPT-3.5 on 2023-09-21
@@ -245,5 +264,41 @@ sp_site_url_parse <- function(url) {
   c(
     sp_url_parse_hostname(url),
     list("site_url" = url)
+  )
+}
+
+# stringr::str_extract(url, pattern = "([^/]+)/([^/])/Forms/AllItems.aspx")
+#' @noRd
+sp_drive_url_parse <- function(
+  url,
+  drive_name_prefix = "Shared ",
+  default_drive_name = "Documents"
+) {
+  parts <- httr2::url_parse(url)
+
+  parts <- c(
+    sp_url_parse_hostname(parts[["hostname"]], scheme = parts[["scheme"]]),
+    set_names(
+      as.list(
+        utils::URLdecode(
+          stringr::str_extract_all(parts[["path"]], "[^/]+")[[1]][c(2, 3)]
+        )
+      ),
+      c("site_name", "drive_name")
+    )
+  )
+
+  if (is_string(drive_name_prefix)) {
+    parts[["drive_name"]] <- parts[["drive_name"]] |>
+      str_remove(drive_name_prefix)
+  }
+
+  c(
+    parts,
+    list(
+      "file_path" = "/",
+      "drive_url" = url,
+      "site_url" = sp_site_url_build(parts)
+    )
   )
 }

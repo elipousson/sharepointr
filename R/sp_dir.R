@@ -10,7 +10,9 @@
 #' file.
 #'
 #' @param path Path to directory or folder. SharePoint folder URLs are allowed.
-#'   If `NULL`, path is set to default "/".
+#'   If `NULL`, path is set to default "/". `path` can be a string or a
+#'   character vector. If a vector or path of URLs are supplied, provide a
+#'   `drive` object to improve performance.
 #' @param info The information to return: "partial", "name" or "all". If
 #'   "partial", a data frame is returned containing the name, size, ID and
 #'   whether the item is a file or folder. If "all", a data frame is returned
@@ -44,33 +46,73 @@
 #'
 #' @export
 #' @importFrom vctrs vec_slice vec_rbind
-sp_dir_info <- function(path = NULL,
-                        ...,
-                        info = "partial",
-                        full_names = TRUE,
-                        pagesize = 1000,
-                        drive_name = NULL,
-                        drive_id = NULL,
-                        drive = NULL,
-                        recurse = FALSE,
-                        type = "any",
-                        regexp = NULL,
-                        invert = FALSE,
-                        perl = FALSE,
-                        call = caller_env()) {
-  if (!is.null(path) && is_sp_url(path)) {
-    sp_url_parts <- sp_url_parse(path, call = call)
-    drive_name <- path
-    path <- str_remove_slash(sp_url_parts[["file_path"]], before = TRUE)
+sp_dir_info <- function(
+  path = NULL,
+  ...,
+  info = "partial",
+  full_names = TRUE,
+  pagesize = 1000,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  recurse = FALSE,
+  type = "any",
+  regexp = NULL,
+  invert = FALSE,
+  perl = FALSE,
+  call = caller_env()
+) {
+  # Handle a vector of paths
+  if (is.character(path) && length(path) > 1) {
+    dir_info_list <- map(
+      path,
+      \(x) {
+        sp_dir_info(
+          path = x,
+          ...,
+          info = info,
+          full_names = full_names,
+          pagesize = pagesize,
+          drive_name = drive_name,
+          drive_id = drive_id,
+          # TODO: Add a warning re: performance issues if `drive = NULL`
+          drive = drive,
+          recurse = recurse,
+          type = type,
+          regexp = regexp,
+          invert = invert,
+          perl = perl,
+          call = call
+        )
+      }
+    )
+
+    return(vctrs::vec_rbind(!!!dir_info_list, .error_call = call))
   }
 
-  drive <- drive %||% get_sp_drive(
-    drive_name = drive_name,
-    drive_id = drive_id,
-    ...,
-    properties = FALSE,
-    call = call
-  )
+  url_parts <- NULL
+  if (!is.null(path) && is_sp_url(path)) {
+    url <- path
+    url_parts <- sp_url_parse(url, call = call)
+
+    # Handle for drive URLs that end in "Forms/AllItems.aspx"
+    if (is_sp_drive_url(path)) {
+      drive_name <- url_parts[["drive_url"]]
+    } else {
+      drive_name <- path
+    }
+
+    path <- str_remove_slash(url_parts[["file_path"]], before = TRUE)
+  }
+
+  drive <- drive %||%
+    get_sp_drive(
+      drive_name = drive_name,
+      drive_id = drive_id,
+      ...,
+      properties = FALSE,
+      call = call
+    )
 
   check_ms_drive(drive, call = call)
 
@@ -126,7 +168,8 @@ sp_dir_info <- function(path = NULL,
     return(item_list)
   }
 
-  item_list <- switch(type,
+  item_list <- switch(
+    type,
     any = item_list,
     file = item_list[!item_list[["isdir"]], ],
     directory = item_list[item_list[["isdir"]], ]
@@ -147,6 +190,22 @@ sp_dir_info <- function(path = NULL,
         NA_character_
       ),
       levels = c("directory", "file")
+    )
+  }
+
+  if (full_names && FALSE) {
+    # FIXME: This is disabled since the resulting item URL values do not match
+    # the native item webURL values
+    item_list <- vctrs::vec_cbind(
+      item_list,
+      data.frame(
+        list(
+          "item_url" = paste0(
+            drive[["properties"]][["webUrl"]],
+            item_list[["name"]]
+          )
+        )
+      )
     )
   }
 
@@ -199,18 +258,32 @@ fmt_sp_item_size <- function(data, size_col = "size") {
 #' @rdname sp_dir_info
 #' @name sp_dir_ls
 #' @export
-sp_dir_ls <- function(path = NULL,
-                      ...,
-                      full_names = FALSE,
-                      pagesize = 1000,
-                      drive_name = NULL,
-                      drive_id = NULL,
-                      drive = NULL,
-                      type = "any",
-                      regexp = NULL,
-                      invert = FALSE,
-                      perl = FALSE,
-                      call = caller_env()) {
+sp_dir_ls <- function(
+  path = NULL,
+  ...,
+  full_names = FALSE,
+  pagesize = 1000,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  type = "any",
+  regexp = NULL,
+  invert = FALSE,
+  perl = FALSE,
+  call = caller_env()
+) {
+  params <- rlang::list2(...)
+
+  if (has_name(params, "info")) {
+    cli_abort(
+      c(
+        "{.arg info} can't be used with {.fn sp_dir_ls}.",
+        "*" = "Use {.fn sp_dir_info} instead to set the value for {.arg info}."
+      ),
+      call = call
+    )
+  }
+
   sp_dir_info(
     path = path,
     ...,
@@ -272,13 +345,15 @@ sp_dir_ls <- function(path = NULL,
 #' @export
 #' @importFrom vctrs vec_recycle
 #' @importFrom cli cli_progress_along cli_warn cli_progress_done
-sp_dir_create <- function(path,
-                          ...,
-                          drive_name = NULL,
-                          drive_id = NULL,
-                          drive = NULL,
-                          relative = FALSE,
-                          call = caller_env()) {
+sp_dir_create <- function(
+  path,
+  ...,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  relative = FALSE,
+  call = caller_env()
+) {
   drive <- drive %||%
     get_sp_drive(
       drive_name = drive_name,

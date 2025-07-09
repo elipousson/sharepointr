@@ -15,10 +15,10 @@ get_sp_drive(
   site_url = NULL,
   site = NULL,
   default_drive_name = getOption("sharepointr.default_drive_name", "Documents"),
-  cache = FALSE,
-  refresh = TRUE,
+  cache = getOption("sharepointr.cache", FALSE),
+  refresh = getOption("sharepointr.refresh", TRUE),
   overwrite = FALSE,
-  cache_file = getOption("sharepointr.cache_file_drive", "sp_drive.rds"),
+  cache_file = NULL,
   call = caller_env()
 )
 
@@ -70,9 +70,7 @@ it exists.}
 \code{cache_file} with the new object. If \code{FALSE}, error if a cached file with
 the same \code{cache_file} name already exists.}
 
-\item{cache_file}{File name for cached drive if \code{cache = TRUE}. Defaults to a
-option set with \code{sharepointr.cache_file_drive} (which defaults to
-\code{"sp_drive.rds"}).}
+\item{cache_file}{File name for cached drive or site. Default \code{NULL}.}
 
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be

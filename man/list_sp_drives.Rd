@@ -27,8 +27,7 @@ alternative to the SharePoint site URL. Exactly one of  \code{site_url},
     \item{\code{refresh}}{If \code{TRUE}, get a new site even if the existing site is cached
 as a local option. If \code{FALSE}, use the cached \code{ms_site} object.}
     \item{\code{cache}}{If \code{TRUE}, cache site to a file using \code{\link[=cache_sp_site]{cache_sp_site()}}.}
-    \item{\code{cache_file}}{File name for cached file if \code{cache = TRUE}. Defaults to
-\code{"sp_site.rds"} or option set with \code{sharepointr.cache_file_site}.}
+    \item{\code{cache_file}}{File name for cached drive or site. Default \code{NULL}.}
     \item{\code{overwrite}}{If \code{TRUE}, replace the existing cached object named by
 \code{cache_file} with the new object. If \code{FALSE}, error if a cached file with
 the same \code{cache_file} name already exists.}

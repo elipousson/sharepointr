@@ -17,7 +17,7 @@ cache_ms_obj(
 \arguments{
 \item{cache_file}{File name for cached file. Required.}
 
-\item{cache_dir}{Cache directory. By default, uses an environmental variable
+\item{cache_dir}{Cache directory. By default, uses an option
 named "sharepointr.cache_dir". If "sharepointr.cache_dir" is not set, the
 cache directory is set to \code{rappdirs::user_cache_dir("sharepointr")}.}
 

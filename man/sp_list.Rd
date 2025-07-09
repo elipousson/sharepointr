@@ -79,9 +79,7 @@ URL and drive name is not part of the URL. Defaults to
     \item{\code{refresh}}{If \code{TRUE}, get a new drive even if the existing drive is
 cached as a local option. If \code{FALSE}, use the cached \code{ms_drive} object if
 it exists.}
-    \item{\code{cache_file}}{File name for cached drive if \code{cache = TRUE}. Defaults to a
-option set with \code{sharepointr.cache_file_drive} (which defaults to
-\code{"sp_drive.rds"}).}
+    \item{\code{cache_file}}{File name for cached drive or site. Default \code{NULL}.}
     \item{\code{overwrite}}{If \code{TRUE}, replace the existing cached object named by
 \code{cache_file} with the new object. If \code{FALSE}, error if a cached file with
 the same \code{cache_file} name already exists.}

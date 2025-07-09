@@ -11,18 +11,18 @@ get_sp_site(
   site_name = NULL,
   site_id = NULL,
   ...,
-  cache = FALSE,
-  refresh = TRUE,
+  cache = getOption("sharepointr.cache", FALSE),
+  refresh = getOption("sharepointr.refresh", TRUE),
   overwrite = FALSE,
-  cache_file = getOption("sharepointr.cache_file_site", "sp_site.rds"),
+  cache_file = NULL,
   call = caller_env()
 )
 
 cache_sp_site(
   ...,
   site = NULL,
-  cache_file = getOption("sharepointr.cache_file_site", "sp_site.rds"),
-  cache_dir = "sharepointr.cache_dir",
+  cache_file = NULL,
+  cache_dir = NULL,
   overwrite = FALSE,
   call = caller_env()
 )
@@ -55,8 +55,7 @@ as a local option. If \code{FALSE}, use the cached \code{ms_site} object.}
 \code{cache_file} with the new object. If \code{FALSE}, error if a cached file with
 the same \code{cache_file} name already exists.}
 
-\item{cache_file}{File name for cached file if \code{cache = TRUE}. Defaults to
-\code{"sp_site.rds"} or option set with \code{sharepointr.cache_file_site}.}
+\item{cache_file}{File name for cached drive or site. Default \code{NULL}.}
 
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be
@@ -66,7 +65,7 @@ mentioned in error messages as the source of the error. See the
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
 
-\item{cache_dir}{Cache directory. By default, uses an environmental variable
+\item{cache_dir}{Cache directory. By default, uses an option
 named "sharepointr.cache_dir". If "sharepointr.cache_dir" is not set, the
 cache directory is set to \code{rappdirs::user_cache_dir("sharepointr")}.}
 }

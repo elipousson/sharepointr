@@ -41,27 +41,34 @@ get_sp_drive <- function(
     "sharepointr.default_drive_name",
     "Documents"
   ),
-  cache = FALSE,
-  refresh = TRUE,
+  cache = getOption("sharepointr.cache", FALSE),
+  refresh = getOption("sharepointr.refresh", TRUE),
   overwrite = FALSE,
-  cache_file = getOption(
-    "sharepointr.cache_file_drive",
-    "sp_drive.rds"
-  ),
+  cache_file = NULL,
   call = caller_env()
 ) {
-  if (!refresh && sp_cache_file_exists(cache_file, call = call)) {
-    drive <- withCallingHandlers(
-      get_sp_cache(cache_file = cache_file, what = "ms_drive", call = call),
-      warning = function(cnd) NULL,
-      error = function(cnd) NULL
+  cache_exists <- file.exists(sp_cache_path(
+    cache_file,
+    what = "ms_drive",
+    call = call
+  ))
+
+  if (cache && cache_exists && !refresh) {
+    drive <- get_cached_ms_obj(
+      cache_file = cache_file,
+      what = "ms_drive",
+      call = call
     )
 
     if (is_ms_drive(drive)) {
       return(drive)
+    } else {
+      cache_exists <- FALSE
+      overwrite <- TRUE
+      # TODO: Add warning and set `refresh = TRUE` if cached file is not a ms_site object
+      # Set refresh to `TRUE`
+      # refresh <- TRUE
     }
-
-    refresh <- TRUE
   }
 
   if (!is.null(drive_name) && is_sp_url(drive_name)) {
@@ -99,6 +106,7 @@ get_sp_drive <- function(
       site_url = site_url,
       ...,
       refresh = refresh,
+      overwrite = overwrite,
       call = call
     )
 
@@ -108,7 +116,7 @@ get_sp_drive <- function(
 
   drive <- site$get_drive(drive_name = drive_name, drive_id = drive_id)
 
-  if (cache) {
+  if (cache && (refresh || !cache_exists)) {
     cache_sp_drive(
       drive = drive,
       cache_file = cache_file,
@@ -126,12 +134,9 @@ get_sp_drive <- function(
 
 #' @rdname sp_drive
 #' @name cache_sp_drive
-#' @param drive description
 #' @param drive A `ms_drive` object. If `drive` is supplied, `drive_name` and
 #'   `drive_id` are ignored.
-#' @param cache_file File name for cached drive if `cache = TRUE`. Defaults to a
-#'   option set with `sharepointr.cache_file_drive` (which defaults to
-#'   `"sp_drive.rds"`).
+#' @param cache_file File name for cached drive or site. Default `NULL`.
 #' @inheritParams cache_ms_obj
 #' @export
 cache_sp_drive <- function(

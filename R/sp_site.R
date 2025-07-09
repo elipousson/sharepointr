@@ -32,27 +32,33 @@ get_sp_site <- function(
   site_name = NULL,
   site_id = NULL,
   ...,
-  cache = FALSE,
-  refresh = TRUE,
+  cache = getOption("sharepointr.cache", FALSE),
+  refresh = getOption("sharepointr.refresh", TRUE),
   overwrite = FALSE,
-  cache_file = getOption(
-    "sharepointr.cache_file_site",
-    "sp_site.rds"
-  ),
+  cache_file = NULL,
   call = caller_env()
 ) {
-  if (!refresh && sp_cache_file_exists(cache_file, call = call)) {
-    site <- withCallingHandlers(
-      get_sp_cache(cache_file = cache_file, what = "ms_site", call = call),
-      warning = function(cnd) NULL,
-      error = function(cnd) NULL
+  cache_exists <- file.exists(sp_cache_path(
+    cache_file,
+    what = "ms_site",
+    call = call
+  ))
+
+  if (cache && cache_exists && !refresh) {
+    site <- get_cached_ms_obj(
+      cache_file = cache_file,
+      what = "ms_site",
+      call = call
     )
 
     if (is_ms_site(site)) {
       return(site)
+    } else {
+      # TODO: Consider adding warning
+      # Treat invalid files as missing
+      cache_exists <- FALSE
+      overwrite <- TRUE
     }
-
-    refresh <- TRUE
   }
 
   if (!is.null(site_url)) {
@@ -89,7 +95,8 @@ get_sp_site <- function(
     }
   )
 
-  if (cache) {
+  # Optionally save site object to file
+  if (cache && (refresh || !cache_exists)) {
     cache_sp_site(
       site = site,
       cache_file = cache_file,
@@ -104,18 +111,14 @@ get_sp_site <- function(
 #' @rdname sp_site
 #' @name cache_sp_site
 #' @inheritParams ms_graph_obj_terms
-#' @param cache_file File name for cached file if `cache = TRUE`. Defaults to
-#'   `"sp_site.rds"` or option set with `sharepointr.cache_file_site`.
+#' @param cache_file File name for cached drive or site. Default `NULL`.
 #' @inheritParams cache_ms_obj
 #' @export
 cache_sp_site <- function(
   ...,
   site = NULL,
-  cache_file = getOption(
-    "sharepointr.cache_file_site",
-    "sp_site.rds"
-  ),
-  cache_dir = "sharepointr.cache_dir",
+  cache_file = NULL,
+  cache_dir = NULL,
   overwrite = FALSE,
   call = caller_env()
 ) {

@@ -179,9 +179,21 @@ get_sp_list <- function(
     "Getting list from SharePoint"
   )
 
-  sp_list <- ms_list_obj$get_list(list_name = list_name, list_id = list_id)
+  sp_list <- ms_list_obj$get_list(
+    list_name = list_name,
+    list_id = list_id
+  )
 
   if (metadata) {
+    if (!as_data_frame) {
+      cli_warn(
+        c(
+          "{.code metadata = TRUE} always returns a data frame.",
+          "i" = "Ignoring {.code as_data_frame = FALSE} parameter."
+        )
+      )
+    }
+
     return(sp_list$get_column_info())
   }
 
@@ -320,7 +332,6 @@ delete_sp_list <- function(
       list_id = list_id,
       ...,
       as_data_frame = FALSE,
-      metadata = TRUE,
       site_url = site_url,
       site = site,
       drive_name = drive_name,
@@ -328,6 +339,8 @@ delete_sp_list <- function(
       drive = drive,
       call = call
     )
+
+  cli_progress_step("Deleting SharePoint list")
 
   check_ms_obj(sp_list, "ms_list", call = call)
 

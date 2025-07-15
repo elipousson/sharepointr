@@ -53,6 +53,6 @@ mentioned in error messages as the source of the error. See the
 }
 \description{
 \code{\link[=create_sp_list]{create_sp_list()}} allows the creation of a SharePoint list for a site. See:
-\url{https://learn.microsoft.com/en-us/graph/api/list-create?view=graph-rest-1.0&tabs=http}
+\url{https://learn.microsoft.com/en-us/graph/api/list-create?view=graph-rest-1.0&tabs=http} Note: dashes (`"-"``) in list names are removed from the list name but retained in the list display name.
 }
 \keyword{internal}

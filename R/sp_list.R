@@ -350,7 +350,7 @@ delete_sp_list <- function(
 #' Create a SharePoint List
 #'
 #' [create_sp_list()] allows the creation of a SharePoint list for a site. See:
-#' <https://learn.microsoft.com/en-us/graph/api/list-create?view=graph-rest-1.0&tabs=http>
+#' <https://learn.microsoft.com/en-us/graph/api/list-create?view=graph-rest-1.0&tabs=http> Note: dashes (`"-"``) in list names are removed from the list name but retained in the list display name.
 #'
 #' @param list_name Required. List name used as `displayName` property.
 #' @param description Optional description.

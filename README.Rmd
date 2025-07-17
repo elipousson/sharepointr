@@ -65,7 +65,7 @@ read_sharepoint(docx_shared_url)
 
 `write_sharepoint()` saves an R object to local files and then uses `upload_sp_item()` to uploads the file to SharePoint.
 
-I plan on adding features to allow the custom mapping of file extensions and object classes to specific functions or packages and adding more thorough documentation. Feel free to submit an issue or make a pull request if you have ideas of how to do this.
+See `vignette("read-write"")` for more information on reading and writing files to SharePoint with this package.
 
 ### Working with SharePoint items, lists, and plans
 
@@ -101,13 +101,13 @@ withr::with_tempdir({
 })
 ```
 
-Some of the original `{Microsoft365R}` S6 object methods already return a data frame by default such as `sp_dir_info()`:
+Some of the original `{Microsoft365R}` S6 object methods already return a data frame by default such as the `list_items` and `list_files` methods for `Microsoft365R::ms_drive` object. `sp_dir_info()` wraps this method to return a data frame similar to the output from `fs::dir_info()`:
 
 ```{r}
 sp_dir_info("https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/General/Baltimore%20Data%20Academy")
 ```
 
-Others use the `as_data_frame` parameter to convert a list into a data frame as a convenient alternative.
+Others functions use the `as_data_frame` parameter to convert a list into a data frame as a convenient alternative.
 
 ### Helpers for SharePoint sites and drives
 
@@ -126,6 +126,8 @@ get_sp_site(site_url = site_url)
 ```{r}
 get_sp_drive(docx_shared_url)
 ```
+
+See `vignette("sp_url"")` for more information on how the package handles URL parsing.
 
 ## Related packages
 

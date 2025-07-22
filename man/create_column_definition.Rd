@@ -200,4 +200,3 @@ Display as options vary by columnDefinition type:
 \item Options for personOrGroupColumn: https://learn.microsoft.com/en-us/graph/api/resources/personorgroupcolumn?view=graph-rest-1.0#displayas-options
 }
 }
-\keyword{internal}

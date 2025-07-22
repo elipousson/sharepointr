@@ -61,6 +61,7 @@ get_ms_list_obj <- function(
 #' @seealso
 #' - [Microsoft365R::ms_list]
 #' - [Microsoft365R::ms_list_item]
+#' - [create_sp_list()]; [delete_sp_list()]
 #' @name sp_list
 NULL
 
@@ -308,45 +309,6 @@ get_sp_list_metadata <- function(
   sp_list_meta
 }
 
-
-#' @rdname sp_list
-#' @name delete_sp_list
-#' @param confirm If `TRUE`, confirm deletion of list before proceeding.
-#' @export
-delete_sp_list <- function(
-  list_name = NULL,
-  list_id = NULL,
-  sp_list = NULL,
-  confirm = TRUE,
-  ...,
-  site_url = NULL,
-  site = NULL,
-  drive_name = NULL,
-  drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
-) {
-  sp_list <- sp_list %||%
-    get_sp_list(
-      list_name = list_name,
-      list_id = list_id,
-      ...,
-      as_data_frame = FALSE,
-      site_url = site_url,
-      site = site,
-      drive_name = drive_name,
-      drive_id = drive_id,
-      drive = drive,
-      call = call
-    )
-
-  cli_progress_step("Deleting SharePoint list")
-
-  check_ms_obj(sp_list, "ms_list", call = call)
-
-  sp_list$delete(confirm = confirm)
-}
-
 #' Create a SharePoint List
 #'
 #' [create_sp_list()] allows the creation of a SharePoint list for a site. See:
@@ -360,7 +322,6 @@ delete_sp_list <- function(
 #' @inheritParams create_list_info
 #' @param title_definition Named list used to update the column definition of the default `"Title"` column created when using the `"genericList"` template. By default, makes Title column optional.
 #' @inheritParams get_sp_site
-#' @keywords internal
 #' @export
 create_sp_list <- function(
   list_name,
@@ -453,6 +414,44 @@ create_sp_list <- function(
   invisible(sp_list)
 }
 
+#' @rdname create_sp_list
+#' @name delete_sp_list
+#' @param confirm If `TRUE`, confirm deletion of list before proceeding.
+#' @export
+delete_sp_list <- function(
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  confirm = TRUE,
+  ...,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  call = caller_env()
+) {
+  sp_list <- sp_list %||%
+    get_sp_list(
+      list_name = list_name,
+      list_id = list_id,
+      ...,
+      as_data_frame = FALSE,
+      site_url = site_url,
+      site = site,
+      drive_name = drive_name,
+      drive_id = drive_id,
+      drive = drive,
+      call = call
+    )
+
+  cli_progress_step("Deleting SharePoint list")
+
+  check_ms_obj(sp_list, "ms_list", call = call)
+
+  sp_list$delete(confirm = confirm)
+}
+
 #' Create listinfo object
 #'
 #' Helper function to create a listInfo object for use internally by [create_sp_list()].
@@ -498,7 +497,6 @@ create_list_info <- function(
 #' See Graph API documentation <https://learn.microsoft.com/en-us/graph/api/columndefinition-get?view=graph-rest-1.0&tabs=http>
 #'
 #' @inheritParams get_sp_list
-#' @keywords internal
 #' @export
 get_sp_list_column <- function(
   sp_list = NULL,
@@ -545,7 +543,6 @@ get_sp_list_column <- function(
 #' @inheritDotParams create_column_definition
 #' @param column_definition List with column definition created with
 #' [create_column_definition()] or a related function. Optional if `column_name` and any required additional parameters are provided.
-#' @keywords internal
 #' @export
 create_sp_list_column <- function(
   sp_list = NULL,

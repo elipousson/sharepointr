@@ -22,4 +22,3 @@ get_column_default(
 \description{
 \code{\link[=get_column_default]{get_column_default()}} returns a formula or value or NULL.
 }
-\keyword{internal}

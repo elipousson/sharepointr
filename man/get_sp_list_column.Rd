@@ -23,4 +23,3 @@ parameters passed to \code{...} are all ignored.}
 \details{
 See Graph API documentation \url{https://learn.microsoft.com/en-us/graph/api/columndefinition-get?view=graph-rest-1.0&tabs=http}
 }
-\keyword{internal}

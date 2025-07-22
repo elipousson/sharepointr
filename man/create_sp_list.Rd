@@ -2,6 +2,7 @@
 % Please edit documentation in R/sp_list.R
 \name{create_sp_list}
 \alias{create_sp_list}
+\alias{delete_sp_list}
 \title{Create a SharePoint List}
 \usage{
 create_sp_list(
@@ -15,6 +16,20 @@ create_sp_list(
   title_definition = list(required = FALSE),
   site_url = NULL,
   site = NULL,
+  call = caller_env()
+)
+
+delete_sp_list(
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  confirm = TRUE,
+  ...,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
   call = caller_env()
 )
 }
@@ -50,9 +65,10 @@ included in the URL.}
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
+
+\item{confirm}{If \code{TRUE}, confirm deletion of list before proceeding.}
 }
 \description{
 \code{\link[=create_sp_list]{create_sp_list()}} allows the creation of a SharePoint list for a site. See:
 \url{https://learn.microsoft.com/en-us/graph/api/list-create?view=graph-rest-1.0&tabs=http} Note: dashes (`"-"``) in list names are removed from the list name but retained in the list display name.
 }
-\keyword{internal}

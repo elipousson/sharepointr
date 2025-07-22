@@ -5,7 +5,6 @@
 \alias{get_sp_list}
 \alias{list_sp_lists}
 \alias{get_sp_list_metadata}
-\alias{delete_sp_list}
 \title{Get a SharePoint list or a list of SharePoint lists}
 \usage{
 get_sp_list(
@@ -42,20 +41,6 @@ get_sp_list_metadata(
   ...,
   keep = c("all", "editable", "visible"),
   sync_fields = FALSE,
-  site_url = NULL,
-  site = NULL,
-  drive_name = NULL,
-  drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
-)
-
-delete_sp_list(
-  list_name = NULL,
-  list_id = NULL,
-  sp_list = NULL,
-  confirm = TRUE,
-  ...,
   site_url = NULL,
   site = NULL,
   drive_name = NULL,
@@ -132,8 +117,6 @@ only columns or hidden columns.}
 \item{sync_fields}{If \code{TRUE}, use the \code{sync_fields} method to sync the fields
 of the local \code{ms_list} object with the fields of the SharePoint List source
 before retrieving list metadata.}
-
-\item{confirm}{If \code{TRUE}, confirm deletion of list before proceeding.}
 }
 \value{
 A data frame \code{as_data_frame = TRUE} or a \code{ms_list} object (or list
@@ -151,5 +134,6 @@ to distinguish them from item metadata.
 \itemize{
 \item \link[Microsoft365R:ms_list]{Microsoft365R::ms_list}
 \item \link[Microsoft365R:ms_list_item]{Microsoft365R::ms_list_item}
+\item \code{\link[=create_sp_list]{create_sp_list()}}; \code{\link[=delete_sp_list]{delete_sp_list()}}
 }
 }

@@ -19,7 +19,6 @@
 #'
 #' - Options for personOrGroupColumn: https://learn.microsoft.com/en-us/graph/api/resources/personorgroupcolumn?view=graph-rest-1.0#displayas-options
 #'
-#' @keywords internal
 #' @param display_as Value displayed as option. For `create_choice_column` one
 #' of`c("checkBoxes", "dropDownMenu", "radioButtons")`. For
 #' `create_number_column`, one of `c("number", "percentage")`. For
@@ -115,7 +114,6 @@ create_column_definition <- function(
 }
 
 #' @rdname create_column_definition
-#' @keywords internal
 #' @param multiple_lines Logical. If `TRUE`, allow multiple lines of text.
 #' @param append_changes Logical. If `TRUE`, append changes to existing value
 #' for column.
@@ -154,7 +152,6 @@ create_text_column <- function(
 
 #' @rdname create_column_definition
 #' @inheritParams base::strsplit
-#' @keywords internal
 #' @export
 create_choice_column <- function(
   name,
@@ -197,7 +194,6 @@ create_choice_column <- function(
 }
 
 #' @rdname create_column_definition
-#' @keywords internal
 #' @param decimals One of `c("none", "one", "two", "three", "four", "five")` or
 #' a numeric value between 0 and 5.
 #' @param max,min Minimum and maximum values allowed in number column.
@@ -251,7 +247,6 @@ create_number_column <- function(
 }
 
 #' @rdname create_column_definition
-#' @keywords internal
 #' @export
 create_datetime_column <- function(
   name,
@@ -491,8 +486,13 @@ create_term_column <- function(
   )
 }
 
-#' Vectorized version of `create_column_definition()`
-#' @keywords internal
+#' Create a list of column definitions
+#'
+#' [create_column_definition_list()] is a vectorized version of
+#' [create_column_definition()] that uses a list or data frame input to create
+#' a list of column definitions. This list can be used as the `fields` argument
+#' for [create_sp_list()].
+#'
 #' @param definitions A list or data frame with arguments to use in creation of
 #' column definitions.
 #' @param col_type Column type to use if not provided as a "type" column in the
@@ -561,7 +561,6 @@ create_column_definition_list <- function(
 #' @param value Value used as default value.
 #' @param allow_null If `TRUE`, return `NULL` if both `value` and `formula` are
 #' `NULL`.
-#' @keywords internal
 #' @export
 get_column_default <- function(
   value = NULL,

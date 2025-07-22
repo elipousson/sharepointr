@@ -56,4 +56,3 @@ in a SharePoint list (but is not yet implemented).
 See documentation:
 \url{https://learn.microsoft.com/en-us/graph/api/list-post-columns?view=graph-rest-1.0&tabs=http}
 }
-\keyword{internal}

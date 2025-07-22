@@ -2,7 +2,7 @@
 % Please edit documentation in R/sp_column_definition.R
 \name{create_column_definition_list}
 \alias{create_column_definition_list}
-\title{Vectorized version of \code{create_column_definition()}}
+\title{Create a list of column definitions}
 \usage{
 create_column_definition_list(definitions, col_type = "text", ignore_na = TRUE)
 }
@@ -17,6 +17,8 @@ person, group, and personorgroup. Not case sensitive.}
 \item{ignore_na}{If \code{TRUE}, drop any parameters with a \code{NA} value.}
 }
 \description{
-Vectorized version of \code{create_column_definition()}
+\code{\link[=create_column_definition_list]{create_column_definition_list()}} is a vectorized version of
+\code{\link[=create_column_definition]{create_column_definition()}} that uses a list or data frame input to create
+a list of column definitions. This list can be used as the \code{fields} argument
+for \code{\link[=create_sp_list]{create_sp_list()}}.
 }
-\keyword{internal}

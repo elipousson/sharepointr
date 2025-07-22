@@ -99,20 +99,6 @@ to distinguish them from item metadata.</p>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">delete_sp_list</span><span class="op">(</span></span>
-<span>  list_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  list_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  confirm <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  <span class="va">...</span>,</span>
-<span>  site_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -225,10 +211,6 @@ only columns or hidden columns.</p></dd>
 of the local <code>ms_list</code> object with the fields of the SharePoint List source
 before retrieving list metadata.</p></dd>
 
-
-<dt id="arg-confirm">confirm<a class="anchor" aria-label="anchor" href="#arg-confirm"></a></dt>
-<dd><p>If <code>TRUE</code>, confirm deletion of list before proceeding.</p></dd>
-
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -240,6 +222,7 @@ of <code>ms_list</code> objects) if <code>FALSE</code>.</p>
     <div class="dont-index">
 <ul><li><p><a href="https://rdrr.io/pkg/Microsoft365R/man/ms_list.html" class="external-link">Microsoft365R::ms_list</a></p></li>
 <li><p><a href="https://rdrr.io/pkg/Microsoft365R/man/ms_list_item.html" class="external-link">Microsoft365R::ms_list_item</a></p></li>
+<li><p><code><a href="create_sp_list.html">create_sp_list()</a></code>; <code><a href="create_sp_list.html">delete_sp_list()</a></code></p></li>
 </ul></div>
     </div>
 

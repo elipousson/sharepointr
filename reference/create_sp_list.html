@@ -59,6 +59,20 @@ https://learn.microsoft.com/en-us/graph/api/list-create?view=graph-rest-1.0&amp;
 <span>  site_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">delete_sp_list</span><span class="op">(</span></span>
+<span>  list_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  list_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  confirm <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  site_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -118,6 +132,10 @@ included in the URL.</p></dd>
 running function, e.g. <code>caller_env()</code>. The function will be
 mentioned in error messages as the source of the error. See the
 <code>call</code> argument of <code><a href="https://rlang.r-lib.org/reference/abort.html" class="external-link">abort()</a></code> for more information.</p></dd>
+
+
+<dt id="arg-confirm">confirm<a class="anchor" aria-label="anchor" href="#arg-confirm"></a></dt>
+<dd><p>If <code>TRUE</code>, confirm deletion of list before proceeding.</p></dd>
 
 </dl></div>
 

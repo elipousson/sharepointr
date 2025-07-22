@@ -54,3 +54,4 @@ mentioned in error messages as the source of the error. See the
 \code{\link[=list_sp_pages]{list_sp_pages()}} returns a list of SharePoint pages associated with a
 specified SharePoint site. \code{\link[=get_sp_page]{get_sp_page()}} returns a single SharePoint page.
 }
+\keyword{pages}

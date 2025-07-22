@@ -111,3 +111,4 @@ if (is_sp_url(sp_item_url)) {
 \seealso{
 \link[Microsoft365R:ms_drive_item]{Microsoft365R::ms_drive_item}
 }
+\keyword{items}

@@ -10,8 +10,9 @@
 #'   passed to `...` are ignored if sp_item is supplied.
 #' @param as_data_frame If `TRUE`, return a data frame of versions. If `FALSE`,
 #'   return a list.
-#' @export
+#' @keywords items
 #' @returns A data frame if `as_data_frame = TRUE` or a list if `FALSE`.
+#' @export
 list_sp_item_versions <- function(..., sp_item = NULL, as_data_frame = TRUE) {
   sp_item <- sp_item %||% get_sp_item(...)
 

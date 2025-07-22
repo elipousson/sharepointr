@@ -26,6 +26,7 @@ NULL
 #' @param cache If `TRUE`, cache site to a file using [cache_sp_site()].
 #' @inheritParams rlang::args_error_context
 #' @export
+#' @keywords sites
 #' @importFrom Microsoft365R get_sharepoint_site
 get_sp_site <- function(
   site_url = NULL,

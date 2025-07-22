@@ -39,6 +39,7 @@
 #'   )
 #' }
 #'
+#' @keywords items
 #' @export
 get_sp_item <- function(
   path = NULL,
@@ -179,6 +180,7 @@ get_sp_item_properties <- function(
 #'   Note, that this method can be slow for large folders.
 #' @inheritDotParams get_sp_item -properties
 #' @inheritParams download_sp_item
+#' @keywords items
 #' @export
 delete_sp_item <- function(
   path = NULL,
@@ -310,6 +312,7 @@ delete_sp_item <- function(
 #'   )
 #' }
 #'
+#' @keywords items
 #' @export
 download_sp_item <- function(
   path = NULL,

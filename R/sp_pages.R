@@ -10,6 +10,7 @@
 #' @param as_data_frame If `TRUE`, return a data frame with details on the
 #'   SharePoint site pages. If `FALSE`, return a list.
 #' @inheritParams rlang::args_error_context
+#' @keywords pages
 #' @export
 list_sp_pages <- function(
   ...,

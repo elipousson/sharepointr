@@ -10,6 +10,7 @@
 #'   containing `ms_plan_task` objects. If `FALSE` (default [get_sp_task()]),
 #'   return a `ms_plan_task` object or list of `ms_plan_task` objects.
 #' @seealso [Microsoft365R::ms_plan_task]
+#' @keywords plans
 NULL
 
 #' @rdname sp_tasks

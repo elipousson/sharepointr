@@ -77,3 +77,4 @@ SharePoint site for use by other functions.
 \seealso{
 \link[Microsoft365R:ms_site]{Microsoft365R::ms_site}
 }
+\keyword{sites}

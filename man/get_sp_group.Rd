@@ -56,3 +56,4 @@ Note that, as of February 1, 2024, the returned member data frame when
 \code{as_data_frame = TRUE} contains a large number of list columns that could be
 coerced into character columns. This should be addressed in a later update.
 }
+\keyword{groups}

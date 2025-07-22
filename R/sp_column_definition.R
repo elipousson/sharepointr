@@ -23,6 +23,7 @@
 #' of`c("checkBoxes", "dropDownMenu", "radioButtons")`. For
 #' `create_number_column`, one of `c("number", "percentage")`. For
 #' `create_datetime_column`, one of `c("default", "friendly", "standard")`.
+#' @keywords lists
 #' @export
 create_column_definition <- function(
   name,
@@ -499,6 +500,7 @@ create_term_column <- function(
 #' input definitions data frame. Allowed values include date and datetime,
 #' person, group, and personorgroup. Not case sensitive.
 #' @param ignore_na If `TRUE`, drop any parameters with a `NA` value.
+#' @keywords lists
 #' @export
 create_column_definition_list <- function(
   definitions,
@@ -561,6 +563,7 @@ create_column_definition_list <- function(
 #' @param value Value used as default value.
 #' @param allow_null If `TRUE`, return `NULL` if both `value` and `formula` are
 #' `NULL`.
+#' @keywords lists
 #' @export
 get_column_default <- function(
   value = NULL,
@@ -594,6 +597,7 @@ get_column_default <- function(
 #' @examples
 #' data_as_column_definition_list(mtcars)
 #'
+#' @keywords lists
 #' @export
 data_as_column_definition_list <- function(
   data,

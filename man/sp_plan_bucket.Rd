@@ -53,3 +53,4 @@ objects or a data frame with a list column named "ms_plan_task".
 \seealso{
 \link[Microsoft365R:ms_plan_task]{Microsoft365R::ms_plan_task}
 }
+\keyword{plans}

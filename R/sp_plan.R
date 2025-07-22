@@ -11,6 +11,7 @@
 #'   column named "ms_plan" containing `ms_plan` objects. If `FALSE` (default
 #'   [get_sp_plan()]), return a `ms_plan` object or list of `ms_plan` objects.
 #' @seealso [Microsoft365R::ms_plan]
+#' @keywords plans
 NULL
 
 #' @rdname sp_plan

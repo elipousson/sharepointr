@@ -24,3 +24,4 @@ Helper function to create a listInfo object for use internally by \code{\link[=c
 See: \url{https://learn.microsoft.com/en-us/graph/api/resources/listinfo?view=graph-rest-1.0}
 }
 \keyword{internal}
+\keyword{lists}

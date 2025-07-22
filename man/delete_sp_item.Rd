@@ -83,3 +83,4 @@ editing. Close the file and try deleting the item again.
 If you get the error: "Request was cancelled by event received. If attempting
 to delete a non-empty folder, it's possible that it's on hold." set \code{by_item = TRUE} and try again.
 }
+\keyword{items}

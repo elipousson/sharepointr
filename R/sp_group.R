@@ -9,6 +9,7 @@
 #' @inheritParams ms_graph_obj_terms
 #' @inheritParams get_sp_site
 #' @aliases get_sp_site_group
+#' @keywords groups
 #' @export
 get_sp_group <- function(
   site_url = NULL,

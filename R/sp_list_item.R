@@ -4,6 +4,7 @@
 #' completed for the `get_item`, `create_item`, `update_item`, and `delete_item`
 #' methods documented in [Microsoft365R::ms_list].
 #' @name sp_list_item
+#' @keywords lists
 NULL
 
 #' @rdname sp_list_item
@@ -231,6 +232,7 @@ get_sp_list_item <- function(
 #'     list_name = sp_list_url
 #'   )
 #' }
+#' @keywords lists
 #' @export
 create_sp_list_items <- function(
   data,
@@ -482,6 +484,7 @@ replace_with_sp_list_display_names <- function(
 #'   (remove NA fields before updating list items, leaving existing values in
 #'   place) or "replace" (overwrite existing list values with new replacement NA
 #'   values).
+#' @keywords lists
 #' @export
 update_sp_list_item <- function(
   ...,

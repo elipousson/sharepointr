@@ -9,6 +9,7 @@
 #'   "ms_plan_bucket" containing `ms_plan_task` objects. If `FALSE`, return a
 #'   `ms_plan_bucket` object or list of `ms_plan_bucket` objects.
 #' @seealso [Microsoft365R::ms_plan_task]
+#' @keywords plans
 NULL
 
 #' @rdname sp_plan_bucket

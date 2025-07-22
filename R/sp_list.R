@@ -78,6 +78,7 @@ NULL
 #'   metadata for the list.
 #' @returns A data frame `as_data_frame = TRUE` or a `ms_list` object (or list
 #'   of `ms_list` objects) if `FALSE`.
+#' @keywords lists
 #' @export
 get_sp_list <- function(
   list_name = NULL,
@@ -322,6 +323,7 @@ get_sp_list_metadata <- function(
 #' @inheritParams create_list_info
 #' @param title_definition Named list used to update the column definition of the default `"Title"` column created when using the `"genericList"` template. By default, makes Title column optional.
 #' @inheritParams get_sp_site
+#' @keywords lists
 #' @export
 create_sp_list <- function(
   list_name,
@@ -416,6 +418,8 @@ create_sp_list <- function(
 
 #' @rdname create_sp_list
 #' @name delete_sp_list
+#' @param sp_list A `Microsoft365R::ms_list` object.
+#' @inheritParams get_sp_drive
 #' @param confirm If `TRUE`, confirm deletion of list before proceeding.
 #' @export
 delete_sp_list <- function(
@@ -460,7 +464,7 @@ delete_sp_list <- function(
 #' @param template Type of template to use in creating the list.
 #' @param content_types Optional. Set `TRUE` for `contentTypesEnabled` to be enabled.
 #' @param hidden Optional. Set `TRUE` for list to be hidden.
-#' @keywords internal
+#' @keywords internal lists
 #' @export
 create_list_info <- function(
   template = c(

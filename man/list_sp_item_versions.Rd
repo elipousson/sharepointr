@@ -50,3 +50,4 @@ This is an implementation of a new method for a \code{ms_item} object using the
 back to the Microsoft365R package which may include changes to the
 functionality and output of this function.
 }
+\keyword{items}

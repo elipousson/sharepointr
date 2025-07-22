@@ -22,3 +22,4 @@ person, group, and personorgroup. Not case sensitive.}
 a list of column definitions. This list can be used as the \code{fields} argument
 for \code{\link[=create_sp_list]{create_sp_list()}}.
 }
+\keyword{lists}

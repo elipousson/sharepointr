@@ -9,6 +9,7 @@
 #'
 #' @name sp_drive
 #' @seealso [Microsoft365R::ms_drive]
+#' @keywords drives
 NULL
 
 #' @rdname sp_drive

@@ -69,3 +69,4 @@ method.
 \seealso{
 \link[Microsoft365R:ms_plan_task]{Microsoft365R::ms_plan_task}
 }
+\keyword{plans}

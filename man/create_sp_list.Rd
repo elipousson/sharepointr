@@ -66,9 +66,18 @@ running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
+\item{sp_list}{A \code{Microsoft365R::ms_list} object.}
+
 \item{confirm}{If \code{TRUE}, confirm deletion of list before proceeding.}
+
+\item{drive_name, drive_id}{SharePoint Drive name or ID passed to \code{get_drive}
+method for SharePoint site object.}
+
+\item{drive}{A \code{ms_drive} object. If \code{drive} is supplied, \code{drive_name} and
+\code{drive_id} are ignored.}
 }
 \description{
 \code{\link[=create_sp_list]{create_sp_list()}} allows the creation of a SharePoint list for a site. See:
 \url{https://learn.microsoft.com/en-us/graph/api/list-create?view=graph-rest-1.0&tabs=http} Note: dashes (`"-"``) in list names are removed from the list name but retained in the list display name.
 }
+\keyword{lists}

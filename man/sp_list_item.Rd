@@ -117,3 +117,4 @@ record number starting from 1 with the first record.}
 completed for the \code{get_item}, \code{create_item}, \code{update_item}, and \code{delete_item}
 methods documented in \link[Microsoft365R:ms_list]{Microsoft365R::ms_list}.
 }
+\keyword{lists}

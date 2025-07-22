@@ -45,6 +45,7 @@
 #' }
 #'
 #' @export
+#' @keywords files
 #' @importFrom vctrs vec_slice vec_rbind
 sp_dir_info <- function(
   path = NULL,
@@ -342,6 +343,7 @@ sp_dir_ls <- function(
 #'   )
 #' }
 #'
+#' @keywords files
 #' @export
 #' @importFrom vctrs vec_recycle
 #' @importFrom cli cli_progress_along cli_warn cli_progress_done

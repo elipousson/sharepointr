@@ -137,3 +137,4 @@ to distinguish them from item metadata.
 \item \code{\link[=create_sp_list]{create_sp_list()}}; \code{\link[=delete_sp_list]{delete_sp_list()}}
 }
 }
+\keyword{lists}

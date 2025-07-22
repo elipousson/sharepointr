@@ -71,3 +71,4 @@ of \code{ms_plan} objects.
 \seealso{
 \link[Microsoft365R:ms_plan]{Microsoft365R::ms_plan}
 }
+\keyword{plans}

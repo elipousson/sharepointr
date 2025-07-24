@@ -25,6 +25,7 @@ get_ms_list_obj <- function(
         drive_id = drive_id,
         ...,
         properties = FALSE,
+        site = site,
         site_url = site_url,
         call = call
       )

@@ -7,25 +7,13 @@ test_that("sp_url_parse works", {
 
   parsed_file_url <- sp_url_parse(test_file_url)
 
-  expect_equal(
-    parsed_file_url[["tenant"]],
-    "bmore"
-  )
+  expect_identical(parsed_file_url[["tenant"]], "bmore")
 
-  expect_equal(
-    parsed_file_url[["site_name"]],
-    "DOP-CPR"
-  )
+  expect_identical(parsed_file_url[["site_name"]], "DOP-CPR")
 
-  expect_equal(
-    parsed_file_url[["file"]],
-    "waterfront_promenade_osm.geojson"
-  )
+  expect_identical(parsed_file_url[["file"]], "waterfront_promenade_osm.geojson")
 
-  expect_equal(
-    parsed_file_url[["file_path"]],
-    "Baltimore Greenway Trails Network/Green Network Addendum/Data/waterfront_promenade_osm.geojson"
-  )
+  expect_identical(parsed_file_url[["file_path"]], "Baltimore Greenway Trails Network/Green Network Addendum/Data/waterfront_promenade_osm.geojson")
 
   test_dir_url <- "https://bmore.sharepoint.com/:f:/r/sites/DOP-CPR/Shared%20Documents/Baltimore%20Greenway%20Trails%20Network/Green%20Network%20Addendum/Data?csf=1&web=1&e=5VuyG6"
 
@@ -35,15 +23,9 @@ test_that("sp_url_parse works", {
 
   parsed_dir_url <- sp_url_parse(test_dir_url)
 
-  expect_equal(
-    parsed_dir_url[["url_type"]],
-    "f"
-  )
+  expect_identical(parsed_dir_url[["url_type"]], "f")
 
-  expect_equal(
-    parsed_dir_url[["file"]],
-    NULL
-  )
+  expect_null(parsed_dir_url[["file"]])
 
   # FIXME: Replace w/ a DOP-CPR site url
   test_list_url <- "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"
@@ -54,15 +36,9 @@ test_that("sp_url_parse works", {
 
   parsed_list_url <- sp_url_parse(test_list_url)
 
-  expect_equal(
-    parsed_list_url[["list_name"]],
-    "Data Governance Progress Tracker"
-  )
+  expect_identical(parsed_list_url[["list_name"]], "Data Governance Progress Tracker")
 
-  expect_equal(
-    parsed_list_url[["site_name"]],
-    "MayorsOffice-DataGovernance"
-  )
+  expect_identical(parsed_list_url[["site_name"]], "MayorsOffice-DataGovernance")
 
   test_drive_url <- "https://bmore.sharepoint.com/sites/DOP-CPR/Shared%20Documents/Forms/AllItems.aspx"
 
@@ -72,13 +48,7 @@ test_that("sp_url_parse works", {
 
   parsed_drive_url <- sp_url_parse(test_drive_url)
 
-  expect_equal(
-    parsed_drive_url[["drive_name"]],
-    "Documents"
-  )
+  expect_identical(parsed_drive_url[["drive_name"]], "Documents")
 
-  expect_equal(
-    parsed_drive_url[["file_path"]],
-    "/"
-  )
+  expect_identical(parsed_drive_url[["file_path"]], "/")
 })

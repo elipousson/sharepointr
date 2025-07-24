@@ -389,7 +389,7 @@ validate_sp_list_data_fields <- function(
     #   }
   }
 
-  if (all(!nm_match)) {
+  if (!any(nm_match)) {
     cli_abort(
       c(
         "At least one column in {.arg data} must match field names
@@ -400,7 +400,7 @@ validate_sp_list_data_fields <- function(
     )
   }
 
-  if (any(!nm_match)) {
+  if (!all(nm_match)) {
     msg <- "All column names in {.arg data} must match field names
     in the supplied list."
 

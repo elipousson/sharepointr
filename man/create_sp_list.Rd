@@ -2,6 +2,7 @@
 % Please edit documentation in R/sp_list.R
 \name{create_sp_list}
 \alias{create_sp_list}
+\alias{update_sp_list}
 \alias{delete_sp_list}
 \title{Create a SharePoint List}
 \usage{
@@ -16,6 +17,21 @@ create_sp_list(
   title_definition = list(required = FALSE),
   site_url = NULL,
   site = NULL,
+  call = caller_env()
+)
+
+update_sp_list(
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  display_name = NULL,
+  description = NULL,
+  ...,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
   call = caller_env()
 )
 
@@ -68,16 +84,20 @@ mentioned in error messages as the source of the error. See the
 
 \item{sp_list}{A \code{Microsoft365R::ms_list} object.}
 
-\item{confirm}{If \code{TRUE}, confirm deletion of list before proceeding.}
-
 \item{drive_name, drive_id}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
 
 \item{drive}{A \code{ms_drive} object. If \code{drive} is supplied, \code{drive_name} and
 \code{drive_id} are ignored.}
+
+\item{confirm}{If \code{TRUE}, confirm deletion of list before proceeding.}
 }
 \description{
 \code{\link[=create_sp_list]{create_sp_list()}} allows the creation of a SharePoint list for a site. See:
 \url{https://learn.microsoft.com/en-us/graph/api/list-create?view=graph-rest-1.0&tabs=http} Note: dashes (`"-"``) in list names are removed from the list name but retained in the list display name.
+
+\code{\link[=update_sp_list]{update_sp_list()}} allows the modification of the list display name and description.
+
+\code{\link[=delete_sp_list]{delete_sp_list()}} deletes an existing list and requires user confirmation by default.
 }
 \keyword{lists}

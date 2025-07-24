@@ -313,8 +313,13 @@ get_sp_list_metadata <- function(
 
 #' Create a SharePoint List
 #'
+#' @description
 #' [create_sp_list()] allows the creation of a SharePoint list for a site. See:
 #' <https://learn.microsoft.com/en-us/graph/api/list-create?view=graph-rest-1.0&tabs=http> Note: dashes (`"-"``) in list names are removed from the list name but retained in the list display name.
+#'
+#' [update_sp_list()] allows the modification of the list display name and description.
+#'
+#' [delete_sp_list()] deletes an existing list and requires user confirmation by default.
 #'
 #' @param list_name Required. List name used as `displayName` property.
 #' @param description Optional description.
@@ -415,6 +420,47 @@ create_sp_list <- function(
   )
 
   invisible(sp_list)
+}
+
+#' @rdname create_sp_list
+#' @name update_sp_list
+#' @export
+update_sp_list <- function(
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  display_name = NULL,
+  description = NULL,
+  ...,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  call = caller_env()
+) {
+  sp_list <- sp_list %||%
+    get_sp_list(
+      list_name = list_name,
+      list_id = list_id,
+      ...,
+      as_data_frame = FALSE,
+      site_url = site_url,
+      site = site,
+      drive_name = drive_name,
+      drive_id = drive_id,
+      drive = drive,
+      call = call
+    )
+
+  list_properties <- compact(
+    list(
+      displayName = display_name,
+      description = description
+    )
+  )
+
+  inject(sp_list$update(!!!list_properties))
 }
 
 #' @rdname create_sp_list

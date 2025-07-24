@@ -88,6 +88,7 @@ list_sp_list_items <- function(
   )
 
   # List items
+  # FIXME: Is Title not returned when no values are in place for Title?
   sp_list_items <- sp_list$list_items(
     filter = filter,
     select = select,
@@ -270,8 +271,9 @@ create_sp_list_items <- function(
   if (allow_display_nm) {
     # FIXME: Figure out why this errors for some input data
     data <- replace_with_sp_list_display_names(
-      data,
+      data = data,
       .id = .id,
+      sp_list = sp_list,
       call = call
     )
   }
@@ -324,6 +326,7 @@ validate_sp_list_data_fields <- function(
   keep = "editable",
   strict = FALSE,
   values_from = "name",
+  drop_fields = c("ContentType", "Attachments"),
   call = caller_env()
 ) {
   if (is.null(values)) {
@@ -338,6 +341,11 @@ validate_sp_list_data_fields <- function(
   }
 
   nm <- names(data)
+
+  # Drop fields that are not typically user-editable
+  if (!is.null(drop_fields)) {
+    values <- setdiff(values, drop_fields)
+  }
 
   nm_match <- nm %in% values
 
@@ -363,7 +371,7 @@ validate_sp_list_data_fields <- function(
     cli_abort(
       c(
         "At least one column in {.arg data} must match field names
-        from the supplied list.",
+        in the supplied list.",
         "i" = allowed_nm_msg
       ),
       call = call
@@ -372,7 +380,7 @@ validate_sp_list_data_fields <- function(
 
   if (any(!nm_match)) {
     msg <- "All column names in {.arg data} must match field names
-    from the supplied list."
+    in the supplied list."
 
     if (strict) {
       cli_abort(
@@ -384,14 +392,14 @@ validate_sp_list_data_fields <- function(
       )
     }
 
-    cli_warn(
-      c(msg, "i" = "Column{?s} {.val {nm[!nm_match]}} dropped from {.arg data}")
+    cli::cli_inform(
+      c("!" = msg, "i" = "Column{?s} {.val {nm[!nm_match]}} dropped from {.arg data}")
     )
 
     if (is.data.frame(data)) {
       data <- data[, nm_match, drop = FALSE]
     } else {
-      data <- data[data]
+      data <- data[nm_match]
     }
 
     return(data)
@@ -411,6 +419,8 @@ update_sp_list_items <- function(
   ...,
   .id = "id",
   allow_display_nm = TRUE,
+  check_fields = TRUE,
+  drop_fields = c("ContentType", "Attachments"),
   call = caller_env()
 ) {
   sp_list <- sp_list %||%
@@ -438,6 +448,14 @@ update_sp_list_items <- function(
   update_data <- data
   sp_item_id <- data[[.id]]
   update_data[[.id]] <- NULL
+
+  if (check_fields) {
+    update_data <- validate_sp_list_data_fields(
+      update_data,
+      sp_list = sp_list,
+      drop_fields = drop_fields
+    )
+  }
 
   imap(
     sp_item_id,

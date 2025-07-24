@@ -34,6 +34,8 @@ update_sp_list_items(
   ...,
   .id = "id",
   allow_display_nm = TRUE,
+  check_fields = TRUE,
+  drop_fields = c("ContentType", "Attachments"),
   call = caller_env()
 )
 

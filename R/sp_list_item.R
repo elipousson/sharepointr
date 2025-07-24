@@ -250,9 +250,31 @@ create_sp_list_items <- function(
   drive = NULL,
   check_fields = TRUE,
   sync_fields = FALSE,
+  create_list = FALSE,
   strict = FALSE,
   call = caller_env()
 ) {
+  if (create_list) {
+    check_string(list_name, call = call)
+
+    if (is_url(list_name)) {
+      cli_abort(
+        "{.arg list_name} must be the name of a new list and not a URL for an
+        existing list when `create_list = TRUE`.",
+        call = call
+      )
+    }
+
+    sp_list <- create_sp_list(
+      list_name = list_name,
+      columns = data_as_column_definition_list(data),
+      ...,
+      site = site,
+      site_url = site_url,
+      call = call
+    )
+  }
+
   sp_list <- sp_list %||%
     get_sp_list(
       list_name = list_name,

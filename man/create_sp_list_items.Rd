@@ -22,6 +22,7 @@ create_sp_list_items(
   drive = NULL,
   check_fields = TRUE,
   sync_fields = FALSE,
+  create_list = FALSE,
   strict = FALSE,
   call = caller_env()
 )

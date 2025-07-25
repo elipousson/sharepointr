@@ -11,7 +11,9 @@ create_sp_list_column(
   ...,
   column_name = NULL,
   column_definition = NULL,
-  list_name = NULL
+  list_name = NULL,
+  site = NULL,
+  site_url = NULL
 )
 
 update_sp_list_column(
@@ -40,11 +42,37 @@ parameters passed to \code{...} are all ignored.}
 \item{...}{
   Arguments passed on to \code{\link[=create_column_definition]{create_column_definition}}
   \describe{
-    \item{\code{}}{}
+    \item{\code{name}}{Column name.}
+    \item{\code{.col_type}}{Column type. Defaults to "text". Must be one of "boolean",
+"calculated", "choice", "currency", "dateTime", "lookup", "number",
+"personOrGroup", "text", "term", "hyperlinkOrPicture", "thumbnail",
+"contentApprovalStatus", or "geolocation".}
+    \item{\code{enforce_unique}}{Enforce unique values in column.}
+    \item{\code{hidden}}{If \code{TRUE}, column will be hidden by default.}
+    \item{\code{deletable}}{If \code{TRUE}, column can't be deleted separate from the list.}
+    \item{\code{required}}{If \code{TRUE}, column will be required.}
+    \item{\code{default}}{Default value set by helper \code{\link[=get_column_default]{get_column_default()}} function.}
+    \item{\code{description}}{Column description.}
+    \item{\code{displayname}}{Column display name.}
   }}
+
+\item{column_name, column_id}{Column ID for column to delete.}
 
 \item{column_definition}{List with column definition created with
 \code{\link[=create_column_definition]{create_column_definition()}} or a related function. Optional if \code{column_name} and any required additional parameters are provided.}
+
+\item{list_name}{List name. Required if \code{sp_list} is \code{NULL}.}
+
+\item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
+\code{site_name}, and \code{site_id} are ignored.}
+
+\item{site_url}{A SharePoint site URL in the format "https://[tenant
+name].sharepoint.com/sites/[site name]". Any SharePoint item or document
+URL can also be parsed to build a site URL using the tenant and site name
+included in the URL.}
+
+\item{column_name_type}{"name" or "displayName". Used to match column ID so
+column_name must be unique if \code{column_name_type = "displayName"}.}
 }
 \description{
 \code{\link[=create_sp_list_column]{create_sp_list_column()}} adds a column to a SharePoint list and

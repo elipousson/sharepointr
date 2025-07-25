@@ -13,7 +13,7 @@ create_sp_list_items(
   list_id = NULL,
   sp_list = NULL,
   ...,
-  allow_display_nm = TRUE,
+  allow_display_nm = FALSE,
   .id = "id",
   site_url = NULL,
   site = NULL,
@@ -24,6 +24,7 @@ create_sp_list_items(
   sync_fields = FALSE,
   create_list = FALSE,
   strict = FALSE,
+  .progress = TRUE,
   call = caller_env()
 )
 
@@ -34,18 +35,20 @@ update_sp_list_items(
   sp_list = NULL,
   ...,
   .id = "id",
-  allow_display_nm = TRUE,
+  allow_display_nm = FALSE,
   check_fields = TRUE,
   drop_fields = c("ContentType", "Attachments"),
+  .progress = TRUE,
   call = caller_env()
 )
 
 update_sp_list_item(
   ...,
   .data = NULL,
-  id = NULL,
+  item_id = NULL,
   sp_list_item = NULL,
   na_fields = c("drop", "replace"),
+  .id = "id",
   list_name = NULL,
   list_id = NULL,
   sp_list = NULL,
@@ -72,10 +75,11 @@ parameters passed to \code{...} are all ignored.}
 
 \item{allow_display_nm}{If \code{TRUE}, allow data to use list field display names
 instead of standard names. Note this requires a separate API call so may
-result in a slower request.}
+result in a slower request. Default \code{FALSE}.}
 
-\item{.id}{Name of column in data to use for item ID values. Defaults to
-"id".}
+\item{.id}{Column or element name with \code{item_item} value in \code{data}. Allows
+users to pass a modified version of the list item data with the id column and
+any updated columns.}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
@@ -100,19 +104,31 @@ SharePoint list.}
 of the local \code{ms_list} object with the fields of the SharePoint List source
 before retrieving list metadata.}
 
+\item{create_list}{If \code{TRUE} and \code{list_name} is supplied, a new list is
+created using \code{\link[=data_as_column_definition_list]{data_as_column_definition_list()}} to set the column
+definitions for the list.}
+
 \item{strict}{Not yet implemented as of 2024-08-12. If \code{TRUE}, all column
 names in data must be matched to field names in the supplied SharePoint
 list. If \code{FALSE} (default), unmatched columns will be dropped with a
 warning.}
+
+\item{.progress}{Whether to show a progress bar. Use \code{TRUE} to turn on
+a basic progress bar, use a string to give it a name, or see
+\link[purrr]{progress_bars} for more details.}
 
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
+\item{drop_fields}{Column names to drop from \code{data} even if they are listed
+as editable fields. Defaults to \code{c("ContentType", "Attachments")}}
+
 \item{.data}{A list or data frame with fields to update.}
 
-\item{id}{A SharePoint list item id. Either \code{id} or \code{sp_list_item} must be provided but not both.}
+\item{item_id}{A SharePoint list item id. Either \code{item_id} or \code{sp_list_item}
+must be provided but not both.}
 
 \item{sp_list_item}{Optional. A SharePoint list item object to use.}
 

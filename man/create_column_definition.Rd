@@ -126,6 +126,30 @@ create_geolocation_column(name, ...)
 create_term_column(name, ..., allow_multiple = TRUE, show_full_name = NULL)
 }
 \arguments{
+\item{name}{Column name.}
+
+\item{...}{Additional arguments passed to \code{\link[=create_column_definition]{create_column_definition()}} or
+appended to the end of the column definition list.}
+
+\item{.col_type}{Column type. Defaults to "text". Must be one of "boolean",
+"calculated", "choice", "currency", "dateTime", "lookup", "number",
+"personOrGroup", "text", "term", "hyperlinkOrPicture", "thumbnail",
+"contentApprovalStatus", or "geolocation".}
+
+\item{enforce_unique}{Enforce unique values in column.}
+
+\item{hidden}{If \code{TRUE}, column will be hidden by default.}
+
+\item{deletable}{If \code{TRUE}, column can't be deleted separate from the list.}
+
+\item{required}{If \code{TRUE}, column will be required.}
+
+\item{default}{Default value set by helper \code{\link[=get_column_default]{get_column_default()}} function.}
+
+\item{description}{Column description.}
+
+\item{displayname}{Column display name.}
+
 \item{multiple_lines}{Logical. If \code{TRUE}, allow multiple lines of text.}
 
 \item{append_changes}{Logical. If \code{TRUE}, append changes to existing value
@@ -137,10 +161,19 @@ for column.}
 
 \item{text_type}{One of \code{c("plain", "richText")}}
 
+\item{choices}{A character vector of choice options.}
+
+\item{allow_text}{If \code{TRUE}, allow text entry in the choice column.}
+
 \item{display_as}{Value displayed as option. For \code{create_choice_column} one
 of\code{c("checkBoxes", "dropDownMenu", "radioButtons")}. For
 \code{create_number_column}, one of \code{c("number", "percentage")}. For
 \code{create_datetime_column}, one of \code{c("default", "friendly", "standard")}.}
+
+\item{allow_na}{If \code{TRUE}, allow NA values in \code{choices}.}
+
+\item{na_replacement}{Used as \code{replacement} by \code{\link[stringr:str_replace_na]{stringr::str_replace_na()}} on
+\code{choices} if they contain NA values.}
 
 \item{split}{
     character vector (or object which can be coerced to such)
@@ -173,10 +206,13 @@ See \href{https://support.microsoft.com/en-us/office/examples-of-common-formulas
 object with id value in list properties.}
 
 \item{allow_multiple}{If \code{TRUE}, allow lookup column to return multiple
-values. @param allow_unlimited_length If \code{TRUE}, allow lookup column to
-return any length value. @param primary_lookup_column_id If column
-definnition is for a secondary column, the primary lookup column ID must be
-supplied.}
+values.}
+
+\item{allow_unlimited_length}{If \code{TRUE}, allow lookup column to
+return any length value.}
+
+\item{primary_lookup_column_id}{If column definition is for a secondary
+column, the primary lookup column ID must be supplied.}
 
 \item{from_type}{What type of resources to choose from. Defaults to
 "peopleOnly" for \code{\link[=create_person_column]{create_person_column()}} or "peopleAndGroups" for
@@ -189,10 +225,11 @@ for \code{\link[=create_picture_column]{create_picture_column()}}).}
 \description{
 \code{\link[=create_column_definition]{create_column_definition()}} builds a named list with the properties of the
 columnDefinition resource type.
+
+More information:
+\url{https://learn.microsoft.com/en-us/graph/api/resources/columndefinition?view=graph-rest-1.0}
 }
 \details{
-\url{https://learn.microsoft.com/en-us/graph/api/resources/columndefinition?view=graph-rest-1.0}
-
 Display as options
 
 Display as options vary by columnDefinition type:

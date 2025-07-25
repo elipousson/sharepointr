@@ -82,7 +82,12 @@ running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
+\item{list_id}{List ID for list to update or delete.}
+
 \item{sp_list}{A \code{Microsoft365R::ms_list} object.}
+
+\item{display_name}{Display name to replace existing display name. Used by
+\code{\link[=update_sp_list]{update_sp_list()}}.}
 
 \item{drive_name, drive_id}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}

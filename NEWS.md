@@ -7,6 +7,9 @@
 * Add `update_sp_list_items()` function and refactor `update_sp_list_item()` to use `rlang::list2()` and `rlang::inject()` which adds support for data frame inputs. (2024-08-10)
 * Add `display_nm` argument to `list_sp_list_items()` allowing use of list display names as labels or replacements for field names in results. (2024-08-10)
 * Add `download_sp_list()` (2024-10-10).
+* Add `create_column_definition()` and related functions for creating lists equivalent to columnDefinition objects. (2025-05-02)
+* Add `update_sp_list()` for limited updates to Microsoft List metadata. (2025-07-24)
+* Add `{purrr}` to imports to incorporate new `purrr::in_parallel()` function. Requires users have `{crate}` and `{mirai}` installed and set workers using `mirai::daemons()`. (2025-07-25)
 
 ## Fixes
 

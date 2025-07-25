@@ -506,7 +506,7 @@ batch_download_sp_item <- function(
   }
 
   if (length(path) > 1) {
-    dest_list <- map2_chr(
+    dest_list <- purrr::map2_chr(
       path,
       dest,
       \(x, y) {
@@ -528,7 +528,7 @@ batch_download_sp_item <- function(
   }
 
   if (length(item_id) > 1) {
-    dest_list <- map2_chr(
+    dest_list <- purrr::map2_chr(
       item_id,
       dest,
       \(x, y) {
@@ -550,7 +550,7 @@ batch_download_sp_item <- function(
   }
 
   if (is_bare_list(item) && (length(item) > 1)) {
-    dest_list <- map2_chr(
+    dest_list <- purrr::map2_chr(
       item,
       \(x) {
         download_sp_item(

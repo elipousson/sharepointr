@@ -65,11 +65,12 @@ sp_dir_info <- function(
 ) {
   # Handle a vector of paths
   if (is.character(path) && length(path) > 1) {
-    dir_info_list <- map(
+    dir_info_list <- purrr::map(
       path,
       \(x) {
         sp_dir_info(
           path = x,
+          # TODO: Consider dropping ... to allow parallelization
           ...,
           info = info,
           full_names = full_names,
@@ -222,11 +223,11 @@ sp_dir_info <- function(
     dir_name <- str_remove_slash(dir_name, before = TRUE)
   }
 
-  dir_item_list <- map(
+  dir_item_list <- purrr::map(
     cli::cli_progress_along(dir_name),
     function(i) {
       sp_dir_info(
-        dir_name[[i]],
+        path = dir_name[[i]],
         drive = drive,
         info = info,
         full_names = full_names,
@@ -380,7 +381,7 @@ sp_dir_create <- function(
     path <- str_c_url(relative, path)
   }
 
-  walk(
+  purrr::walk(
     cli::cli_progress_along(path),
     \(i) {
       withCallingHandlers(

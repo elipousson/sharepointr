@@ -210,7 +210,7 @@ upload_sp_items <- function(
   check_character(src, call = call)
 
   if (is_url(dest) && has_length(dest, 1)) {
-    dest <- map_chr(
+    dest <- purrr::map_chr(
       src,
       \(x) {
         sp_url_as_src_dest(
@@ -226,7 +226,7 @@ upload_sp_items <- function(
     size = length(src)
   )
 
-  dest_list <- map2_chr(
+  dest_list <- purrr::map2_chr(
     src,
     dest,
     \(x, y) {

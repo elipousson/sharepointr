@@ -148,7 +148,7 @@ get_sp_list <- function(
       call = call
     )
 
-    sp_list_id_pairs <- map(
+    sp_list_id_pairs <- purrr::map(
       sp_lists,
       \(x) {
         list(
@@ -158,7 +158,7 @@ get_sp_list <- function(
       }
     )
 
-    nm_values <- map_chr(
+    nm_values <- purrr::map_chr(
       sp_list_id_pairs,
       \(x) {
         x[["name"]]
@@ -167,7 +167,7 @@ get_sp_list <- function(
 
     list_name <- arg_match(list_name, values = nm_values, error_call = call)
 
-    list_ids <- map_chr(
+    list_ids <- purrr::map_chr(
       sp_list_id_pairs,
       \(x) {
         x[["id"]]
@@ -187,6 +187,7 @@ get_sp_list <- function(
     list_id = list_id
   )
 
+  # TODO: Consider removing the metadata argument
   if (metadata) {
     if (!as_data_frame) {
       cli_warn(
@@ -353,7 +354,7 @@ create_sp_list <- function(
       call = call
     )
 
-  body <- compact(
+  body <- purrr::compact(
     list(
       displayName = list_name,
       description = description,
@@ -424,6 +425,10 @@ create_sp_list <- function(
 
 #' @rdname create_sp_list
 #' @name update_sp_list
+#' @param list_id List ID for list to update or delete.
+#' @param display_name Display name to replace existing display name. Used by
+#' [update_sp_list()].
+#' @inheritParams get_sp_list
 #' @export
 update_sp_list <- function(
   list_name = NULL,
@@ -453,7 +458,7 @@ update_sp_list <- function(
       call = call
     )
 
-  list_properties <- compact(
+  list_properties <- purrr::compact(
     list(
       displayName = display_name,
       description = description
@@ -532,7 +537,7 @@ create_list_info <- function(
   check_bool(content_types, allow_null = TRUE, call = call)
   check_bool(hidden, allow_null = TRUE, call = call)
 
-  compact(
+  purrr::compact(
     list(
       hidden = hidden,
       contentTypesEnabled = content_types,
@@ -548,17 +553,23 @@ create_list_info <- function(
 #' See Graph API documentation <https://learn.microsoft.com/en-us/graph/api/columndefinition-get?view=graph-rest-1.0&tabs=http>
 #'
 #' @inheritParams get_sp_list
+#' @inheritDotParams get_sp_list -as_data_frame
+#' @param column_name,column_id Column name or ID to get a definition for.
+#' @param column_name_type "name" or "displayName". Used to match column ID so
+#' column_name must be unique if `column_name_type = "displayName"`.
 #' @export
 get_sp_list_column <- function(
   sp_list = NULL,
   column_name = NULL,
   column_id = NULL,
+  ...,
   list_name = NULL,
   column_name_type = "name"
 ) {
   sp_list <- sp_list %||%
     get_sp_list(
       list_name = list_name,
+      ...,
       as_data_frame = FALSE
     )
 
@@ -594,17 +605,22 @@ get_sp_list_column <- function(
 #' @inheritDotParams create_column_definition
 #' @param column_definition List with column definition created with
 #' [create_column_definition()] or a related function. Optional if `column_name` and any required additional parameters are provided.
+#' @param list_name List name. Required if `sp_list` is `NULL`.
 #' @export
 create_sp_list_column <- function(
   sp_list = NULL,
   ...,
   column_name = NULL,
   column_definition = NULL,
-  list_name = NULL
+  list_name = NULL,
+  site = NULL,
+  site_url = NULL
 ) {
   sp_list <- sp_list %||%
     get_sp_list(
       list_name = list_name,
+      site = site,
+      site_url = site_url,
       as_data_frame = FALSE
     )
 
@@ -624,6 +640,9 @@ create_sp_list_column <- function(
 
 # <https://learn.microsoft.com/en-us/graph/api/columndefinition-update?view=graph-rest-1.0&tabs=http>
 #' @rdname create_sp_list_column
+#' @param column_name,column_id Column ID for column to delete.
+#' @param column_name_type "name" or "displayName". Used to match column ID so
+#' column_name must be unique if `column_name_type = "displayName"`.
 #' @export
 update_sp_list_column <- function(
   sp_list = NULL,

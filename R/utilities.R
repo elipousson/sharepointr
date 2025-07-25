@@ -174,7 +174,7 @@ str_match_list <- function(string, pattern, i = 1, nm = NULL) {
 #'
 #' @noRd
 list_replace_na <- function(x, replace = NULL) {
-  map(x, function(i) {
+  purrr::map(x, function(i) {
     if (is.na(i)) {
       return(replace)
     }
@@ -186,7 +186,7 @@ list_replace_na <- function(x, replace = NULL) {
 #'
 #' @noRd
 list_replace_empty <- function(x, replace = NULL) {
-  map(x, function(i) {
+  purrr::map(x, function(i) {
     if (is_empty(i)) {
       return(replace)
     }
@@ -207,7 +207,7 @@ ms_obj_list_as_data_frame <- function(
   .name_repair = "universal_quiet",
   .error_call = caller_env()
 ) {
-  ms_obj_list <- map(
+  ms_obj_list <- purrr::map(
     ms_obj_list,
     function(obj) {
       ms_obj_as_data_frame(
@@ -407,3 +407,13 @@ label_cols <- function(
   attr(x, "label") <- value
   x
 }
+
+utils::globalVariables(
+  c(
+    ".fields",
+    ".sp_list",
+    "fn",
+    "item_id",
+    "x"
+  )
+)

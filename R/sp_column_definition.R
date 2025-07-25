@@ -7,11 +7,32 @@
 #' Create a column definition for use with the create column method for
 #' SharePoint lists
 #'
+#' @description
 #' [create_column_definition()] builds a named list with the properties of the
 #' columnDefinition resource type.
 #'
+#' More information:
 #' <https://learn.microsoft.com/en-us/graph/api/resources/columndefinition?view=graph-rest-1.0>
 #'
+#' @param name Column name.
+#' @param display_as Value displayed as option. For `create_choice_column` one
+#' of`c("checkBoxes", "dropDownMenu", "radioButtons")`. For
+#' `create_number_column`, one of `c("number", "percentage")`. For
+#' `create_datetime_column`, one of `c("default", "friendly", "standard")`.
+#' @param ... Additional arguments passed to [create_column_definition()] or
+#' appended to the end of the column definition list.
+#' @param .col_type Column type. Defaults to "text". Must be one of "boolean",
+#' "calculated", "choice", "currency", "dateTime", "lookup", "number",
+#' "personOrGroup", "text", "term", "hyperlinkOrPicture", "thumbnail",
+#' "contentApprovalStatus", or "geolocation".
+#' @param enforce_unique Enforce unique values in column.
+#' @param hidden If `TRUE`, column will be hidden by default.
+#' @param deletable If `TRUE`, column can't be deleted separate from the list.
+#' @param required If `TRUE`, column will be required.
+#' @param default Default value set by helper [get_column_default()] function.
+#' @param description Column description.
+#' @param displayname Column display name.
+#' @keywords lists
 #'
 #' @details Display as options
 #'
@@ -19,11 +40,6 @@
 #'
 #' - Options for personOrGroupColumn: https://learn.microsoft.com/en-us/graph/api/resources/personorgroupcolumn?view=graph-rest-1.0#displayas-options
 #'
-#' @param display_as Value displayed as option. For `create_choice_column` one
-#' of`c("checkBoxes", "dropDownMenu", "radioButtons")`. For
-#' `create_number_column`, one of `c("number", "percentage")`. For
-#' `create_datetime_column`, one of `c("default", "friendly", "standard")`.
-#' @keywords lists
 #' @export
 create_column_definition <- function(
   name,
@@ -72,7 +88,7 @@ create_column_definition <- function(
     id = id
   )
 
-  col_definition <- compact(col_definition)
+  col_definition <- purrr::compact(col_definition)
 
   if (!is.null(.col_type)) {
     # The type-related properties are mutually exclusive;
@@ -97,7 +113,7 @@ create_column_definition <- function(
       )
     )
 
-    params <- compact(list2(...))
+    params <- purrr::compact(list2(...))
 
     if (is_empty(params)) {
       params <- structure(list(), names = character(0))
@@ -152,6 +168,11 @@ create_text_column <- function(
 }
 
 #' @rdname create_column_definition
+#' @param choices A character vector of choice options.
+#' @param allow_na If `TRUE`, allow NA values in `choices`.
+#' @param na_replacement Used as `replacement` by [stringr::str_replace_na()] on
+#'  `choices` if they contain NA values.
+#' @param allow_text If `TRUE`, allow text entry in the choice column.
 #' @inheritParams base::strsplit
 #' @export
 create_choice_column <- function(
@@ -176,6 +197,7 @@ create_choice_column <- function(
   check_bool(allow_text, allow_null = TRUE)
 
   # Validate and process choices
+  # TODO: Check if this works w/ factors
   check_character(choices, allow_na = allow_na)
   choices <- stringr::str_replace_na(choices, replacement = na_replacement)
 
@@ -340,10 +362,11 @@ create_calculated_column <- function(
 #' @param lookup_list_id,lookup_list Lookup list ID string or "ms_list" class
 #' object with id value in list properties.
 #' @param allow_multiple If `TRUE`, allow lookup column to return multiple
-#' values. @param allow_unlimited_length If `TRUE`, allow lookup column to
-#' return any length value. @param primary_lookup_column_id If column
-#' definnition is for a secondary column, the primary lookup column ID must be
-#' supplied.
+#' values.
+#' @param allow_unlimited_length If `TRUE`, allow lookup column to
+#' return any length value.
+#' @param primary_lookup_column_id If column definition is for a secondary
+#' column, the primary lookup column ID must be supplied.
 #' @export
 create_lookup_column <- function(
   name,
@@ -507,7 +530,7 @@ create_column_definition_list <- function(
   col_type = "text",
   ignore_na = TRUE
 ) {
-  pmap(
+  purrr::pmap(
     definitions,
     function(name, ...) {
       check_string(name, allow_empty = FALSE)
@@ -543,9 +566,10 @@ create_column_definition_list <- function(
       )
 
       if (ignore_na) {
+        na_params <- purrr::map_lgl(params, is.na)
         params <- vctrs::vec_slice(
           params,
-          i = !map_lgl(params, is.na)
+          i = !na_params
         )
       }
 
@@ -563,7 +587,8 @@ create_column_definition_list <- function(
 #' @param value Value used as default value.
 #' @param allow_null If `TRUE`, return `NULL` if both `value` and `formula` are
 #' `NULL`.
-#' @keywords lists
+#' @inheritParams rlang::args_error_context
+#' @keywords lists internal
 #' @export
 get_column_default <- function(
   value = NULL,
@@ -625,7 +650,7 @@ data_as_column_definition_list <- function(
   )
 
   # FIXME: Replace purrr::map_dfr
-  definitions_list <- map(
+  definitions_list <- purrr::map(
     seq_along(col_types),
     \(x) {
       def <- list(

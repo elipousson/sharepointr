@@ -1,5 +1,5 @@
 ---
-title: "sp-lists"
+title: "Reading and writing to SharePoint Lists"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{sp-lists}
@@ -17,9 +17,12 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(sharepointr)
+options(cli.default_handler = suppressMessages)
 ```
 
-Microsoft Lists can be added to a SharePoint site or created for a single user. This package assumes you are working with lists within a SharePoint site. This article covers:
+## Overview
+
+SharePoint Lists (also known as Microsoft Lists) can be added to a SharePoint site or created for a single user. This package assumes you are working with lists within a SharePoint site. This article covers:
 
 - Reading lists and list items
 - Creating lists and list items
@@ -35,7 +38,7 @@ site_lists <- list_sp_lists(
   site_url = "https://bmore.sharepoint.com/sites/DOP-ALL"
 )
 
-head(site_lists)
+head(site_lists[, c(2:7)])
 ```
 
 However, loading the site and using it when needed is recommended to avoid duplicate API calls. Use `get_sp_site()` to load the site and pass that object to `list_sp_lists()` for multiple lists or `get_sp_list()` to return a single list.
@@ -63,7 +66,7 @@ rooms <- list_sp_list_items(
 
 rooms <- list_sp_list_items(sp_list = room_list)
 
-head(rooms)
+head(rooms[ , c(2:8)])
 ```
 
 You can get a single list item as a `Microsoft365R::ms_list_item` object using `get_sp_list_item()`. The id values are not visible by default when looking at a Microsoft List online but they are included in the list item data frame:
@@ -113,7 +116,9 @@ create_column_definition_list(
 If you are creating column definitions based on an existing data frame you can alternatively use `data_as_column_definition_list()`:
 
 ```{r}
-data_as_column_definition_list(penguins)
+penguins_column_defintions <- data_as_column_definition_list(penguins)
+
+str(penguins_column_defintions)
 ```
 
 At present, data frames with character, numeric, datetime, and factor values are supported but list columns are not.
@@ -133,6 +138,8 @@ create_sp_list_items(
 ```
 
 You can use this same function with `create_list = FALSE` (the default) to add multiple items to a list or create individual items using `create_sp_list_item()`.
+
+Creating or updating large numbers of items can be very slow. If you are creating a large number of items, you can use the parallelization feature built-in to the pakage via `purrr::in_parallel()`. Set the number of daemons, or persistent background processes, to handle the requests in parallel using `mirai::daemons()` before calling `create_sp_list_items()` and the process should speed up.
 
 ```{r echo=FALSE}
 suppressMessages(

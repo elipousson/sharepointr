@@ -1,5 +1,5 @@
 ---
-title: "sp-lists"
+title: "Reading and writing to SharePoint Lists"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{sp-lists}
@@ -12,9 +12,12 @@ vignette: >
 
 ``` r
 library(sharepointr)
+options(cli.default_handler = suppressMessages)
 ```
 
-Microsoft Lists can be added to a SharePoint site or created for a single user. This package assumes you are working with lists within a SharePoint site. This article covers:
+## Overview
+
+SharePoint Lists (also known as Microsoft Lists) can be added to a SharePoint site or created for a single user. This package assumes you are working with lists within a SharePoint site. This article covers:
 
 - Reading lists and list items
 - Creating lists and list items
@@ -32,14 +35,7 @@ site_lists <- list_sp_lists(
 )
 #> Loading Microsoft Graph login for default tenant
 
-head(site_lists)
-#>                                 @odata.etag
-#> 1  "dcae5523-39e3-4582-8b6d-08ccd3b98499,5"
-#> 2 "531a153d-b9d4-4d04-93cd-0d49d9bac705,43"
-#> 3 "0d7df1be-e6de-474b-88ea-0f56689ca3e9,15"
-#> 4 "7c6b3bac-4962-4285-980e-127e36583ffc,22"
-#> 5 "9c518bac-ef99-4ae8-ab27-1453f68c87e1,15"
-#> 6 "d216b2d5-7cae-491f-abf4-1474628a0982,15"
+head(site_lists[, c(2:7)])
 #>        createdDateTime
 #> 1 2025-02-27T22:54:53Z
 #> 2 2023-11-27T18:12:43Z
@@ -82,55 +78,6 @@ head(site_lists)
 #> 4        Technology Committee Priority Issue Tracker
 #> 5 1978556da3d0db4ddabfb7d8807110cc60threadskype_wiki
 #> 6 191a54f93ccf1244cda3547deae96e306athreadskype_wiki
-#>                                                                                                 webUrl
-#> 1                                 https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Commissioners
-#> 2          https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Internal%20%20Interagency%20Meetings
-#> 3  https://bmore.sharepoint.com/sites/DOP-ALL/Lists/1938d6c3c5ffd048d091655fde4e10fa2fthreadskype_wiki
-#> 4 https://bmore.sharepoint.com/sites/DOP-ALL/Lists/Technology%20Committee%20Priority%20Issue%20Tracker
-#> 5  https://bmore.sharepoint.com/sites/DOP-ALL/Lists/1978556da3d0db4ddabfb7d8807110cc60threadskype_wiki
-#> 6  https://bmore.sharepoint.com/sites/DOP-ALL/Lists/191a54f93ccf1244cda3547deae96e306athreadskype_wiki
-#>                                             displayName
-#> 1                                     DOP Commissioners
-#> 2                                DOP Recurring Meetings
-#> 3 19:38d6c3c5ffd048d091655fde4e10fa2f@thread.skype_wiki
-#> 4       Technology + Workspace Committee: Issue Tracker
-#> 5 19:78556da3d0db4ddabfb7d8807110cc60@thread.skype_wiki
-#> 6 19:1a54f93ccf1244cda3547deae96e306a@thread.skype_wiki
-#>                                                                                               createdBy
-#> 1               Eli.Pousson@baltimorecity.gov, d6c592c4-b56c-42fb-8c2f-ef97ce71037a, Pousson, Eli (DOP)
-#> 2               Eli.Pousson@baltimorecity.gov, d6c592c4-b56c-42fb-8c2f-ef97ce71037a, Pousson, Eli (DOP)
-#> 3 Amy.Gilder-Busatti@baltimorecity.gov, c6b7efd7-aafb-4d55-a31c-491279ecac52, Gilder-Busatti, Amy (DOP)
-#> 4               Eli.Pousson@baltimorecity.gov, d6c592c4-b56c-42fb-8c2f-ef97ce71037a, Pousson, Eli (DOP)
-#> 5      Cedrick.Lee@baltimorecity.gov, d17c56c7-6da6-4cc8-8411-0ed98284e591, Lee, Cedrick (DOP) Disabled
-#> 6               Eli.Pousson@baltimorecity.gov, d6c592c4-b56c-42fb-8c2f-ef97ce71037a, Pousson, Eli (DOP)
-#>                                                                                  parentReference
-#> 1 bmore.sharepoint.com,d6e7830a-2aef-4fc2-87ed-5d1444ccf9b9,db02a17f-8b07-47af-83d6-029f53e4d55f
-#> 2 bmore.sharepoint.com,d6e7830a-2aef-4fc2-87ed-5d1444ccf9b9,db02a17f-8b07-47af-83d6-029f53e4d55f
-#> 3 bmore.sharepoint.com,d6e7830a-2aef-4fc2-87ed-5d1444ccf9b9,db02a17f-8b07-47af-83d6-029f53e4d55f
-#> 4 bmore.sharepoint.com,d6e7830a-2aef-4fc2-87ed-5d1444ccf9b9,db02a17f-8b07-47af-83d6-029f53e4d55f
-#> 5 bmore.sharepoint.com,d6e7830a-2aef-4fc2-87ed-5d1444ccf9b9,db02a17f-8b07-47af-83d6-029f53e4d55f
-#> 6 bmore.sharepoint.com,d6e7830a-2aef-4fc2-87ed-5d1444ccf9b9,db02a17f-8b07-47af-83d6-029f53e4d55f
-#>                        list
-#> 1 FALSE, FALSE, genericList
-#> 2 FALSE, FALSE, genericList
-#> 3   TRUE, TRUE, genericList
-#> 4 FALSE, FALSE, genericList
-#> 5   TRUE, TRUE, genericList
-#> 6   TRUE, TRUE, genericList
-#>                             ms_list
-#> 1 <environment: 0x000001d38829ccf8>
-#> 2 <environment: 0x000001d38820f418>
-#> 3 <environment: 0x000001d38815f4b8>
-#> 4 <environment: 0x000001d3880d28e0>
-#> 5 <environment: 0x000001d388069770>
-#> 6 <environment: 0x000001d387fc0350>
-#>                                                                                          lastModifiedBy
-#> 1                                                                                                  NULL
-#> 2               Eli.Pousson@baltimorecity.gov, d6c592c4-b56c-42fb-8c2f-ef97ce71037a, Pousson, Eli (DOP)
-#> 3 Amy.Gilder-Busatti@baltimorecity.gov, c6b7efd7-aafb-4d55-a31c-491279ecac52, Gilder-Busatti, Amy (DOP)
-#> 4               Eli.Pousson@baltimorecity.gov, d6c592c4-b56c-42fb-8c2f-ef97ce71037a, Pousson, Eli (DOP)
-#> 5      Cedrick.Lee@baltimorecity.gov, d17c56c7-6da6-4cc8-8411-0ed98284e591, Lee, Cedrick (DOP) Disabled
-#> 6               Eli.Pousson@baltimorecity.gov, d6c592c4-b56c-42fb-8c2f-ef97ce71037a, Pousson, Eli (DOP)
 ```
 
 However, loading the site and using it when needed is recommended to avoid duplicate API calls. Use `get_sp_site()` to load the site and pass that object to `list_sp_lists()` for multiple lists or `get_sp_list()` to return a single list.
@@ -145,8 +92,6 @@ sp_site <- get_sp_site(
 site_lists <- list_sp_lists(site = sp_site)
 
 room_list <- get_sp_list(list_name = "DOP Rooms", site = sp_site)
-#> ℹ Getting list from SharePoint
-#> ✔ Getting list from SharePoint [116ms]
 
 room_list
 #> <Sharepoint list 'DOP Rooms'>
@@ -169,28 +114,16 @@ To get the *items* from a list as a data frame, you need to use the `list_sp_lis
 
 ``` r
 rooms <- list_sp_list_items(list_name = "DOP Rooms", site = sp_site)
-#> ℹ Getting list from SharePoint✔ Getting list from SharePoint [121ms]
-#> ℹ Getting list items from SharePoint✔ Getting list items from SharePoint [2…
 
 rooms <- list_sp_list_items(
   "https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms/AllItems.aspx"
 )
 #> Loading Microsoft Graph login for default tenant
 #> Loading Microsoft Graph login for default tenant
-#> ℹ Getting list from SharePoint✔ Getting list from SharePoint [114ms]
-#> ℹ Getting list items from SharePoint✔ Getting list items from SharePoint [2…
 
 rooms <- list_sp_list_items(sp_list = room_list)
-#> ℹ Getting list items from SharePoint✔ Getting list items from SharePoint [2…
 
-head(rooms)
-#>                                 @odata.etag
-#> 1 "4de86aaa-585a-4fdb-8ea6-21b0c6431196,14"
-#> 2  "011c8d26-4650-4ba5-8bbf-1ff77a481e9f,9"
-#> 3  "6cac5415-a8e7-470d-862c-fa0d0a700699,7"
-#> 4  "727b076c-33c1-4952-87b0-f4a0045ee01a,7"
-#> 5  "38f9f668-8123-4ad0-9ed5-b145bf35cc1f,7"
-#> 6  "1833ee64-64d2-44f8-93a0-b47a7a6001b1,7"
+head(rooms[ , c(2:8)])
 #>      Title LinkTitle   RoomType
 #> 1 08-COM02  08-COM02   CORRIDOR
 #> 2 08-COM01  08-COM01   CORRIDOR
@@ -205,111 +138,13 @@ head(rooms)
 #> 4                 public hallway
 #> 5                public restroom
 #> 6                public restroom
-#>   RoomCategory    UsedBy id ContentType
-#> 1       COMMON DOP Staff 26        Item
-#> 2       COMMON    Public 27        Item
-#> 3      SERVICE   Service 28        Item
-#> 4      SERVICE   Service 29        Item
-#> 5      SERVICE    Public 30        Item
-#> 6      SERVICE    Public 31        Item
-#>               Modified
-#> 1 2024-06-04T13:41:25Z
-#> 2 2024-06-18T03:06:43Z
-#> 3 2024-06-04T13:43:10Z
-#> 4 2024-06-04T13:43:22Z
-#> 5 2024-06-04T13:43:47Z
-#> 6 2024-06-04T13:44:07Z
-#>                Created AuthorLookupId
-#> 1 2024-04-05T18:55:36Z            280
-#> 2 2024-04-05T18:55:36Z            280
-#> 3 2024-04-05T18:55:36Z            280
-#> 4 2024-04-05T18:55:37Z            280
-#> 5 2024-04-05T18:55:37Z            280
-#> 6 2024-04-05T18:55:37Z            280
-#>   EditorLookupId _UIVersionString
-#> 1             59             14.0
-#> 2            280              9.0
-#> 3             59              7.0
-#> 4             59              7.0
-#> 5             59              7.0
-#> 6             59              7.0
-#>   Attachments Edit LinkTitleNoMenu
-#> 1       FALSE             08-COM02
-#> 2       FALSE             08-COM01
-#> 3       FALSE             08-SRV01
-#> 4       FALSE             08-SRV02
-#> 5       FALSE             08-SRV03
-#> 6       FALSE             08-SRV04
-#>   ItemChildCount FolderChildCount
-#> 1              0                0
-#> 2              0                0
-#> 3              0                0
-#> 4              0                0
-#> 5              0                0
-#> 6              0                0
-#>   _ComplianceFlags _ComplianceTag
-#> 1                                
-#> 2                                
-#> 3                                
-#> 4                                
-#> 5                                
-#> 6                                
-#>   _ComplianceTagWrittenTime
-#> 1                          
-#> 2                          
-#> 3                          
-#> 4                          
-#> 5                          
-#> 6                          
-#>   _ComplianceTagUserId
-#> 1                     
-#> 2                     
-#> 3                     
-#> 4                     
-#> 5                     
-#> 6                     
-#>   AppAuthorLookupId AppEditorLookupId
-#> 1                61              <NA>
-#> 2                61                61
-#> 3                61              <NA>
-#> 4                61              <NA>
-#> 5                61              <NA>
-#> 6                61              <NA>
-#>   UsedFor Description
-#> 1    <NA>        <NA>
-#> 2    <NA>        <NA>
-#> 3    <NA>        <NA>
-#> 4    <NA>        <NA>
-#> 5    <NA>        <NA>
-#> 6    <NA>        <NA>
-#>   Materialsforprocessing Reminder
-#> 1                   NULL     <NA>
-#> 2                   NULL     <NA>
-#> 3                   NULL     <NA>
-#> 4                   NULL     <NA>
-#> 5                   NULL     <NA>
-#> 6                   NULL     <NA>
-#>   LegacyRoomNumber NewLocationalName
-#> 1             <NA>              <NA>
-#> 2             <NA>              <NA>
-#> 3             <NA>              <NA>
-#> 4             <NA>              <NA>
-#> 5             <NA>              <NA>
-#> 6             <NA>              <NA>
-#>   Images ArchibusAvailability
-#> 1   <NA>                 <NA>
-#> 2   <NA>                 <NA>
-#> 3   <NA>                 <NA>
-#> 4   <NA>                 <NA>
-#> 5   <NA>                 <NA>
-#> 6   <NA>                 <NA>
-#>   AssignedLookupId Assigned0 Hotelable
-#> 1             <NA>        NA        NA
-#> 2             <NA>        NA        NA
-#> 3             <NA>        NA        NA
-#> 4             <NA>        NA        NA
-#> 5             <NA>        NA        NA
-#> 6             <NA>        NA        NA
+#>   RoomCategory    UsedBy id
+#> 1       COMMON DOP Staff 26
+#> 2       COMMON    Public 27
+#> 3      SERVICE   Service 28
+#> 4      SERVICE   Service 29
+#> 5      SERVICE    Public 30
+#> 6      SERVICE    Public 31
 ```
 
 You can get a single list item as a `Microsoft365R::ms_list_item` object using `get_sp_list_item()`. The id values are not visible by default when looking at a Microsoft List online but they are included in the list item data frame:
@@ -317,7 +152,6 @@ You can get a single list item as a `Microsoft365R::ms_list_item` object using `
 
 ``` r
 get_sp_list_item(id = 26, sp_list = room_list)
-#> ℹ Getting item "26"✔ Getting item "26" [158ms]
 #> <Sharepoint list item '08-COM02'>
 #>   directory id: 26 
 #>   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms/26_.000 
@@ -339,12 +173,10 @@ penguins_list <- create_sp_list(
   description = "Measurements of Penguins near Palmer Station, Antarctica",
   site = sp_site
 )
-#> ℹ Creating list "penguins" with 0 colum…✔ Creating list "penguins" with 0 colum…
-#> ℹ List created at <]8;;https://bmore.sharepoint.com/sites/DOP-ALL/Lists/penguinshttps://bmore.sharep]8;;…✔ List created at <]8;;https://bmore.sharepoint.com/sites/DOP-ALL/Lists/penguinshttps://bmore.sharep]8;;…
 
 penguins_list
 #> <Sharepoint list 'penguins'>
-#>   directory id: 87b98538-a8f3-4572-97f2-081b8cde359a 
+#>   directory id: b835ca4e-c4ed-40a8-b70a-0867800524e5 
 #>   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/penguins 
 #>   description: Measurements of Penguins near Palmer Station, Antarctica 
 #> ---
@@ -447,126 +279,56 @@ If you are creating column definitions based on an existing data frame you can a
 
 
 ``` r
-data_as_column_definition_list(penguins)
-#> [[1]]
-#> [[1]]$name
-#> [1] "species"
-#> 
-#> [[1]]$hidden
-#> [1] FALSE
-#> 
-#> [[1]]$choice
-#> [[1]]$choice$allowTextEntry
-#> [1] TRUE
-#> 
-#> [[1]]$choice$choices
-#> [1] "Adelie"    "Chinstrap" "Gentoo"   
-#> 
-#> [[1]]$choice$displayAs
-#> [1] "dropDownMenu"
-#> 
-#> 
-#> 
-#> [[2]]
-#> [[2]]$name
-#> [1] "island"
-#> 
-#> [[2]]$hidden
-#> [1] FALSE
-#> 
-#> [[2]]$choice
-#> [[2]]$choice$allowTextEntry
-#> [1] TRUE
-#> 
-#> [[2]]$choice$choices
-#> [1] "Biscoe"    "Dream"     "Torgersen"
-#> 
-#> [[2]]$choice$displayAs
-#> [1] "dropDownMenu"
-#> 
-#> 
-#> 
-#> [[3]]
-#> [[3]]$name
-#> [1] "bill_len"
-#> 
-#> [[3]]$hidden
-#> [1] FALSE
-#> 
-#> [[3]]$number
-#> [[3]]$number$decimalPlaces
-#> [1] "automatic"
-#> 
-#> 
-#> 
-#> [[4]]
-#> [[4]]$name
-#> [1] "bill_dep"
-#> 
-#> [[4]]$hidden
-#> [1] FALSE
-#> 
-#> [[4]]$number
-#> [[4]]$number$decimalPlaces
-#> [1] "automatic"
-#> 
-#> 
-#> 
-#> [[5]]
-#> [[5]]$name
-#> [1] "flipper_len"
-#> 
-#> [[5]]$hidden
-#> [1] FALSE
-#> 
-#> [[5]]$number
-#> [[5]]$number$decimalPlaces
-#> [1] "none"
-#> 
-#> 
-#> 
-#> [[6]]
-#> [[6]]$name
-#> [1] "body_mass"
-#> 
-#> [[6]]$hidden
-#> [1] FALSE
-#> 
-#> [[6]]$number
-#> [[6]]$number$decimalPlaces
-#> [1] "none"
-#> 
-#> 
-#> 
-#> [[7]]
-#> [[7]]$name
-#> [1] "sex"
-#> 
-#> [[7]]$hidden
-#> [1] FALSE
-#> 
-#> [[7]]$choice
-#> [[7]]$choice$allowTextEntry
-#> [1] TRUE
-#> 
-#> [[7]]$choice$choices
-#> [1] "female" "male"  
-#> 
-#> [[7]]$choice$displayAs
-#> [1] "dropDownMenu"
-#> 
-#> 
-#> 
-#> [[8]]
-#> [[8]]$name
-#> [1] "year"
-#> 
-#> [[8]]$hidden
-#> [1] FALSE
-#> 
-#> [[8]]$number
-#> [[8]]$number$decimalPlaces
-#> [1] "none"
+penguins_column_defintions <- data_as_column_definition_list(penguins)
+
+str(penguins_column_defintions)
+#> List of 8
+#>  $ :List of 3
+#>   ..$ name  : chr "species"
+#>   ..$ hidden: logi FALSE
+#>   ..$ choice:List of 3
+#>   .. ..$ allowTextEntry: logi TRUE
+#>   .. ..$ choices       : chr [1:3] "Adelie" "Chinstrap" "Gentoo"
+#>   .. ..$ displayAs     : chr "dropDownMenu"
+#>  $ :List of 3
+#>   ..$ name  : chr "island"
+#>   ..$ hidden: logi FALSE
+#>   ..$ choice:List of 3
+#>   .. ..$ allowTextEntry: logi TRUE
+#>   .. ..$ choices       : chr [1:3] "Biscoe" "Dream" "Torgersen"
+#>   .. ..$ displayAs     : chr "dropDownMenu"
+#>  $ :List of 3
+#>   ..$ name  : chr "bill_len"
+#>   ..$ hidden: logi FALSE
+#>   ..$ number:List of 1
+#>   .. ..$ decimalPlaces: chr "automatic"
+#>  $ :List of 3
+#>   ..$ name  : chr "bill_dep"
+#>   ..$ hidden: logi FALSE
+#>   ..$ number:List of 1
+#>   .. ..$ decimalPlaces: chr "automatic"
+#>  $ :List of 3
+#>   ..$ name  : chr "flipper_len"
+#>   ..$ hidden: logi FALSE
+#>   ..$ number:List of 1
+#>   .. ..$ decimalPlaces: chr "none"
+#>  $ :List of 3
+#>   ..$ name  : chr "body_mass"
+#>   ..$ hidden: logi FALSE
+#>   ..$ number:List of 1
+#>   .. ..$ decimalPlaces: chr "none"
+#>  $ :List of 3
+#>   ..$ name  : chr "sex"
+#>   ..$ hidden: logi FALSE
+#>   ..$ choice:List of 3
+#>   .. ..$ allowTextEntry: logi TRUE
+#>   .. ..$ choices       : chr [1:2] "female" "male"
+#>   .. ..$ displayAs     : chr "dropDownMenu"
+#>  $ :List of 3
+#>   ..$ name  : chr "year"
+#>   ..$ hidden: logi FALSE
+#>   ..$ number:List of 1
+#>   .. ..$ decimalPlaces: chr "none"
 ```
 
 At present, data frames with character, numeric, datetime, and factor values are supported but list columns are not.
@@ -587,5 +349,7 @@ create_sp_list_items(
 ```
 
 You can use this same function with `create_list = FALSE` (the default) to add multiple items to a list or create individual items using `create_sp_list_item()`.
+
+Creating or updating large numbers of items can be very slow. If you are creating a large number of items, you can use the parallelization feature built-in to the pakage via `purrr::in_parallel()`. Set the number of daemons, or persistent background processes, to handle the requests in parallel using `mirai::daemons()` before calling `create_sp_list_items()` and the process should speed up.
 
 

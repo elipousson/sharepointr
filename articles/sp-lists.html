@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>sp-lists • sharepointr</title>
+<title>Reading and writing to SharePoint Lists • sharepointr</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="sp-lists">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Reading and writing to SharePoint Lists">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -35,7 +35,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/read-write.html">Reading and writing items from SharePoint</a></li>
     <li><a class="dropdown-item" href="../articles/sp_url.html">Using SharePoint URLs to work with items and lists</a></li>
-    <li><a class="dropdown-item" href="../articles/sp-lists.html">sp-lists</a></li>
+    <li><a class="dropdown-item" href="../articles/sp-lists.html">Reading and writing to SharePoint Lists</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -58,7 +58,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>sp-lists</h1>
+      <h1>Reading and writing to SharePoint Lists</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/elipousson/sharepointr/blob/main/vignettes/articles/sp-lists.Rmd" class="external-link"><code>vignettes/articles/sp-lists.Rmd</code></a></small>
@@ -68,16 +68,22 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/elipousson/sharepointr" class="external-link">sharepointr</a></span><span class="op">)</span></span></code></pre></div>
-<p>Microsoft Lists can be added to a SharePoint site or created for a
-single user. This package assumes you are working with lists within a
-SharePoint site. This article covers:</p>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/elipousson/sharepointr" class="external-link">sharepointr</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>cli.default_handler <span class="op">=</span> <span class="va">suppressMessages</span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
+<p>SharePoint Lists (also known as Microsoft Lists) can be added to a
+SharePoint site or created for a single user. This package assumes you
+are working with lists within a SharePoint site. This article
+covers:</p>
 <ul>
 <li>Reading lists and list items</li>
 <li>Creating lists and list items</li>
 </ul>
 <p>The package also supports updating and deleting lists and list items
 which should be added to this article in the future.</p>
+</div>
 <div class="section level2">
 <h2 id="reading-lists-and-list-items">Reading lists and list items<a class="anchor" aria-label="anchor" href="#reading-lists-and-list-items"></a>
 </h2>
@@ -90,14 +96,7 @@ URL and returns a data frame with information about all site lists:</p>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">site_lists</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                                 @odata.etag</span></span>
-<span><span class="co">#&gt; 1  "dcae5523-39e3-4582-8b6d-08ccd3b98499,5"</span></span>
-<span><span class="co">#&gt; 2 "531a153d-b9d4-4d04-93cd-0d49d9bac705,43"</span></span>
-<span><span class="co">#&gt; 3 "0d7df1be-e6de-474b-88ea-0f56689ca3e9,15"</span></span>
-<span><span class="co">#&gt; 4 "7c6b3bac-4962-4285-980e-127e36583ffc,22"</span></span>
-<span><span class="co">#&gt; 5 "9c518bac-ef99-4ae8-ab27-1453f68c87e1,15"</span></span>
-<span><span class="co">#&gt; 6 "d216b2d5-7cae-491f-abf4-1474628a0982,15"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">site_lists</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;        createdDateTime</span></span>
 <span><span class="co">#&gt; 1 2025-02-27T22:54:53Z</span></span>
 <span><span class="co">#&gt; 2 2023-11-27T18:12:43Z</span></span>
@@ -139,320 +138,114 @@ URL and returns a data frame with information about all site lists:</p>
 <span><span class="co">#&gt; 3 1938d6c3c5ffd048d091655fde4e10fa2fthreadskype_wiki</span></span>
 <span><span class="co">#&gt; 4        Technology Committee Priority Issue Tracker</span></span>
 <span><span class="co">#&gt; 5 1978556da3d0db4ddabfb7d8807110cc60threadskype_wiki</span></span>
-<span><span class="co">#&gt; 6 191a54f93ccf1244cda3547deae96e306athreadskype_wiki</span></span>
-<span><span class="co">#&gt;                                                                                                 webUrl</span></span>
-<span><span class="co">#&gt; 1                                 https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Commissioners</span></span>
-<span><span class="co">#&gt; 2          https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Internal%20%20Interagency%20Meetings</span></span>
-<span><span class="co">#&gt; 3  https://bmore.sharepoint.com/sites/DOP-ALL/Lists/1938d6c3c5ffd048d091655fde4e10fa2fthreadskype_wiki</span></span>
-<span><span class="co">#&gt; 4 https://bmore.sharepoint.com/sites/DOP-ALL/Lists/Technology%20Committee%20Priority%20Issue%20Tracker</span></span>
-<span><span class="co">#&gt; 5  https://bmore.sharepoint.com/sites/DOP-ALL/Lists/1978556da3d0db4ddabfb7d8807110cc60threadskype_wiki</span></span>
-<span><span class="co">#&gt; 6  https://bmore.sharepoint.com/sites/DOP-ALL/Lists/191a54f93ccf1244cda3547deae96e306athreadskype_wiki</span></span>
-<span><span class="co">#&gt;                                             displayName</span></span>
-<span><span class="co">#&gt; 1                                     DOP Commissioners</span></span>
-<span><span class="co">#&gt; 2                                DOP Recurring Meetings</span></span>
-<span><span class="co">#&gt; 3 19:38d6c3c5ffd048d091655fde4e10fa2f@thread.skype_wiki</span></span>
-<span><span class="co">#&gt; 4       Technology + Workspace Committee: Issue Tracker</span></span>
-<span><span class="co">#&gt; 5 19:78556da3d0db4ddabfb7d8807110cc60@thread.skype_wiki</span></span>
-<span><span class="co">#&gt; 6 19:1a54f93ccf1244cda3547deae96e306a@thread.skype_wiki</span></span>
-<span><span class="co">#&gt;                                                                                               createdBy</span></span>
-<span><span class="co">#&gt; 1               Eli.Pousson@baltimorecity.gov, d6c592c4-b56c-42fb-8c2f-ef97ce71037a, Pousson, Eli (DOP)</span></span>
-<span><span class="co">#&gt; 2               Eli.Pousson@baltimorecity.gov, d6c592c4-b56c-42fb-8c2f-ef97ce71037a, Pousson, Eli (DOP)</span></span>
-<span><span class="co">#&gt; 3 Amy.Gilder-Busatti@baltimorecity.gov, c6b7efd7-aafb-4d55-a31c-491279ecac52, Gilder-Busatti, Amy (DOP)</span></span>
-<span><span class="co">#&gt; 4               Eli.Pousson@baltimorecity.gov, d6c592c4-b56c-42fb-8c2f-ef97ce71037a, Pousson, Eli (DOP)</span></span>
-<span><span class="co">#&gt; 5      Cedrick.Lee@baltimorecity.gov, d17c56c7-6da6-4cc8-8411-0ed98284e591, Lee, Cedrick (DOP) Disabled</span></span>
-<span><span class="co">#&gt; 6               Eli.Pousson@baltimorecity.gov, d6c592c4-b56c-42fb-8c2f-ef97ce71037a, Pousson, Eli (DOP)</span></span>
-<span><span class="co">#&gt;                                                                                  parentReference</span></span>
-<span><span class="co">#&gt; 1 bmore.sharepoint.com,d6e7830a-2aef-4fc2-87ed-5d1444ccf9b9,db02a17f-8b07-47af-83d6-029f53e4d55f</span></span>
-<span><span class="co">#&gt; 2 bmore.sharepoint.com,d6e7830a-2aef-4fc2-87ed-5d1444ccf9b9,db02a17f-8b07-47af-83d6-029f53e4d55f</span></span>
-<span><span class="co">#&gt; 3 bmore.sharepoint.com,d6e7830a-2aef-4fc2-87ed-5d1444ccf9b9,db02a17f-8b07-47af-83d6-029f53e4d55f</span></span>
-<span><span class="co">#&gt; 4 bmore.sharepoint.com,d6e7830a-2aef-4fc2-87ed-5d1444ccf9b9,db02a17f-8b07-47af-83d6-029f53e4d55f</span></span>
-<span><span class="co">#&gt; 5 bmore.sharepoint.com,d6e7830a-2aef-4fc2-87ed-5d1444ccf9b9,db02a17f-8b07-47af-83d6-029f53e4d55f</span></span>
-<span><span class="co">#&gt; 6 bmore.sharepoint.com,d6e7830a-2aef-4fc2-87ed-5d1444ccf9b9,db02a17f-8b07-47af-83d6-029f53e4d55f</span></span>
-<span><span class="co">#&gt;                        list</span></span>
-<span><span class="co">#&gt; 1 FALSE, FALSE, genericList</span></span>
-<span><span class="co">#&gt; 2 FALSE, FALSE, genericList</span></span>
-<span><span class="co">#&gt; 3   TRUE, TRUE, genericList</span></span>
-<span><span class="co">#&gt; 4 FALSE, FALSE, genericList</span></span>
-<span><span class="co">#&gt; 5   TRUE, TRUE, genericList</span></span>
-<span><span class="co">#&gt; 6   TRUE, TRUE, genericList</span></span>
-<span><span class="co">#&gt;                             ms_list</span></span>
-<span><span class="co">#&gt; 1 &lt;environment: 0x000001d38829ccf8&gt;</span></span>
-<span><span class="co">#&gt; 2 &lt;environment: 0x000001d38820f418&gt;</span></span>
-<span><span class="co">#&gt; 3 &lt;environment: 0x000001d38815f4b8&gt;</span></span>
-<span><span class="co">#&gt; 4 &lt;environment: 0x000001d3880d28e0&gt;</span></span>
-<span><span class="co">#&gt; 5 &lt;environment: 0x000001d388069770&gt;</span></span>
-<span><span class="co">#&gt; 6 &lt;environment: 0x000001d387fc0350&gt;</span></span>
-<span><span class="co">#&gt;                                                                                          lastModifiedBy</span></span>
-<span><span class="co">#&gt; 1                                                                                                  NULL</span></span>
-<span><span class="co">#&gt; 2               Eli.Pousson@baltimorecity.gov, d6c592c4-b56c-42fb-8c2f-ef97ce71037a, Pousson, Eli (DOP)</span></span>
-<span><span class="co">#&gt; 3 Amy.Gilder-Busatti@baltimorecity.gov, c6b7efd7-aafb-4d55-a31c-491279ecac52, Gilder-Busatti, Amy (DOP)</span></span>
-<span><span class="co">#&gt; 4               Eli.Pousson@baltimorecity.gov, d6c592c4-b56c-42fb-8c2f-ef97ce71037a, Pousson, Eli (DOP)</span></span>
-<span><span class="co">#&gt; 5      Cedrick.Lee@baltimorecity.gov, d17c56c7-6da6-4cc8-8411-0ed98284e591, Lee, Cedrick (DOP) Disabled</span></span>
-<span><span class="co">#&gt; 6               Eli.Pousson@baltimorecity.gov, d6c592c4-b56c-42fb-8c2f-ef97ce71037a, Pousson, Eli (DOP)</span></span></code></pre></div>
+<span><span class="co">#&gt; 6 191a54f93ccf1244cda3547deae96e306athreadskype_wiki</span></span></code></pre></div>
 <p>However, loading the site and using it when needed is recommended to
 avoid duplicate API calls. Use <code><a href="../reference/sp_site.html">get_sp_site()</a></code> to load the
 site and pass that object to <code><a href="../reference/sp_list.html">list_sp_lists()</a></code> for multiple
 lists or <code><a href="../reference/sp_list.html">get_sp_list()</a></code> to return a single list.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>sp_site <span class="ot">&lt;-</span> <span class="fu">get_sp_site</span>(</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="st">"https://bmore.sharepoint.com/sites/DOP-ALL"</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>)</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>site_lists <span class="ot">&lt;-</span> <span class="fu">list_sp_lists</span>(<span class="at">site =</span> sp_site)</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>room_list <span class="ot">&lt;-</span> <span class="fu">get_sp_list</span>(<span class="at">list_name =</span> <span class="st">"DOP Rooms"</span>, <span class="at">site =</span> sp_site)</span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>ℹ Getting list from SharePoint</span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>✔ Getting list from SharePoint [<span class="dv">116</span>ms]</span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a></span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>room_list</span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; &lt;Sharepoint list 'DOP Rooms'&gt;</span></span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt;   directory id: dd07e874-8b01-4e0d-a7cb-d7e709d580e9 </span></span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt;   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms </span></span>
-<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt;   description: A list of offices and other rooms occupied by the Baltimore City Department of Planning on the 8th Floor of the Benton Building. </span></span>
-<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
-<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt;   Methods:</span></span>
-<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt;     bulk_import, create_item,</span></span>
-<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt;     delete, delete_item,</span></span>
-<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co">#&gt;     do_operation,</span></span>
-<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="co">#&gt;     get_column_info, get_item,</span></span>
-<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co">#&gt;     get_list_pager, list_items,</span></span>
-<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a><span class="co">#&gt;     sync_fields, update,</span></span>
-<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a><span class="co">#&gt;     update_item</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sp_site</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sp_site.html">get_sp_site</a></span><span class="op">(</span></span>
+<span>  <span class="st">"https://bmore.sharepoint.com/sites/DOP-ALL"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span></span>
+<span><span class="va">site_lists</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sp_list.html">list_sp_lists</a></span><span class="op">(</span>site <span class="op">=</span> <span class="va">sp_site</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">room_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sp_list.html">get_sp_list</a></span><span class="op">(</span>list_name <span class="op">=</span> <span class="st">"DOP Rooms"</span>, site <span class="op">=</span> <span class="va">sp_site</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">room_list</span></span>
+<span><span class="co">#&gt; &lt;Sharepoint list 'DOP Rooms'&gt;</span></span>
+<span><span class="co">#&gt;   directory id: dd07e874-8b01-4e0d-a7cb-d7e709d580e9 </span></span>
+<span><span class="co">#&gt;   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms </span></span>
+<span><span class="co">#&gt;   description: A list of offices and other rooms occupied by the Baltimore City Department of Planning on the 8th Floor of the Benton Building. </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt;   Methods:</span></span>
+<span><span class="co">#&gt;     bulk_import, create_item,</span></span>
+<span><span class="co">#&gt;     delete, delete_item,</span></span>
+<span><span class="co">#&gt;     do_operation,</span></span>
+<span><span class="co">#&gt;     get_column_info, get_item,</span></span>
+<span><span class="co">#&gt;     get_list_pager, list_items,</span></span>
+<span><span class="co">#&gt;     sync_fields, update,</span></span>
+<span><span class="co">#&gt;     update_item</span></span></code></pre></div>
 <p>To get the <em>items</em> from a list as a data frame, you need to
 use the <code><a href="../reference/sp_list_item.html">list_sp_list_items()</a></code> function. This function allows
 you to pass a site and list name, a list URL in place of a list name
 with no site, or to pass a list object directly:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>rooms <span class="ot">&lt;-</span> <span class="fu">list_sp_list_items</span>(<span class="at">list_name =</span> <span class="st">"DOP Rooms"</span>, <span class="at">site =</span> sp_site)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>ℹ Getting list from SharePoint</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>✔ Getting list from SharePoint [<span class="dv">121</span>ms]</span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>ℹ Getting list items from SharePoint</span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>✔ Getting list items from SharePoint [<span class="dv">2</span>…</span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a></span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>rooms <span class="ot">&lt;-</span> <span class="fu">list_sp_list_items</span>(</span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>  <span class="st">"https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms/AllItems.aspx"</span></span>
-<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>)</span>
-<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
-<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
-<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>ℹ Getting list from SharePoint</span>
-<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a></span>
-<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>✔ Getting list from SharePoint [<span class="dv">114</span>ms]</span>
-<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a></span>
-<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a></span>
-<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a>ℹ Getting list items from SharePoint</span>
-<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a></span>
-<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a>✔ Getting list items from SharePoint [<span class="dv">2</span>…</span>
-<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a></span>
-<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a></span>
-<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a></span>
-<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a>rooms <span class="ot">&lt;-</span> <span class="fu">list_sp_list_items</span>(<span class="at">sp_list =</span> room_list)</span>
-<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a>ℹ Getting list items from SharePoint</span>
-<span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a></span>
-<span id="cb4-37"><a href="#cb4-37" tabindex="-1"></a>✔ Getting list items from SharePoint [<span class="dv">2</span>…</span>
-<span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a></span>
-<span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a></span>
-<span id="cb4-40"><a href="#cb4-40" tabindex="-1"></a></span>
-<span id="cb4-41"><a href="#cb4-41" tabindex="-1"></a><span class="fu">head</span>(rooms)</span>
-<span id="cb4-42"><a href="#cb4-42" tabindex="-1"></a><span class="co">#&gt;                                 @odata.etag</span></span>
-<span id="cb4-43"><a href="#cb4-43" tabindex="-1"></a><span class="co">#&gt; 1 "4de86aaa-585a-4fdb-8ea6-21b0c6431196,14"</span></span>
-<span id="cb4-44"><a href="#cb4-44" tabindex="-1"></a><span class="co">#&gt; 2  "011c8d26-4650-4ba5-8bbf-1ff77a481e9f,9"</span></span>
-<span id="cb4-45"><a href="#cb4-45" tabindex="-1"></a><span class="co">#&gt; 3  "6cac5415-a8e7-470d-862c-fa0d0a700699,7"</span></span>
-<span id="cb4-46"><a href="#cb4-46" tabindex="-1"></a><span class="co">#&gt; 4  "727b076c-33c1-4952-87b0-f4a0045ee01a,7"</span></span>
-<span id="cb4-47"><a href="#cb4-47" tabindex="-1"></a><span class="co">#&gt; 5  "38f9f668-8123-4ad0-9ed5-b145bf35cc1f,7"</span></span>
-<span id="cb4-48"><a href="#cb4-48" tabindex="-1"></a><span class="co">#&gt; 6  "1833ee64-64d2-44f8-93a0-b47a7a6001b1,7"</span></span>
-<span id="cb4-49"><a href="#cb4-49" tabindex="-1"></a><span class="co">#&gt;      Title LinkTitle   RoomType</span></span>
-<span id="cb4-50"><a href="#cb4-50" tabindex="-1"></a><span class="co">#&gt; 1 08-COM02  08-COM02   CORRIDOR</span></span>
-<span id="cb4-51"><a href="#cb4-51" tabindex="-1"></a><span class="co">#&gt; 2 08-COM01  08-COM01   CORRIDOR</span></span>
-<span id="cb4-52"><a href="#cb4-52" tabindex="-1"></a><span class="co">#&gt; 3 08-SRV01  08-SRV01    UTILITY</span></span>
-<span id="cb4-53"><a href="#cb4-53" tabindex="-1"></a><span class="co">#&gt; 4 08-SRV02  08-SRV02 TELE/COMMS</span></span>
-<span id="cb4-54"><a href="#cb4-54" tabindex="-1"></a><span class="co">#&gt; 5 08-SRV03  08-SRV03        MEN</span></span>
-<span id="cb4-55"><a href="#cb4-55" tabindex="-1"></a><span class="co">#&gt; 6 08-SRV04  08-SRV04      WOMEN</span></span>
-<span id="cb4-56"><a href="#cb4-56" tabindex="-1"></a><span class="co">#&gt;                         Location</span></span>
-<span id="cb4-57"><a href="#cb4-57" tabindex="-1"></a><span class="co">#&gt; 1        Hallway to plotter area</span></span>
-<span id="cb4-58"><a href="#cb4-58" tabindex="-1"></a><span class="co">#&gt; 2                 elevator lobby</span></span>
-<span id="cb4-59"><a href="#cb4-59" tabindex="-1"></a><span class="co">#&gt; 3 interior hallway west of lobby</span></span>
-<span id="cb4-60"><a href="#cb4-60" tabindex="-1"></a><span class="co">#&gt; 4                 public hallway</span></span>
-<span id="cb4-61"><a href="#cb4-61" tabindex="-1"></a><span class="co">#&gt; 5                public restroom</span></span>
-<span id="cb4-62"><a href="#cb4-62" tabindex="-1"></a><span class="co">#&gt; 6                public restroom</span></span>
-<span id="cb4-63"><a href="#cb4-63" tabindex="-1"></a><span class="co">#&gt;   RoomCategory    UsedBy id ContentType</span></span>
-<span id="cb4-64"><a href="#cb4-64" tabindex="-1"></a><span class="co">#&gt; 1       COMMON DOP Staff 26        Item</span></span>
-<span id="cb4-65"><a href="#cb4-65" tabindex="-1"></a><span class="co">#&gt; 2       COMMON    Public 27        Item</span></span>
-<span id="cb4-66"><a href="#cb4-66" tabindex="-1"></a><span class="co">#&gt; 3      SERVICE   Service 28        Item</span></span>
-<span id="cb4-67"><a href="#cb4-67" tabindex="-1"></a><span class="co">#&gt; 4      SERVICE   Service 29        Item</span></span>
-<span id="cb4-68"><a href="#cb4-68" tabindex="-1"></a><span class="co">#&gt; 5      SERVICE    Public 30        Item</span></span>
-<span id="cb4-69"><a href="#cb4-69" tabindex="-1"></a><span class="co">#&gt; 6      SERVICE    Public 31        Item</span></span>
-<span id="cb4-70"><a href="#cb4-70" tabindex="-1"></a><span class="co">#&gt;               Modified</span></span>
-<span id="cb4-71"><a href="#cb4-71" tabindex="-1"></a><span class="co">#&gt; 1 2024-06-04T13:41:25Z</span></span>
-<span id="cb4-72"><a href="#cb4-72" tabindex="-1"></a><span class="co">#&gt; 2 2024-06-18T03:06:43Z</span></span>
-<span id="cb4-73"><a href="#cb4-73" tabindex="-1"></a><span class="co">#&gt; 3 2024-06-04T13:43:10Z</span></span>
-<span id="cb4-74"><a href="#cb4-74" tabindex="-1"></a><span class="co">#&gt; 4 2024-06-04T13:43:22Z</span></span>
-<span id="cb4-75"><a href="#cb4-75" tabindex="-1"></a><span class="co">#&gt; 5 2024-06-04T13:43:47Z</span></span>
-<span id="cb4-76"><a href="#cb4-76" tabindex="-1"></a><span class="co">#&gt; 6 2024-06-04T13:44:07Z</span></span>
-<span id="cb4-77"><a href="#cb4-77" tabindex="-1"></a><span class="co">#&gt;                Created AuthorLookupId</span></span>
-<span id="cb4-78"><a href="#cb4-78" tabindex="-1"></a><span class="co">#&gt; 1 2024-04-05T18:55:36Z            280</span></span>
-<span id="cb4-79"><a href="#cb4-79" tabindex="-1"></a><span class="co">#&gt; 2 2024-04-05T18:55:36Z            280</span></span>
-<span id="cb4-80"><a href="#cb4-80" tabindex="-1"></a><span class="co">#&gt; 3 2024-04-05T18:55:36Z            280</span></span>
-<span id="cb4-81"><a href="#cb4-81" tabindex="-1"></a><span class="co">#&gt; 4 2024-04-05T18:55:37Z            280</span></span>
-<span id="cb4-82"><a href="#cb4-82" tabindex="-1"></a><span class="co">#&gt; 5 2024-04-05T18:55:37Z            280</span></span>
-<span id="cb4-83"><a href="#cb4-83" tabindex="-1"></a><span class="co">#&gt; 6 2024-04-05T18:55:37Z            280</span></span>
-<span id="cb4-84"><a href="#cb4-84" tabindex="-1"></a><span class="co">#&gt;   EditorLookupId _UIVersionString</span></span>
-<span id="cb4-85"><a href="#cb4-85" tabindex="-1"></a><span class="co">#&gt; 1             59             14.0</span></span>
-<span id="cb4-86"><a href="#cb4-86" tabindex="-1"></a><span class="co">#&gt; 2            280              9.0</span></span>
-<span id="cb4-87"><a href="#cb4-87" tabindex="-1"></a><span class="co">#&gt; 3             59              7.0</span></span>
-<span id="cb4-88"><a href="#cb4-88" tabindex="-1"></a><span class="co">#&gt; 4             59              7.0</span></span>
-<span id="cb4-89"><a href="#cb4-89" tabindex="-1"></a><span class="co">#&gt; 5             59              7.0</span></span>
-<span id="cb4-90"><a href="#cb4-90" tabindex="-1"></a><span class="co">#&gt; 6             59              7.0</span></span>
-<span id="cb4-91"><a href="#cb4-91" tabindex="-1"></a><span class="co">#&gt;   Attachments Edit LinkTitleNoMenu</span></span>
-<span id="cb4-92"><a href="#cb4-92" tabindex="-1"></a><span class="co">#&gt; 1       FALSE             08-COM02</span></span>
-<span id="cb4-93"><a href="#cb4-93" tabindex="-1"></a><span class="co">#&gt; 2       FALSE             08-COM01</span></span>
-<span id="cb4-94"><a href="#cb4-94" tabindex="-1"></a><span class="co">#&gt; 3       FALSE             08-SRV01</span></span>
-<span id="cb4-95"><a href="#cb4-95" tabindex="-1"></a><span class="co">#&gt; 4       FALSE             08-SRV02</span></span>
-<span id="cb4-96"><a href="#cb4-96" tabindex="-1"></a><span class="co">#&gt; 5       FALSE             08-SRV03</span></span>
-<span id="cb4-97"><a href="#cb4-97" tabindex="-1"></a><span class="co">#&gt; 6       FALSE             08-SRV04</span></span>
-<span id="cb4-98"><a href="#cb4-98" tabindex="-1"></a><span class="co">#&gt;   ItemChildCount FolderChildCount</span></span>
-<span id="cb4-99"><a href="#cb4-99" tabindex="-1"></a><span class="co">#&gt; 1              0                0</span></span>
-<span id="cb4-100"><a href="#cb4-100" tabindex="-1"></a><span class="co">#&gt; 2              0                0</span></span>
-<span id="cb4-101"><a href="#cb4-101" tabindex="-1"></a><span class="co">#&gt; 3              0                0</span></span>
-<span id="cb4-102"><a href="#cb4-102" tabindex="-1"></a><span class="co">#&gt; 4              0                0</span></span>
-<span id="cb4-103"><a href="#cb4-103" tabindex="-1"></a><span class="co">#&gt; 5              0                0</span></span>
-<span id="cb4-104"><a href="#cb4-104" tabindex="-1"></a><span class="co">#&gt; 6              0                0</span></span>
-<span id="cb4-105"><a href="#cb4-105" tabindex="-1"></a><span class="co">#&gt;   _ComplianceFlags _ComplianceTag</span></span>
-<span id="cb4-106"><a href="#cb4-106" tabindex="-1"></a><span class="co">#&gt; 1                                </span></span>
-<span id="cb4-107"><a href="#cb4-107" tabindex="-1"></a><span class="co">#&gt; 2                                </span></span>
-<span id="cb4-108"><a href="#cb4-108" tabindex="-1"></a><span class="co">#&gt; 3                                </span></span>
-<span id="cb4-109"><a href="#cb4-109" tabindex="-1"></a><span class="co">#&gt; 4                                </span></span>
-<span id="cb4-110"><a href="#cb4-110" tabindex="-1"></a><span class="co">#&gt; 5                                </span></span>
-<span id="cb4-111"><a href="#cb4-111" tabindex="-1"></a><span class="co">#&gt; 6                                </span></span>
-<span id="cb4-112"><a href="#cb4-112" tabindex="-1"></a><span class="co">#&gt;   _ComplianceTagWrittenTime</span></span>
-<span id="cb4-113"><a href="#cb4-113" tabindex="-1"></a><span class="co">#&gt; 1                          </span></span>
-<span id="cb4-114"><a href="#cb4-114" tabindex="-1"></a><span class="co">#&gt; 2                          </span></span>
-<span id="cb4-115"><a href="#cb4-115" tabindex="-1"></a><span class="co">#&gt; 3                          </span></span>
-<span id="cb4-116"><a href="#cb4-116" tabindex="-1"></a><span class="co">#&gt; 4                          </span></span>
-<span id="cb4-117"><a href="#cb4-117" tabindex="-1"></a><span class="co">#&gt; 5                          </span></span>
-<span id="cb4-118"><a href="#cb4-118" tabindex="-1"></a><span class="co">#&gt; 6                          </span></span>
-<span id="cb4-119"><a href="#cb4-119" tabindex="-1"></a><span class="co">#&gt;   _ComplianceTagUserId</span></span>
-<span id="cb4-120"><a href="#cb4-120" tabindex="-1"></a><span class="co">#&gt; 1                     </span></span>
-<span id="cb4-121"><a href="#cb4-121" tabindex="-1"></a><span class="co">#&gt; 2                     </span></span>
-<span id="cb4-122"><a href="#cb4-122" tabindex="-1"></a><span class="co">#&gt; 3                     </span></span>
-<span id="cb4-123"><a href="#cb4-123" tabindex="-1"></a><span class="co">#&gt; 4                     </span></span>
-<span id="cb4-124"><a href="#cb4-124" tabindex="-1"></a><span class="co">#&gt; 5                     </span></span>
-<span id="cb4-125"><a href="#cb4-125" tabindex="-1"></a><span class="co">#&gt; 6                     </span></span>
-<span id="cb4-126"><a href="#cb4-126" tabindex="-1"></a><span class="co">#&gt;   AppAuthorLookupId AppEditorLookupId</span></span>
-<span id="cb4-127"><a href="#cb4-127" tabindex="-1"></a><span class="co">#&gt; 1                61              &lt;NA&gt;</span></span>
-<span id="cb4-128"><a href="#cb4-128" tabindex="-1"></a><span class="co">#&gt; 2                61                61</span></span>
-<span id="cb4-129"><a href="#cb4-129" tabindex="-1"></a><span class="co">#&gt; 3                61              &lt;NA&gt;</span></span>
-<span id="cb4-130"><a href="#cb4-130" tabindex="-1"></a><span class="co">#&gt; 4                61              &lt;NA&gt;</span></span>
-<span id="cb4-131"><a href="#cb4-131" tabindex="-1"></a><span class="co">#&gt; 5                61              &lt;NA&gt;</span></span>
-<span id="cb4-132"><a href="#cb4-132" tabindex="-1"></a><span class="co">#&gt; 6                61              &lt;NA&gt;</span></span>
-<span id="cb4-133"><a href="#cb4-133" tabindex="-1"></a><span class="co">#&gt;   UsedFor Description</span></span>
-<span id="cb4-134"><a href="#cb4-134" tabindex="-1"></a><span class="co">#&gt; 1    &lt;NA&gt;        &lt;NA&gt;</span></span>
-<span id="cb4-135"><a href="#cb4-135" tabindex="-1"></a><span class="co">#&gt; 2    &lt;NA&gt;        &lt;NA&gt;</span></span>
-<span id="cb4-136"><a href="#cb4-136" tabindex="-1"></a><span class="co">#&gt; 3    &lt;NA&gt;        &lt;NA&gt;</span></span>
-<span id="cb4-137"><a href="#cb4-137" tabindex="-1"></a><span class="co">#&gt; 4    &lt;NA&gt;        &lt;NA&gt;</span></span>
-<span id="cb4-138"><a href="#cb4-138" tabindex="-1"></a><span class="co">#&gt; 5    &lt;NA&gt;        &lt;NA&gt;</span></span>
-<span id="cb4-139"><a href="#cb4-139" tabindex="-1"></a><span class="co">#&gt; 6    &lt;NA&gt;        &lt;NA&gt;</span></span>
-<span id="cb4-140"><a href="#cb4-140" tabindex="-1"></a><span class="co">#&gt;   Materialsforprocessing Reminder</span></span>
-<span id="cb4-141"><a href="#cb4-141" tabindex="-1"></a><span class="co">#&gt; 1                   NULL     &lt;NA&gt;</span></span>
-<span id="cb4-142"><a href="#cb4-142" tabindex="-1"></a><span class="co">#&gt; 2                   NULL     &lt;NA&gt;</span></span>
-<span id="cb4-143"><a href="#cb4-143" tabindex="-1"></a><span class="co">#&gt; 3                   NULL     &lt;NA&gt;</span></span>
-<span id="cb4-144"><a href="#cb4-144" tabindex="-1"></a><span class="co">#&gt; 4                   NULL     &lt;NA&gt;</span></span>
-<span id="cb4-145"><a href="#cb4-145" tabindex="-1"></a><span class="co">#&gt; 5                   NULL     &lt;NA&gt;</span></span>
-<span id="cb4-146"><a href="#cb4-146" tabindex="-1"></a><span class="co">#&gt; 6                   NULL     &lt;NA&gt;</span></span>
-<span id="cb4-147"><a href="#cb4-147" tabindex="-1"></a><span class="co">#&gt;   LegacyRoomNumber NewLocationalName</span></span>
-<span id="cb4-148"><a href="#cb4-148" tabindex="-1"></a><span class="co">#&gt; 1             &lt;NA&gt;              &lt;NA&gt;</span></span>
-<span id="cb4-149"><a href="#cb4-149" tabindex="-1"></a><span class="co">#&gt; 2             &lt;NA&gt;              &lt;NA&gt;</span></span>
-<span id="cb4-150"><a href="#cb4-150" tabindex="-1"></a><span class="co">#&gt; 3             &lt;NA&gt;              &lt;NA&gt;</span></span>
-<span id="cb4-151"><a href="#cb4-151" tabindex="-1"></a><span class="co">#&gt; 4             &lt;NA&gt;              &lt;NA&gt;</span></span>
-<span id="cb4-152"><a href="#cb4-152" tabindex="-1"></a><span class="co">#&gt; 5             &lt;NA&gt;              &lt;NA&gt;</span></span>
-<span id="cb4-153"><a href="#cb4-153" tabindex="-1"></a><span class="co">#&gt; 6             &lt;NA&gt;              &lt;NA&gt;</span></span>
-<span id="cb4-154"><a href="#cb4-154" tabindex="-1"></a><span class="co">#&gt;   Images ArchibusAvailability</span></span>
-<span id="cb4-155"><a href="#cb4-155" tabindex="-1"></a><span class="co">#&gt; 1   &lt;NA&gt;                 &lt;NA&gt;</span></span>
-<span id="cb4-156"><a href="#cb4-156" tabindex="-1"></a><span class="co">#&gt; 2   &lt;NA&gt;                 &lt;NA&gt;</span></span>
-<span id="cb4-157"><a href="#cb4-157" tabindex="-1"></a><span class="co">#&gt; 3   &lt;NA&gt;                 &lt;NA&gt;</span></span>
-<span id="cb4-158"><a href="#cb4-158" tabindex="-1"></a><span class="co">#&gt; 4   &lt;NA&gt;                 &lt;NA&gt;</span></span>
-<span id="cb4-159"><a href="#cb4-159" tabindex="-1"></a><span class="co">#&gt; 5   &lt;NA&gt;                 &lt;NA&gt;</span></span>
-<span id="cb4-160"><a href="#cb4-160" tabindex="-1"></a><span class="co">#&gt; 6   &lt;NA&gt;                 &lt;NA&gt;</span></span>
-<span id="cb4-161"><a href="#cb4-161" tabindex="-1"></a><span class="co">#&gt;   AssignedLookupId Assigned0 Hotelable</span></span>
-<span id="cb4-162"><a href="#cb4-162" tabindex="-1"></a><span class="co">#&gt; 1             &lt;NA&gt;        NA        NA</span></span>
-<span id="cb4-163"><a href="#cb4-163" tabindex="-1"></a><span class="co">#&gt; 2             &lt;NA&gt;        NA        NA</span></span>
-<span id="cb4-164"><a href="#cb4-164" tabindex="-1"></a><span class="co">#&gt; 3             &lt;NA&gt;        NA        NA</span></span>
-<span id="cb4-165"><a href="#cb4-165" tabindex="-1"></a><span class="co">#&gt; 4             &lt;NA&gt;        NA        NA</span></span>
-<span id="cb4-166"><a href="#cb4-166" tabindex="-1"></a><span class="co">#&gt; 5             &lt;NA&gt;        NA        NA</span></span>
-<span id="cb4-167"><a href="#cb4-167" tabindex="-1"></a><span class="co">#&gt; 6             &lt;NA&gt;        NA        NA</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">rooms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sp_list_item.html">list_sp_list_items</a></span><span class="op">(</span>list_name <span class="op">=</span> <span class="st">"DOP Rooms"</span>, site <span class="op">=</span> <span class="va">sp_site</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">rooms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sp_list_item.html">list_sp_list_items</a></span><span class="op">(</span></span>
+<span>  <span class="st">"https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms/AllItems.aspx"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span></span>
+<span><span class="va">rooms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sp_list_item.html">list_sp_list_items</a></span><span class="op">(</span>sp_list <span class="op">=</span> <span class="va">room_list</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">rooms</span><span class="op">[</span> , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      Title LinkTitle   RoomType</span></span>
+<span><span class="co">#&gt; 1 08-COM02  08-COM02   CORRIDOR</span></span>
+<span><span class="co">#&gt; 2 08-COM01  08-COM01   CORRIDOR</span></span>
+<span><span class="co">#&gt; 3 08-SRV01  08-SRV01    UTILITY</span></span>
+<span><span class="co">#&gt; 4 08-SRV02  08-SRV02 TELE/COMMS</span></span>
+<span><span class="co">#&gt; 5 08-SRV03  08-SRV03        MEN</span></span>
+<span><span class="co">#&gt; 6 08-SRV04  08-SRV04      WOMEN</span></span>
+<span><span class="co">#&gt;                         Location</span></span>
+<span><span class="co">#&gt; 1        Hallway to plotter area</span></span>
+<span><span class="co">#&gt; 2                 elevator lobby</span></span>
+<span><span class="co">#&gt; 3 interior hallway west of lobby</span></span>
+<span><span class="co">#&gt; 4                 public hallway</span></span>
+<span><span class="co">#&gt; 5                public restroom</span></span>
+<span><span class="co">#&gt; 6                public restroom</span></span>
+<span><span class="co">#&gt;   RoomCategory    UsedBy id</span></span>
+<span><span class="co">#&gt; 1       COMMON DOP Staff 26</span></span>
+<span><span class="co">#&gt; 2       COMMON    Public 27</span></span>
+<span><span class="co">#&gt; 3      SERVICE   Service 28</span></span>
+<span><span class="co">#&gt; 4      SERVICE   Service 29</span></span>
+<span><span class="co">#&gt; 5      SERVICE    Public 30</span></span>
+<span><span class="co">#&gt; 6      SERVICE    Public 31</span></span></code></pre></div>
 <p>You can get a single list item as a
 <code><a href="https://rdrr.io/pkg/Microsoft365R/man/ms_list_item.html" class="external-link">Microsoft365R::ms_list_item</a></code> object using
 <code><a href="../reference/sp_list_item.html">get_sp_list_item()</a></code>. The id values are not visible by
 default when looking at a Microsoft List online but they are included in
 the list item data frame:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">get_sp_list_item</span>(<span class="at">id =</span> <span class="dv">26</span>, <span class="at">sp_list =</span> room_list)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>ℹ Getting item <span class="st">"26"</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>✔ Getting item <span class="st">"26"</span> [<span class="dv">158</span>ms]</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; &lt;Sharepoint list item '08-COM02'&gt;</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt;   directory id: 26 </span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt;   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms/26_.000 </span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt;   Methods:</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt;     delete, do_operation,</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt;     get_list_pager,</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt;     sync_fields, update</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/sp_list_item.html">get_sp_list_item</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fl">26</span>, sp_list <span class="op">=</span> <span class="va">room_list</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;Sharepoint list item '08-COM02'&gt;</span></span>
+<span><span class="co">#&gt;   directory id: 26 </span></span>
+<span><span class="co">#&gt;   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms/26_.000 </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt;   Methods:</span></span>
+<span><span class="co">#&gt;     delete, do_operation,</span></span>
+<span><span class="co">#&gt;     get_list_pager,</span></span>
+<span><span class="co">#&gt;     sync_fields, update</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="creating-lists-and-list-items">Creating lists and list items<a class="anchor" aria-label="anchor" href="#creating-lists-and-list-items"></a>
 </h2>
 <p>A list name and site (or site URL) are the only requirements to
 create a list:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>penguins_list <span class="ot">&lt;-</span> <span class="fu">create_sp_list</span>(</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="at">list_name =</span> <span class="st">"penguins"</span>,</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">description =</span> <span class="st">"Measurements of Penguins near Palmer Station, Antarctica"</span>,</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="at">site =</span> sp_site</span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>)</span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>ℹ Creating list <span class="st">"penguins"</span> with <span class="dv">0</span> colum…</span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>✔ Creating list <span class="st">"penguins"</span> with <span class="dv">0</span> colum…</span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>ℹ List created at <span class="sc">&lt;</span> ]<span class="dv">8</span>;;https<span class="sc">:</span><span class="er">//</span>bmore.sharepoint.com<span class="sc">/</span>sites<span class="sc">/</span>DOP<span class="sc">-</span>ALL<span class="sc">/</span>Lists<span class="sc">/</span>penguinshttps<span class="sc">:</span><span class="er">//</span>bmore.sharep ]<span class="dv">8</span>;;…</span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>✔ List created at <span class="sc">&lt;</span> ]<span class="dv">8</span>;;https<span class="sc">:</span><span class="er">//</span>bmore.sharepoint.com<span class="sc">/</span>sites<span class="sc">/</span>DOP<span class="sc">-</span>ALL<span class="sc">/</span>Lists<span class="sc">/</span>penguinshttps<span class="sc">:</span><span class="er">//</span>bmore.sharep ]<span class="dv">8</span>;;…</span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a></span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a></span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>penguins_list</span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; &lt;Sharepoint list 'penguins'&gt;</span></span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt;   directory id: 87b98538-a8f3-4572-97f2-081b8cde359a </span></span>
-<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt;   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/penguins </span></span>
-<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt;   description: Measurements of Penguins near Palmer Station, Antarctica </span></span>
-<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
-<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt;   Methods:</span></span>
-<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt;     bulk_import, create_item,</span></span>
-<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt;     delete, delete_item,</span></span>
-<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt;     do_operation,</span></span>
-<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt;     get_column_info, get_item,</span></span>
-<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt;     get_list_pager, list_items,</span></span>
-<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt;     sync_fields, update,</span></span>
-<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt;     update_item</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">penguins_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_sp_list.html">create_sp_list</a></span><span class="op">(</span></span>
+<span>  list_name <span class="op">=</span> <span class="st">"penguins"</span>,</span>
+<span>  description <span class="op">=</span> <span class="st">"Measurements of Penguins near Palmer Station, Antarctica"</span>,</span>
+<span>  site <span class="op">=</span> <span class="va">sp_site</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">penguins_list</span></span>
+<span><span class="co">#&gt; &lt;Sharepoint list 'penguins'&gt;</span></span>
+<span><span class="co">#&gt;   directory id: b835ca4e-c4ed-40a8-b70a-0867800524e5 </span></span>
+<span><span class="co">#&gt;   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/penguins </span></span>
+<span><span class="co">#&gt;   description: Measurements of Penguins near Palmer Station, Antarctica </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt;   Methods:</span></span>
+<span><span class="co">#&gt;     bulk_import, create_item,</span></span>
+<span><span class="co">#&gt;     delete, delete_item,</span></span>
+<span><span class="co">#&gt;     do_operation,</span></span>
+<span><span class="co">#&gt;     get_column_info, get_item,</span></span>
+<span><span class="co">#&gt;     get_list_pager, list_items,</span></span>
+<span><span class="co">#&gt;     sync_fields, update,</span></span>
+<span><span class="co">#&gt;     update_item</span></span></code></pre></div>
 <p>However, a list created using the default
 <code>template = "genericList"</code> has only one column: Title. You
 can add column to a list before or after it is created. Creating columns
@@ -541,126 +334,56 @@ applicable):</p>
 frame you can alternatively use
 <code><a href="../reference/data_as_column_definition_list.html">data_as_column_definition_list()</a></code>:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/data_as_column_definition_list.html">data_as_column_definition_list</a></span><span class="op">(</span><span class="va">penguins</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [[1]]</span></span>
-<span><span class="co">#&gt; [[1]]$name</span></span>
-<span><span class="co">#&gt; [1] "species"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[1]]$hidden</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[1]]$choice</span></span>
-<span><span class="co">#&gt; [[1]]$choice$allowTextEntry</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[1]]$choice$choices</span></span>
-<span><span class="co">#&gt; [1] "Adelie"    "Chinstrap" "Gentoo"   </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[1]]$choice$displayAs</span></span>
-<span><span class="co">#&gt; [1] "dropDownMenu"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[2]]</span></span>
-<span><span class="co">#&gt; [[2]]$name</span></span>
-<span><span class="co">#&gt; [1] "island"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[2]]$hidden</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[2]]$choice</span></span>
-<span><span class="co">#&gt; [[2]]$choice$allowTextEntry</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[2]]$choice$choices</span></span>
-<span><span class="co">#&gt; [1] "Biscoe"    "Dream"     "Torgersen"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[2]]$choice$displayAs</span></span>
-<span><span class="co">#&gt; [1] "dropDownMenu"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[3]]</span></span>
-<span><span class="co">#&gt; [[3]]$name</span></span>
-<span><span class="co">#&gt; [1] "bill_len"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[3]]$hidden</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[3]]$number</span></span>
-<span><span class="co">#&gt; [[3]]$number$decimalPlaces</span></span>
-<span><span class="co">#&gt; [1] "automatic"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[4]]</span></span>
-<span><span class="co">#&gt; [[4]]$name</span></span>
-<span><span class="co">#&gt; [1] "bill_dep"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[4]]$hidden</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[4]]$number</span></span>
-<span><span class="co">#&gt; [[4]]$number$decimalPlaces</span></span>
-<span><span class="co">#&gt; [1] "automatic"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[5]]</span></span>
-<span><span class="co">#&gt; [[5]]$name</span></span>
-<span><span class="co">#&gt; [1] "flipper_len"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[5]]$hidden</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[5]]$number</span></span>
-<span><span class="co">#&gt; [[5]]$number$decimalPlaces</span></span>
-<span><span class="co">#&gt; [1] "none"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[6]]</span></span>
-<span><span class="co">#&gt; [[6]]$name</span></span>
-<span><span class="co">#&gt; [1] "body_mass"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[6]]$hidden</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[6]]$number</span></span>
-<span><span class="co">#&gt; [[6]]$number$decimalPlaces</span></span>
-<span><span class="co">#&gt; [1] "none"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[7]]</span></span>
-<span><span class="co">#&gt; [[7]]$name</span></span>
-<span><span class="co">#&gt; [1] "sex"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[7]]$hidden</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[7]]$choice</span></span>
-<span><span class="co">#&gt; [[7]]$choice$allowTextEntry</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[7]]$choice$choices</span></span>
-<span><span class="co">#&gt; [1] "female" "male"  </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[7]]$choice$displayAs</span></span>
-<span><span class="co">#&gt; [1] "dropDownMenu"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[8]]</span></span>
-<span><span class="co">#&gt; [[8]]$name</span></span>
-<span><span class="co">#&gt; [1] "year"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[8]]$hidden</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[8]]$number</span></span>
-<span><span class="co">#&gt; [[8]]$number$decimalPlaces</span></span>
-<span><span class="co">#&gt; [1] "none"</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">penguins_column_defintions</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_as_column_definition_list.html">data_as_column_definition_list</a></span><span class="op">(</span><span class="va">penguins</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">penguins_column_defintions</span><span class="op">)</span></span>
+<span><span class="co">#&gt; List of 8</span></span>
+<span><span class="co">#&gt;  $ :List of 3</span></span>
+<span><span class="co">#&gt;   ..$ name  : chr "species"</span></span>
+<span><span class="co">#&gt;   ..$ hidden: logi FALSE</span></span>
+<span><span class="co">#&gt;   ..$ choice:List of 3</span></span>
+<span><span class="co">#&gt;   .. ..$ allowTextEntry: logi TRUE</span></span>
+<span><span class="co">#&gt;   .. ..$ choices       : chr [1:3] "Adelie" "Chinstrap" "Gentoo"</span></span>
+<span><span class="co">#&gt;   .. ..$ displayAs     : chr "dropDownMenu"</span></span>
+<span><span class="co">#&gt;  $ :List of 3</span></span>
+<span><span class="co">#&gt;   ..$ name  : chr "island"</span></span>
+<span><span class="co">#&gt;   ..$ hidden: logi FALSE</span></span>
+<span><span class="co">#&gt;   ..$ choice:List of 3</span></span>
+<span><span class="co">#&gt;   .. ..$ allowTextEntry: logi TRUE</span></span>
+<span><span class="co">#&gt;   .. ..$ choices       : chr [1:3] "Biscoe" "Dream" "Torgersen"</span></span>
+<span><span class="co">#&gt;   .. ..$ displayAs     : chr "dropDownMenu"</span></span>
+<span><span class="co">#&gt;  $ :List of 3</span></span>
+<span><span class="co">#&gt;   ..$ name  : chr "bill_len"</span></span>
+<span><span class="co">#&gt;   ..$ hidden: logi FALSE</span></span>
+<span><span class="co">#&gt;   ..$ number:List of 1</span></span>
+<span><span class="co">#&gt;   .. ..$ decimalPlaces: chr "automatic"</span></span>
+<span><span class="co">#&gt;  $ :List of 3</span></span>
+<span><span class="co">#&gt;   ..$ name  : chr "bill_dep"</span></span>
+<span><span class="co">#&gt;   ..$ hidden: logi FALSE</span></span>
+<span><span class="co">#&gt;   ..$ number:List of 1</span></span>
+<span><span class="co">#&gt;   .. ..$ decimalPlaces: chr "automatic"</span></span>
+<span><span class="co">#&gt;  $ :List of 3</span></span>
+<span><span class="co">#&gt;   ..$ name  : chr "flipper_len"</span></span>
+<span><span class="co">#&gt;   ..$ hidden: logi FALSE</span></span>
+<span><span class="co">#&gt;   ..$ number:List of 1</span></span>
+<span><span class="co">#&gt;   .. ..$ decimalPlaces: chr "none"</span></span>
+<span><span class="co">#&gt;  $ :List of 3</span></span>
+<span><span class="co">#&gt;   ..$ name  : chr "body_mass"</span></span>
+<span><span class="co">#&gt;   ..$ hidden: logi FALSE</span></span>
+<span><span class="co">#&gt;   ..$ number:List of 1</span></span>
+<span><span class="co">#&gt;   .. ..$ decimalPlaces: chr "none"</span></span>
+<span><span class="co">#&gt;  $ :List of 3</span></span>
+<span><span class="co">#&gt;   ..$ name  : chr "sex"</span></span>
+<span><span class="co">#&gt;   ..$ hidden: logi FALSE</span></span>
+<span><span class="co">#&gt;   ..$ choice:List of 3</span></span>
+<span><span class="co">#&gt;   .. ..$ allowTextEntry: logi TRUE</span></span>
+<span><span class="co">#&gt;   .. ..$ choices       : chr [1:2] "female" "male"</span></span>
+<span><span class="co">#&gt;   .. ..$ displayAs     : chr "dropDownMenu"</span></span>
+<span><span class="co">#&gt;  $ :List of 3</span></span>
+<span><span class="co">#&gt;   ..$ name  : chr "year"</span></span>
+<span><span class="co">#&gt;   ..$ hidden: logi FALSE</span></span>
+<span><span class="co">#&gt;   ..$ number:List of 1</span></span>
+<span><span class="co">#&gt;   .. ..$ decimalPlaces: chr "none"</span></span></code></pre></div>
 <p>At present, data frames with character, numeric, datetime, and factor
 values are supported but list columns are not.</p>
 <p>These column definition lists should be provided as the
@@ -680,6 +403,13 @@ setting <code>create_list = TRUE</code>:</p>
 <p>You can use this same function with <code>create_list = FALSE</code>
 (the default) to add multiple items to a list or create individual items
 using <code><a href="../reference/create_sp_list_item.html">create_sp_list_item()</a></code>.</p>
+<p>Creating or updating large numbers of items can be very slow. If you
+are creating a large number of items, you can use the parallelization
+feature built-in to the pakage via <code><a href="https://purrr.tidyverse.org/reference/in_parallel.html" class="external-link">purrr::in_parallel()</a></code>.
+Set the number of daemons, or persistent background processes, to handle
+the requests in parallel using <code>mirai::daemons()</code> before
+calling <code><a href="../reference/create_sp_list_items.html">create_sp_list_items()</a></code> and the process should speed
+up.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

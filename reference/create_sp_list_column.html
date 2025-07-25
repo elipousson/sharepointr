@@ -58,7 +58,9 @@ in a SharePoint list (but is not yet implemented).</p>
 <span>  <span class="va">...</span>,</span>
 <span>  column_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  column_definition <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  list_name <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  list_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  site_url <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">update_sp_list_column</span><span class="op">(</span></span>
@@ -91,16 +93,68 @@ parameters passed to <code>...</code> are all ignored.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Arguments passed on to <code><a href="create_column_definition.html">create_column_definition</a></code></p><dl><dt><code></code></dt>
-<dd></dd>
+<dd><p>Arguments passed on to <code><a href="create_column_definition.html">create_column_definition</a></code></p><dl><dt><code>name</code></dt>
+<dd><p>Column name.</p></dd>
+
+    <dt><code>.col_type</code></dt>
+<dd><p>Column type. Defaults to "text". Must be one of "boolean",
+"calculated", "choice", "currency", "dateTime", "lookup", "number",
+"personOrGroup", "text", "term", "hyperlinkOrPicture", "thumbnail",
+"contentApprovalStatus", or "geolocation".</p></dd>
+
+    <dt><code>enforce_unique</code></dt>
+<dd><p>Enforce unique values in column.</p></dd>
+
+    <dt><code>hidden</code></dt>
+<dd><p>If <code>TRUE</code>, column will be hidden by default.</p></dd>
+
+    <dt><code>deletable</code></dt>
+<dd><p>If <code>TRUE</code>, column can't be deleted separate from the list.</p></dd>
+
+    <dt><code>required</code></dt>
+<dd><p>If <code>TRUE</code>, column will be required.</p></dd>
+
+    <dt><code>default</code></dt>
+<dd><p>Default value set by helper <code><a href="get_column_default.html">get_column_default()</a></code> function.</p></dd>
+
+    <dt><code>description</code></dt>
+<dd><p>Column description.</p></dd>
+
+    <dt><code>displayname</code></dt>
+<dd><p>Column display name.</p></dd>
 
 
 </dl></dd>
 
 
+<dt id="arg-column-name-column-id">column_name, column_id<a class="anchor" aria-label="anchor" href="#arg-column-name-column-id"></a></dt>
+<dd><p>Column ID for column to delete.</p></dd>
+
+
 <dt id="arg-column-definition">column_definition<a class="anchor" aria-label="anchor" href="#arg-column-definition"></a></dt>
 <dd><p>List with column definition created with
 <code><a href="create_column_definition.html">create_column_definition()</a></code> or a related function. Optional if <code>column_name</code> and any required additional parameters are provided.</p></dd>
+
+
+<dt id="arg-list-name">list_name<a class="anchor" aria-label="anchor" href="#arg-list-name"></a></dt>
+<dd><p>List name. Required if <code>sp_list</code> is <code>NULL</code>.</p></dd>
+
+
+<dt id="arg-site">site<a class="anchor" aria-label="anchor" href="#arg-site"></a></dt>
+<dd><p>A <code>ms_site</code> object. If <code>site</code> is supplied, <code>site_url</code>,
+<code>site_name</code>, and <code>site_id</code> are ignored.</p></dd>
+
+
+<dt id="arg-site-url">site_url<a class="anchor" aria-label="anchor" href="#arg-site-url"></a></dt>
+<dd><p>A SharePoint site URL in the format "https://[tenant
+name].sharepoint.com/sites/[site name]". Any SharePoint item or document
+URL can also be parsed to build a site URL using the tenant and site name
+included in the URL.</p></dd>
+
+
+<dt id="arg-column-name-type">column_name_type<a class="anchor" aria-label="anchor" href="#arg-column-name-type"></a></dt>
+<dd><p>"name" or "displayName". Used to match column ID so
+column_name must be unique if <code>column_name_type = "displayName"</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

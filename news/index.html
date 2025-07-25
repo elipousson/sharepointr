@@ -46,6 +46,9 @@
 <li>Add <code><a href="../reference/create_sp_list_items.html">update_sp_list_items()</a></code> function and refactor <code><a href="../reference/create_sp_list_items.html">update_sp_list_item()</a></code> to use <code><a href="https://rlang.r-lib.org/reference/list2.html" class="external-link">rlang::list2()</a></code> and <code><a href="https://rlang.r-lib.org/reference/inject.html" class="external-link">rlang::inject()</a></code> which adds support for data frame inputs. (2024-08-10)</li>
 <li>Add <code>display_nm</code> argument to <code><a href="../reference/sp_list_item.html">list_sp_list_items()</a></code> allowing use of list display names as labels or replacements for field names in results. (2024-08-10)</li>
 <li>Add <code><a href="../reference/download_sp_list.html">download_sp_list()</a></code> (2024-10-10).</li>
+<li>Add <code><a href="../reference/create_column_definition.html">create_column_definition()</a></code> and related functions for creating lists equivalent to columnDefinition objects. (2025-05-02)</li>
+<li>Add <code><a href="../reference/create_sp_list.html">update_sp_list()</a></code> for limited updates to Microsoft List metadata. (2025-07-24)</li>
+<li>Add <a href="https://purrr.tidyverse.org/" class="external-link">purrr</a> to imports to incorporate new <code><a href="https://purrr.tidyverse.org/reference/in_parallel.html" class="external-link">purrr::in_parallel()</a></code> function. Requires users have <code>{crate}</code> and <a href="https://mirai.r-lib.org" class="external-link">mirai</a> installed and set workers using <code>mirai::daemons()</code>. (2025-07-25)</li>
 </ul></div>
 <div class="section level3">
 <h3 id="fixes-development-version">Fixes<a class="anchor" aria-label="anchor" href="#fixes-development-version"></a></h3>

@@ -50,7 +50,7 @@
 <span>  list_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  allow_display_nm <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  allow_display_nm <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  .id <span class="op">=</span> <span class="st">"id"</span>,</span>
 <span>  site_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -61,6 +61,7 @@
 <span>  sync_fields <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  create_list <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  strict <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  .progress <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -71,18 +72,20 @@
 <span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  .id <span class="op">=</span> <span class="st">"id"</span>,</span>
-<span>  allow_display_nm <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  allow_display_nm <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  check_fields <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  drop_fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ContentType"</span>, <span class="st">"Attachments"</span><span class="op">)</span>,</span>
+<span>  .progress <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">update_sp_list_item</span><span class="op">(</span></span>
 <span>  <span class="va">...</span>,</span>
 <span>  .data <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  item_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sp_list_item <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  na_fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drop"</span>, <span class="st">"replace"</span><span class="op">)</span>,</span>
+<span>  .id <span class="op">=</span> <span class="st">"id"</span>,</span>
 <span>  list_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  list_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -122,12 +125,13 @@ parameters passed to <code>...</code> are all ignored.</p></dd>
 <dt id="arg-allow-display-nm">allow_display_nm<a class="anchor" aria-label="anchor" href="#arg-allow-display-nm"></a></dt>
 <dd><p>If <code>TRUE</code>, allow data to use list field display names
 instead of standard names. Note this requires a separate API call so may
-result in a slower request.</p></dd>
+result in a slower request. Default <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg--id">.id<a class="anchor" aria-label="anchor" href="#arg--id"></a></dt>
-<dd><p>Name of column in data to use for item ID values. Defaults to
-"id".</p></dd>
+<dd><p>Column or element name with <code>item_item</code> value in <code>data</code>. Allows
+users to pass a modified version of the list item data with the id column and
+any updated columns.</p></dd>
 
 
 <dt id="arg-site-url">site_url<a class="anchor" aria-label="anchor" href="#arg-site-url"></a></dt>
@@ -165,11 +169,23 @@ of the local <code>ms_list</code> object with the fields of the SharePoint List 
 before retrieving list metadata.</p></dd>
 
 
+<dt id="arg-create-list">create_list<a class="anchor" aria-label="anchor" href="#arg-create-list"></a></dt>
+<dd><p>If <code>TRUE</code> and <code>list_name</code> is supplied, a new list is
+created using <code><a href="data_as_column_definition_list.html">data_as_column_definition_list()</a></code> to set the column
+definitions for the list.</p></dd>
+
+
 <dt id="arg-strict">strict<a class="anchor" aria-label="anchor" href="#arg-strict"></a></dt>
 <dd><p>Not yet implemented as of 2024-08-12. If <code>TRUE</code>, all column
 names in data must be matched to field names in the supplied SharePoint
 list. If <code>FALSE</code> (default), unmatched columns will be dropped with a
 warning.</p></dd>
+
+
+<dt id="arg--progress">.progress<a class="anchor" aria-label="anchor" href="#arg--progress"></a></dt>
+<dd><p>Whether to show a progress bar. Use <code>TRUE</code> to turn on
+a basic progress bar, use a string to give it a name, or see
+<a href="https://purrr.tidyverse.org/reference/progress_bars.html" class="external-link">progress_bars</a> for more details.</p></dd>
 
 
 <dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
@@ -179,12 +195,18 @@ mentioned in error messages as the source of the error. See the
 <code>call</code> argument of <code><a href="https://rlang.r-lib.org/reference/abort.html" class="external-link">abort()</a></code> for more information.</p></dd>
 
 
+<dt id="arg-drop-fields">drop_fields<a class="anchor" aria-label="anchor" href="#arg-drop-fields"></a></dt>
+<dd><p>Column names to drop from <code>data</code> even if they are listed
+as editable fields. Defaults to <code>c("ContentType", "Attachments")</code></p></dd>
+
+
 <dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
 <dd><p>A list or data frame with fields to update.</p></dd>
 
 
-<dt id="arg-id">id<a class="anchor" aria-label="anchor" href="#arg-id"></a></dt>
-<dd><p>A SharePoint list item id. Either <code>id</code> or <code>sp_list_item</code> must be provided but not both.</p></dd>
+<dt id="arg-item-id">item_id<a class="anchor" aria-label="anchor" href="#arg-item-id"></a></dt>
+<dd><p>A SharePoint list item id. Either <code>item_id</code> or <code>sp_list_item</code>
+must be provided but not both.</p></dd>
 
 
 <dt id="arg-sp-list-item">sp_list_item<a class="anchor" aria-label="anchor" href="#arg-sp-list-item"></a></dt>

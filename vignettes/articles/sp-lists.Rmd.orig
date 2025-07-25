@@ -1,0 +1,145 @@
+---
+title: "sp-lists"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{sp-lists}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  eval = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(sharepointr)
+```
+
+Microsoft Lists can be added to a SharePoint site or created for a single user. This package assumes you are working with lists within a SharePoint site. This article covers:
+
+- Reading lists and list items
+- Creating lists and list items
+
+The package also supports updating and deleting lists and list items which should be added to this article in the future.
+
+## Reading lists and list items
+
+Loading the `Microsoft365R::ms_site` object in advance is optional for most functions. `list_sp_lists()` takes a site URL and returns a data frame with information about all site lists:
+
+```{r}
+site_lists <- list_sp_lists(
+  site_url = "https://bmore.sharepoint.com/sites/DOP-ALL"
+)
+
+head(site_lists)
+```
+
+However, loading the site and using it when needed is recommended to avoid duplicate API calls. Use `get_sp_site()` to load the site and pass that object to `list_sp_lists()` for multiple lists or `get_sp_list()` to return a single list.
+
+```{r}
+sp_site <- get_sp_site(
+  "https://bmore.sharepoint.com/sites/DOP-ALL"
+)
+
+site_lists <- list_sp_lists(site = sp_site)
+
+room_list <- get_sp_list(list_name = "DOP Rooms", site = sp_site)
+
+room_list
+```
+
+To get the *items* from a list as a data frame, you need to use the `list_sp_list_items()` function. This function allows you to pass a site and list name, a list URL in place of a list name with no site, or to pass a list object directly:
+
+```{r}
+rooms <- list_sp_list_items(list_name = "DOP Rooms", site = sp_site)
+
+rooms <- list_sp_list_items(
+  "https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms/AllItems.aspx"
+)
+
+rooms <- list_sp_list_items(sp_list = room_list)
+
+head(rooms)
+```
+
+You can get a single list item as a `Microsoft365R::ms_list_item` object using `get_sp_list_item()`. The id values are not visible by default when looking at a Microsoft List online but they are included in the list item data frame:
+
+```{r}
+get_sp_list_item(id = 26, sp_list = room_list)
+```
+
+## Creating lists and list items
+
+A list name and site (or site URL) are the only requirements to create a list:
+
+```{r}
+penguins_list <- create_sp_list(
+  list_name = "penguins",
+  description = "Measurements of Penguins near Palmer Station, Antarctica",
+  site = sp_site
+)
+
+penguins_list
+```
+
+However, a list created using the default `template = "genericList"` has only one column: Title. You can add column to a list before or after it is created. Creating columns required a column definition which can be created using the `create_column_definition()` function or one of the column type-specific variations:
+
+```{r}
+create_text_column("Text Column", multiple_lines = TRUE)
+
+create_number_column("Number Column", decimals = 0)
+
+create_choice_column("Choice Column", choices = c("Apple", "Pear", "Orange"))
+```
+
+`create_sp_list_column()` takes a column definition and a Microsoft List object and adds a column to the list.
+
+You can specify multiple columns at once using a list or data frame of parameters (leaving blank values where a parameter is not applicable):
+
+```{r}
+create_column_definition_list(
+  definitions = data.frame(
+    name = c("Text Column", "Number Column"),
+    type = c("text", "number"),
+    decimals = c(NA, 0)
+  )
+)
+```
+
+If you are creating column definitions based on an existing data frame you can alternatively use `data_as_column_definition_list()`:
+
+```{r}
+data_as_column_definition_list(penguins)
+```
+
+At present, data frames with character, numeric, datetime, and factor values are supported but list columns are not.
+
+These column definition lists should be provided as the `columns` argument for `create_sp_list()` to create the columns at the same time as the list.
+
+`create_sp_list_items()` also allows users to create a list and populate the list with items in a single function call by setting `create_list = TRUE`:
+
+```{r eval=FALSE}
+create_sp_list_items(
+  list_name = "penguins",
+  description = "Measurements of Penguins near Palmer Station, Antarctica",
+  create_list = TRUE,
+  data = penguins,
+  site = sp_site
+)
+```
+
+You can use this same function with `create_list = FALSE` (the default) to add multiple items to a list or create individual items using `create_sp_list_item()`.
+
+```{r echo=FALSE}
+suppressMessages(
+  delete_sp_list(
+    list_name = "penguins",
+    confirm = FALSE,
+    site = sp_site
+  )
+)
+```

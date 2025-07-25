@@ -219,9 +219,13 @@ get_sp_list_item <- function(
 #' @inheritParams get_sp_list
 #' @param allow_display_nm If `TRUE`, allow data to use list field display names
 #'   instead of standard names. Note this requires a separate API call so may
-#'   result in a slower request.
+#'   result in a slower request. Default `FALSE`.
 #' @param .id Name of column in used for item ID values. Typically this should
 #'   not be changed and is only used if `allow_display_nm = TRUE`
+#' @param create_list If `TRUE` and `list_name` is supplied, a new list is
+#' created using [data_as_column_definition_list()] to set the column
+#' definitions for the list.
+#' @inheritParams purrr::map
 #' @examples
 #' sp_list_url <- "<SharePoint List URL with a Name field>"
 #'
@@ -241,7 +245,7 @@ create_sp_list_items <- function(
   list_id = NULL,
   sp_list = NULL,
   ...,
-  allow_display_nm = TRUE,
+  allow_display_nm = FALSE,
   .id = "id",
   site_url = NULL,
   site = NULL,
@@ -252,6 +256,7 @@ create_sp_list_items <- function(
   sync_fields = FALSE,
   create_list = FALSE,
   strict = FALSE,
+  .progress = TRUE,
   call = caller_env()
 ) {
   if (create_list) {
@@ -316,24 +321,24 @@ create_sp_list_items <- function(
     "Importing {.arg data} into list"
   )
 
-  withCallingHandlers(
-    # FIXME: Replace this with
-    # sp_list$bulk_import(data),
-    map(
-      seq_len(nrow(data)),
+  # FIXME: Replace this with
+  # sp_list$bulk_import(data),
+  purrr::map(
+    seq_len(nrow(data)),
+    purrr::in_parallel(
       \(i) {
-        create_sp_list_item(
-          .sp_list = sp_list,
-          .fields = data[i, , drop = FALSE]
+        fn(
+          .sp_list = .sp_list,
+          .fields = .fields[i, , drop = FALSE],
+          call = call
         )
-      }
+      },
+      fn = create_sp_list_item,
+      .sp_list = sp_list,
+      .fields = data,
+      call = call
     ),
-    error = function(cnd) {
-      cli_abort(
-        cnd$message,
-        call = call
-      )
-    }
+    .progress = .progress
   )
 
   invisible(data)
@@ -389,6 +394,8 @@ validate_sp_list_data_fields <- function(
     #   }
   }
 
+  # FIXME: Use element instead of column for messages if function supports lists
+  #  and data frames
   if (!any(nm_match)) {
     cli_abort(
       c(
@@ -415,7 +422,10 @@ validate_sp_list_data_fields <- function(
     }
 
     cli::cli_inform(
-      c("!" = msg, "i" = "Column{?s} {.val {nm[!nm_match]}} dropped from {.arg data}")
+      c(
+        "!" = msg,
+        "i" = "Column{?s} {.val {nm[!nm_match]}} dropped from {.arg data}"
+      )
     )
 
     if (is.data.frame(data)) {
@@ -432,6 +442,8 @@ validate_sp_list_data_fields <- function(
 #' @name update_sp_list_items
 #' @param .id Name of column in data to use for item ID values. Defaults to
 #'   "id".
+#' @param drop_fields Column names to drop from `data` even if they are listed
+#' as editable fields. Defaults to `c("ContentType", "Attachments")`
 #' @export
 update_sp_list_items <- function(
   data,
@@ -440,9 +452,10 @@ update_sp_list_items <- function(
   sp_list = NULL,
   ...,
   .id = "id",
-  allow_display_nm = TRUE,
+  allow_display_nm = FALSE,
   check_fields = TRUE,
   drop_fields = c("ContentType", "Attachments"),
+  .progress = TRUE,
   call = caller_env()
 ) {
   sp_list <- sp_list %||%
@@ -468,7 +481,7 @@ update_sp_list_items <- function(
   }
 
   update_data <- data
-  sp_item_id <- data[[.id]]
+  item_ids <- data[[.id]]
   update_data[[.id]] <- NULL
 
   if (check_fields) {
@@ -479,18 +492,27 @@ update_sp_list_items <- function(
     )
   }
 
-  imap(
-    sp_item_id,
-    \(id, n) {
-      update_sp_list_item(
-        .data = vctrs::vec_slice(
-          update_data,
-          i = n
-        ),
-        id = id,
-        sp_list = sp_list
-      )
-    }
+  purrr::map(
+    seq_along(item_ids),
+    purrr::in_parallel(
+      \(i) {
+        fn(
+          .data = vctrs::vec_slice(
+            x = x,
+            i = i
+          ),
+          item_id = item_id[[i]],
+          sp_list = sp_list,
+          call = call
+        )
+      },
+      fn = update_sp_list_item,
+      item_id = item_ids,
+      x = update_data,
+      sp_list = sp_list,
+      call = call
+    ),
+    .progress = .progress
   )
 
   invisible(data)
@@ -518,20 +540,25 @@ replace_with_sp_list_display_names <- function(
 #' @rdname create_sp_list_items
 #' @name update_sp_list_item
 #' @param sp_list_item Optional. A SharePoint list item object to use.
-#' @param id A SharePoint list item id. Either `id` or `sp_list_item` must be provided but not both.
+#' @param item_id A SharePoint list item id. Either `item_id` or `sp_list_item`
+#' must be provided but not both.
 #' @param .data A list or data frame with fields to update.
 #' @param na_fields How to handle `NA` fields in input data. One of "drop"
 #'   (remove NA fields before updating list items, leaving existing values in
 #'   place) or "replace" (overwrite existing list values with new replacement NA
 #'   values).
+#' @param .id Column or element name with `item_item` value in `data`. Allows
+#' users to pass a modified version of the list item data with the id column and
+#'  any updated columns.
 #' @keywords lists
 #' @export
 update_sp_list_item <- function(
   ...,
   .data = NULL,
-  id = NULL,
+  item_id = NULL,
   sp_list_item = NULL,
   na_fields = c("drop", "replace"),
+  .id = "id",
   list_name = NULL,
   list_id = NULL,
   sp_list = NULL,
@@ -542,9 +569,8 @@ update_sp_list_item <- function(
   drive = NULL,
   call = caller_env()
 ) {
+  # TODO: Allow option to get id from .data
   .data <- .data %||% list2(...)
-
-  check_exclusive_args(id, sp_list_item, call = call)
 
   # Check for a data frame provided with the ... argument
   if (is.data.frame(.data[[1]]) && has_length(.data, 1)) {
@@ -575,16 +601,12 @@ update_sp_list_item <- function(
     .data <- as.list(.data)
   }
 
-  na_fields <- arg_match(na_fields, error_call = call)
+  # Fill item id value from input list or data frame
+  item_id <- item_id %||% .data[[.id]]
 
-  if (na_fields == "drop") {
-    .data <- vctrs::vec_slice(
-      .data,
-      i = !is.na(.data)
-    )
-  }
+  check_exclusive_args(item_id, sp_list_item, call = call)
 
-  if (is.null(sp_list_item) && !is.null(id)) {
+  if (is.null(sp_list_item) && !is.null(item_id)) {
     sp_list <- sp_list %||%
       get_sp_list(
         list_name = list_name,
@@ -600,21 +622,56 @@ update_sp_list_item <- function(
 
     check_ms_obj(sp_list, "ms_list", call = call)
 
+    .data <- suppressMessages(
+      validate_sp_list_data_fields(
+        .data,
+        sp_list = sp_list,
+        drop_fields = c(.id, "ContentType", "Attachments")
+      )
+    )
+  }
+
+  na_fields <- arg_match(na_fields, error_call = call)
+
+  if (na_fields == "drop") {
+    .data <- vctrs::vec_slice(
+      .data,
+      i = !is.na(.data)
+    )
+  }
+
+  if (!is.null(sp_list)) {
     cli_progress_step(
-      "Updating item {.val {id}}"
+      "Updating item {.val {item_id}}"
     )
 
-    inject(sp_list$update_item(id, !!!.data))
+    withCallingHandlers(
+      inject(sp_list$update_item(item_id, !!!.data)),
+      error = function(cnd) {
+        cli_abort(
+          cnd$message,
+          call = call
+        )
+      }
+    )
   } else if (!is.null(sp_list_item)) {
     check_ms_obj(sp_list_item, "ms_list_item", call = call)
 
-    id <- sp_list_item[["properties"]][["id"]]
+    item_id <- sp_list_item[["properties"]][["id"]]
 
     cli_progress_step(
-      "Updating item {.val {id}}"
+      "Updating item {.val {item_id}}"
     )
 
-    inject(sp_list_item$update(fields = list(!!!.data)))
+    withCallingHandlers(
+      inject(sp_list_item$update(fields = list(!!!.data))),
+      error = function(cnd) {
+        cli_abort(
+          cnd$message,
+          call = call
+        )
+      }
+    )
   }
 
   invisible(.data)
@@ -648,11 +705,11 @@ create_sp_list_item <- function(
 
   if (!.keep_na) {
     # Required for numeric fields
-    .fields <- discard(.fields, is.na)
+    .fields <- purrr::discard(.fields, is.na)
   }
 
   # Drop NULL values
-  .fields <- compact(.fields)
+  .fields <- purrr::compact(.fields)
 
   if (is_empty(.fields)) {
     # FIXME: Add warning if .fields has no valid input

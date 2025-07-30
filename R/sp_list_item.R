@@ -145,6 +145,36 @@ pull_sp_list_display_names <- function(sp_list) {
   set_names(sp_list_cols$displayName, sp_list_cols$name)
 }
 
+#' @noRd
+pull_sp_list_item_id <- function(
+  sp_list = NULL,
+  column = NULL,
+  ...,
+  .id = "id"
+) {
+  pull_sp_list_items_index(
+    sp_list = sp_list,
+    var = column,
+    name = .id %||% column
+  )
+}
+
+#' @noRd
+pull_sp_list_items_index <- function(
+  sp_list_items = NULL,
+  sp_list = NULL,
+  var = NULL,
+  ...,
+  name = var
+) {
+  var_name_pair <- sp_list_items %||% list_sp_list_items(
+    sp_list = sp_list,
+    ...,
+    select = c(var, name)
+  )
+
+  set_names(var_name_pair[[var]], var_name_pair[[name]])
+}
 
 #' @rdname sp_list_item
 #' @name get_sp_list_item

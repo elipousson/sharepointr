@@ -243,6 +243,11 @@ create_number_column <- function(
   max = NULL,
   min = NULL
 ) {
+  # Convert character values to integers
+  if (decimals %in% c("0", "1", "2", "3", "4", "5")) {
+    decimals <- as.integer(decimals)
+  }
+
   # Convert numeric decimalPlaces values
   if (is.numeric(decimals)) {
     check_number_whole(

@@ -391,7 +391,7 @@ create_sp_list <- function(
   )
 
   if (template != "genericList" || is.null(title_definition)) {
-    return(sp_list)
+    return(invisible(sp_list))
   }
 
   # Update default Title column definition
@@ -401,16 +401,19 @@ create_sp_list <- function(
     column_name = "Title"
   )
 
-  title_col_definition <- title_col[unique(
-    c(
-      "name",
-      "displayName",
-      "hidden",
-      "required",
-      "text",
+  title_col_definition <- title_col[
+    intersect(
+      c(
+        # TODO: Expand list of supported title_definition parameters
+        "name",
+        "displayName",
+        "hidden",
+        "required",
+        "text"
+      ),
       names(title_definition)
     )
-  )]
+  ]
 
   title_col_definition[names(title_definition)] <- title_definition
 
@@ -743,4 +746,40 @@ sp_list_column_as_id <- function(
   column_info[["id"]][
     match(column_name, column_info[[column_name_type]])
   ]
+}
+
+#' Create SharePoint list lookup column
+#'
+#' A wrapper for [create_lookup_column()] and [create_sp_list_column()].
+#'
+#' @param sp_list A ms_list object. If supplied, list_name, site, and site_url are all ignored.
+#' @inheritParams create_sp_list_column
+#' @inheritParams create_lookup_column
+#' @inheritDotParams create_lookup_column -name -lookup_list_id
+#' @keywords internal
+#' @export
+create_sp_list_lookup_column <- function(
+  column_name,
+  sp_list = NULL,
+  sp_lookup_list,
+  lookup_list_column = column_name,
+  list_name = NULL,
+  site = NULL,
+  site_url = NULL,
+  ...
+) {
+  lookup_column_definition <- create_lookup_column(
+    name = column_name,
+    lookup_list_column = lookup_list_column,
+    lookup_list = sp_lookup_list,
+    ...
+  )
+
+  create_sp_list_column(
+    sp_list = sp_list,
+    column_definition = lookup_column_definition,
+    list_name = list_name,
+    site = site,
+    site_url = site_url
+  )
 }

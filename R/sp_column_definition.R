@@ -36,9 +36,12 @@
 #'
 #' @details Display as options
 #'
-#' Display as options vary by columnDefinition type:
+#' Display as options vary by columnDefinition type. See documentation for more details:
 #'
-#' - Options for personOrGroupColumn: https://learn.microsoft.com/en-us/graph/api/resources/personorgroupcolumn?view=graph-rest-1.0#displayas-options
+#' - personOrGroupColumn: <https://learn.microsoft.com/en-us/graph/api/resources/personorgroupcolumn?view=graph-rest-1.0#displayas-options>
+#' - choiceColumn: <https://learn.microsoft.com/en-us/graph/api/resources/choicecolumn?view=graph-rest-1.0#properties>
+#' - numberColumn: <https://learn.microsoft.com/en-us/graph/api/resources/numbercolumn?view=graph-rest-1.0#properties>
+#' - dateTimeColumn: <https://learn.microsoft.com/en-us/graph/api/resources/datetimecolumn?view=graph-rest-1.0>
 #'
 #' @export
 create_column_definition <- function(
@@ -137,6 +140,9 @@ create_column_definition <- function(
 #' @param lines Whole number.
 #' @param max_length Whole number. Max length in number of characters.
 #' @param text_type One of `c("plain", "richText")`
+#' @examples
+#' create_text_column("TextColumn")
+#'
 #' @export
 create_text_column <- function(
   name,
@@ -174,6 +180,10 @@ create_text_column <- function(
 #'  `choices` if they contain NA values.
 #' @param allow_text If `TRUE`, allow text entry in the choice column.
 #' @inheritParams base::strsplit
+#' @examples
+#' fruit <- c("apple", "banana", "pear", "pineapple")
+#' create_choice_column("ChoiceColumn", fruit)
+#'
 #' @export
 create_choice_column <- function(
   name,
@@ -220,6 +230,10 @@ create_choice_column <- function(
 #' @param decimals One of `c("none", "one", "two", "three", "four", "five")` or
 #' a numeric value between 0 and 5.
 #' @param max,min Minimum and maximum values allowed in number column.
+#'
+#' @examples
+#' create_number_column("NumberColumn")
+#'
 #' @export
 create_number_column <- function(
   name,
@@ -270,6 +284,9 @@ create_number_column <- function(
 }
 
 #' @rdname create_column_definition
+#' @examples
+#' create_datetime_column("DatetimeColumn")
+#'
 #' @export
 create_datetime_column <- function(
   name,

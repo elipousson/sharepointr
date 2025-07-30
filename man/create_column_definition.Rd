@@ -232,9 +232,23 @@ More information:
 \details{
 Display as options
 
-Display as options vary by columnDefinition type:
+Display as options vary by columnDefinition type. See documentation for more details:
 \itemize{
-\item Options for personOrGroupColumn: https://learn.microsoft.com/en-us/graph/api/resources/personorgroupcolumn?view=graph-rest-1.0#displayas-options
+\item personOrGroupColumn: \url{https://learn.microsoft.com/en-us/graph/api/resources/personorgroupcolumn?view=graph-rest-1.0#displayas-options}
+\item choiceColumn: \url{https://learn.microsoft.com/en-us/graph/api/resources/choicecolumn?view=graph-rest-1.0#properties}
+\item numberColumn: \url{https://learn.microsoft.com/en-us/graph/api/resources/numbercolumn?view=graph-rest-1.0#properties}
+\item dateTimeColumn: \url{https://learn.microsoft.com/en-us/graph/api/resources/datetimecolumn?view=graph-rest-1.0}
 }
+}
+\examples{
+create_text_column("TextColumn")
+
+fruit <- c("apple", "banana", "pear", "pineapple")
+create_choice_column("ChoiceColumn", fruit)
+
+create_number_column("NumberColumn")
+
+create_datetime_column("DatetimeColumn")
+
 }
 \keyword{lists}

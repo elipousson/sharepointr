@@ -346,11 +346,20 @@ create_currency_column <- function(name, ..., locale = "en-us") {
 #' @param formula Required string with formula for calculated column definition.
 #' See [examples of common formulas in
 #' lists](https://support.microsoft.com/en-us/office/examples-of-common-formulas-in-lists-d81f5f21-2b4e-45ce-b170-bf7ebf6988b3).
+#' Reference existing columns using the display name enclosed in square
+#' brackets. The formula must start with an equals sign `"="` which this
+#' function appends to the formula text if it is missing.
 #' @param format `"dateOnly"` or `"dateTime"`. Required by
 #' `create_calculated_column` if `output_type` is "dateTime" otherwise ignored.
 #' @param output_type Value type returned by calculated formula. One of
 #' `c("text", "boolean", "currency", "dateTime", "number")`
 #' @export
+#' @examples
+#' create_calculated_column(
+#'    name = "FormulaColumn",
+#'    formula = "=[Text Column]"
+#' )
+#'
 create_calculated_column <- function(
   name,
   ...,
@@ -367,6 +376,10 @@ create_calculated_column <- function(
     )
   } else {
     format <- NULL
+  }
+
+  if (!stringr::str_detect(formula, "^=")) {
+    formula <- paste0("=", formula)
   }
 
   create_column_definition(

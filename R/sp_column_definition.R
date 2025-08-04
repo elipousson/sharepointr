@@ -581,6 +581,7 @@ create_column_definition_list <- function(
         personorgroup = create_group_column,
         hyperlink = create_hyperlink_column,
         picture = create_picture_column,
+        calculated = create_calculated_column,
         hyperlinkorpicture = create_hyperlink_column,
         thumbnail = create_thumbnail_column,
         geolocation = create_geolocation_column,

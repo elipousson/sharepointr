@@ -65,6 +65,7 @@ get_sp_site <- function(
   if (!is.null(site_url)) {
     check_url(site_url, call = call)
 
+    # FIXME: Does not work for subsite URLs
     if (!is_sp_site_url(site_url)) {
       site_url <- sp_url_parse(site_url, call = call)[["site_url"]]
     }
@@ -72,15 +73,17 @@ get_sp_site <- function(
 
   if (is.null(c(site_url, site_name, site_id))) {
     cli_abort(
-      "{.arg site_url}, {.arg site_name}, or {.arg site_id} must be supplied.",
+      "One of {.arg site_url}, {.arg site_name}, or {.arg site_id} must be supplied.",
       call = call
     )
-  } else {
+  } else if (is.null(site_id)) {
     # FIXME: These may give confusing error messages
     check_exclusive_strings(site_url, site_name, call = call)
+  } else {
     check_exclusive_strings(site_url, site_id, call = call)
   }
 
+  # Get site
   site <- withCallingHandlers(
     Microsoft365R::get_sharepoint_site(
       site_url = site_url,

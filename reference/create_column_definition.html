@@ -282,7 +282,10 @@ a numeric value between 0 and 5.</p></dd>
 
 <dt id="arg-formula">formula<a class="anchor" aria-label="anchor" href="#arg-formula"></a></dt>
 <dd><p>Required string with formula for calculated column definition.
-See <a href="https://support.microsoft.com/en-us/office/examples-of-common-formulas-in-lists-d81f5f21-2b4e-45ce-b170-bf7ebf6988b3" class="external-link">examples of common formulas in lists</a>.</p></dd>
+See <a href="https://support.microsoft.com/en-us/office/examples-of-common-formulas-in-lists-d81f5f21-2b4e-45ce-b170-bf7ebf6988b3" class="external-link">examples of common formulas in lists</a>.
+Reference existing columns using the display name enclosed in square
+brackets. The formula must start with an equals sign <code>"="</code> which this
+function appends to the formula text if it is missing.</p></dd>
 
 
 <dt id="arg-output-type">output_type<a class="anchor" aria-label="anchor" href="#arg-output-type"></a></dt>
@@ -396,6 +399,25 @@ for <code>create_picture_column()</code>).</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $dateTime$displayAs</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "default"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">create_calculated_column</span><span class="op">(</span></span></span>
+<span class="r-in"><span>   name <span class="op">=</span> <span class="st">"FormulaColumn"</span>,</span></span>
+<span class="r-in"><span>   formula <span class="op">=</span> <span class="st">"=[Text Column]"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "FormulaColumn"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $hidden</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $calculated</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $calculated$formula</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "=[Text Column]"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $calculated$outputType</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "text"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>

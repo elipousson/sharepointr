@@ -61,12 +61,23 @@
       <h1>Reading and writing to SharePoint Lists</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/elipousson/sharepointr/blob/main/vignettes/articles/sp-lists.Rmd" class="external-link"><code>vignettes/articles/sp-lists.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/elipousson/sharepointr/blob/main/vignettes/sp-lists.Rmd" class="external-link"><code>vignettes/sp-lists.Rmd</code></a></small>
       <div class="d-none name"><code>sp-lists.Rmd</code></div>
     </div>
 
     
     
+<!--
+Note: this vignette is pre-computed to utilize the Microsoft Graph login that is only available locally to me as a logged in SharePoint user.
+
+``` r
+# Run to update vignette
+knitr::knit(
+  "vignettes/sp-lists.Rmd.orig",
+  "vignettes/sp-lists.Rmd"
+)
+```
+-->
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/elipousson/sharepointr" class="external-link">sharepointr</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>cli.default_handler <span class="op">=</span> <span class="va">suppressMessages</span><span class="op">)</span></span></code></pre></div>
@@ -118,20 +129,13 @@ URL and returns a data frame with information about all site lists:</p>
 <span><span class="co">#&gt; 4 "7c6b3bac-4962-4285-980e-127e36583ffc,22"</span></span>
 <span><span class="co">#&gt; 5 "9c518bac-ef99-4ae8-ab27-1453f68c87e1,15"</span></span>
 <span><span class="co">#&gt; 6 "d216b2d5-7cae-491f-abf4-1474628a0982,15"</span></span>
-<span><span class="co">#&gt;                                     id</span></span>
-<span><span class="co">#&gt; 1 dcae5523-39e3-4582-8b6d-08ccd3b98499</span></span>
-<span><span class="co">#&gt; 2 531a153d-b9d4-4d04-93cd-0d49d9bac705</span></span>
-<span><span class="co">#&gt; 3 0d7df1be-e6de-474b-88ea-0f56689ca3e9</span></span>
-<span><span class="co">#&gt; 4 7c6b3bac-4962-4285-980e-127e36583ffc</span></span>
-<span><span class="co">#&gt; 5 9c518bac-ef99-4ae8-ab27-1453f68c87e1</span></span>
-<span><span class="co">#&gt; 6 d216b2d5-7cae-491f-abf4-1474628a0982</span></span>
-<span><span class="co">#&gt;   lastModifiedDateTime</span></span>
-<span><span class="co">#&gt; 1 2025-06-17T16:54:51Z</span></span>
-<span><span class="co">#&gt; 2 2025-07-21T12:12:34Z</span></span>
-<span><span class="co">#&gt; 3 2024-10-02T03:22:07Z</span></span>
-<span><span class="co">#&gt; 4 2025-06-23T22:37:42Z</span></span>
-<span><span class="co">#&gt; 5 2024-10-02T03:22:07Z</span></span>
-<span><span class="co">#&gt; 6 2024-10-02T03:22:06Z</span></span>
+<span><span class="co">#&gt;                                     id lastModifiedDateTime</span></span>
+<span><span class="co">#&gt; 1 dcae5523-39e3-4582-8b6d-08ccd3b98499 2025-06-17T16:54:51Z</span></span>
+<span><span class="co">#&gt; 2 531a153d-b9d4-4d04-93cd-0d49d9bac705 2025-07-31T16:34:06Z</span></span>
+<span><span class="co">#&gt; 3 0d7df1be-e6de-474b-88ea-0f56689ca3e9 2024-10-02T03:22:07Z</span></span>
+<span><span class="co">#&gt; 4 7c6b3bac-4962-4285-980e-127e36583ffc 2025-08-05T16:04:10Z</span></span>
+<span><span class="co">#&gt; 5 9c518bac-ef99-4ae8-ab27-1453f68c87e1 2024-10-02T03:22:07Z</span></span>
+<span><span class="co">#&gt; 6 d216b2d5-7cae-491f-abf4-1474628a0982 2024-10-02T03:22:06Z</span></span>
 <span><span class="co">#&gt;                                                 name</span></span>
 <span><span class="co">#&gt; 1                                  DOP Commissioners</span></span>
 <span><span class="co">#&gt; 2                 DOP Internal  Interagency Meetings</span></span>
@@ -160,13 +164,10 @@ lists or <code><a href="../reference/sp_list.html">get_sp_list()</a></code> to r
 <span><span class="co">#&gt;   description: A list of offices and other rooms occupied by the Baltimore City Department of Planning on the 8th Floor of the Benton Building. </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt;   Methods:</span></span>
-<span><span class="co">#&gt;     bulk_import, create_item,</span></span>
-<span><span class="co">#&gt;     delete, delete_item,</span></span>
-<span><span class="co">#&gt;     do_operation,</span></span>
-<span><span class="co">#&gt;     get_column_info, get_item,</span></span>
-<span><span class="co">#&gt;     get_list_pager, list_items,</span></span>
-<span><span class="co">#&gt;     sync_fields, update,</span></span>
-<span><span class="co">#&gt;     update_item</span></span></code></pre></div>
+<span><span class="co">#&gt;     bulk_import, create_column, create_item, delete,</span></span>
+<span><span class="co">#&gt;     delete_item, do_operation, get_column_info,</span></span>
+<span><span class="co">#&gt;     get_item, get_list_pager, list_items, sync_fields,</span></span>
+<span><span class="co">#&gt;     update, update_item</span></span></code></pre></div>
 <p>To get the <em>items</em> from a list as a data frame, you need to
 use the <code><a href="../reference/sp_list_item.html">list_sp_list_items()</a></code> function. This function allows
 you to pass a site and list name, a list URL in place of a list name
@@ -183,20 +184,13 @@ with no site, or to pass a list object directly:</p>
 <span><span class="va">rooms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sp_list_item.html">list_sp_list_items</a></span><span class="op">(</span>sp_list <span class="op">=</span> <span class="va">room_list</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">rooms</span><span class="op">[</span> , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      Title LinkTitle   RoomType</span></span>
-<span><span class="co">#&gt; 1 08-COM02  08-COM02   CORRIDOR</span></span>
-<span><span class="co">#&gt; 2 08-COM01  08-COM01   CORRIDOR</span></span>
-<span><span class="co">#&gt; 3 08-SRV01  08-SRV01    UTILITY</span></span>
-<span><span class="co">#&gt; 4 08-SRV02  08-SRV02 TELE/COMMS</span></span>
-<span><span class="co">#&gt; 5 08-SRV03  08-SRV03        MEN</span></span>
-<span><span class="co">#&gt; 6 08-SRV04  08-SRV04      WOMEN</span></span>
-<span><span class="co">#&gt;                         Location</span></span>
-<span><span class="co">#&gt; 1        Hallway to plotter area</span></span>
-<span><span class="co">#&gt; 2                 elevator lobby</span></span>
-<span><span class="co">#&gt; 3 interior hallway west of lobby</span></span>
-<span><span class="co">#&gt; 4                 public hallway</span></span>
-<span><span class="co">#&gt; 5                public restroom</span></span>
-<span><span class="co">#&gt; 6                public restroom</span></span>
+<span><span class="co">#&gt;      Title LinkTitle   RoomType                       Location</span></span>
+<span><span class="co">#&gt; 1 08-COM02  08-COM02   CORRIDOR        Hallway to plotter area</span></span>
+<span><span class="co">#&gt; 2 08-COM01  08-COM01   CORRIDOR                 elevator lobby</span></span>
+<span><span class="co">#&gt; 3 08-SRV01  08-SRV01    UTILITY interior hallway west of lobby</span></span>
+<span><span class="co">#&gt; 4 08-SRV02  08-SRV02 TELE/COMMS                 public hallway</span></span>
+<span><span class="co">#&gt; 5 08-SRV03  08-SRV03        MEN                public restroom</span></span>
+<span><span class="co">#&gt; 6 08-SRV04  08-SRV04      WOMEN                public restroom</span></span>
 <span><span class="co">#&gt;   RoomCategory    UsedBy id</span></span>
 <span><span class="co">#&gt; 1       COMMON DOP Staff 26</span></span>
 <span><span class="co">#&gt; 2       COMMON    Public 27</span></span>
@@ -216,8 +210,7 @@ the list item data frame:</p>
 <span><span class="co">#&gt;   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms/26_.000 </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt;   Methods:</span></span>
-<span><span class="co">#&gt;     delete, do_operation,</span></span>
-<span><span class="co">#&gt;     get_list_pager,</span></span>
+<span><span class="co">#&gt;     create_link, delete, do_operation, get_list_pager,</span></span>
 <span><span class="co">#&gt;     sync_fields, update</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -234,18 +227,15 @@ create a list:</p>
 <span></span>
 <span><span class="va">penguins_list</span></span>
 <span><span class="co">#&gt; &lt;Sharepoint list 'penguins'&gt;</span></span>
-<span><span class="co">#&gt;   directory id: b835ca4e-c4ed-40a8-b70a-0867800524e5 </span></span>
+<span><span class="co">#&gt;   directory id: 6a7cc3fa-0722-4d4b-a50c-56f8b8baec67 </span></span>
 <span><span class="co">#&gt;   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/penguins </span></span>
 <span><span class="co">#&gt;   description: Measurements of Penguins near Palmer Station, Antarctica </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt;   Methods:</span></span>
-<span><span class="co">#&gt;     bulk_import, create_item,</span></span>
-<span><span class="co">#&gt;     delete, delete_item,</span></span>
-<span><span class="co">#&gt;     do_operation,</span></span>
-<span><span class="co">#&gt;     get_column_info, get_item,</span></span>
-<span><span class="co">#&gt;     get_list_pager, list_items,</span></span>
-<span><span class="co">#&gt;     sync_fields, update,</span></span>
-<span><span class="co">#&gt;     update_item</span></span></code></pre></div>
+<span><span class="co">#&gt;     bulk_import, create_column, create_item, delete,</span></span>
+<span><span class="co">#&gt;     delete_item, do_operation, get_column_info,</span></span>
+<span><span class="co">#&gt;     get_item, get_list_pager, list_items, sync_fields,</span></span>
+<span><span class="co">#&gt;     update, update_item</span></span></code></pre></div>
 <p>However, a list created using the default
 <code>template = "genericList"</code> has only one column: Title. You
 can add column to a list before or after it is created. Creating columns

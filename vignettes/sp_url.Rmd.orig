@@ -1,20 +1,37 @@
 ---
 title: "Using SharePoint URLs to work with items and lists"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{sp_url}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.path = "vignettes/"
 )
 ```
+
+<!--
 Note: this vignette is pre-computed to utilize the Microsoft Graph login that is only available locally to me as a logged in SharePoint user.
+
+``` r
+# Run to update vignette
+knitr::knit(
+  "vignettes/sp_url.Rmd.orig",
+  "vignettes/sp_url.Rmd"
+)
+```
+-->
 
 ```{r setup}
 library(sharepointr)
 ```
 
-This is a folder URL. It is a Shared link where people with existing access can use the link.
+This is a folder URL. It is a shared link where people with existing access can use the link.
 
 ```{r}
 dir_url <- "https://bmore.sharepoint.com/:f:/r/sites/DOP-CPR/Shared%20Documents/INSPIRE%20Program%20%F0%9F%8F%AB%F0%9F%9A%B8%F0%9F%8C%B3?csf=1&web=1&e=W5dbYz"
@@ -54,7 +71,7 @@ But you can't use that URL to get a list:
 get_sp_list(dir_url)
 ```
 
-SharePoint lists have two different styles of URLs (that I've seen). This one works:
+SharePoint lists have two different styles of URLs (that I've seen) and they both work:
 
 ```{r}
 list_url <- "https://bmore.sharepoint.com/:l:/r/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker?e=0P1fFX"
@@ -62,7 +79,7 @@ list_url <- "https://bmore.sharepoint.com/:l:/r/sites/MayorsOffice-DataGovernanc
 get_sp_list(list_url)
 ```
 
-As of January 2024, this one also works:
+The second styles includes the query parameter `env=WebViewList`:
 
 ```{r}
 "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"
@@ -83,5 +100,3 @@ document_url <- "https://bmore.sharepoint.com/:w:/r/sites/DOP-CPR/_layouts/15/Do
 
 get_sp_item(document_url)
 ```
-
-

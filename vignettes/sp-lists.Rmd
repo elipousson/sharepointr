@@ -9,6 +9,18 @@ vignette: >
 
 
 
+<!--
+Note: this vignette is pre-computed to utilize the Microsoft Graph login that is only available locally to me as a logged in SharePoint user.
+
+``` r
+# Run to update vignette
+knitr::knit(
+  "vignettes/sp-lists.Rmd.orig",
+  "vignettes/sp-lists.Rmd"
+)
+```
+-->
+
 
 ``` r
 library(sharepointr)
@@ -57,20 +69,13 @@ head(site_lists[, c(2:7)])
 #> 4 "7c6b3bac-4962-4285-980e-127e36583ffc,22"
 #> 5 "9c518bac-ef99-4ae8-ab27-1453f68c87e1,15"
 #> 6 "d216b2d5-7cae-491f-abf4-1474628a0982,15"
-#>                                     id
-#> 1 dcae5523-39e3-4582-8b6d-08ccd3b98499
-#> 2 531a153d-b9d4-4d04-93cd-0d49d9bac705
-#> 3 0d7df1be-e6de-474b-88ea-0f56689ca3e9
-#> 4 7c6b3bac-4962-4285-980e-127e36583ffc
-#> 5 9c518bac-ef99-4ae8-ab27-1453f68c87e1
-#> 6 d216b2d5-7cae-491f-abf4-1474628a0982
-#>   lastModifiedDateTime
-#> 1 2025-06-17T16:54:51Z
-#> 2 2025-07-21T12:12:34Z
-#> 3 2024-10-02T03:22:07Z
-#> 4 2025-06-23T22:37:42Z
-#> 5 2024-10-02T03:22:07Z
-#> 6 2024-10-02T03:22:06Z
+#>                                     id lastModifiedDateTime
+#> 1 dcae5523-39e3-4582-8b6d-08ccd3b98499 2025-06-17T16:54:51Z
+#> 2 531a153d-b9d4-4d04-93cd-0d49d9bac705 2025-07-31T16:34:06Z
+#> 3 0d7df1be-e6de-474b-88ea-0f56689ca3e9 2024-10-02T03:22:07Z
+#> 4 7c6b3bac-4962-4285-980e-127e36583ffc 2025-08-05T16:04:10Z
+#> 5 9c518bac-ef99-4ae8-ab27-1453f68c87e1 2024-10-02T03:22:07Z
+#> 6 d216b2d5-7cae-491f-abf4-1474628a0982 2024-10-02T03:22:06Z
 #>                                                 name
 #> 1                                  DOP Commissioners
 #> 2                 DOP Internal  Interagency Meetings
@@ -100,13 +105,10 @@ room_list
 #>   description: A list of offices and other rooms occupied by the Baltimore City Department of Planning on the 8th Floor of the Benton Building. 
 #> ---
 #>   Methods:
-#>     bulk_import, create_item,
-#>     delete, delete_item,
-#>     do_operation,
-#>     get_column_info, get_item,
-#>     get_list_pager, list_items,
-#>     sync_fields, update,
-#>     update_item
+#>     bulk_import, create_column, create_item, delete,
+#>     delete_item, do_operation, get_column_info,
+#>     get_item, get_list_pager, list_items, sync_fields,
+#>     update, update_item
 ```
 
 To get the *items* from a list as a data frame, you need to use the `list_sp_list_items()` function. This function allows you to pass a site and list name, a list URL in place of a list name with no site, or to pass a list object directly:
@@ -124,20 +126,13 @@ rooms <- list_sp_list_items(
 rooms <- list_sp_list_items(sp_list = room_list)
 
 head(rooms[ , c(2:8)])
-#>      Title LinkTitle   RoomType
-#> 1 08-COM02  08-COM02   CORRIDOR
-#> 2 08-COM01  08-COM01   CORRIDOR
-#> 3 08-SRV01  08-SRV01    UTILITY
-#> 4 08-SRV02  08-SRV02 TELE/COMMS
-#> 5 08-SRV03  08-SRV03        MEN
-#> 6 08-SRV04  08-SRV04      WOMEN
-#>                         Location
-#> 1        Hallway to plotter area
-#> 2                 elevator lobby
-#> 3 interior hallway west of lobby
-#> 4                 public hallway
-#> 5                public restroom
-#> 6                public restroom
+#>      Title LinkTitle   RoomType                       Location
+#> 1 08-COM02  08-COM02   CORRIDOR        Hallway to plotter area
+#> 2 08-COM01  08-COM01   CORRIDOR                 elevator lobby
+#> 3 08-SRV01  08-SRV01    UTILITY interior hallway west of lobby
+#> 4 08-SRV02  08-SRV02 TELE/COMMS                 public hallway
+#> 5 08-SRV03  08-SRV03        MEN                public restroom
+#> 6 08-SRV04  08-SRV04      WOMEN                public restroom
 #>   RoomCategory    UsedBy id
 #> 1       COMMON DOP Staff 26
 #> 2       COMMON    Public 27
@@ -157,8 +152,7 @@ get_sp_list_item(id = 26, sp_list = room_list)
 #>   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms/26_.000 
 #> ---
 #>   Methods:
-#>     delete, do_operation,
-#>     get_list_pager,
+#>     create_link, delete, do_operation, get_list_pager,
 #>     sync_fields, update
 ```
 
@@ -176,18 +170,15 @@ penguins_list <- create_sp_list(
 
 penguins_list
 #> <Sharepoint list 'penguins'>
-#>   directory id: b835ca4e-c4ed-40a8-b70a-0867800524e5 
+#>   directory id: 6a7cc3fa-0722-4d4b-a50c-56f8b8baec67 
 #>   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/penguins 
 #>   description: Measurements of Penguins near Palmer Station, Antarctica 
 #> ---
 #>   Methods:
-#>     bulk_import, create_item,
-#>     delete, delete_item,
-#>     do_operation,
-#>     get_column_info, get_item,
-#>     get_list_pager, list_items,
-#>     sync_fields, update,
-#>     update_item
+#>     bulk_import, create_column, create_item, delete,
+#>     delete_item, do_operation, get_column_info,
+#>     get_item, get_list_pager, list_items, sync_fields,
+#>     update, update_item
 ```
 
 However, a list created using the default `template = "genericList"` has only one column: Title. You can add column to a list before or after it is created. Creating columns required a column definition which can be created using the `create_column_definition()` function or one of the column type-specific variations:

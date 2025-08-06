@@ -11,9 +11,22 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   eval = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.path = "vignettes/"
 )
 ```
+
+<!--
+Note: this vignette is pre-computed to utilize the Microsoft Graph login that is only available locally to me as a logged in SharePoint user.
+
+``` r
+# Run to update vignette
+knitr::knit(
+  "vignettes/sp-lists.Rmd.orig",
+  "vignettes/sp-lists.Rmd"
+)
+```
+-->
 
 ```{r setup}
 library(sharepointr)
@@ -127,7 +140,7 @@ These column definition lists should be provided as the `columns` argument for `
 
 `create_sp_list_items()` also allows users to create a list and populate the list with items in a single function call by setting `create_list = TRUE`:
 
-```{r eval=FALSE}
+```{r, eval=FALSE}
 create_sp_list_items(
   list_name = "penguins",
   description = "Measurements of Penguins near Palmer Station, Antarctica",
@@ -141,7 +154,7 @@ You can use this same function with `create_list = FALSE` (the default) to add m
 
 Creating or updating large numbers of items can be very slow. If you are creating a large number of items, you can use the parallelization feature built-in to the pakage via `purrr::in_parallel()`. Set the number of daemons, or persistent background processes, to handle the requests in parallel using `mirai::daemons()` before calling `create_sp_list_items()` and the process should speed up.
 
-```{r echo=FALSE}
+```{r, echo=FALSE}
 suppressMessages(
   delete_sp_list(
     list_name = "penguins",

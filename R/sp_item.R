@@ -331,11 +331,12 @@ download_sp_item <- function(
   parallel = FALSE,
   call = caller_env()
 ) {
-  if (
-    (length(path) > 1) ||
-      (length(item_id) > 1) ||
-      (is_bare_list(item) && (length(item) > 1))
-  ) {
+  # Check if item requires a batch download approach
+  is_batch_item <- (length(path) > 1) ||
+    (length(item_id) > 1) ||
+    (is_bare_list(item) && (length(item) > 1))
+
+  if (is_batch_item) {
     dest_list <- batch_download_sp_item(
       path = path,
       new_path = new_path,
@@ -378,7 +379,8 @@ download_sp_item <- function(
       dest <- NULL
     }
 
-    dest <- dest %||% item$properties$name
+    # dest defaults to the SharePoint item name
+    dest <- dest %||% item[["properties"]][["name"]]
   } else if (is.null(dest)) {
     # FIXME: Consider adding a helper function to handle this or addressing the
     # issue in sp_file_dest
@@ -397,6 +399,7 @@ download_sp_item <- function(
 
   if (item$is_folder()) {
     if (!dest_dir_exists) {
+      # TODO: Consider if this requirement is necessary
       cli::cli_abort(
         c(
           "{.arg new_path} or {.arg dest} must exist if item is a folder.",
@@ -417,6 +420,13 @@ download_sp_item <- function(
       )
     }
   } else {
+    # Append file name to dest path if dest is a folder
+    # TODO: Consider if this should trigger a warning
+    if (fs::is_dir(dest)) {
+      dest <- fs::path(dest, item[["properties"]][["name"]])
+    }
+
+    # Create destination directory
     fs::dir_create(dest_dir)
   }
 
@@ -488,6 +498,7 @@ batch_download_sp_item <- function(
   parallel = FALSE,
   call = caller_env()
 ) {
+  # TODO: Should a list of item values just be unlists
   if (is_bare_list(item)) {
     size <- length(item)
   } else {
@@ -552,10 +563,11 @@ batch_download_sp_item <- function(
   if (is_bare_list(item) && (length(item) > 1)) {
     dest_list <- purrr::map2_chr(
       item,
-      \(x) {
+      dest,
+      \(x, y) {
         download_sp_item(
           item = x,
-          dest = dest,
+          dest = y,
           new_path = new_path,
           ...,
           drive_name = drive_name,

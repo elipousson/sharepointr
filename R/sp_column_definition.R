@@ -559,6 +559,16 @@ create_term_column <- function(
 #' person, group, and personorgroup. Not case sensitive.
 #' @param ignore_na If `TRUE`, drop any parameters with a `NA` value.
 #' @keywords lists
+#' @examples
+#' definition_df <- data.frame(
+#'   name = c("FirstColumn", "SecondColumn"),
+#'   type = c("text", "number"),
+#'   decimals = c(NA, 0),
+#'   multiple_lines = c(TRUE, NA)
+#' )
+#'
+#' create_column_definition_list(definition_df)
+#'
 #' @export
 create_column_definition_list <- function(
   definitions,
@@ -617,7 +627,9 @@ create_column_definition_list <- function(
 
 #' Get a column default value or formula
 #'
-#' [get_column_default()] returns a formula or value or NULL.
+#' [get_column_default()] returns a formula or value or NULL. See documentation
+#' for more information
+#' <https://learn.microsoft.com/en-us/graph/api/resources/defaultcolumnvalue?view=graph-rest-1.0>
 #'
 #' @param formula Formula used as default value.
 #' @param value Value used as default value.
@@ -625,6 +637,11 @@ create_column_definition_list <- function(
 #' `NULL`.
 #' @inheritParams rlang::args_error_context
 #' @keywords lists internal
+#' @examples
+#' get_column_default("Missing")
+#'
+#' get_column_default(formula = "=[Title]")
+#'
 #' @export
 get_column_default <- function(
   value = NULL,

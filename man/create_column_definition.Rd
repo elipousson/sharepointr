@@ -195,7 +195,10 @@ a numeric value between 0 and 5.}
 \item{locale}{Locale}
 
 \item{formula}{Required string with formula for calculated column definition.
-See \href{https://support.microsoft.com/en-us/office/examples-of-common-formulas-in-lists-d81f5f21-2b4e-45ce-b170-bf7ebf6988b3}{examples of common formulas in lists}.}
+See \href{https://support.microsoft.com/en-us/office/examples-of-common-formulas-in-lists-d81f5f21-2b4e-45ce-b170-bf7ebf6988b3}{examples of common formulas in lists}.
+Reference existing columns using the display name enclosed in square
+brackets. The formula must start with an equals sign \code{"="} which this
+function appends to the formula text if it is missing.}
 
 \item{output_type}{Value type returned by calculated formula. One of
 \code{c("text", "boolean", "currency", "dateTime", "number")}}
@@ -249,6 +252,11 @@ create_choice_column("ChoiceColumn", fruit)
 create_number_column("NumberColumn")
 
 create_datetime_column("DatetimeColumn")
+
+create_calculated_column(
+   name = "FormulaColumn",
+   formula = "=[Text Column]"
+)
 
 }
 \keyword{lists}

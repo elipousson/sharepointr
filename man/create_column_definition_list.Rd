@@ -22,4 +22,15 @@ person, group, and personorgroup. Not case sensitive.}
 a list of column definitions. This list can be used as the \code{fields} argument
 for \code{\link[=create_sp_list]{create_sp_list()}}.
 }
+\examples{
+definition_df <- data.frame(
+  name = c("FirstColumn", "SecondColumn"),
+  type = c("text", "number"),
+  decimals = c(NA, 0),
+  multiple_lines = c(TRUE, NA)
+)
+
+create_column_definition_list(definition_df)
+
+}
 \keyword{lists}

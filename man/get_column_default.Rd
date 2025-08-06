@@ -25,7 +25,15 @@ mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \description{
-\code{\link[=get_column_default]{get_column_default()}} returns a formula or value or NULL.
+\code{\link[=get_column_default]{get_column_default()}} returns a formula or value or NULL. See documentation
+for more information
+\url{https://learn.microsoft.com/en-us/graph/api/resources/defaultcolumnvalue?view=graph-rest-1.0}
+}
+\examples{
+get_column_default("Missing")
+
+get_column_default(formula = "=[Title]")
+
 }
 \keyword{internal}
 \keyword{lists}

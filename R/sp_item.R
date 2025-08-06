@@ -357,8 +357,8 @@ download_sp_item <- function(
     return(invisible(dest_list))
   }
 
-  if (is.null(item)) {
-    item <- get_sp_item(
+  item <- item %||%
+    get_sp_item(
       path = path,
       item_id = item_id,
       item_url = item_url,
@@ -369,7 +369,6 @@ download_sp_item <- function(
       ...,
       call = call
     )
-  }
 
   check_ms_obj(item, "ms_drive_item", call = call)
 
@@ -393,11 +392,22 @@ download_sp_item <- function(
   }
 
   check_string(dest, call = call)
+  item_is_folder <- item$is_folder()
 
-  dest_dir <- dirname(dest)
-  dest_dir_exists <- dir.exists(dest_dir)
+  # Append file name to dest path if dest is a folder
+  # TODO: Consider if this should trigger a warning
+  # FIXME: This doesn't work if dest is a nonexistent folder
+  if (fs::is_dir(dest) && !item_is_folder) {
+    dest_dir <- dest
+    dest <- fs::path(dest, item[["properties"]][["name"]])
+  } else {
+    dest_dir <- fs::path_dir(dest)
+  }
 
-  if (item$is_folder()) {
+  dest_dir_exists <- fs::dir_exists(dest_dir)
+
+  # Validate parameters for folder items
+  if (item_is_folder) {
     if (!dest_dir_exists) {
       # TODO: Consider if this requirement is necessary
       cli::cli_abort(
@@ -420,12 +430,6 @@ download_sp_item <- function(
       )
     }
   } else {
-    # Append file name to dest path if dest is a folder
-    # TODO: Consider if this should trigger a warning
-    if (fs::is_dir(dest)) {
-      dest <- fs::path(dest, item[["properties"]][["name"]])
-    }
-
     # Create destination directory
     fs::dir_create(dest_dir)
   }

@@ -101,13 +101,19 @@ withr::with_tempdir({
 })
 ```
 
+See `vignette("read-write"")` for more on reading and writing items to SharePoint.
+
 Some of the original `{Microsoft365R}` S6 object methods already return a data frame by default such as the `list_items` and `list_files` methods for `Microsoft365R::ms_drive` object. `sp_dir_info()` wraps this method to return a data frame similar to the output from `fs::dir_info()`:
 
 ```{r}
 sp_dir_info("https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/General/Baltimore%20Data%20Academy")
 ```
 
-Others functions use the `as_data_frame` parameter to convert a list into a data frame as a convenient alternative.
+Others functions use the `as_data_frame` parameter to convert a list into a data frame as a convenient alternative. Most functions that start with `list_` return a data frame by default but can return a list of `ms_object` class objects if `as_data_frame = FALSE`.
+
+When creating, updating, or deleting a large number of list items, use `mirai::daemons()` to complete the operations in parallel. This feature uses the experimental `purrr::in_parallel()` function documented here: <https://purrr.tidyverse.org/reference/map.html>
+
+See `vignette("sp-lists"")` for more on reading and writing SharePoint list items.
 
 ### Helpers for SharePoint sites and drives
 

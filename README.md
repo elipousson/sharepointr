@@ -70,7 +70,7 @@ read_sharepoint(docx_shared_url)
 #> ✔ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_40000g…
 #> 
 #> ℹ Reading item with `officer::read_docx()`
-#> ✔ Reading item with `officer::read_docx()` [35ms]
+#> ✔ Reading item with `officer::read_docx()` [28ms]
 #> 
 #> rdocx document with 19 element(s)
 #> 
@@ -146,7 +146,7 @@ get_sp_item(docx_shared_url, as_data_frame = TRUE)
 #>                                                                                                                           @odata.context
 #> 1 https://graph.microsoft.com/beta/$metadata#drives('b%21txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta613N3QJlbvrVKyTwO')/root/$entity
 #>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @microsoft.graph.downloadUrl
-#> 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/download.aspx?UniqueId=0a50d3cd-74ce-4a8d-a6d8-2596037f0148&Translate=false&tempauth=v1.eyJzaXRlaWQiOiIxZGEwMWNiNy03NmM3LTQ0ODctYjM5OC1lYzYwZGZmOGY1MmQiLCJhcHBfZGlzcGxheW5hbWUiOiJBenVyZVIvTWljcm9zb2Z0MzY1UiIsImFwcGlkIjoiZDQ0YTA1ZDUtYzZhNS00YmJiLTgyZDItNDQzMTIzNzIyMzgwIiwiYXVkIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwL2Jtb3JlLnNoYXJlcG9pbnQuY29tQDMxMmNiMTI2LWM2YWUtNGZjMi04MDBkLTMxOGU2NzljZTZjNyIsImV4cCI6IjE3NTI3OTczMDEifQ.CkAKDGVudHJhX2NsYWltcxIwQ0s3KzVjTUdFQUFhRm1WZk9YQjRWRU53WkZWaE1HTmxZWE5ETm5Sb1FVRXFBQT09CjIKCmFjdG9yYXBwaWQSJDAwMDAwMDAzLTAwMDAtMDAwMC1jMDAwLTAwMDAwMDAwMDAwMAoKCgRzbmlkEgI2NBILCMC4lbab5KI-EAUaDDQwLjEyNi4yNC4yNiosZVZLWjloeWVsdWw1T093NHo5ZDVTTWw5UGRleldOM05Tc2xxbEYzdXYwTT0wlgE4AUIQobLNIz7AAJBaFEscs5s60EoQaGFzaGVkcHJvb2Z0b2tlbmokMDA2ZDZmYjktOThhNy0wZTRjLTIzNDctYjA4YzE5Nzc4OTE5cikwaC5mfG1lbWJlcnNoaXB8MTAwMzIwMDFmZDdjZTEyNEBsaXZlLmNvbXoBMoIBEgkmsSwxrsbCTxGADTGOZ5zmx5IBA0VsaZoBB1BvdXNzb26iAR1lbGkucG91c3NvbkBiYWx0aW1vcmVjaXR5LmdvdqoBEDEwMDMyMDAxRkQ3Q0UxMjSyASpncm91cC53cml0ZSBhbGxzaXRlcy5tYW5hZ2UgYWxsc2l0ZXMud3JpdGXIAQE.wmU58zGmIDU8vLQykOsO-AfE7IFeg28ica5Bn-E5mxo&ApiVersion=2.0
+#> 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/download.aspx?UniqueId=0a50d3cd-74ce-4a8d-a6d8-2596037f0148&Translate=false&tempauth=v1.eyJzaXRlaWQiOiIxZGEwMWNiNy03NmM3LTQ0ODctYjM5OC1lYzYwZGZmOGY1MmQiLCJhcHBfZGlzcGxheW5hbWUiOiJBenVyZVIvTWljcm9zb2Z0MzY1UiIsImFwcGlkIjoiZDQ0YTA1ZDUtYzZhNS00YmJiLTgyZDItNDQzMTIzNzIyMzgwIiwiYXVkIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwL2Jtb3JlLnNoYXJlcG9pbnQuY29tQDMxMmNiMTI2LWM2YWUtNGZjMi04MDBkLTMxOGU2NzljZTZjNyIsImV4cCI6IjE3NTQ0OTkyNTcifQ.CkAKDGVudHJhX2NsYWltcxIwQ00zeXpjUUdFQUFhRm5sbFptOUhTSE5QYkZWdFlWSXdZamh4UkZKWlFVRXFBQT09CjIKCmFjdG9yYXBwaWQSJDAwMDAwMDAzLTAwMDAtMDAwMC1jMDAwLTAwMDAwMDAwMDAwMAoKCgRzbmlkEgI2NBILCLicyYPxwqo-EAUaDDQwLjEyNi4yMy4yNiosZVZLWjloeWVsdWw1T093NHo5ZDVTTWw5UGRleldOM05Tc2xxbEYzdXYwTT0wlgE4AUIQobkkP9rAAJDpu3o_8YoAkEoQaGFzaGVkcHJvb2Z0b2tlbmokMDA2ZjkyOTktZTk4MS05ZmUxLWY3OGEtNTRmZmUxNWRiZWY5cikwaC5mfG1lbWJlcnNoaXB8MTAwMzIwMDFmZDdjZTEyNEBsaXZlLmNvbXoBMoIBEgkmsSwxrsbCTxGADTGOZ5zmx5IBA0VsaZoBB1BvdXNzb26iAR1lbGkucG91c3NvbkBiYWx0aW1vcmVjaXR5LmdvdqoBEDEwMDMyMDAxRkQ3Q0UxMjSyASpncm91cC53cml0ZSBhbGxzaXRlcy5tYW5hZ2UgYWxsc2l0ZXMud3JpdGXIAQE.ZNiXou-uMFRdHN0gpaP4SsjFXf0PVUY8r39DRaqqbnY&ApiVersion=2.0
 #>        createdDateTime                                        eTag
 #> 1 2023-01-13T16:42:07Z "{0A50D3CD-74CE-4A8D-A6D8-2596037F0148},58"
 #>                                   id lastModifiedDateTime
@@ -168,7 +168,7 @@ get_sp_item(docx_shared_url, as_data_frame = TRUE)
 #>                                                                                                    file
 #> 1 application/vnd.openxmlformats-officedocument.wordprocessingml.document, Dhx8FRw158o4PZe20R8GrPfSl3k=
 #>                               fileSystemInfo                    ms_item
-#> 1 2023-01-13T16:42:07Z, 2023-01-26T18:17:57Z <environment: 0x105292568>
+#> 1 2023-01-13T16:42:07Z, 2023-01-26T18:17:57Z <environment: 0x118461480>
 ```
 
 These basic functions to “get” objects are extended by functions like
@@ -187,6 +187,9 @@ withr::with_tempdir({
 #> 
 #> [1] TRUE
 ```
+
+See `vignette("read-write"")` for more on reading and writing items to
+SharePoint.
 
 Some of the original `{Microsoft365R}` S6 object methods already return
 a data frame by default such as the `list_items` and `list_files`
@@ -238,7 +241,17 @@ sp_dir_info("https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernanc
 ```
 
 Others functions use the `as_data_frame` parameter to convert a list
-into a data frame as a convenient alternative.
+into a data frame as a convenient alternative. Most functions that start
+with `list_` return a data frame by default but can return a list of
+`ms_object` class objects if `as_data_frame = FALSE`.
+
+When creating, updating, or deleting a large number of list items, use
+`mirai::daemons()` to complete the operations in parallel. This feature
+uses the experimental `purrr::in_parallel()` function documented here:
+<https://purrr.tidyverse.org/reference/map.html>
+
+See `vignette("sp-lists"")` for more on reading and writing SharePoint
+list items.
 
 ### Helpers for SharePoint sites and drives
 

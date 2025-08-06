@@ -167,11 +167,12 @@ pull_sp_list_items_index <- function(
   ...,
   name = var
 ) {
-  var_name_pair <- sp_list_items %||% list_sp_list_items(
-    sp_list = sp_list,
-    ...,
-    select = c(var, name)
-  )
+  var_name_pair <- sp_list_items %||%
+    list_sp_list_items(
+      sp_list = sp_list,
+      ...,
+      select = c(var, name)
+    )
 
   set_names(var_name_pair[[var]], var_name_pair[[name]])
 }
@@ -351,8 +352,6 @@ create_sp_list_items <- function(
     "Importing {.arg data} into list"
   )
 
-  # FIXME: Replace this with
-  # sp_list$bulk_import(data),
   purrr::map(
     seq_len(nrow(data)),
     purrr::in_parallel(
@@ -743,7 +742,7 @@ create_sp_list_item <- function(
 
   if (is_empty(.fields)) {
     # FIXME: Add warning if .fields has no valid input
-    return(.fields)
+    return(invisible(.fields))
   }
 
   resp <- .sp_list$do_operation(

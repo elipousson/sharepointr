@@ -593,6 +593,8 @@ batch_download_sp_item <- function(
 #' Download a SharePoint List
 #'
 #' [download_sp_list()] downloads a SharePoint list to a CSV or XLSX file.
+#' `keep_list_cols` is intended to allow the preservation of list columns but it
+#'  is not yet supported.
 #'
 #' @param sp_list SharePoint list object. If supplied, all parameters supplied
 #'   to `...` are ignored.
@@ -613,19 +615,15 @@ download_sp_list <- function(
   keep_list_cols = c("createdBy", "lastModifiedBy"),
   call = caller_env()
 ) {
-  sp_list <- sp_list %||%
-    get_sp_list(
-      ...
-    )
-
-  sp_list_df <- ms_obj_as_data_frame(
-    sp_list,
-    obj_col = "ms_list",
-    keep_list_cols = keep_list_cols,
-    .error_call = call
+  sp_list_df <- list_sp_list_items(
+    sp_list = sp_list,
+    ...
   )
 
-  sp_list_df <- fmt_sp_list_col(sp_list_df)
+  # FIXME: This is not working as expected
+  for (col in keep_list_cols) {
+    sp_list_df <- fmt_sp_list_col(sp_list_df, col = col)
+  }
 
   if (new_path == "") {
     new_path <- NULL
@@ -642,9 +640,11 @@ download_sp_list <- function(
   # TODO: Add option to write list directly to Google Sheets
   if (stringr::str_detect(new_path, "csv$")) {
     check_installed("readr", call = call)
-    readr::write_csv(sp_list_df, file = new_path, ...)
+    readr::write_csv(sp_list_df, file = new_path)
   } else if (stringr::str_detect(new_path, ".xlsx$")) {
     check_installed("openxlsx2", call = call)
-    openxlsx2::write_xlsx(sp_list_df, file = new_path, ...)
+    openxlsx2::write_xlsx(sp_list_df, file = new_path)
   }
+
+  return(invisible(new_path))
 }

@@ -72,7 +72,9 @@ cache directory is set to \code{rappdirs::user_cache_dir("sharepointr")}.}
 \description{
 \code{\link[=get_sp_site]{get_sp_site()}} is a wrapper for \code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}} and
 returns a \code{ms_site} object. \code{\link[=cache_sp_site]{cache_sp_site()}} allows you to cache a default
-SharePoint site for use by other functions.
+SharePoint site for use by other functions. Users seeking to access a
+SharePoint subsite must provide the \code{site_id} instead of a \code{site_url} or
+\code{site_name} value. You can see subsite ID values by using the
 }
 \seealso{
 \link[Microsoft365R:ms_site]{Microsoft365R::ms_site}

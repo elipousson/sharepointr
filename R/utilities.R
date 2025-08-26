@@ -302,6 +302,7 @@ check_exclusive_strings <- function(
   y_arg = caller_arg(y),
   allow_empty = FALSE,
   require = TRUE,
+  message = NULL,
   call = caller_env()
 ) {
   check_exclusive_args(
@@ -310,6 +311,7 @@ check_exclusive_strings <- function(
     x_arg = x_arg,
     y_arg = y_arg,
     require = require,
+    message = message,
     call = call
   )
 
@@ -337,6 +339,7 @@ check_exclusive_args <- function(
   x_arg = caller_arg(x),
   y_arg = caller_arg(y),
   require = TRUE,
+  message = NULL,
   call = caller_env()
 ) {
   if (is_empty(c(x, y))) {
@@ -352,7 +355,8 @@ check_exclusive_args <- function(
 
   if (has_length(c(x, y), 2)) {
     cli_abort(
-      "Exactly one of {.arg {x_arg}} or {.arg {y_arg}} must be supplied.",
+      message %||%
+        "Exactly one of {.arg {x_arg}} or {.arg {y_arg}} must be supplied.",
       call = call
     )
   }

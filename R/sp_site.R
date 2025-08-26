@@ -2,7 +2,10 @@
 #'
 #' [get_sp_site()] is a wrapper for [Microsoft365R::get_sharepoint_site()] and
 #' returns a `ms_site` object. [cache_sp_site()] allows you to cache a default
-#' SharePoint site for use by other functions.
+#' SharePoint site for use by other functions. Users seeking to access a
+#' SharePoint subsite must provide the `site_id` instead of a `site_url` or
+#' `site_name` value. You can see available subsite ID values by using the
+#' `list_subsites()` method for `Microsoft365R::ms_site` objects.
 #'
 #' @name sp_site
 #' @seealso [Microsoft365R::ms_site]
@@ -71,16 +74,34 @@ get_sp_site <- function(
     }
   }
 
+  message <- "One of {.arg site_url}, {.arg site_name}, or {.arg site_id}
+  must be supplied"
+
   if (is.null(c(site_url, site_name, site_id))) {
     cli_abort(
-      "One of {.arg site_url}, {.arg site_name}, or {.arg site_id} must be supplied.",
+      paste0(message, "."),
       call = call
     )
   } else if (is.null(site_id)) {
-    # FIXME: These may give confusing error messages
-    check_exclusive_strings(site_url, site_name, call = call)
+    check_exclusive_strings(
+      site_url,
+      site_name,
+      message = paste0(
+        message,
+        ", not both {.arg site_url} and {.arg site_name}."
+      ),
+      call = call
+    )
   } else {
-    check_exclusive_strings(site_url, site_id, call = call)
+    check_exclusive_strings(
+      site_url,
+      site_id,
+      message = paste0(
+        message,
+        ", not both {.arg site_url} and {.arg site_id}."
+      ),
+      call = call
+    )
   }
 
   # Get site

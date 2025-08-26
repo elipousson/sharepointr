@@ -49,8 +49,18 @@ fmt_sp_list_col <- function(data, col = "lastModifiedBy") {
   list_col <- data[[col]]
   data[[col]] <- NULL
 
+  list_col_df <- vctrs::vec_rbind(!!!list_col)
+
+  if (nrow(list_col_df) != nrow(data)) {
+    cli::cli_alert_warning(
+      "Column {.str {col}} can't be flattened to join with the input data."
+    )
+
+    return(data)
+  }
+
   vctrs::vec_cbind(
     data,
-    vctrs::vec_rbind(!!!list_col)
+    list_col_df
   )
 }

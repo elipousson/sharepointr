@@ -74,7 +74,8 @@ cache directory is set to \code{rappdirs::user_cache_dir("sharepointr")}.}
 returns a \code{ms_site} object. \code{\link[=cache_sp_site]{cache_sp_site()}} allows you to cache a default
 SharePoint site for use by other functions. Users seeking to access a
 SharePoint subsite must provide the \code{site_id} instead of a \code{site_url} or
-\code{site_name} value. You can see subsite ID values by using the
+\code{site_name} value. You can see available subsite ID values by using the
+\code{list_subsites()} method for \code{Microsoft365R::ms_site} objects.
 }
 \seealso{
 \link[Microsoft365R:ms_site]{Microsoft365R::ms_site}

@@ -421,3 +421,60 @@ utils::globalVariables(
     "x"
   )
 )
+
+# https://github.com/elipousson/cliExtras/blob/main/R/cli_yesno.R
+#' @noRd
+check_yes <- function(
+  prompt = NULL,
+  yes = c("", "Y", "Yes", "Yup", "Yep", "Yeah"),
+  message = "Aborted. A yes is required.",
+  .envir = caller_env(),
+  call = .envir
+) {
+  resp <- cli_ask(paste0("?\u00a0", prompt, "\u00a0(Y/n)"), .envir = .envir)
+
+  if (all(tolower(resp) %in% tolower(yes))) {
+    return(invisible(NULL))
+  }
+
+  cli_abort(
+    message = message,
+    .envir = .envir,
+    call = call
+  )
+}
+
+# https://github.com/elipousson/cliExtras/blob/main/R/cli_ask.R
+#' @noRd
+cli_ask <- function(
+  prompt = "?",
+  ...,
+  .envir = rlang::caller_env(),
+  call = .envir
+) {
+  check_interactive(call = call)
+  if (!rlang::is_empty(rlang::list2(...))) {
+    cli::cli_bullets(..., .envir = .envir)
+  }
+  readline(paste0(prompt, "\u00a0"))
+}
+
+# https://github.com/elipousson/cliExtras/blob/main/R/utils-check.R
+#' @noRd
+check_interactive <- function(
+  ...,
+  message = "User input is required but this session is not interactive.",
+  .envir = parent.frame(),
+  call = caller_env()
+) {
+  if (is_interactive()) {
+    return(invisible(NULL))
+  }
+
+  cli_abort(
+    message = message,
+    ...,
+    .envir = .envir,
+    call = call
+  )
+}

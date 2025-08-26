@@ -745,6 +745,8 @@ create_sp_list_item <- function(
     return(invisible(.fields))
   }
 
+  # TODO: Add check if data in .fields matches schema from list
+
   resp <- .sp_list$do_operation(
     "items",
     body = list(
@@ -757,7 +759,18 @@ create_sp_list_item <- function(
   invisible(.fields)
 }
 
-#' @noRd
+#' Delete SharePoint list item or items
+#'
+#' [delete_sp_list_item()] deletes a single SharePoint list item and
+#' [delete_sp_list_items()] deletes multiple SharePoint list items. Set
+#' `confirm = FALSE` to use without interactive confirmation.
+#'
+#' @param item_id ID value for list item or items to delete.
+#' @inheritParams get_sp_list_item
+#' @param confirm If `TRUE` (default), user confirmation is required to delete
+#' items.
+#' @keywords lists
+#' @export
 delete_sp_list_item <- function(
   item_id = NULL,
   sp_list_item = NULL,
@@ -767,14 +780,14 @@ delete_sp_list_item <- function(
   sp_list = NULL,
   site_url = NULL,
   site = NULL,
+  confirm = TRUE,
   call = caller_env()
 ) {
   check_exclusive_args(item_id, sp_list_item, call = call)
 
-  sp_list_item <- sp_list_item %|| %
+  sp_list_item <- sp_list_item %||%
     get_sp_list_item(
       id = item_id,
-      sp_list = sp_list,
       list_name = list_name,
       list_id = list_id,
       sp_list = sp_list,
@@ -784,6 +797,13 @@ delete_sp_list_item <- function(
     )
 
   item_id <- item_id %||% sp_list_item[["properties"]][["id"]]
+
+  if (confirm) {
+    check_yes(
+      cli::format_inline("Do you want to delete list item {.val {item_id}}?"),
+      call = call
+    )
+  }
 
   cli_progress_step(
     "Deleting item {.val {item_id}}"
@@ -796,15 +816,18 @@ delete_sp_list_item <- function(
     http_verb = "DELETE"
   )
 
-  resp
+  invisible(resp)
 }
 
-#' @noRd
+#' @rdname delete_sp_list_item
+#' @inheritParams list_sp_list_items
+#' @export
 delete_sp_list_items <- function(
+  item_id = NULL,
   ...,
   sp_list = NULL,
   filter = NULL,
-  item_id = NULL,
+  confirm = TRUE,
   .progress = TRUE
 ) {
   sp_list <- sp_list %||% get_sp_list(...)
@@ -819,8 +842,18 @@ delete_sp_list_items <- function(
     item_id <- sp_list_items[["id"]]
   }
 
+  if (confirm) {
+    check_yes(
+      cli::format_inline(
+        "Do you want to delete {length(item_id)} list item(s)?"
+      ),
+      call = call
+    )
+  }
+
   # https://learn.microsoft.com/en-us/graph/api/listitem-delete?view=graph-rest-1.0&tabs=http
-  purrr::map(
+  # TODO: Add error handling if any id values are not valid
+  resp_list <- purrr::map(
     item_id,
     purrr::in_parallel(
       \(i) {
@@ -833,5 +866,5 @@ delete_sp_list_items <- function(
     .progress = .progress
   )
 
-  invisible(sp_list)
+  invisible(resp_list)
 }

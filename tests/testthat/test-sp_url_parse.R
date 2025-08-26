@@ -11,9 +11,15 @@ test_that("sp_url_parse works", {
 
   expect_identical(parsed_file_url[["site_name"]], "DOP-CPR")
 
-  expect_identical(parsed_file_url[["file"]], "waterfront_promenade_osm.geojson")
+  expect_identical(
+    parsed_file_url[["file"]],
+    "waterfront_promenade_osm.geojson"
+  )
 
-  expect_identical(parsed_file_url[["file_path"]], "Baltimore Greenway Trails Network/Green Network Addendum/Data/waterfront_promenade_osm.geojson")
+  expect_identical(
+    parsed_file_url[["file_path"]],
+    "Baltimore Greenway Trails Network/Green Network Addendum/Data/waterfront_promenade_osm.geojson"
+  )
 
   test_dir_url <- "https://bmore.sharepoint.com/:f:/r/sites/DOP-CPR/Shared%20Documents/Baltimore%20Greenway%20Trails%20Network/Green%20Network%20Addendum/Data?csf=1&web=1&e=5VuyG6"
 
@@ -36,9 +42,15 @@ test_that("sp_url_parse works", {
 
   parsed_list_url <- sp_url_parse(test_list_url)
 
-  expect_identical(parsed_list_url[["list_name"]], "Data Governance Progress Tracker")
+  expect_identical(
+    parsed_list_url[["list_name"]],
+    "Data Governance Progress Tracker"
+  )
 
-  expect_identical(parsed_list_url[["site_name"]], "MayorsOffice-DataGovernance")
+  expect_identical(
+    parsed_list_url[["site_name"]],
+    "MayorsOffice-DataGovernance"
+  )
 
   test_drive_url <- "https://bmore.sharepoint.com/sites/DOP-CPR/Shared%20Documents/Forms/AllItems.aspx"
 

@@ -756,3 +756,82 @@ create_sp_list_item <- function(
   # TODO: Add printing for resp info
   invisible(.fields)
 }
+
+#' @noRd
+delete_sp_list_item <- function(
+  item_id = NULL,
+  sp_list_item = NULL,
+  ...,
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  site_url = NULL,
+  site = NULL,
+  call = caller_env()
+) {
+  check_exclusive_args(item_id, sp_list_item, call = call)
+
+  sp_list_item <- sp_list_item %|| %
+    get_sp_list_item(
+      id = item_id,
+      sp_list = sp_list,
+      list_name = list_name,
+      list_id = list_id,
+      sp_list = sp_list,
+      site_url = site_url,
+      site = site,
+      call = call
+    )
+
+  item_id <- item_id %||% sp_list_item[["properties"]][["id"]]
+
+  cli_progress_step(
+    "Deleting item {.val {item_id}}"
+  )
+
+  check_ms_obj(sp_list_item, "ms_list_item", call = call)
+
+  # https://learn.microsoft.com/en-us/graph/api/listitem-delete?view=graph-rest-1.0&tabs=http
+  resp <- sp_list_item$do_operation(
+    http_verb = "DELETE"
+  )
+
+  resp
+}
+
+#' @noRd
+delete_sp_list_items <- function(
+  ...,
+  sp_list = NULL,
+  filter = NULL,
+  item_id = NULL,
+  .progress = TRUE
+) {
+  sp_list <- sp_list %||% get_sp_list(...)
+
+  if (is.null(item_id)) {
+    sp_list_items <- list_sp_list_items(
+      sp_list = sp_list,
+      filter = filter,
+      select = "id"
+    )
+
+    item_id <- sp_list_items[["id"]]
+  }
+
+  # https://learn.microsoft.com/en-us/graph/api/listitem-delete?view=graph-rest-1.0&tabs=http
+  purrr::map(
+    item_id,
+    purrr::in_parallel(
+      \(i) {
+        sp_list$do_operation(
+          op = paste0("items/", i),
+          http_verb = "DELETE"
+        )
+      }
+    ),
+    .progress = .progress
+  )
+
+  invisible(sp_list)
+}

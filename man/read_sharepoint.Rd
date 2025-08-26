@@ -23,7 +23,9 @@ read_sharepoint(
 \arguments{
 \item{file}{Required. A SharePoint shared file URL, document URL, or, if
 \code{item_id} is supplied, a file name to use in combination with \code{new_path} to
-set \code{dest} with location and filename for downloaded item.}
+set \code{dest} with location and filename for downloaded item. If file appears
+to be a SharePoint list URL, the list items are retrived with
+\code{\link[=list_sp_list_items]{list_sp_list_items()}}.}
 
 \item{...}{Additional parameters passed to one of the functions identified in
 the description or supplied to \code{.f}}
@@ -77,4 +79,7 @@ object.
 
 If the file has none of these file extensions, an attempt is made to read the
 file with \code{\link[readr:read_lines]{readr::read_lines()}}.
+
+The function also serves as a wrapper for \code{\link[=list_sp_list_items]{list_sp_list_items()}} if the
+provided \code{file} parameter is a SharePoint list URL.
 }

@@ -21,10 +21,15 @@
 #' If the file has none of these file extensions, an attempt is made to read the
 #' file with [readr::read_lines()].
 #'
+#' The function also serves as a wrapper for [list_sp_list_items()] if the
+#' provided `file` parameter is a SharePoint list URL.
+#'
 #' @name read_sharepoint
 #' @param file Required. A SharePoint shared file URL, document URL, or, if
 #'   `item_id` is supplied, a file name to use in combination with `new_path` to
-#'   set `dest` with location and filename for downloaded item.
+#'   set `dest` with location and filename for downloaded item. If file appears
+#'   to be a SharePoint list URL, the list items are retrived with
+#'   [list_sp_list_items()].
 #' @param .f Optional function to use to read file downloaded from SharePoint.
 #' @param ... Additional parameters passed to one of the functions identified in
 #'   the description or supplied to `.f`
@@ -46,6 +51,22 @@ read_sharepoint <- function(
   site_id = NULL,
   site = NULL
 ) {
+  if (stringr::str_detect(file, ":l:|/Lists/")) {
+    items <- list_sp_list_items(
+      list_name = file,
+      ...,
+      drive_name = drive_name,
+      drive_id = drive_id,
+      drive = drive,
+      site_url = site_url,
+      site_name = site_name,
+      site_id = site_id,
+      site = site
+    )
+
+    return(items)
+  }
+
   dest <- download_sp_file(
     file = file,
     new_path = new_path,

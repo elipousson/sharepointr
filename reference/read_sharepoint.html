@@ -16,7 +16,9 @@ sf::read_sf() is used to read the file into a sf data frame.
 
 
 If the file has none of these file extensions, an attempt is made to read the
-file with readr::read_lines().'><meta property="og:description" content='read_sharepoint() is designed to download a SharePoint item to a temporary
+file with readr::read_lines().
+The function also serves as a wrapper for list_sp_list_items() if the
+provided file parameter is a SharePoint list URL.'><meta property="og:description" content='read_sharepoint() is designed to download a SharePoint item to a temporary
 folder and read the file based on the file extension. If a function is
 provided to .f, it is used to read the downloaded file. If not, class of the
 returned object depends on the file extension of the file parameter.
@@ -33,7 +35,9 @@ sf::read_sf() is used to read the file into a sf data frame.
 
 
 If the file has none of these file extensions, an attempt is made to read the
-file with readr::read_lines().'></head><body>
+file with readr::read_lines().
+The function also serves as a wrapper for list_sp_list_items() if the
+provided file parameter is a SharePoint list URL.'></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -89,6 +93,8 @@ object.</p></li>
 <code><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">sf::read_sf()</a></code> is used to read the file into a <code>sf</code> data frame.</p></li>
 </ul><p>If the file has none of these file extensions, an attempt is made to read the
 file with <code><a href="https://readr.tidyverse.org/reference/read_lines.html" class="external-link">readr::read_lines()</a></code>.</p>
+<p>The function also serves as a wrapper for <code><a href="sp_list_item.html">list_sp_list_items()</a></code> if the
+provided <code>file</code> parameter is a SharePoint list URL.</p>
     </div>
 
     <div class="section level2">
@@ -116,7 +122,9 @@ file with <code><a href="https://readr.tidyverse.org/reference/read_lines.html" 
 <dl><dt id="arg-file">file<a class="anchor" aria-label="anchor" href="#arg-file"></a></dt>
 <dd><p>Required. A SharePoint shared file URL, document URL, or, if
 <code>item_id</code> is supplied, a file name to use in combination with <code>new_path</code> to
-set <code>dest</code> with location and filename for downloaded item.</p></dd>
+set <code>dest</code> with location and filename for downloaded item. If file appears
+to be a SharePoint list URL, the list items are retrived with
+<code><a href="sp_list_item.html">list_sp_list_items()</a></code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

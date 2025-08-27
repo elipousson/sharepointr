@@ -861,7 +861,8 @@ delete_sp_list_items <- function(
           op = paste0("items/", i),
           http_verb = "DELETE"
         )
-      }
+      },
+      sp_list = sp_list
     ),
     .progress = .progress
   )

@@ -215,20 +215,24 @@ must be provided but not both.</p></dd>
 
 
 <dt id="arg-na-fields">na_fields<a class="anchor" aria-label="anchor" href="#arg-na-fields"></a></dt>
-<dd><p>How to handle <code>NA</code> fields in input data. One of "drop"
-(remove NA fields before updating list items, leaving existing values in
-place) or "replace" (overwrite existing list values with new replacement NA
-values).</p></dd>
+<dd><p>How to handle <code>NA</code> fields in input data. One of <code>"drop"</code>
+(remove <code>NA</code> fields before updating list items, leaving existing values in
+place) or <code>"replace"</code> (overwrite existing list values with new replacement
+NA values).</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Validation of data with with <code>create_sp_list_items()</code></p>
 <p>The handling of item creation when column names in <code>data</code> do not match the
-fields names in the supplied list includes a few options:</p><ul><li><p>If no names in data match fields in the list, the function errors and lists the field names.</p></li>
-<li><p>If all names in data match fields in the list the records are created. Any fields that do not have corresponding names in data remain blank.</p></li>
-<li><p>If any names in data do not match fields in the list, by default, those columns are dropped before adding items to the list.</p></li>
-<li><p>If <code>strict = TRUE</code> and any names in data to not match fields, the function errors.</p></li>
+fields names in the supplied list includes a few options:</p><ul><li><p>If no names in data match fields in the list, the function errors and lists
+the field names.</p></li>
+<li><p>If all names in data match fields in the list the records are created. Any
+fields that do not have corresponding names in data remain blank.</p></li>
+<li><p>If any names in data do not match fields in the list, by default, those
+columns are dropped before adding items to the list.</p></li>
+<li><p>If <code>strict = TRUE</code> and any names in data to not match fields, the function
+errors.</p></li>
 </ul></div>
 
     <div class="section level2">

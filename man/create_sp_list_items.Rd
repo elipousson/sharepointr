@@ -132,10 +132,10 @@ must be provided but not both.}
 
 \item{sp_list_item}{Optional. A SharePoint list item object to use.}
 
-\item{na_fields}{How to handle \code{NA} fields in input data. One of "drop"
-(remove NA fields before updating list items, leaving existing values in
-place) or "replace" (overwrite existing list values with new replacement NA
-values).}
+\item{na_fields}{How to handle \code{NA} fields in input data. One of \code{"drop"}
+(remove \code{NA} fields before updating list items, leaving existing values in
+place) or \code{"replace"} (overwrite existing list values with new replacement
+NA values).}
 }
 \description{
 Create or update list items
@@ -146,10 +146,14 @@ Validation of data with with \code{create_sp_list_items()}
 The handling of item creation when column names in \code{data} do not match the
 fields names in the supplied list includes a few options:
 \itemize{
-\item If no names in data match fields in the list, the function errors and lists the field names.
-\item If all names in data match fields in the list the records are created. Any fields that do not have corresponding names in data remain blank.
-\item If any names in data do not match fields in the list, by default, those columns are dropped before adding items to the list.
-\item If \code{strict = TRUE} and any names in data to not match fields, the function errors.
+\item If no names in data match fields in the list, the function errors and lists
+the field names.
+\item If all names in data match fields in the list the records are created. Any
+fields that do not have corresponding names in data remain blank.
+\item If any names in data do not match fields in the list, by default, those
+columns are dropped before adding items to the list.
+\item If \code{strict = TRUE} and any names in data to not match fields, the function
+errors.
 }
 }
 \examples{

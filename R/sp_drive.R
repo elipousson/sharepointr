@@ -66,7 +66,8 @@ get_sp_drive <- function(
     } else {
       cache_exists <- FALSE
       overwrite <- TRUE
-      # TODO: Add warning and set `refresh = TRUE` if cached file is not a ms_site object
+      # TODO: Add warning and set `refresh = TRUE` if cached file is not a
+      # ms_site object
       # Set refresh to `TRUE`
       # refresh <- TRUE
     }

@@ -129,7 +129,8 @@ list_sp_list_items <- function(
   }
 
   # Replace matching names with display names
-  # NOTE: Column info includes fields that are not returned by the list_items method
+  # NOTE: Column info includes fields that are not returned by the list_items
+  # method
   nm <- names(sp_list_items)
   values_i <- match(names(values), nm)
   nm[values_i[!is.na(values_i)]] <- values[!is.na(values_i)]
@@ -230,10 +231,14 @@ get_sp_list_item <- function(
 #' The handling of item creation when column names in `data` do not match the
 #' fields names in the supplied list includes a few options:
 #'
-#' - If no names in data match fields in the list, the function errors and lists the field names.
-#' - If all names in data match fields in the list the records are created. Any fields that do not have corresponding names in data remain blank.
-#' - If any names in data do not match fields in the list, by default, those columns are dropped before adding items to the list.
-#' - If `strict = TRUE` and any names in data to not match fields, the function errors.
+#' - If no names in data match fields in the list, the function errors and lists
+#'   the field names.
+#' - If all names in data match fields in the list the records are created. Any
+#'   fields that do not have corresponding names in data remain blank.
+#' - If any names in data do not match fields in the list, by default, those
+#'   columns are dropped before adding items to the list.
+#' - If `strict = TRUE` and any names in data to not match fields, the function
+#'   errors.
 #'
 #' @aliases import_sp_list_items
 #' @param data Required. A data frame to import as items to the supplied or
@@ -410,8 +415,8 @@ validate_sp_list_data_fields <- function(
   if (all(nm_match)) {
     return(data)
     # FIXME: If strict is `TRUE` should this required that all allowed_nm values
-    # are also present in nm? The following code does this but I'm unsure if it is
-    # a good approach.
+    # are also present in nm? The following code does this but I'm unsure if it
+    # is a good approach.
     #   if (!strict) return(data)
     #
     #   if (!all(allowed_nm %in% nm)) {
@@ -572,10 +577,10 @@ replace_with_sp_list_display_names <- function(
 #' @param item_id A SharePoint list item id. Either `item_id` or `sp_list_item`
 #' must be provided but not both.
 #' @param .data A list or data frame with fields to update.
-#' @param na_fields How to handle `NA` fields in input data. One of "drop"
-#'   (remove NA fields before updating list items, leaving existing values in
-#'   place) or "replace" (overwrite existing list values with new replacement NA
-#'   values).
+#' @param na_fields How to handle `NA` fields in input data. One of `"drop"`
+#'   (remove `NA` fields before updating list items, leaving existing values in
+#'   place) or `"replace"` (overwrite existing list values with new replacement
+#'   NA values).
 #' @param .id Column or element name with `item_item` value in `data`. Allows
 #' users to pass a modified version of the list item data with the id column and
 #'  any updated columns.

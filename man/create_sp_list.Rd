@@ -4,7 +4,7 @@
 \alias{create_sp_list}
 \alias{update_sp_list}
 \alias{delete_sp_list}
-\title{Create a SharePoint List}
+\title{Create, update, or delete a SharePoint List}
 \usage{
 create_sp_list(
   list_name,
@@ -63,11 +63,14 @@ of column definitions.}
 
 \item{template}{Type of template to use in creating the list.}
 
-\item{content_types}{Optional. Set \code{TRUE} for \code{contentTypesEnabled} to be enabled.}
+\item{content_types}{Optional. Set \code{TRUE} for \code{contentTypesEnabled} to be
+enabled.}
 
 \item{hidden}{Optional. Set \code{TRUE} for list to be hidden.}
 
-\item{title_definition}{Named list used to update the column definition of the default \code{"Title"} column created when using the \code{"genericList"} template. By default, makes Title column optional.}
+\item{title_definition}{Named list used to update the column definition of
+the default \code{"Title"} column created when using the \code{"genericList"} template.
+By default, makes Title column optional.}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
@@ -99,10 +102,27 @@ method for SharePoint site object.}
 }
 \description{
 \code{\link[=create_sp_list]{create_sp_list()}} allows the creation of a SharePoint list for a site. See:
-\url{https://learn.microsoft.com/en-us/graph/api/list-create?view=graph-rest-1.0&tabs=http} Note: dashes (`"-"``) in list names are removed from the list name but retained in the list display name.
+\url{https://learn.microsoft.com/en-us/graph/api/list-create?view=graph-rest-1.0&tabs=http}
 
-\code{\link[=update_sp_list]{update_sp_list()}} allows the modification of the list display name and description.
+\code{\link[=update_sp_list]{update_sp_list()}} allows the modification of the list display name and
+description.
 
-\code{\link[=delete_sp_list]{delete_sp_list()}} deletes an existing list and requires user confirmation by default.
+\code{\link[=delete_sp_list]{delete_sp_list()}} deletes an existing list and requires user confirmation by
+default.
+
+Notes on creating a SharePoint list:
+\itemize{
+\item Dashes (`"-"``) in list names are removed from the list name but retained
+in the list display name.
+\item If your definition includes calculated columns, these columns may need to
+be added after the list is initially created using
+\code{\link[=create_sp_list_column]{create_sp_list_column()}}.
+}
+
+Notes on updating a SharePoint list:
+\itemize{
+\item The \code{"Title"} column type is always a "text" type column and can't be
+changed.
+}
 }
 \keyword{lists}

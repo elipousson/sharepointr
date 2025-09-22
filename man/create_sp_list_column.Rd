@@ -59,7 +59,8 @@ parameters passed to \code{...} are all ignored.}
 \item{column_name, column_id}{Column ID for column to delete.}
 
 \item{column_definition}{List with column definition created with
-\code{\link[=create_column_definition]{create_column_definition()}} or a related function. Optional if \code{column_name} and any required additional parameters are provided.}
+\code{\link[=create_column_definition]{create_column_definition()}} or a related function. Optional if \code{column_name}
+and any required additional parameters are provided.}
 
 \item{list_name}{List name. Required if \code{sp_list} is \code{NULL}.}
 

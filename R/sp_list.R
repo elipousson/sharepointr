@@ -312,15 +312,30 @@ get_sp_list_metadata <- function(
   sp_list_meta
 }
 
-#' Create a SharePoint List
+#' Create, update, or delete a SharePoint List
 #'
 #' @description
 #' [create_sp_list()] allows the creation of a SharePoint list for a site. See:
-#' <https://learn.microsoft.com/en-us/graph/api/list-create?view=graph-rest-1.0&tabs=http> Note: dashes (`"-"``) in list names are removed from the list name but retained in the list display name.
+#' <https://learn.microsoft.com/en-us/graph/api/list-create?view=graph-rest-1.0&tabs=http>
 #'
-#' [update_sp_list()] allows the modification of the list display name and description.
+#' [update_sp_list()] allows the modification of the list display name and
+#' description.
 #'
-#' [delete_sp_list()] deletes an existing list and requires user confirmation by default.
+#' [delete_sp_list()] deletes an existing list and requires user confirmation by
+#' default.
+#'
+#' Notes on creating a SharePoint list:
+#'
+#' - Dashes (`"-"``) in list names are removed from the list name but retained
+#'   in the list display name.
+#' - If your definition includes calculated columns, these columns may need to
+#'   be added after the list is initially created using
+#'   [create_sp_list_column()].
+#'
+#' Notes on updating a SharePoint list:
+#'
+#' - The `"Title"` column type is always a "text" type column and can't be
+#'   changed.
 #'
 #' @param list_name Required. List name used as `displayName` property.
 #' @param description Optional description.
@@ -328,7 +343,9 @@ get_sp_list_metadata <- function(
 #' column definition or use [create_column_definition_list()] to create a list
 #' of column definitions.
 #' @inheritParams create_list_info
-#' @param title_definition Named list used to update the column definition of the default `"Title"` column created when using the `"genericList"` template. By default, makes Title column optional.
+#' @param title_definition Named list used to update the column definition of
+#' the default `"Title"` column created when using the `"genericList"` template.
+#' By default, makes Title column optional.
 #' @inheritParams get_sp_site
 #' @keywords lists
 #' @export
@@ -513,11 +530,13 @@ delete_sp_list <- function(
 
 #' Create listinfo object
 #'
-#' Helper function to create a listInfo object for use internally by [create_sp_list()].
-#' See: <https://learn.microsoft.com/en-us/graph/api/resources/listinfo?view=graph-rest-1.0>
+#' Helper function to create a listInfo object for use internally by
+#' [create_sp_list()]. See:
+#' <https://learn.microsoft.com/en-us/graph/api/resources/listinfo?view=graph-rest-1.0>
 #'
 #' @param template Type of template to use in creating the list.
-#' @param content_types Optional. Set `TRUE` for `contentTypesEnabled` to be enabled.
+#' @param content_types Optional. Set `TRUE` for `contentTypesEnabled` to be
+#' enabled.
 #' @param hidden Optional. Set `TRUE` for list to be hidden.
 #' @keywords internal lists
 #' @export
@@ -553,7 +572,8 @@ create_list_info <- function(
 #'
 #' [get_sp_list_column()] get a list column definition.
 #'
-#' See Graph API documentation <https://learn.microsoft.com/en-us/graph/api/columndefinition-get?view=graph-rest-1.0&tabs=http>
+#' See Graph API documentation
+#' <https://learn.microsoft.com/en-us/graph/api/columndefinition-get?view=graph-rest-1.0&tabs=http>
 #'
 #' @inheritParams get_sp_list
 #' @inheritDotParams get_sp_list -as_data_frame
@@ -607,7 +627,8 @@ get_sp_list_column <- function(
 #' @inheritParams get_sp_list
 #' @inheritDotParams create_column_definition
 #' @param column_definition List with column definition created with
-#' [create_column_definition()] or a related function. Optional if `column_name` and any required additional parameters are provided.
+#' [create_column_definition()] or a related function. Optional if `column_name`
+#' and any required additional parameters are provided.
 #' @param list_name List name. Required if `sp_list` is `NULL`.
 #' @export
 create_sp_list_column <- function(
@@ -627,7 +648,8 @@ create_sp_list_column <- function(
       as_data_frame = FALSE
     )
 
-  # TODO: Add check for mismatch between `column_name` and column_definition[["column_name"]]
+  # TODO: Add check for mismatch between `column_name` and
+  # column_definition[["column_name"]]
 
   sp_list$do_operation(
     op = "columns",
@@ -750,9 +772,12 @@ sp_list_column_as_id <- function(
 
 #' Create SharePoint list lookup column
 #'
-#' A wrapper for [create_lookup_column()] and [create_sp_list_column()].
+#' [create_sp_list_lookup_column()] is a wrapper for [create_lookup_column()]
+#' and [create_sp_list_column()] that allows for the creation of a column in one
+#' list (the "lookup" list) and then create a lookup column in a second list.
 #'
-#' @param sp_list A ms_list object. If supplied, list_name, site, and site_url are all ignored.
+#' @param sp_list A `ms_list` object. If supplied, `list_name`, `site`, and
+#' `site_url` are all ignored.
 #' @inheritParams create_sp_list_column
 #' @inheritParams create_lookup_column
 #' @inheritDotParams create_lookup_column -name -lookup_list_id

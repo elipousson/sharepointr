@@ -16,7 +16,8 @@ create_sp_list_lookup_column(
 )
 }
 \arguments{
-\item{sp_list}{A ms_list object. If supplied, list_name, site, and site_url are all ignored.}
+\item{sp_list}{A \code{ms_list} object. If supplied, \code{list_name}, \code{site}, and
+\code{site_url} are all ignored.}
 
 \item{lookup_list_column}{Name of lookup column in the lookup list to use.}
 
@@ -42,6 +43,8 @@ column, the primary lookup column ID must be supplied.}
   }}
 }
 \description{
-A wrapper for \code{\link[=create_lookup_column]{create_lookup_column()}} and \code{\link[=create_sp_list_column]{create_sp_list_column()}}.
+\code{\link[=create_sp_list_lookup_column]{create_sp_list_lookup_column()}} is a wrapper for \code{\link[=create_lookup_column]{create_lookup_column()}}
+and \code{\link[=create_sp_list_column]{create_sp_list_column()}} that allows for the creation of a column in one
+list (the "lookup" list) and then create a lookup column in a second list.
 }
 \keyword{internal}

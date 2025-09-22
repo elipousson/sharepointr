@@ -76,6 +76,8 @@ get_cached_ms_obj <- function(
 
   ms_obj <- readRDS(cache_path)
 
+  # TODO: Consider adding a check for name or URL to ensure the cached object
+  # matches the request object
   if (is_ms_obj(ms_obj, what)) {
     return(ms_obj)
   }

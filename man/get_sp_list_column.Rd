@@ -50,5 +50,6 @@ column_name must be unique if \code{column_name_type = "displayName"}.}
 \code{\link[=get_sp_list_column]{get_sp_list_column()}} get a list column definition.
 }
 \details{
-See Graph API documentation \url{https://learn.microsoft.com/en-us/graph/api/columndefinition-get?view=graph-rest-1.0&tabs=http}
+See Graph API documentation
+\url{https://learn.microsoft.com/en-us/graph/api/columndefinition-get?view=graph-rest-1.0&tabs=http}
 }

@@ -136,17 +136,31 @@ get_sp_list <- function(
   if (!is.null(list_name) && !(list_name %in% hidden_lists)) {
     # FIXME: This is a work around to handle lists that have been renamed
 
-    # TODO: Add handling for displayName validation
-    sp_lists <- list_sp_lists(
-      ...,
-      site_url = site_url,
-      site = site,
-      drive_name = drive_name,
-      drive_id = drive_id,
-      as_data_frame = FALSE,
-      drive = drive,
-      call = call
-    )
+    if (is_ms_site(ms_list_obj)) {
+      sp_lists <- list_sp_lists(
+        site = ms_list_obj,
+        as_data_frame = FALSE,
+        call = call
+      )
+    } else if (is_ms_drive(ms_list_obj)) {
+      sp_lists <- list_sp_lists(
+        drive = ms_list_obj,
+        as_data_frame = FALSE,
+        call = call
+      )
+    } else {
+      # TODO: Add handling for displayName validation
+      sp_lists <- list_sp_lists(
+        ...,
+        site_url = site_url,
+        site = site,
+        drive_name = drive_name,
+        drive_id = drive_id,
+        as_data_frame = FALSE,
+        drive = drive,
+        call = call
+      )
+    }
 
     sp_list_id_pairs <- purrr::map(
       sp_lists,

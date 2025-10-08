@@ -220,7 +220,7 @@ get_sp_list_items <- function(
     drive_name = drive_name,
     drive_id = drive_id,
     drive = drive,
-    call = coll
+    call = call
   )
 }
 

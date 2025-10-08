@@ -3,6 +3,7 @@
 \name{sp_list_item}
 \alias{sp_list_item}
 \alias{list_sp_list_items}
+\alias{get_sp_list_items}
 \alias{get_sp_list_item}
 \title{Get, list, update, and delete SharePoint list items}
 \usage{
@@ -15,6 +16,28 @@ list_sp_list_items(
   select = NULL,
   all_metadata = FALSE,
   as_data_frame = TRUE,
+  col_formatting = c("asis", "date"),
+  display_nm = c("drop", "label", "replace"),
+  name_repair = "unique",
+  pagesize = 5000,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  call = caller_env()
+)
+
+get_sp_list_items(
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  ...,
+  filter = NULL,
+  select = NULL,
+  all_metadata = FALSE,
+  as_data_frame = TRUE,
+  col_formatting = c("asis", "date"),
   display_nm = c("drop", "label", "replace"),
   name_repair = "unique",
   pagesize = 5000,
@@ -76,6 +99,10 @@ data frame named fields. This is always set to \code{FALSE} if \code{n = NULL} o
 data frame with n rows or all lists available for the SharePoint site or
 drive. Defaults to \code{FALSE}. Ignored is \code{metadata = TRUE} as list metadata
 is always returned as a data frame.}
+
+\item{col_formatting}{"asis" (default) or "date". If "date", use the list
+column metadata and convert date columns to Date class and datetime
+columns to POSIXct class vectors (latter is not yet tested).}
 
 \item{display_nm}{Option of "drop" (default), "label", or "replace". If
 "drop", display names are not accessed or used. If "label", display names

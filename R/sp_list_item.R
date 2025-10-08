@@ -28,6 +28,9 @@ NULL
 #'   When working with the last option, the `name_repair` argument is required
 #'   since there is no requirement on SharePoint for lists to use unique display
 #'   names and invalid data frames can result.
+#' @param col_formatting "asis" (default) or "date". If "date", use the list
+#' column metadata and convert date columns to Date class and datetime
+#' columns to POSIXct class vectors (latter is not yet tested).
 #' @param name_repair Passed to repair argument of [vctrs::vec_as_names()]
 #' @export
 list_sp_list_items <- function(
@@ -39,6 +42,7 @@ list_sp_list_items <- function(
   select = NULL,
   all_metadata = FALSE,
   as_data_frame = TRUE,
+  col_formatting = c("asis", "date"),
   display_nm = c("drop", "label", "replace"),
   name_repair = "unique",
   pagesize = 5000,
@@ -97,6 +101,41 @@ list_sp_list_items <- function(
     pagesize = pagesize
   )
 
+  col_formatting <- arg_match(col_formatting, error_call = call)
+
+  if (col_formatting != "asis") {
+    sp_list_col_info <- sp_list$get_column_info()
+    date_time_col_info <- sp_list_col_info[["dateTime"]]
+    date_col_i <- !is.na(date_time_col_info[["format"]])
+
+    # Format date and dateTime columns
+    if (any(date_col_i)) {
+      date_time_col_format <- date_time_col_info[date_col_i, ]
+      date_col_names <- sp_list_col_info[["name"]][date_col_i]
+
+      sp_list_items_modified <- purrr::reduce(
+        .x = seq_along(date_col_names),
+        .f = \(items, i) {
+          nm <- date_col_names[i]
+          if (date_time_col_format[i, ][["format"]] == "dateOnly") {
+            items[[nm]] <- as.Date(items[[nm]])
+          } else if (date_time_col_format[i, ][["format"]] == "dateTime") {
+            # TODO: This option is not tested.
+            items[[nm]] <- as.POSIXct(items[[nm]])
+          }
+
+          items
+        },
+        .init = sp_list_items
+      )
+
+      sp_list_items <- sp_list_items_modified
+    }
+
+    # TODO: Implement support for formatting choice columns as factor
+    # choice_col_info <- sp_list_col_info[["choice"]]
+  }
+
   display_nm <- arg_match(display_nm, error_call = call)
 
   # FIXME: Implement some way to reorder columns
@@ -137,6 +176,52 @@ list_sp_list_items <- function(
 
   # Repair names since display names may not be unique
   .set_as_names(sp_list_items, nm, repair = name_repair)
+}
+
+#' [get_sp_list_items()] is a wrapper for [list_sp_list_items()].
+#'
+#' @rdname sp_list_item
+#' @export
+get_sp_list_items <- function(
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  ...,
+  filter = NULL,
+  select = NULL,
+  all_metadata = FALSE,
+  as_data_frame = TRUE,
+  col_formatting = c("asis", "date"),
+  display_nm = c("drop", "label", "replace"),
+  name_repair = "unique",
+  pagesize = 5000,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  call = caller_env()
+) {
+  list_sp_list_items(
+    list_name = list_name,
+    list_id = list_id,
+    sp_list = sp_list,
+    ...,
+    filter = filter,
+    select = select,
+    all_metadata = all_metadata,
+    as_data_frame = as_data_frame,
+    col_formatting = col_formatting,
+    display_nm = display_nm,
+    name_repair = name_repair,
+    pagesize = pagesize,
+    site_url = site_url,
+    site = site,
+    drive_name = drive_name,
+    drive_id = drive_id,
+    drive = drive,
+    call = coll
+  )
 }
 
 #' Pull a vector of display names named with corresponding column names

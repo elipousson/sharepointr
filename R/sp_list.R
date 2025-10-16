@@ -603,11 +603,13 @@ get_sp_list_column <- function(
   column_id = NULL,
   ...,
   list_name = NULL,
+  list_id = NULL,
   column_name_type = "name"
 ) {
   sp_list <- sp_list %||%
     get_sp_list(
       list_name = list_name,
+      list_id = list_id,
       ...,
       as_data_frame = FALSE
     )

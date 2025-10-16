@@ -10,6 +10,7 @@ get_sp_list_column(
   column_id = NULL,
   ...,
   list_name = NULL,
+  list_id = NULL,
   column_name_type = "name"
 )
 }
@@ -42,6 +43,8 @@ mentioned in error messages as the source of the error. See the
     \item{\code{site}}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
   }}
+
+\item{list_name, list_id}{SharePoint List name or ID string.}
 
 \item{column_name_type}{"name" or "displayName". Used to match column ID so
 column_name must be unique if \code{column_name_type = "displayName"}.}

@@ -18,6 +18,7 @@ list_sp_list_items(
   as_data_frame = TRUE,
   col_formatting = c("asis", "date"),
   display_nm = c("drop", "label", "replace"),
+  col_select = c("asis", "editable", "external"),
   name_repair = "unique",
   pagesize = 5000,
   site_url = NULL,
@@ -111,6 +112,10 @@ are used to label matching columns in the returned data frame. If
 When working with the last option, the \code{name_repair} argument is required
 since there is no requirement on SharePoint for lists to use unique display
 names and invalid data frames can result.}
+
+\item{col_select}{Columns to select. Ignored if \code{select} is supplied. "asis"
+returns all available columns. "editable" returns ID and all non-read-only
+columns and "external" returns ID and all non-internal columns.}
 
 \item{name_repair}{Passed to repair argument of \code{\link[vctrs:vec_as_names]{vctrs::vec_as_names()}}}
 

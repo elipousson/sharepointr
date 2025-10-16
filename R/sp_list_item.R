@@ -31,6 +31,9 @@ NULL
 #' @param col_formatting "asis" (default) or "date". If "date", use the list
 #' column metadata and convert date columns to Date class and datetime
 #' columns to POSIXct class vectors (latter is not yet tested).
+#' @param col_select Columns to select. Ignored if `select` is supplied. "asis"
+#' returns all available columns. "editable" returns ID and all non-read-only
+#' columns and "external" returns ID and all non-internal columns.
 #' @param name_repair Passed to repair argument of [vctrs::vec_as_names()]
 #' @export
 list_sp_list_items <- function(
@@ -44,6 +47,7 @@ list_sp_list_items <- function(
   as_data_frame = TRUE,
   col_formatting = c("asis", "date"),
   display_nm = c("drop", "label", "replace"),
+  col_select = c("asis", "editable", "external"),
   name_repair = "unique",
   pagesize = 5000,
   site_url = NULL,
@@ -53,6 +57,10 @@ list_sp_list_items <- function(
   drive = NULL,
   call = caller_env()
 ) {
+  col_formatting <- arg_match(col_formatting, error_call = call)
+  display_nm <- arg_match(display_nm, error_call = call)
+  col_select <- arg_match(col_select, error_call = call)
+
   sp_list <- sp_list %||%
     get_sp_list(
       list_name = list_name,
@@ -77,7 +85,26 @@ list_sp_list_items <- function(
       select[select == "id"] <- "ID"
     }
 
+    if (col_select != "asis") {
+      cli::cli_bullets(
+        c("!" = "{.arg col_select} is ignored if {.arg} select is provided.")
+      )
+      col_select <- "asis"
+    }
+
     select <- paste0(select, collapse = ",")
+  } else if (col_select != "asis") {
+    # Get editable or visible columns
+    sp_list_cols <- get_sp_list_metadata(
+      sp_list = sp_list,
+      keep = col_select,
+      call = call
+    )
+
+    select <- paste0(
+      c("ID", sp_list_cols[["name"]]),
+      collapse = ","
+    )
   }
 
   if (all_metadata && !as_data_frame) {
@@ -100,8 +127,6 @@ list_sp_list_items <- function(
     as_data_frame = as_data_frame,
     pagesize = pagesize
   )
-
-  col_formatting <- arg_match(col_formatting, error_call = call)
 
   if (col_formatting != "asis") {
     sp_list_col_info <- sp_list$get_column_info()
@@ -135,8 +160,6 @@ list_sp_list_items <- function(
     # TODO: Implement support for formatting choice columns as factor
     # choice_col_info <- sp_list_col_info[["choice"]]
   }
-
-  display_nm <- arg_match(display_nm, error_call = call)
 
   # FIXME: Implement some way to reorder columns
   # Reorder columns to put "id", "ContentType", "Modified", and "Created" first

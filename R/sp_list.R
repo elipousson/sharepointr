@@ -270,9 +270,9 @@ list_sp_lists <- function(
 #' @rdname sp_list
 #' @name get_sp_list_metadata
 #' @inheritParams ms_graph_obj_terms
-#' @param keep One of "all" (default), "editable", "visible" (not yet
-#'   supported). Argument determines if the returned list metadata includes read
-#'   only columns or hidden columns.
+#' @param keep One of "all" (default), "editable", "external" (non-internal
+#' fields). Argument determines if the returned list metadata includes read
+#' only columns or hidden columns.
 #' @param sync_fields If `TRUE`, use the `sync_fields` method to sync the fields
 #'   of the local `ms_list` object with the fields of the SharePoint List source
 #'   before retrieving list metadata.
@@ -282,7 +282,7 @@ get_sp_list_metadata <- function(
   list_id = NULL,
   sp_list = NULL,
   ...,
-  keep = c("all", "editable", "visible"),
+  keep = c("all", "editable", "external"),
   sync_fields = FALSE,
   site_url = NULL,
   site = NULL,
@@ -316,11 +316,13 @@ get_sp_list_metadata <- function(
   }
 
   keep <- arg_match(keep, error_call = call)
-  # FIXME: keep = "visible" is not yet supported
-  stopifnot(keep != "visible")
 
   if (keep == "editable") {
     sp_list_meta <- sp_list_meta[!sp_list_meta[["readOnly"]], ]
+  } else if (keep == "external") {
+    sp_list_meta <- sp_list_meta[
+      !(sp_list_meta[["name"]] %in% sp_list_internal_colnames),
+    ]
   }
 
   sp_list_meta
@@ -822,3 +824,37 @@ create_sp_list_lookup_column <- function(
     site_url = site_url
   )
 }
+
+#' Internal SharePoint list column names
+#'
+#' Vector of internal field or column names for SharePoint lists.
+#' Note: Not all internal columns are read-only, _ColorTag
+#' ComplianceAssetId, ContentType, and Attachments are all editable.
+#'
+#' @noRd
+sp_list_internal_colnames <- c(
+  "_ColorTag",
+  "ComplianceAssetId",
+  "Attachments",
+  "Modified",
+  "ID",
+  "ContentType",
+  "Created",
+  "Author",
+  "Editor",
+  "_UIVersionString",
+  "Attachments",
+  "Edit",
+  "LinkTitleNoMenu",
+  "LinkTitle",
+  "DocIcon",
+  "ItemChildCount",
+  "FolderChildCount",
+  "_ComplianceFlags",
+  "_ComplianceTag",
+  "_ComplianceTagWrittenTime",
+  "_ComplianceTagUserId",
+  "_IsRecord",
+  "AppAuthor",
+  "AppEditor"
+)

@@ -39,7 +39,7 @@ get_sp_list_metadata(
   list_id = NULL,
   sp_list = NULL,
   ...,
-  keep = c("all", "editable", "visible"),
+  keep = c("all", "editable", "external"),
   sync_fields = FALSE,
   site_url = NULL,
   site = NULL,
@@ -110,8 +110,8 @@ Defaults to \code{NULL} which sets n to \code{Inf}.}
 \code{site_url}, \code{site}, \code{drive_name}, \code{drive_id}, \code{drive}, and any additional
 parameters passed to \code{...} are all ignored.}
 
-\item{keep}{One of "all" (default), "editable", "visible" (not yet
-supported). Argument determines if the returned list metadata includes read
+\item{keep}{One of "all" (default), "editable", "external" (non-internal
+fields). Argument determines if the returned list metadata includes read
 only columns or hidden columns.}
 
 \item{sync_fields}{If \code{TRUE}, use the \code{sync_fields} method to sync the fields

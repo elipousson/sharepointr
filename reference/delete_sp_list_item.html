@@ -82,6 +82,10 @@ confirm = FALSE to use without interactive confirmation."></head><body>
 <dd><p>ID value for list item or items to delete.</p></dd>
 
 
+<dt id="arg-sp-list-item">sp_list_item<a class="anchor" aria-label="anchor" href="#arg-sp-list-item"></a></dt>
+<dd><p>Optional. A SharePoint list item object to delete.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional parameters passed to <code><a href="sp_site.html">get_sp_site()</a></code> or
 <code><a href="https://rdrr.io/pkg/Microsoft365R/man/client.html" class="external-link">Microsoft365R::get_sharepoint_site()</a></code>.</p></dd>
@@ -125,6 +129,12 @@ mentioned in error messages as the source of the error. See the
 <dd><p>A string with <a href="https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter" class="external-link">an OData expression</a>
 apply as a filter to the results. Learn more in the <a href="https://learn.microsoft.com/en-us/graph/filter-query-parameter" class="external-link">Microsoft Graph API documentation</a>
 on using filter query parameters.</p></dd>
+
+
+<dt id="arg--progress">.progress<a class="anchor" aria-label="anchor" href="#arg--progress"></a></dt>
+<dd><p>Whether to show a progress bar. Use <code>TRUE</code> to turn on
+a basic progress bar, use a string to give it a name, or see
+<a href="https://purrr.tidyverse.org/reference/progress_bars.html" class="external-link">progress_bars</a> for more details.</p></dd>
 
 </dl></div>
 

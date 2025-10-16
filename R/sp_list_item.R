@@ -681,7 +681,7 @@ replace_with_sp_list_display_names <- function(
 
 #' @rdname create_sp_list_items
 #' @name update_sp_list_item
-#' @param sp_list_item Optional. A SharePoint list item object to use.
+#' @param sp_list_item Optional. A SharePoint list item object to update.
 #' @param item_id A SharePoint list item id. Either `item_id` or `sp_list_item`
 #' must be provided but not both.
 #' @param .data A list or data frame with fields to update.
@@ -879,6 +879,7 @@ create_sp_list_item <- function(
 #' `confirm = FALSE` to use without interactive confirmation.
 #'
 #' @param item_id ID value for list item or items to delete.
+#' @param sp_list_item Optional. A SharePoint list item object to delete.
 #' @inheritParams get_sp_list_item
 #' @param confirm If `TRUE` (default), user confirmation is required to delete
 #' items.
@@ -934,6 +935,7 @@ delete_sp_list_item <- function(
 
 #' @rdname delete_sp_list_item
 #' @inheritParams list_sp_list_items
+#' @inheritParams purrr::map
 #' @export
 delete_sp_list_items <- function(
   item_id = NULL,

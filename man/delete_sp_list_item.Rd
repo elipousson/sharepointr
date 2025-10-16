@@ -30,6 +30,8 @@ delete_sp_list_items(
 \arguments{
 \item{item_id}{ID value for list item or items to delete.}
 
+\item{sp_list_item}{Optional. A SharePoint list item object to delete.}
+
 \item{...}{Additional parameters passed to \code{\link[=get_sp_site]{get_sp_site()}} or
 \code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}}.}
 
@@ -58,6 +60,10 @@ mentioned in error messages as the source of the error. See the
 \item{filter}{A string with \href{https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter}{an OData expression}
 apply as a filter to the results. Learn more in the \href{https://learn.microsoft.com/en-us/graph/filter-query-parameter}{Microsoft Graph API documentation}
 on using filter query parameters.}
+
+\item{.progress}{Whether to show a progress bar. Use \code{TRUE} to turn on
+a basic progress bar, use a string to give it a name, or see
+\link[purrr]{progress_bars} for more details.}
 }
 \description{
 \code{\link[=delete_sp_list_item]{delete_sp_list_item()}} deletes a single SharePoint list item and

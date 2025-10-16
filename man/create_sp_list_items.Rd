@@ -130,7 +130,7 @@ as editable fields. Defaults to \code{c("ContentType", "Attachments")}}
 \item{item_id}{A SharePoint list item id. Either \code{item_id} or \code{sp_list_item}
 must be provided but not both.}
 
-\item{sp_list_item}{Optional. A SharePoint list item object to use.}
+\item{sp_list_item}{Optional. A SharePoint list item object to update.}
 
 \item{na_fields}{How to handle \code{NA} fields in input data. One of \code{"drop"}
 (remove \code{NA} fields before updating list items, leaving existing values in

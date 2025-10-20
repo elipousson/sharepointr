@@ -130,6 +130,14 @@ list_sp_list_items <- function(
 
   if (col_formatting != "asis") {
     sp_list_col_info <- sp_list$get_column_info()
+
+    # If select is supplied apply formatting to selected columns only
+    if (is.character(select)) {
+      sp_list_col_info <- sp_list_col_info[
+        sp_list_col_info[["name"]] %in% stringr::str_split(select, ",")[[1]],
+      ]
+    }
+
     date_time_col_info <- sp_list_col_info[["dateTime"]]
     date_col_i <- !is.na(date_time_col_info[["format"]])
 

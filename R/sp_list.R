@@ -296,7 +296,7 @@ get_sp_list_metadata <- function(
       list_name = list_name,
       list_id = list_id,
       ...,
-      as_data_frame = FALSE,
+      as_data_frame = TRUE,
       metadata = TRUE,
       site_url = site_url,
       site = site,

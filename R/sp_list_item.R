@@ -604,6 +604,7 @@ update_sp_list_items <- function(
   .id = "id",
   allow_display_nm = FALSE,
   check_fields = TRUE,
+  na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
   .progress = TRUE,
   call = caller_env()
@@ -651,6 +652,7 @@ update_sp_list_items <- function(
             x = x,
             i = i
           ),
+          na_fields = na_fields,
           item_id = item_id[[i]],
           sp_list = sp_list,
           call = call
@@ -658,6 +660,7 @@ update_sp_list_items <- function(
       },
       fn = update_sp_list_item,
       item_id = item_ids,
+      na_fields = na_fields,
       x = update_data,
       sp_list = sp_list,
       call = call

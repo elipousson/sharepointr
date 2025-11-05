@@ -37,6 +37,7 @@ update_sp_list_items(
   .id = "id",
   allow_display_nm = FALSE,
   check_fields = TRUE,
+  na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
   .progress = TRUE,
   call = caller_env()
@@ -122,6 +123,11 @@ running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
+\item{na_fields}{How to handle \code{NA} fields in input data. One of \code{"drop"}
+(remove \code{NA} fields before updating list items, leaving existing values in
+place) or \code{"replace"} (overwrite existing list values with new replacement
+NA values).}
+
 \item{drop_fields}{Column names to drop from \code{data} even if they are listed
 as editable fields. Defaults to \code{c("ContentType", "Attachments")}}
 
@@ -131,11 +137,6 @@ as editable fields. Defaults to \code{c("ContentType", "Attachments")}}
 must be provided but not both.}
 
 \item{sp_list_item}{Optional. A SharePoint list item object to update.}
-
-\item{na_fields}{How to handle \code{NA} fields in input data. One of \code{"drop"}
-(remove \code{NA} fields before updating list items, leaving existing values in
-place) or \code{"replace"} (overwrite existing list values with new replacement
-NA values).}
 }
 \description{
 Create or update list items

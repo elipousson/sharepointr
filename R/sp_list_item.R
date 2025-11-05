@@ -791,6 +791,13 @@ update_sp_list_item <- function(
       .data,
       i = !is.na(.data)
     )
+  } else if (na_fields == "replace") {
+    # Replace NA values w/ NULL
+    .data <- vctrs::vec_assign(
+      .data,
+      i = is.na(.data),
+      value = NULL
+    )
   }
 
   if (!is.null(sp_list)) {

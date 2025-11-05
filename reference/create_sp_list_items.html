@@ -75,6 +75,7 @@
 <span>  .id <span class="op">=</span> <span class="st">"id"</span>,</span>
 <span>  allow_display_nm <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  check_fields <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  na_fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drop"</span>, <span class="st">"replace"</span><span class="op">)</span>,</span>
 <span>  drop_fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ContentType"</span>, <span class="st">"Attachments"</span><span class="op">)</span>,</span>
 <span>  .progress <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
@@ -196,6 +197,13 @@ mentioned in error messages as the source of the error. See the
 <code>call</code> argument of <code><a href="https://rlang.r-lib.org/reference/abort.html" class="external-link">abort()</a></code> for more information.</p></dd>
 
 
+<dt id="arg-na-fields">na_fields<a class="anchor" aria-label="anchor" href="#arg-na-fields"></a></dt>
+<dd><p>How to handle <code>NA</code> fields in input data. One of <code>"drop"</code>
+(remove <code>NA</code> fields before updating list items, leaving existing values in
+place) or <code>"replace"</code> (overwrite existing list values with new replacement
+NA values).</p></dd>
+
+
 <dt id="arg-drop-fields">drop_fields<a class="anchor" aria-label="anchor" href="#arg-drop-fields"></a></dt>
 <dd><p>Column names to drop from <code>data</code> even if they are listed
 as editable fields. Defaults to <code>c("ContentType", "Attachments")</code></p></dd>
@@ -212,13 +220,6 @@ must be provided but not both.</p></dd>
 
 <dt id="arg-sp-list-item">sp_list_item<a class="anchor" aria-label="anchor" href="#arg-sp-list-item"></a></dt>
 <dd><p>Optional. A SharePoint list item object to update.</p></dd>
-
-
-<dt id="arg-na-fields">na_fields<a class="anchor" aria-label="anchor" href="#arg-na-fields"></a></dt>
-<dd><p>How to handle <code>NA</code> fields in input data. One of <code>"drop"</code>
-(remove <code>NA</code> fields before updating list items, leaving existing values in
-place) or <code>"replace"</code> (overwrite existing list values with new replacement
-NA values).</p></dd>
 
 </dl></div>
     <div class="section level2">

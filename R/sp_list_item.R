@@ -469,6 +469,14 @@ create_sp_list_items <- function(
 
   check_data_frame(data, call = call)
 
+  if (vctrs::vec_size(data) == 0) {
+    cli::cli_bullets(
+      c("!" = "List items can't be created when {.arg data} is empty.")
+    )
+
+    return(data)
+  }
+
   cli_progress_step(
     "Importing {.arg data} into list"
   )
@@ -609,6 +617,14 @@ update_sp_list_items <- function(
   .progress = TRUE,
   call = caller_env()
 ) {
+  if (vctrs::vec_size(data) == 0) {
+    cli::cli_bullets(
+      c("!" = "List items can't be updated when {.arg data} is empty.")
+    )
+
+    return(data)
+  }
+
   sp_list <- sp_list %||%
     get_sp_list(
       list_name = list_name,
@@ -973,6 +989,12 @@ delete_sp_list_items <- function(
     )
 
     item_id <- sp_list_items[["id"]]
+  }
+
+  if (rlang::has_length(item_id, 0)) {
+    cli::cli_abort(
+      "List items can't be deleted when {.arg item_id} is length 0."
+    )
   }
 
   if (confirm) {

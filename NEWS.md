@@ -22,6 +22,7 @@
 
 * Revise `read_sharepoint()` to support zipped shapefiles. (2024-07-25)
 * Improve printing of custom `.f` argument in `read_sharepoint()`. (2024-10-10)
+* Alert users if input `data` is empty for `create_sp_list_items()`, `update_sp_list_items()` and error if input `item_id` is length 0 for `delete_sp_list_items()`. (2026-01-06)
 
 # sharepointr 0.1.0
 

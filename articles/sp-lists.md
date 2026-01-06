@@ -1,0 +1,363 @@
+# Reading and writing to SharePoint Lists
+
+``` r
+library(sharepointr)
+options(cli.default_handler = suppressMessages)
+```
+
+## Overview
+
+SharePoint Lists (also known as Microsoft Lists) can be added to a
+SharePoint site or created for a single user. This package assumes you
+are working with lists within a SharePoint site. This article covers:
+
+- Reading lists and list items
+- Creating lists and list items
+
+The package also supports updating and deleting lists and list items
+which should be added to this article in the future.
+
+## Reading lists and list items
+
+Loading the
+[`Microsoft365R::ms_site`](https://rdrr.io/pkg/Microsoft365R/man/ms_site.html)
+object in advance is optional for most functions.
+[`list_sp_lists()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
+takes a site URL and returns a data frame with information about all
+site lists:
+
+``` r
+site_lists <- list_sp_lists(
+  site_url = "https://bmore.sharepoint.com/sites/DOP-ALL"
+)
+#> Loading Microsoft Graph login for default tenant
+
+head(site_lists[, c(2:7)])
+#>        createdDateTime
+#> 1 2025-02-27T22:54:53Z
+#> 2 2023-11-27T18:12:43Z
+#> 3 2021-04-09T15:21:43Z
+#> 4 2023-10-25T20:38:22Z
+#> 5 2020-12-16T15:50:27Z
+#> 6 2022-12-05T14:55:38Z
+#>                                                                                                                                                                                    description
+#> 1 A list for tracking current and former membership of the Planning Commission, CHAP, PCDA, Sustainability Commission, and LDC to allow reporting of "required filers" to the Board of Ethics.
+#> 2                                                                                                   A reference list of Division-level, inter-agency, and program specific recurring meetings.
+#> 3                                                                                                                    Canvas items for channel 19:38d6c3c5ffd048d091655fde4e10fa2f@thread.skype
+#> 4                                             A list for tracking issues, initiatives, and projects identified by members of the Department of Planning Technology Committee and agency staff.
+#> 5                                                                                                                    Canvas items for channel 19:78556da3d0db4ddabfb7d8807110cc60@thread.skype
+#> 6                                                                                                                    Canvas items for channel 19:1a54f93ccf1244cda3547deae96e306a@thread.skype
+#>                                        eTag
+#> 1  "dcae5523-39e3-4582-8b6d-08ccd3b98499,5"
+#> 2 "531a153d-b9d4-4d04-93cd-0d49d9bac705,43"
+#> 3 "0d7df1be-e6de-474b-88ea-0f56689ca3e9,15"
+#> 4 "7c6b3bac-4962-4285-980e-127e36583ffc,22"
+#> 5 "9c518bac-ef99-4ae8-ab27-1453f68c87e1,15"
+#> 6 "d216b2d5-7cae-491f-abf4-1474628a0982,15"
+#>                                     id lastModifiedDateTime
+#> 1 dcae5523-39e3-4582-8b6d-08ccd3b98499 2025-06-17T16:54:51Z
+#> 2 531a153d-b9d4-4d04-93cd-0d49d9bac705 2025-07-31T16:34:06Z
+#> 3 0d7df1be-e6de-474b-88ea-0f56689ca3e9 2024-10-02T03:22:07Z
+#> 4 7c6b3bac-4962-4285-980e-127e36583ffc 2025-08-05T16:04:10Z
+#> 5 9c518bac-ef99-4ae8-ab27-1453f68c87e1 2024-10-02T03:22:07Z
+#> 6 d216b2d5-7cae-491f-abf4-1474628a0982 2024-10-02T03:22:06Z
+#>                                                 name
+#> 1                                  DOP Commissioners
+#> 2                 DOP Internal  Interagency Meetings
+#> 3 1938d6c3c5ffd048d091655fde4e10fa2fthreadskype_wiki
+#> 4        Technology Committee Priority Issue Tracker
+#> 5 1978556da3d0db4ddabfb7d8807110cc60threadskype_wiki
+#> 6 191a54f93ccf1244cda3547deae96e306athreadskype_wiki
+```
+
+However, loading the site and using it when needed is recommended to
+avoid duplicate API calls. Use
+[`get_sp_site()`](https://elipousson.github.io/sharepointr/reference/sp_site.md)
+to load the site and pass that object to
+[`list_sp_lists()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
+for multiple lists or
+[`get_sp_list()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
+to return a single list.
+
+``` r
+sp_site <- get_sp_site(
+  "https://bmore.sharepoint.com/sites/DOP-ALL"
+)
+#> Loading Microsoft Graph login for default tenant
+
+site_lists <- list_sp_lists(site = sp_site)
+
+room_list <- get_sp_list(list_name = "DOP Rooms", site = sp_site)
+
+room_list
+#> <Sharepoint list 'DOP Rooms'>
+#>   directory id: dd07e874-8b01-4e0d-a7cb-d7e709d580e9 
+#>   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms 
+#>   description: A list of offices and other rooms occupied by the Baltimore City Department of Planning on the 8th Floor of the Benton Building. 
+#> ---
+#>   Methods:
+#>     bulk_import, create_column, create_item, delete,
+#>     delete_item, do_operation, get_column_info,
+#>     get_item, get_list_pager, list_items, sync_fields,
+#>     update, update_item
+```
+
+To get the *items* from a list as a data frame, you need to use the
+[`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md)
+function. This function allows you to pass a site and list name, a list
+URL in place of a list name with no site, or to pass a list object
+directly:
+
+``` r
+rooms <- list_sp_list_items(list_name = "DOP Rooms", site = sp_site)
+
+rooms <- list_sp_list_items(
+  "https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms/AllItems.aspx"
+)
+#> Loading Microsoft Graph login for default tenant
+#> Loading Microsoft Graph login for default tenant
+
+rooms <- list_sp_list_items(sp_list = room_list)
+
+head(rooms[ , c(2:8)])
+#>      Title LinkTitle   RoomType                       Location
+#> 1 08-COM02  08-COM02   CORRIDOR        Hallway to plotter area
+#> 2 08-COM01  08-COM01   CORRIDOR                 elevator lobby
+#> 3 08-SRV01  08-SRV01    UTILITY interior hallway west of lobby
+#> 4 08-SRV02  08-SRV02 TELE/COMMS                 public hallway
+#> 5 08-SRV03  08-SRV03        MEN                public restroom
+#> 6 08-SRV04  08-SRV04      WOMEN                public restroom
+#>   RoomCategory    UsedBy id
+#> 1       COMMON DOP Staff 26
+#> 2       COMMON    Public 27
+#> 3      SERVICE   Service 28
+#> 4      SERVICE   Service 29
+#> 5      SERVICE    Public 30
+#> 6      SERVICE    Public 31
+```
+
+You can get a single list item as a
+[`Microsoft365R::ms_list_item`](https://rdrr.io/pkg/Microsoft365R/man/ms_list_item.html)
+object using
+[`get_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md).
+The id values are not visible by default when looking at a Microsoft
+List online but they are included in the list item data frame:
+
+``` r
+get_sp_list_item(id = 26, sp_list = room_list)
+#> <Sharepoint list item '08-COM02'>
+#>   directory id: 26 
+#>   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms/26_.000 
+#> ---
+#>   Methods:
+#>     create_link, delete, do_operation, get_list_pager,
+#>     sync_fields, update
+```
+
+## Creating lists and list items
+
+A list name and site (or site URL) are the only requirements to create a
+list:
+
+``` r
+penguins_list <- create_sp_list(
+  list_name = "penguins",
+  description = "Measurements of Penguins near Palmer Station, Antarctica",
+  site = sp_site
+)
+
+penguins_list
+#> <Sharepoint list 'penguins'>
+#>   directory id: 6a7cc3fa-0722-4d4b-a50c-56f8b8baec67 
+#>   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/penguins 
+#>   description: Measurements of Penguins near Palmer Station, Antarctica 
+#> ---
+#>   Methods:
+#>     bulk_import, create_column, create_item, delete,
+#>     delete_item, do_operation, get_column_info,
+#>     get_item, get_list_pager, list_items, sync_fields,
+#>     update, update_item
+```
+
+However, a list created using the default `template = "genericList"` has
+only one column: Title. You can add column to a list before or after it
+is created. Creating columns required a column definition which can be
+created using the
+[`create_column_definition()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
+function or one of the column type-specific variations:
+
+``` r
+create_text_column("Text Column", multiple_lines = TRUE)
+#> $name
+#> [1] "Text Column"
+#> 
+#> $hidden
+#> [1] FALSE
+#> 
+#> $text
+#> $text$allowMultipleLines
+#> [1] TRUE
+#> 
+#> $text$textType
+#> [1] "plain"
+
+create_number_column("Number Column", decimals = 0)
+#> $name
+#> [1] "Number Column"
+#> 
+#> $hidden
+#> [1] FALSE
+#> 
+#> $number
+#> $number$decimalPlaces
+#> [1] "none"
+
+create_choice_column("Choice Column", choices = c("Apple", "Pear", "Orange"))
+#> $name
+#> [1] "Choice Column"
+#> 
+#> $hidden
+#> [1] FALSE
+#> 
+#> $choice
+#> $choice$allowTextEntry
+#> [1] TRUE
+#> 
+#> $choice$choices
+#> [1] "Apple"  "Pear"   "Orange"
+#> 
+#> $choice$displayAs
+#> [1] "dropDownMenu"
+```
+
+[`create_sp_list_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_column.md)
+takes a column definition and a Microsoft List object and adds a column
+to the list.
+
+You can specify multiple columns at once using a list or data frame of
+parameters (leaving blank values where a parameter is not applicable):
+
+``` r
+create_column_definition_list(
+  definitions = data.frame(
+    name = c("Text Column", "Number Column"),
+    type = c("text", "number"),
+    decimals = c(NA, 0)
+  )
+)
+#> [[1]]
+#> [[1]]$name
+#> [1] "Text Column"
+#> 
+#> [[1]]$hidden
+#> [1] FALSE
+#> 
+#> [[1]]$text
+#> [[1]]$text$textType
+#> [1] "plain"
+#> 
+#> 
+#> 
+#> [[2]]
+#> [[2]]$name
+#> [1] "Number Column"
+#> 
+#> [[2]]$hidden
+#> [1] FALSE
+#> 
+#> [[2]]$number
+#> [[2]]$number$decimalPlaces
+#> [1] "none"
+```
+
+If you are creating column definitions based on an existing data frame
+you can alternatively use
+[`data_as_column_definition_list()`](https://elipousson.github.io/sharepointr/reference/data_as_column_definition_list.md):
+
+``` r
+penguins_column_defintions <- data_as_column_definition_list(penguins)
+
+str(penguins_column_defintions)
+#> List of 8
+#>  $ :List of 3
+#>   ..$ name  : chr "species"
+#>   ..$ hidden: logi FALSE
+#>   ..$ choice:List of 3
+#>   .. ..$ allowTextEntry: logi TRUE
+#>   .. ..$ choices       : chr [1:3] "Adelie" "Chinstrap" "Gentoo"
+#>   .. ..$ displayAs     : chr "dropDownMenu"
+#>  $ :List of 3
+#>   ..$ name  : chr "island"
+#>   ..$ hidden: logi FALSE
+#>   ..$ choice:List of 3
+#>   .. ..$ allowTextEntry: logi TRUE
+#>   .. ..$ choices       : chr [1:3] "Biscoe" "Dream" "Torgersen"
+#>   .. ..$ displayAs     : chr "dropDownMenu"
+#>  $ :List of 3
+#>   ..$ name  : chr "bill_len"
+#>   ..$ hidden: logi FALSE
+#>   ..$ number:List of 1
+#>   .. ..$ decimalPlaces: chr "automatic"
+#>  $ :List of 3
+#>   ..$ name  : chr "bill_dep"
+#>   ..$ hidden: logi FALSE
+#>   ..$ number:List of 1
+#>   .. ..$ decimalPlaces: chr "automatic"
+#>  $ :List of 3
+#>   ..$ name  : chr "flipper_len"
+#>   ..$ hidden: logi FALSE
+#>   ..$ number:List of 1
+#>   .. ..$ decimalPlaces: chr "none"
+#>  $ :List of 3
+#>   ..$ name  : chr "body_mass"
+#>   ..$ hidden: logi FALSE
+#>   ..$ number:List of 1
+#>   .. ..$ decimalPlaces: chr "none"
+#>  $ :List of 3
+#>   ..$ name  : chr "sex"
+#>   ..$ hidden: logi FALSE
+#>   ..$ choice:List of 3
+#>   .. ..$ allowTextEntry: logi TRUE
+#>   .. ..$ choices       : chr [1:2] "female" "male"
+#>   .. ..$ displayAs     : chr "dropDownMenu"
+#>  $ :List of 3
+#>   ..$ name  : chr "year"
+#>   ..$ hidden: logi FALSE
+#>   ..$ number:List of 1
+#>   .. ..$ decimalPlaces: chr "none"
+```
+
+At present, data frames with character, numeric, datetime, and factor
+values are supported but list columns are not.
+
+These column definition lists should be provided as the `columns`
+argument for
+[`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md)
+to create the columns at the same time as the list.
+
+[`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+also allows users to create a list and populate the list with items in a
+single function call by setting `create_list = TRUE`:
+
+``` r
+create_sp_list_items(
+  list_name = "penguins",
+  description = "Measurements of Penguins near Palmer Station, Antarctica",
+  create_list = TRUE,
+  data = penguins,
+  site = sp_site
+)
+```
+
+You can use this same function with `create_list = FALSE` (the default)
+to add multiple items to a list or create individual items using
+[`create_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_item.md).
+
+Creating or updating large numbers of items can be very slow. If you are
+creating a large number of items, you can use the parallelization
+feature built-in to the pakage via
+[`purrr::in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html).
+Set the number of daemons, or persistent background processes, to handle
+the requests in parallel using `mirai::daemons()` before calling
+[`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+and the process should speed up.

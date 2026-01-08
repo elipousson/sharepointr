@@ -871,3 +871,25 @@ sp_list_internal_colnames <- c(
   "AppAuthor",
   "AppEditor"
 )
+
+
+#' System fields for SharePoint Online
+#' <https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/connections/connection-sharepoint-online#notes>
+#' @noRd
+sp_list_sys_colnames <- c(
+  "​​​​​​Identifier",
+  "IsFolder",
+  "Thumbnail",
+  "Link​",
+  "Name",
+  "FilenameWithExtension",
+  "Path",
+  "FullPath",
+  "ModerationStatus",
+  "ModerationComment",
+  "ContentType",
+  "IsCheckedOut",
+  "VersionNumber",
+  "TriggerWindowStartToken",
+  "TriggerWindowEndToken"
+)

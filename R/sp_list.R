@@ -541,7 +541,18 @@ delete_sp_list <- function(
 
   check_ms_obj(sp_list, "ms_list", call = call)
 
-  sp_list$delete(confirm = confirm)
+
+  if (confirm) {
+    nm <- sp_list[["properties"]][["displayName"]]
+    check_yes(
+      cli::format_inline(
+        "Do you want to delete the list {.val nm}?"
+      ),
+      call = call
+    )
+  }
+
+  sp_list$delete(confirm = FALSE)
 }
 
 #' Create listinfo object

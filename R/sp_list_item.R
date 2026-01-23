@@ -528,6 +528,9 @@ validate_sp_list_data_fields <- function(
     )
 
     values <- sp_list_meta[[values_from]]
+
+    # TODO: Use sp_list_meta to append LookupId suffix to person or lookup
+    # column types
   }
 
   nm <- names(data)
@@ -537,7 +540,9 @@ validate_sp_list_data_fields <- function(
     values <- setdiff(values, drop_fields)
   }
 
-  nm_match <- nm %in% values
+  nm_match <- (nm %in% values) |
+    # Always allow columns that end in LookupId
+    stringr::str_detect(nm, "LookupId")
 
   allowed_nm_msg <- "Field name{?s} from list are {.val {values}}"
 

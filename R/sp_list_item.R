@@ -128,6 +128,11 @@ list_sp_list_items <- function(
     pagesize = pagesize
   )
 
+  #  FIXME: Return an empty data frame with an alert if there are no results
+  # if (is.null(sp_list_items)) {
+  #   sp_list_items <-
+  # }
+
   if (col_formatting != "asis") {
     sp_list_col_info <- sp_list$get_column_info()
 
@@ -726,8 +731,10 @@ update_sp_list_item <- function(
   .data = NULL,
   item_id = NULL,
   sp_list_item = NULL,
-  na_fields = c("drop", "replace"),
   .id = "id",
+  check_fields = TRUE,
+  na_fields = c("drop", "replace"),
+  drop_fields = c("ContentType", "Attachments"),
   list_name = NULL,
   list_id = NULL,
   sp_list = NULL,
@@ -746,6 +753,23 @@ update_sp_list_item <- function(
     cli_abort(
       "You must use {.arg .data} to update a list item with a data frame.",
       call = call
+    )
+  }
+
+  # Drop or replace NA fields
+  na_fields <- arg_match(na_fields, error_call = call)
+
+  if (na_fields == "drop") {
+    .data <- vctrs::vec_slice(
+      .data,
+      i = !is.na(.data)
+    )
+  } else if (na_fields == "replace") {
+    # Replace any NA_integer_ or NA_real_ values w/ NA
+    .data <- vctrs::vec_assign(
+      .data,
+      i = is.na(.data),
+      value = NA
     )
   }
 
@@ -772,6 +796,9 @@ update_sp_list_item <- function(
 
   # Fill item id value from input list or data frame
   item_id <- item_id %||% .data[[.id]]
+  # Drop .id column from .data (if present)
+  update_data <- .data
+  update_data[[.id]] <- NULL
 
   check_exclusive_args(item_id, sp_list_item, call = call)
 
@@ -791,29 +818,17 @@ update_sp_list_item <- function(
 
     check_ms_obj(sp_list, "ms_list", call = call)
 
-    .data <- suppressMessages(
-      validate_sp_list_data_fields(
-        .data,
-        sp_list = sp_list,
-        drop_fields = c(.id, "ContentType", "Attachments")
+    if (check_fields) {
+      update_data <- suppressMessages(
+        validate_sp_list_data_fields(
+          update_data,
+          sp_list = sp_list,
+          drop_fields = c(.id, drop_fields)
+        )
       )
-    )
-  }
-
-  na_fields <- arg_match(na_fields, error_call = call)
-
-  if (na_fields == "drop") {
-    .data <- vctrs::vec_slice(
-      .data,
-      i = !is.na(.data)
-    )
-  } else if (na_fields == "replace") {
-    # Replace any NA_integer_ or NA_real_ values w/ NA
-    .data <- vctrs::vec_assign(
-      .data,
-      i = is.na(.data),
-      value = NA
-    )
+    }
+  } else {
+    # TODO: Implement check_fields if `sp_list_item` is supplied
   }
 
   if (!is.null(sp_list)) {
@@ -822,7 +837,7 @@ update_sp_list_item <- function(
     )
 
     withCallingHandlers(
-      inject(sp_list$update_item(item_id, !!!.data)),
+      inject(sp_list$update_item(item_id, !!!update_data)),
       error = function(cnd) {
         cli_abort(
           cnd$message,
@@ -840,7 +855,7 @@ update_sp_list_item <- function(
     )
 
     withCallingHandlers(
-      inject(sp_list_item$update(fields = list(!!!.data))),
+      inject(sp_list_item$update(fields = list(!!!update_data))),
       error = function(cnd) {
         cli_abort(
           cnd$message,

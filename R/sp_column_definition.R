@@ -367,8 +367,9 @@ create_calculated_column <- function(
   format = c("dateOnly", "dateTime"),
   output_type = c("text", "boolean", "currency", "dateTime", "number")
 ) {
-  check_string(formula)
+  # Validate output_type and format
   output_type <- arg_match(output_type)
+
   if (output_type == "dateTime") {
     format <- arg_match0(
       format,
@@ -378,18 +379,34 @@ create_calculated_column <- function(
     format <- NULL
   }
 
-  if (!stringr::str_detect(formula, "^=")) {
-    formula <- paste0("=", formula)
-  }
+  formula <- as_sp_formula(formula)
 
   create_column_definition(
     name = name,
     ...,
     format = format,
-    formula = trimws(formula),
+    formula = formula,
     outputType = output_type,
     .col_type = "calculated"
   )
+}
+
+#' Validate and format formula string
+#' @noRd
+as_sp_formula <- function(
+  formula,
+  .trim = TRUE,
+  call = caller_env(),
+  .envir = parent.frame()
+) {
+  check_string(formula, call = call)
+
+  # Check for leading `=`
+  if (!stringr::str_detect(formula, "^=")) {
+    formula <- paste0("=", formula)
+  }
+
+  glue::glue(formula, .trim = .trim, .envir = .envir)
 }
 
 #' @rdname create_column_definition
@@ -659,7 +676,7 @@ get_column_default <- function(
     return(list(value = value))
   }
 
-  list(formula = formula)
+  list(formula = as_sp_formula(formula, call = call))
 }
 
 #' Convert a data frame to a column definition list
@@ -692,7 +709,7 @@ data_as_column_definition_list <- function(
         "fct" = "choice",
         "dbl" = "number",
         "int" = "number",
-        "lgl" = "boolean",
+        "lgl" = "boolean", # NOTE: Logical NA values are not supported
         "date" = "date",
         "dttm" = "datetime",
         "text"

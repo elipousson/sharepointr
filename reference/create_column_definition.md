@@ -380,7 +380,7 @@ create_calculated_column(
 #> 
 #> $calculated
 #> $calculated$formula
-#> [1] "=[Text Column]"
+#> =[Text Column]
 #> 
 #> $calculated$outputType
 #> [1] "text"

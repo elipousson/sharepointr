@@ -47,6 +47,6 @@ get_column_default("Missing")
 
 get_column_default(formula = "=[Title]")
 #> $formula
-#> [1] "=[Title]"
+#> =[Title]
 #> 
 ```

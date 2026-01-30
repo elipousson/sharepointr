@@ -761,23 +761,8 @@ update_sp_list_item <- function(
     )
   }
 
-  # Drop or replace NA fields
-  na_fields <- arg_match(na_fields, error_call = call)
-
-  if (na_fields == "drop") {
-    .data <- vctrs::vec_slice(
-      .data,
-      i = !is.na(.data)
-    )
-  } else if (na_fields == "replace") {
-    # Replace any NA_integer_ or NA_real_ values w/ NA
-    .data <- vctrs::vec_assign(
-      .data,
-      i = is.na(.data),
-      value = NA
-    )
-  }
-
+  # NOTE: This is not type stable since the output will be converted to a list
+  # and drop or replace NA values
   if (is.data.frame(.data)) {
     # FIXME: is it OK that .data supports both lists and data frames?
     n_row_data <- nrow(.data)
@@ -797,6 +782,23 @@ update_sp_list_item <- function(
     # FIXME: Double-check if this creates any issue when specifying values for
     # more complex list field types
     .data <- as.list(.data)
+  }
+
+  # Drop or replace NA fields
+  na_fields <- arg_match(na_fields, error_call = call)
+
+  if (na_fields == "drop") {
+    .data <- vctrs::vec_slice(
+      .data,
+      i = !is.na(.data)
+    )
+  } else if (na_fields == "replace") {
+    # Replace any NA_integer_ or NA_real_ values w/ NA
+    .data <- vctrs::vec_assign(
+      .data,
+      i = is.na(.data),
+      value = NA
+    )
   }
 
   # Fill item id value from input list or data frame

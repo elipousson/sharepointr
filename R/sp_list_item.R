@@ -31,9 +31,9 @@ NULL
 #' @param col_formatting "asis" (default) or "date". If "date", use the list
 #' column metadata and convert date columns to Date class and datetime
 #' columns to POSIXct class vectors (latter is not yet tested).
-#' @param col_select Columns to select. Ignored if `select` is supplied. "asis"
-#' returns all available columns. "editable" returns ID and all non-read-only
-#' columns and "external" returns ID and all non-internal columns.
+#' @param select_type Type of columns to select. Ignored if `select` is supplied.
+#' "asis" (default) returns all available columns. "editable" returns ID and all
+#' non-read-only columns and "external" returns ID and all non-internal columns.
 #' @param name_repair Passed to repair argument of [vctrs::vec_as_names()]
 #' @export
 list_sp_list_items <- function(
@@ -47,7 +47,7 @@ list_sp_list_items <- function(
   as_data_frame = TRUE,
   col_formatting = c("asis", "date"),
   display_nm = c("drop", "label", "replace"),
-  col_select = c("asis", "editable", "external"),
+  select_type = c("asis", "editable", "external"),
   name_repair = "unique",
   pagesize = 5000,
   site_url = NULL,
@@ -59,7 +59,7 @@ list_sp_list_items <- function(
 ) {
   col_formatting <- arg_match(col_formatting, error_call = call)
   display_nm <- arg_match(display_nm, error_call = call)
-  col_select <- arg_match(col_select, error_call = call)
+  select_type <- arg_match(select_type, error_call = call)
 
   sp_list <- sp_list %||%
     get_sp_list(
@@ -85,19 +85,19 @@ list_sp_list_items <- function(
       select[select == "id"] <- "ID"
     }
 
-    if (col_select != "asis") {
+    if (select_type != "asis") {
       cli::cli_bullets(
-        c("!" = "{.arg col_select} is ignored if {.arg} select is provided.")
+        c("!" = "{.arg select_type} is ignored if {.arg} select is provided.")
       )
-      col_select <- "asis"
+      select_type <- "asis"
     }
 
     select <- paste0(select, collapse = ",")
-  } else if (col_select != "asis") {
+  } else if (select_type != "asis") {
     # Get editable or visible columns
     sp_list_cols <- get_sp_list_metadata(
       sp_list = sp_list,
-      keep = col_select,
+      keep = select_type,
       call = call
     )
 
@@ -136,12 +136,10 @@ list_sp_list_items <- function(
   if (col_formatting != "asis") {
     sp_list_col_info <- sp_list$get_column_info()
 
-    # If select is supplied apply formatting to selected columns only
-    if (is.character(select)) {
-      sp_list_col_info <- sp_list_col_info[
-        sp_list_col_info[["name"]] %in% stringr::str_split(select, ",")[[1]],
-      ]
-    }
+    # Limit to available columns in case select is used or blank columns are dropped
+    sp_list_col_info <- sp_list_col_info[
+      sp_list_col_info[["name"]] %in% names(sp_list_items),
+    ]
 
     date_time_col_info <- sp_list_col_info[["dateTime"]]
     date_col_i <- !is.na(date_time_col_info[["format"]])

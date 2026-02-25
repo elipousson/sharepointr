@@ -53,8 +53,47 @@ sp_user_id_as_lookup_id <- function(
     ]
   }
 
-  user_info_list[[lookup_id]][[match(
+  user_index <- match(
     tolower(users),
     tolower(user_info_list[[users_id]])
-  )]]
+  )
+
+  user_index[!is.na(user_index)] <- user_info_list[[lookup_id]][[user_index[
+    !is.na(user_index)
+  ]]]
+
+  user_index
+}
+
+#' Format a data frame with specified person columns to create or update
+#' person/group columns in a SharePoint list
+#' @keywords internal
+#' @export
+fmt_person_lookup_id_values <- function(
+  .data,
+  cols,
+  users_id = "EMail",
+  site_users = NULL,
+  sp_site = NULL
+) {
+  site_users <- site_users %||%
+    list_sp_site_user_info(
+      sp_site = sp_site
+    )
+  nm <- names(.data)
+  cols <- arg_match(cols, nm, multiple = TRUE)
+  for (j in cols) {
+    .data[[j]] <- sp_user_id_as_lookup_id(
+      .data[[j]],
+      user_info_list = site_users,
+      users_id = users_id
+    )
+  }
+
+  nm[nm %in% cols] <- paste0(nm[nm %in% cols], "LookupId")
+
+  rlang::set_names(
+    .data,
+    nm
+  )
 }

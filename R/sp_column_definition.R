@@ -700,26 +700,29 @@ data_as_column_definition_list <- function(
   split = "|",
   ignore_na = TRUE
 ) {
-  col_types <- vapply(
+  col_types <- purrr::map_chr(
     data,
     \(x) {
-      switch(
+      type <- switch(
         vctrs::vec_ptype_abbr(x),
         "chr" = "text",
         "fct" = "choice",
         "dbl" = "number",
         "int" = "number",
-        "lgl" = "boolean", # NOTE: Logical NA values are not supported
+        # NOTE: Logical NA values are not supported
+        "lgl" = "boolean",
         "date" = "date",
         "dttm" = "datetime",
         "text"
         # NA_character_
       )
-    },
-    character(1)
+
+      if (all(is_url(x) | is.na(x))) {
+        type <- "hyperlink"
+      }
+    }
   )
 
-  # FIXME: Replace purrr::map_dfr
   definitions_list <- purrr::map(
     seq_along(col_types),
     \(x) {
@@ -752,4 +755,92 @@ data_as_column_definition_list <- function(
     definitions,
     ignore_na = ignore_na
   )
+}
+
+
+#' Format the nested data frame list included in the SharePoint list metadata
+#' @noRd
+fmt_sp_list_metadata_df <- function(x, key) {
+  values <- vctrs::list_drop_empty(as.list(x[[key]]))
+  missing_values <- purrr::map_lgl(
+    values,
+    \(i) {
+      is.na(i) |
+        # NOTE: This is supposed to handle choice col definitions but it may
+        # not be working as expected
+        (length(i) == 1 & length(i[[1]]) == 0)
+    }
+  )
+
+  if (all(missing_values)) {
+    x[[key]] <- NULL
+  } else {
+    x[[key]] <- values[!missing_values]
+  }
+
+  x
+}
+
+#' Create a new column definition based on an existing list
+#'
+#' [copy_column_definition_list()] takes an existing SharePoint list and uses
+#' the list metadata to create a column definition list that can be used to
+#' create a new SharePoint list. NOTE: choice column types are not yet supported
+#' so choice definitions from the source list are dropped.
+#'
+#' @param sp_list A `ms_list` object or a data frame created by
+#' [get_sp_list_metadata()]. Optional if additional parameters are provided to
+#' `...` that can be used to get a SharePoint list to copy column definitions
+#' from.
+#' @inheritDotParams get_sp_list_metadata
+#' @keywords lists
+#' @export
+copy_column_definition_list <- function(sp_list = NULL, ...) {
+  if (
+    is.data.frame(sp_list) &&
+      all(has_name(sp_list, c("name", "id", "columnGroup", "definition")))
+  ) {
+    sp_list_meta <- sp_list
+    # TODO: Add an alert when this is done
+  } else {
+    sp_list_meta <- get_sp_list_metadata(
+      sp_list = sp_list,
+      ...
+    )
+  }
+
+  src_col_definitions <- vctrs::vec_slice(
+    sp_list_meta,
+    i = !(sp_list_meta[["name"]] %in% sp_list_internal_colnames)
+  )
+
+  src_col_definitions[["columnGroup"]] <- NULL
+  src_col_definitions[["id"]] <- NULL
+
+  col_definition <- src_col_definitions |>
+    vctrs::vec_chop() |>
+    purrr::map(
+      \(x) {
+        x <- as.list(x)
+
+        # Drop blank description values
+        if (x[["description"]] == "") {
+          x[["description"]] <- NULL
+        }
+
+        x <- purrr::reduce(
+          c("text", "dateTime", "number", "choice", "personOrGroup", "lookup"),
+          \(l, i) {
+            fmt_sp_list_metadata_df(l, i)
+          },
+          .int = x
+        )
+        # TODO: personOrGroup and lookup column types are not tested
+
+        # FIXME: choice columns are not working so values are dropped
+        x[["choice"]] <- NULL
+
+        vctrs::list_drop_empty(x)
+      }
+    )
 }

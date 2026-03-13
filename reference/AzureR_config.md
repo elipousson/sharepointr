@@ -22,8 +22,9 @@ AzureR_config_delete(path = NULL, filename = "graph_logins.json")
 - path:
 
   Path to configuration directory for AzureR package where the JSON file
-  for graph_logins is stored. If `NULL`, path is set with
-  `rappdirs::user_config_dir("AzureR")`.
+  for graph_logins is stored. If `NULL`, path is set with the base
+  folder for `rappdirs::user_cache_dir("AzureR")` (for Windows) or
+  `rappdirs::user_config_dir("AzureR")` (for non-Windows).
 
 - glob:
 

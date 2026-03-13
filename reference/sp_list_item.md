@@ -149,9 +149,10 @@ get_sp_list_item(
 
 - select_type:
 
-  Columns to select. Ignored if `select` is supplied. "asis" returns all
-  available columns. "editable" returns ID and all non-read-only columns
-  and "external" returns ID and all non-internal columns.
+  Type of columns to select. Ignored if `select` is supplied. "asis"
+  (default) returns all available columns. "editable" returns ID and all
+  non-read-only columns and "external" returns ID and all non-internal
+  columns.
 
 - name_repair:
 

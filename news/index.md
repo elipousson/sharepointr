@@ -46,6 +46,9 @@
   and
   [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md).
   (2025-08-26)
+- Add
+  [`copy_column_definition_list()`](https://elipousson.github.io/sharepointr/reference/copy_column_definition_list.md)
+  (2026-03-13)
 
 ### Fixes
 

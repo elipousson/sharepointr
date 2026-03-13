@@ -68,8 +68,9 @@ a "Unable to refresh token" error.</p>
 
 <dl><dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
 <dd><p>Path to configuration directory for AzureR package where the JSON
-file for graph_logins is stored. If <code>NULL</code>, path is set with
-<code>rappdirs::user_config_dir("AzureR")</code>.</p></dd>
+file for graph_logins is stored. If <code>NULL</code>, path is set with the base
+folder for <code>rappdirs::user_cache_dir("AzureR")</code> (for Windows) or
+<code>rappdirs::user_config_dir("AzureR")</code> (for non-Windows).</p></dd>
 
 
 <dt id="arg-glob">glob<a class="anchor" aria-label="anchor" href="#arg-glob"></a></dt>

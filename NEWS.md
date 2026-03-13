@@ -12,6 +12,7 @@
 * Add `{purrr}` to imports to incorporate new `purrr::in_parallel()` function. Requires users have `{crate}` and `{mirai}` installed and set workers using `mirai::daemons()`. (2025-07-25)
 * Add support for reading list items with `read_sharepoint()`. (2025-08-26)
 * Add `delete_sp_list_item()` and `delete_sp_list_items()`. (2025-08-26)
+* Add `copy_column_definition_list()` (2026-03-13)
 
 ## Fixes
 

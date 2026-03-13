@@ -8,8 +8,9 @@
 #'
 #' @name AzureR_config
 #' @param path Path to configuration directory for AzureR package where the JSON
-#'   file for graph_logins is stored. If `NULL`, path is set with
-#'   `rappdirs::user_config_dir("AzureR")`.
+#'   file for graph_logins is stored. If `NULL`, path is set with the base
+#' folder for `rappdirs::user_cache_dir("AzureR")` (for Windows) or
+#'  `rappdirs::user_config_dir("AzureR")` (for non-Windows).
 #' @inheritParams fs::dir_ls
 #' @param filename Filename to delete from configuration directory. Defaults to
 #'   "graph_logins.json". Set to `NULL` if path contains a file name.
@@ -20,8 +21,7 @@ NULL
 #' @export
 AzureR_config_ls <- function(path = NULL, glob = "*.json") {
   check_installed(c("rappdirs", "fs"))
-  path <- path %||% rappdirs::user_config_dir("AzureR")
-  fs::dir_ls(path = path, glob = glob)
+  fs::dir_ls(path = AzureR_set_path(path), glob = glob)
 }
 
 #' @rdname AzureR_config
@@ -29,6 +29,17 @@ AzureR_config_ls <- function(path = NULL, glob = "*.json") {
 #' @export
 AzureR_config_delete <- function(path = NULL, filename = "graph_logins.json") {
   check_installed(c("rappdirs", "fs"))
-  path <- path %||% rappdirs::user_config_dir("AzureR")
-  fs::file_delete(path = str_c_fsep(path, filename))
+  fs::file_delete(path = str_c_fsep(AzureR_set_path(path), filename))
+}
+
+#' @noRd
+AzureR_set_path <- function(path = NULL) {
+  if (identical(.Platform$OS.type, "windows")) {
+    path <- path %||%
+      fs::path_dir(fs::path_dir(rappdirs::user_cache_dir("AzureR")))
+  } else {
+    path <- path %||%
+      rappdirs::user_config_dir("AzureR")
+  }
+  path
 }

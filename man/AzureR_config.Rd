@@ -12,8 +12,9 @@ AzureR_config_delete(path = NULL, filename = "graph_logins.json")
 }
 \arguments{
 \item{path}{Path to configuration directory for AzureR package where the JSON
-file for graph_logins is stored. If \code{NULL}, path is set with
-\code{rappdirs::user_config_dir("AzureR")}.}
+file for graph_logins is stored. If \code{NULL}, path is set with the base
+folder for \code{rappdirs::user_cache_dir("AzureR")} (for Windows) or
+\code{rappdirs::user_config_dir("AzureR")} (for non-Windows).}
 
 \item{glob}{A wildcard aka globbing pattern (e.g. \verb{*.csv}) passed on to \code{\link[=grep]{grep()}} to filter paths.}
 

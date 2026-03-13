@@ -113,9 +113,9 @@ When working with the last option, the \code{name_repair} argument is required
 since there is no requirement on SharePoint for lists to use unique display
 names and invalid data frames can result.}
 
-\item{select_type}{Columns to select. Ignored if \code{select} is supplied. "asis"
-returns all available columns. "editable" returns ID and all non-read-only
-columns and "external" returns ID and all non-internal columns.}
+\item{select_type}{Type of columns to select. Ignored if \code{select} is supplied.
+"asis" (default) returns all available columns. "editable" returns ID and all
+non-read-only columns and "external" returns ID and all non-internal columns.}
 
 \item{name_repair}{Passed to repair argument of \code{\link[vctrs:vec_as_names]{vctrs::vec_as_names()}}}
 

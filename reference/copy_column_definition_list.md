@@ -1,9 +1,6 @@
 # Create a new column definition based on an existing list
 
-`copy_column_definition_list()` takes an existing SharePoint list and
-uses the list metadata to create a column definition list that can be
-used to create a new SharePoint list. NOTE: choice column types are not
-yet supported so choice definitions from the source list are dropped.
+**\[experimental\]**
 
 ## Usage
 
@@ -28,6 +25,17 @@ copy_column_definition_list(sp_list = NULL, ...)
   `list_name,list_id`
 
   :   SharePoint List name or ID string.
+
+  `as_data_frame`
+
+  :   If `TRUE`, return a data frame with a "ms_list" column.
+      [`get_sp_list()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
+      returns a 1 row data frame and
+      [`list_sp_lists()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
+      returns a data frame with n rows or all lists available for the
+      SharePoint site or drive. Defaults to `FALSE`. Ignored is
+      `metadata = TRUE` as list metadata is always returned as a data
+      frame.
 
   `keep`
 
@@ -70,3 +78,11 @@ copy_column_definition_list(sp_list = NULL, ...)
 
   :   A `ms_site` object. If `site` is supplied, `site_url`,
       `site_name`, and `site_id` are ignored.
+
+## Details
+
+`copy_column_definition_list()` takes an existing SharePoint list and
+uses the list metadata to create a column definition list that can be
+used to create a new SharePoint list. Note: lookup columns retain the
+original lookup list references so self-referencing lookup columns are
+copied as lookup columns referencing the source list.

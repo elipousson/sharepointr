@@ -107,13 +107,6 @@ list_sp_list_items <- function(
     )
   }
 
-  if (all_metadata && !as_data_frame) {
-    cli::cli_warn(
-      "{.arg all_metadata} can't be {.code TRUE} if
-      {.code as_data_frame = FALSE}"
-    )
-  }
-
   cli::cli_progress_step(
     "Getting list items from SharePoint"
   )
@@ -127,6 +120,15 @@ list_sp_list_items <- function(
     as_data_frame = as_data_frame,
     pagesize = pagesize
   )
+
+  if (all_metadata && !as_data_frame) {
+    cli::cli_warn(
+      "{.arg col_formatting} and {.arg display_nm} are not supported when
+      {.arg all_metadata = TRUE} and {.code as_data_frame = FALSE}"
+    )
+
+    return(sp_list_items)
+  }
 
   #  FIXME: Return an empty data frame with an alert if there are no results
   # if (is.null(sp_list_items)) {
@@ -1043,4 +1045,120 @@ delete_sp_list_items <- function(
   )
 
   invisible(resp_list)
+}
+
+#' @noRd
+sp_list_as_ptype_data_frame <- function(
+  ...,
+  sp_list = NULL,
+  col_metadata = NULL,
+  select = NULL
+) {
+  col_metadata <- col_metadata %||%
+    get_sp_list_metadata(
+      sp_list = sp_list,
+      as_data_frame = FALSE
+    )
+
+  # Get lookup columns (and equivalent)
+  lookup_id_cols <- purrr::keep(
+    col_metadata,
+    \(x) {
+      any(has_name(x, c("lookup", "personOrGroup"))) &
+        !(x[["name"]] %in%
+          c(
+            "ItemChildCount",
+            "FolderChildCount",
+            "_ComplianceFlags",
+            "_ComplianceTag",
+            "_ComplianceTagWrittenTime",
+            "_ComplianceTagUserId"
+          ))
+    }
+  )
+
+  col_nm <- purrr::map_chr(col_metadata, "name")
+
+  if (has_length(lookup_id_cols)) {
+    lookup_id_nm <- purrr::map_chr(lookup_id_cols, "name")
+
+    col_nm <- vctrs::vec_assign(
+      col_nm,
+      col_nm %in% lookup_id_nm,
+      paste0(lookup_id_nm, "LookupId")
+    )
+  }
+
+  col_nm <- vctrs::vec_assign(
+    col_nm,
+    i = col_nm == "ID",
+    value = "id"
+  )
+
+  col_metadata <- set_names(
+    col_metadata,
+    col_nm
+  )
+
+  ptype_list <- purrr::map(
+    col_metadata,
+    \(x) {
+      vctrs::vec_case_when(
+        conditions = list(
+          has_name(x, "number"),
+          has_name(x, "choice"),
+          has_name(x, "dateTime") &
+            identical(x[["dateTime"]][["format"]], "dateOnly"),
+          has_name(x, "dateTime") &
+            identical(x[["dateTime"]][["format"]], "dateTime")
+        ),
+        values = list(
+          list(NA_real_),
+          list(
+            factor(
+              NA,
+              levels = c(
+                NA,
+                unlist(x[["choice"]][["choices"]])
+              )
+            )
+          ),
+          list(as.Date(NA)),
+          list(c.POSIXct(NA))
+        ),
+        default = list(NA_character_)
+      )[[1]]
+    }
+  )
+
+  ptype_list <- c(
+    list(`@odata.etag` = NA_character_),
+    ptype_list
+  )
+
+  if (!is.null(select)) {
+    external_cols <- purrr::discard(
+      col_metadata,
+      \(x) {
+        x[["name"]] %in% sp_list_internal_colnames
+      }
+    )
+
+    select <- arg_match(
+      select,
+      values = c(
+        "@odata.etag",
+        col_nm
+      ),
+      multiple = TRUE
+    )
+
+    ptype_list <- vctrs::vec_slice(
+      ptype_list,
+      i = (names(ptype_list) %in% select) |
+        names(ptype_list) %in% names(external_cols)
+    )
+  }
+
+  vctrs::data_frame(!!!ptype_list, .name_repair = "minimal")
 }

@@ -289,15 +289,15 @@ get_sp_list_metadata <- function(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
+  as_data_frame = TRUE,
   call = caller_env()
 ) {
-  if (is.null(sp_list)) {
-    sp_list_meta <- get_sp_list(
+  sp_list <- sp_list %||%
+    get_sp_list(
       list_name = list_name,
       list_id = list_id,
       ...,
-      as_data_frame = TRUE,
-      metadata = TRUE,
+      metadata = FALSE,
       site_url = site_url,
       site = site,
       drive_name = drive_name,
@@ -305,24 +305,46 @@ get_sp_list_metadata <- function(
       drive = drive,
       call = call
     )
-  } else {
-    check_ms_obj(sp_list, "ms_list", call = call)
 
-    if (sync_fields) {
-      sp_list <- sp_list$sync_fields()
-    }
+  check_ms_obj(sp_list, "ms_list", call = call)
 
-    sp_list_meta <- sp_list$get_column_info()
+  if (sync_fields) {
+    sp_list <- sp_list$sync_fields()
   }
+
+  sp_list_op_resp <- sp_list$do_operation(
+    options = list(expand = "columns"),
+    simplify = as_data_frame
+  )
+
+  sp_list_meta <- sp_list_op_resp$columns
 
   keep <- arg_match(keep, error_call = call)
 
-  if (keep == "editable") {
-    sp_list_meta <- sp_list_meta[!sp_list_meta[["readOnly"]], ]
-  } else if (keep == "external") {
-    sp_list_meta <- sp_list_meta[
-      !(sp_list_meta[["name"]] %in% sp_list_internal_colnames),
-    ]
+  if (!as_data_frame) {
+    if (keep == "editable") {
+      sp_list_meta <- purrr::discard(
+        sp_list_meta,
+        \(x) {
+          x[["readOnly"]]
+        }
+      )
+    } else if (keep == "external") {
+      sp_list_meta <- purrr::discard(
+        sp_list_meta,
+        \(x) {
+          x[["name"]] %in% sp_list_internal_colnames
+        }
+      )
+    }
+  } else if (as_data_frame) {
+    if (keep == "editable") {
+      sp_list_meta <- sp_list_meta[!sp_list_meta[["readOnly"]], ]
+    } else if (keep == "external") {
+      sp_list_meta <- sp_list_meta[
+        !(sp_list_meta[["name"]] %in% sp_list_internal_colnames),
+      ]
+    }
   }
 
   sp_list_meta
@@ -540,7 +562,6 @@ delete_sp_list <- function(
   cli_progress_step("Deleting SharePoint list")
 
   check_ms_obj(sp_list, "ms_list", call = call)
-
 
   if (confirm) {
     nm <- sp_list[["properties"]][["displayName"]]
@@ -848,7 +869,6 @@ create_sp_list_lookup_column <- function(
 sp_list_internal_colnames <- c(
   "_ColorTag",
   "ComplianceAssetId",
-  "Attachments",
   "Modified",
   "ID",
   "ContentType",

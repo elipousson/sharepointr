@@ -16,6 +16,11 @@ from.}
   Arguments passed on to \code{\link[=get_sp_list_metadata]{get_sp_list_metadata}}
   \describe{
     \item{\code{list_name,list_id}}{SharePoint List name or ID string.}
+    \item{\code{as_data_frame}}{If \code{TRUE}, return a data frame with a "ms_list" column.
+\code{\link[=get_sp_list]{get_sp_list()}} returns a 1 row data frame and \code{\link[=list_sp_lists]{list_sp_lists()}} returns a
+data frame with n rows or all lists available for the SharePoint site or
+drive. Defaults to \code{FALSE}. Ignored is \code{metadata = TRUE} as list metadata
+is always returned as a data frame.}
     \item{\code{keep}}{One of "all" (default), "editable", "external" (non-internal
 fields). Argument determines if the returned list metadata includes read
 only columns or hidden columns.}
@@ -39,9 +44,13 @@ mentioned in error messages as the source of the error. See the
   }}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+}
+\details{
 \code{\link[=copy_column_definition_list]{copy_column_definition_list()}} takes an existing SharePoint list and uses
 the list metadata to create a column definition list that can be used to
-create a new SharePoint list. NOTE: choice column types are not yet supported
-so choice definitions from the source list are dropped.
+create a new SharePoint list. Note: lookup columns retain the original lookup
+list references so self-referencing lookup columns are copied as lookup
+columns referencing the source list.
 }
 \keyword{lists}

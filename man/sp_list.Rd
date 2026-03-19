@@ -46,6 +46,7 @@ get_sp_list_metadata(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
+  as_data_frame = TRUE,
   call = caller_env()
 )
 }

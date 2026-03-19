@@ -783,10 +783,13 @@ fmt_sp_list_metadata_df <- function(x, key) {
 
 #' Create a new column definition based on an existing list
 #'
+#' `r lifecycle::badge("experimental")`
+#'
 #' [copy_column_definition_list()] takes an existing SharePoint list and uses
 #' the list metadata to create a column definition list that can be used to
-#' create a new SharePoint list. NOTE: choice column types are not yet supported
-#' so choice definitions from the source list are dropped.
+#' create a new SharePoint list. Note: lookup columns retain the original lookup
+#' list references so self-referencing lookup columns are copied as lookup
+#' columns referencing the source list.
 #'
 #' @param sp_list A `ms_list` object or a data frame created by
 #' [get_sp_list_metadata()]. Optional if additional parameters are provided to
@@ -811,7 +814,7 @@ copy_column_definition_list <- function(sp_list = NULL, ...) {
 
   src_col_definitions <- vctrs::vec_slice(
     sp_list_meta,
-    i = !(sp_list_meta[["name"]] %in% sp_list_internal_colnames)
+    i = !(sp_list_meta[["name"]] %in% c("Title", sp_list_internal_colnames))
   )
 
   src_col_definitions[["columnGroup"]] <- NULL
@@ -831,16 +834,34 @@ copy_column_definition_list <- function(sp_list = NULL, ...) {
         x <- purrr::reduce(
           c("text", "dateTime", "number", "choice", "personOrGroup", "lookup"),
           \(l, i) {
-            fmt_sp_list_metadata_df(l, i)
+            fmt_sp_list_metadata_df(x = l, key = i)
           },
-          .int = x
+          .init = x
         )
-        # TODO: personOrGroup and lookup column types are not tested
+        # TODO: lookup column types are not tested
 
-        # FIXME: choice columns are not working so values are dropped
-        x[["choice"]] <- NULL
+        # Unlist choice definitions
+        if (has_name(x, "choice")) {
+          x[["choice"]][["choices"]] <- unlist(x[["choice"]][["choices"]])
+        }
+
+        # Drop read only columns
+        if (!x[["readOnly"]]) {
+          x[["readOnly"]] <- NULL
+        }
+
+        # Coerce default values to lists and drop empty defaults
+        if (has_name(x, "defaultValue")) {
+          x[["defaultValue"]] <- as.list(x[["defaultValue"]])
+
+          if (all(is.na(x[["defaultValue"]]))) {
+            x[["defaultValue"]] <- NULL
+          }
+        }
 
         vctrs::list_drop_empty(x)
       }
     )
+
+  col_definition
 }

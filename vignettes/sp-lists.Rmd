@@ -49,36 +49,43 @@ site_lists <- list_sp_lists(
 
 head(site_lists[, c(2:7)])
 #>        createdDateTime
-#> 1 2025-02-27T22:54:53Z
-#> 2 2023-11-27T18:12:43Z
+#> 1 2023-11-27T18:12:43Z
+#> 2 2026-04-02T17:54:46Z
 #> 3 2021-04-09T15:21:43Z
 #> 4 2023-10-25T20:38:22Z
 #> 5 2020-12-16T15:50:27Z
 #> 6 2022-12-05T14:55:38Z
-#>                                                                                                                                                                                    description
-#> 1 A list for tracking current and former membership of the Planning Commission, CHAP, PCDA, Sustainability Commission, and LDC to allow reporting of "required filers" to the Board of Ethics.
-#> 2                                                                                                   A reference list of Division-level, inter-agency, and program specific recurring meetings.
-#> 3                                                                                                                    Canvas items for channel 19:38d6c3c5ffd048d091655fde4e10fa2f@thread.skype
-#> 4                                             A list for tracking issues, initiatives, and projects identified by members of the Department of Planning Technology Committee and agency staff.
-#> 5                                                                                                                    Canvas items for channel 19:78556da3d0db4ddabfb7d8807110cc60@thread.skype
-#> 6                                                                                                                    Canvas items for channel 19:1a54f93ccf1244cda3547deae96e306a@thread.skype
+#>                                                                                                                                        description
+#> 1                                                       A reference list of Division-level, inter-agency, and program specific recurring meetings.
+#> 2                                                                                                                                                 
+#> 3                                                                        Canvas items for channel 19:38d6c3c5ffd048d091655fde4e10fa2f@thread.skype
+#> 4 A list for tracking issues, initiatives, and projects identified by members of the Department of Planning Technology Committee and agency staff.
+#> 5                                                                        Canvas items for channel 19:78556da3d0db4ddabfb7d8807110cc60@thread.skype
+#> 6                                                                        Canvas items for channel 19:1a54f93ccf1244cda3547deae96e306a@thread.skype
 #>                                        eTag
-#> 1  "dcae5523-39e3-4582-8b6d-08ccd3b98499,5"
-#> 2 "531a153d-b9d4-4d04-93cd-0d49d9bac705,43"
+#> 1 "531a153d-b9d4-4d04-93cd-0d49d9bac705,63"
+#> 2 "bdd11473-562b-43bc-b498-0f235aef9e4a,12"
 #> 3 "0d7df1be-e6de-474b-88ea-0f56689ca3e9,15"
 #> 4 "7c6b3bac-4962-4285-980e-127e36583ffc,22"
 #> 5 "9c518bac-ef99-4ae8-ab27-1453f68c87e1,15"
 #> 6 "d216b2d5-7cae-491f-abf4-1474628a0982,15"
-#>                                     id lastModifiedDateTime
-#> 1 dcae5523-39e3-4582-8b6d-08ccd3b98499 2025-06-17T16:54:51Z
-#> 2 531a153d-b9d4-4d04-93cd-0d49d9bac705 2025-07-31T16:34:06Z
-#> 3 0d7df1be-e6de-474b-88ea-0f56689ca3e9 2024-10-02T03:22:07Z
-#> 4 7c6b3bac-4962-4285-980e-127e36583ffc 2025-08-05T16:04:10Z
-#> 5 9c518bac-ef99-4ae8-ab27-1453f68c87e1 2024-10-02T03:22:07Z
-#> 6 d216b2d5-7cae-491f-abf4-1474628a0982 2024-10-02T03:22:06Z
+#>                                     id
+#> 1 531a153d-b9d4-4d04-93cd-0d49d9bac705
+#> 2 bdd11473-562b-43bc-b498-0f235aef9e4a
+#> 3 0d7df1be-e6de-474b-88ea-0f56689ca3e9
+#> 4 7c6b3bac-4962-4285-980e-127e36583ffc
+#> 5 9c518bac-ef99-4ae8-ab27-1453f68c87e1
+#> 6 d216b2d5-7cae-491f-abf4-1474628a0982
+#>   lastModifiedDateTime
+#> 1 2026-05-13T11:42:10Z
+#> 2 2026-05-22T13:37:34Z
+#> 3 2024-10-02T03:22:07Z
+#> 4 2026-05-01T14:17:23Z
+#> 5 2024-10-02T03:22:07Z
+#> 6 2024-10-02T03:22:06Z
 #>                                                 name
-#> 1                                  DOP Commissioners
-#> 2                 DOP Internal  Interagency Meetings
+#> 1                 DOP Internal  Interagency Meetings
+#> 2                    DOP Grants Management Resources
 #> 3 1938d6c3c5ffd048d091655fde4e10fa2fthreadskype_wiki
 #> 4        Technology Committee Priority Issue Tracker
 #> 5 1978556da3d0db4ddabfb7d8807110cc60threadskype_wiki
@@ -105,9 +112,10 @@ room_list
 #>   description: A list of offices and other rooms occupied by the Baltimore City Department of Planning on the 8th Floor of the Benton Building. 
 #> ---
 #>   Methods:
-#>     bulk_import, create_column, create_item, delete,
-#>     delete_item, do_operation, get_column_info,
-#>     get_item, get_list_pager, list_items, sync_fields,
+#>     bulk_import, create_item, delete,
+#>     delete_item, do_operation,
+#>     get_column_info, get_item,
+#>     get_list_pager, list_items, sync_fields,
 #>     update, update_item
 ```
 
@@ -121,25 +129,31 @@ rooms <- list_sp_list_items(
   "https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms/AllItems.aspx"
 )
 #> Loading Microsoft Graph login for default tenant
-#> Loading Microsoft Graph login for default tenant
 
 rooms <- list_sp_list_items(sp_list = room_list)
 
 head(rooms[ , c(2:8)])
-#>      Title LinkTitle   RoomType                       Location
-#> 1 08-COM02  08-COM02   CORRIDOR        Hallway to plotter area
-#> 2 08-COM01  08-COM01   CORRIDOR                 elevator lobby
-#> 3 08-SRV01  08-SRV01    UTILITY interior hallway west of lobby
-#> 4 08-SRV02  08-SRV02 TELE/COMMS                 public hallway
-#> 5 08-SRV03  08-SRV03        MEN                public restroom
-#> 6 08-SRV04  08-SRV04      WOMEN                public restroom
-#>   RoomCategory    UsedBy id
-#> 1       COMMON DOP Staff 26
-#> 2       COMMON    Public 27
-#> 3      SERVICE   Service 28
-#> 4      SERVICE   Service 29
-#> 5      SERVICE    Public 30
-#> 6      SERVICE    Public 31
+#>      Title LinkTitle   RoomType
+#> 1 08-COM02  08-COM02   CORRIDOR
+#> 2 08-COM01  08-COM01   CORRIDOR
+#> 3 08-SRV01  08-SRV01    UTILITY
+#> 4 08-SRV02  08-SRV02 TELE/COMMS
+#> 5 08-SRV03  08-SRV03        MEN
+#> 6 08-SRV04  08-SRV04      WOMEN
+#>                         Location RoomCategory    UsedBy
+#> 1        Hallway to plotter area       COMMON DOP Staff
+#> 2                 elevator lobby       COMMON    Public
+#> 3 interior hallway west of lobby      SERVICE   Service
+#> 4                 public hallway      SERVICE   Service
+#> 5                public restroom      SERVICE    Public
+#> 6                public restroom      SERVICE    Public
+#>            ArchibusAvailability
+#> 1 Not available for reservation
+#> 2 Not available for reservation
+#> 3 Not available for reservation
+#> 4 Not available for reservation
+#> 5 Not available for reservation
+#> 6 Not available for reservation
 ```
 
 You can get a single list item as a `Microsoft365R::ms_list_item` object using `get_sp_list_item()`. The id values are not visible by default when looking at a Microsoft List online but they are included in the list item data frame:
@@ -152,7 +166,7 @@ get_sp_list_item(id = 26, sp_list = room_list)
 #>   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms/26_.000 
 #> ---
 #>   Methods:
-#>     create_link, delete, do_operation, get_list_pager,
+#>     delete, do_operation, get_list_pager,
 #>     sync_fields, update
 ```
 
@@ -170,14 +184,15 @@ penguins_list <- create_sp_list(
 
 penguins_list
 #> <Sharepoint list 'penguins'>
-#>   directory id: 6a7cc3fa-0722-4d4b-a50c-56f8b8baec67 
+#>   directory id: 54e0e2ec-8507-4780-bb7d-771916324d3e 
 #>   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/penguins 
 #>   description: Measurements of Penguins near Palmer Station, Antarctica 
 #> ---
 #>   Methods:
-#>     bulk_import, create_column, create_item, delete,
-#>     delete_item, do_operation, get_column_info,
-#>     get_item, get_list_pager, list_items, sync_fields,
+#>     bulk_import, create_item, delete,
+#>     delete_item, do_operation,
+#>     get_column_info, get_item,
+#>     get_list_pager, list_items, sync_fields,
 #>     update, update_item
 ```
 
@@ -339,8 +354,169 @@ create_sp_list_items(
 )
 ```
 
-You can use this same function with `create_list = FALSE` (the default) to add multiple items to a list or create individual items using `create_sp_list_item()`.
+You can use this same function with `create_list = FALSE` (the default) to add multiple items to a list.
+Create individual items using `create_sp_list_item()`.
 
-Creating or updating large numbers of items can be very slow. If you are creating a large number of items, you can use the parallelization feature built-in to the pakage via `purrr::in_parallel()`. Set the number of daemons, or persistent background processes, to handle the requests in parallel using `mirai::daemons()` before calling `create_sp_list_items()` and the process should speed up.
+`create_sp_list_items()` offers special handling for the sfc list columns.
+If `data` is an sf object, the geometry column is converted to well-known text using `sf::st_as_text()`.
+The CRS is not stored as part of the list so the CRS must be specified when reading the data back into a sf object.
+
+
+``` r
+nc <- sf::st_read(system.file("shape/nc.shp", package="sf"))
+#> Reading layer `nc' from data source 
+#>   `C:\Users\Eli.Pousson\AppData\Local\Programs\R\R-4.5.1\library\sf\shape\nc.shp' 
+#>   using driver `ESRI Shapefile'
+#> Simple feature collection with 100 features and 14 fields
+#> Geometry type: MULTIPOLYGON
+#> Dimension:     XY
+#> Bounding box:  xmin: -84.32385 ymin: 33.88199 xmax: -75.45698 ymax: 36.58965
+#> Geodetic CRS:  NAD27
+
+create_sp_list_items(
+  list_name = "North Carolina SIDS data",
+  description = "Sudden Infant Death Syndrome (SIDS) sample data for North Carolina counties, two time periods (1974-78 and 1979-84).",
+  create_list = TRUE,
+  data = nc,
+  site = sp_site
+)
+#> ! All column names in `data` must match field names in
+#>   the supplied list.
+#> ℹ Columns "BIR74", "SID74", "BIR79", and "SID79" dropped
+#>   from `data`
+
+nc_sp_list <- get_sp_list(
+  list_name = "North Carolina SIDS data",
+  site = sp_site
+)
+
+nc_list_items <- read_sharepoint(nc_sp_list)
+
+sf::st_as_sf(
+  nc_list_items,
+  crs = sf::st_crs(nc),
+  wkt = "geometry"
+)
+#> Simple feature collection with 100 features and 28 fields
+#> Geometry type: MULTIPOLYGON
+#> Dimension:     XY
+#> Bounding box:  xmin: -84.32385 ymin: 33.88199 xmax: -75.45698 ymax: 36.58965
+#> Geodetic CRS:  NAD27
+#> First 10 features:
+#>                                 @odata.etag  AREA
+#> 1  "e05c3fb4-6cda-4145-9a67-c573bc60a84e,1" 0.114
+#> 2  "c9a71d83-c08d-4a97-a0d4-0bc90d79ddab,1" 0.061
+#> 3  "e4b83774-9603-4806-b99c-51c9a104fd4a,1" 0.143
+#> 4  "e2cd1891-9daa-4976-aba3-ad6623cda57a,1" 0.070
+#> 5  "f2cb4850-b0e7-49a7-9c22-c453752d7ef9,1" 0.153
+#> 6  "80f4c556-132e-4470-bda8-75e32fe07360,1" 0.097
+#> 7  "92e451c3-0ffe-4659-a31d-210895c88514,1" 0.062
+#> 8  "01db5e8d-4e5a-4f98-bb84-d1ec0659d305,1" 0.091
+#> 9  "63b1c806-7530-445f-b0d1-97f29f01e0df,1" 0.118
+#> 10 "4270a773-ddc4-4b8e-ba87-fd093f910583,1" 0.124
+#>    PERIMETER CNTY_ CNTY_ID        NAME  FIPS FIPSNO
+#> 1      1.442  1825    1825        Ashe 37009  37009
+#> 2      1.231  1827    1827   Alleghany 37005  37005
+#> 3      1.630  1828    1828       Surry 37171  37171
+#> 4      2.968  1831    1831   Currituck 37053  37053
+#> 5      2.206  1832    1832 Northampton 37131  37131
+#> 6      1.670  1833    1833    Hertford 37091  37091
+#> 7      1.547  1834    1834      Camden 37029  37029
+#> 8      1.284  1835    1835       Gates 37073  37073
+#> 9      1.421  1836    1836      Warren 37185  37185
+#> 10     1.428  1837    1837      Stokes 37169  37169
+#>    CRESS_ID NWBIR74 NWBIR79 id ContentType
+#> 1         5      10      19  1        Item
+#> 2         3      10      12  2        Item
+#> 3        86     208     260  3        Item
+#> 4        27     123     145  4        Item
+#> 5        66    1066    1197  5        Item
+#> 6        46     954    1237  6        Item
+#> 7        15     115     139  7        Item
+#> 8        37     254     371  8        Item
+#> 9        93     748     844  9        Item
+#> 10       85     160     176 10        Item
+#>                Modified              Created
+#> 1  2026-05-27T16:52:04Z 2026-05-27T16:52:04Z
+#> 2  2026-05-27T16:52:05Z 2026-05-27T16:52:05Z
+#> 3  2026-05-27T16:52:05Z 2026-05-27T16:52:05Z
+#> 4  2026-05-27T16:52:05Z 2026-05-27T16:52:05Z
+#> 5  2026-05-27T16:52:06Z 2026-05-27T16:52:06Z
+#> 6  2026-05-27T16:52:06Z 2026-05-27T16:52:06Z
+#> 7  2026-05-27T16:52:06Z 2026-05-27T16:52:06Z
+#> 8  2026-05-27T16:52:06Z 2026-05-27T16:52:06Z
+#> 9  2026-05-27T16:52:07Z 2026-05-27T16:52:07Z
+#> 10 2026-05-27T16:52:07Z 2026-05-27T16:52:07Z
+#>    AuthorLookupId EditorLookupId _UIVersionString
+#> 1             280            280              1.0
+#> 2             280            280              1.0
+#> 3             280            280              1.0
+#> 4             280            280              1.0
+#> 5             280            280              1.0
+#> 6             280            280              1.0
+#> 7             280            280              1.0
+#> 8             280            280              1.0
+#> 9             280            280              1.0
+#> 10            280            280              1.0
+#>    Attachments Edit ItemChildCount FolderChildCount
+#> 1        FALSE                   0                0
+#> 2        FALSE                   0                0
+#> 3        FALSE                   0                0
+#> 4        FALSE                   0                0
+#> 5        FALSE                   0                0
+#> 6        FALSE                   0                0
+#> 7        FALSE                   0                0
+#> 8        FALSE                   0                0
+#> 9        FALSE                   0                0
+#> 10       FALSE                   0                0
+#>    _ComplianceFlags _ComplianceTag
+#> 1                                 
+#> 2                                 
+#> 3                                 
+#> 4                                 
+#> 5                                 
+#> 6                                 
+#> 7                                 
+#> 8                                 
+#> 9                                 
+#> 10                                
+#>    _ComplianceTagWrittenTime _ComplianceTagUserId
+#> 1                                                
+#> 2                                                
+#> 3                                                
+#> 4                                                
+#> 5                                                
+#> 6                                                
+#> 7                                                
+#> 8                                                
+#> 9                                                
+#> 10                                               
+#>    AppAuthorLookupId AppEditorLookupId
+#> 1                 61                61
+#> 2                 61                61
+#> 3                 61                61
+#> 4                 61                61
+#> 5                 61                61
+#> 6                 61                61
+#> 7                 61                61
+#> 8                 61                61
+#> 9                 61                61
+#> 10                61                61
+#>                          geometry
+#> 1  MULTIPOLYGON (((-81.47276 3...
+#> 2  MULTIPOLYGON (((-81.23989 3...
+#> 3  MULTIPOLYGON (((-80.45634 3...
+#> 4  MULTIPOLYGON (((-76.00897 3...
+#> 5  MULTIPOLYGON (((-77.21767 3...
+#> 6  MULTIPOLYGON (((-76.74506 3...
+#> 7  MULTIPOLYGON (((-76.00897 3...
+#> 8  MULTIPOLYGON (((-76.56251 3...
+#> 9  MULTIPOLYGON (((-78.30876 3...
+#> 10 MULTIPOLYGON (((-80.02567 3...
+```
+
+Creating or updating large numbers of items can be very slow.
+If you are creating a large number of items, you can use the parallelization feature built-in to the pakage via `purrr::in_parallel()`.
+Set the number of daemons, or persistent background processes, to handle the requests in parallel using `mirai::daemons()` before calling `create_sp_list_items()` and the process should speed up.
 
 

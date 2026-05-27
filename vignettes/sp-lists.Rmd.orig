@@ -150,14 +150,54 @@ create_sp_list_items(
 )
 ```
 
-You can use this same function with `create_list = FALSE` (the default) to add multiple items to a list or create individual items using `create_sp_list_item()`.
+You can use this same function with `create_list = FALSE` (the default) to add multiple items to a list.
+Create individual items using `create_sp_list_item()`.
 
-Creating or updating large numbers of items can be very slow. If you are creating a large number of items, you can use the parallelization feature built-in to the pakage via `purrr::in_parallel()`. Set the number of daemons, or persistent background processes, to handle the requests in parallel using `mirai::daemons()` before calling `create_sp_list_items()` and the process should speed up.
+`create_sp_list_items()` offers special handling for the sfc list columns.
+If `data` is an sf object, the geometry column is converted to well-known text using `sf::st_as_text()`.
+The CRS is not stored as part of the list so the CRS must be specified when reading the data back into a sf object.
+
+```{r}
+nc <- sf::st_read(system.file("shape/nc.shp", package="sf"))
+
+create_sp_list_items(
+  list_name = "North Carolina SIDS data",
+  description = "Sudden Infant Death Syndrome (SIDS) sample data for North Carolina counties, two time periods (1974-78 and 1979-84).",
+  create_list = TRUE,
+  data = nc,
+  site = sp_site
+)
+
+nc_sp_list <- get_sp_list(
+  list_name = "North Carolina SIDS data",
+  site = sp_site
+)
+
+nc_list_items <- read_sharepoint(nc_sp_list)
+
+sf::st_as_sf(
+  nc_list_items,
+  crs = sf::st_crs(nc),
+  wkt = "geometry"
+)
+```
+
+Creating or updating large numbers of items can be very slow.
+If you are creating a large number of items, you can use the parallelization feature built-in to the pakage via `purrr::in_parallel()`.
+Set the number of daemons, or persistent background processes, to handle the requests in parallel using `mirai::daemons()` before calling `create_sp_list_items()` and the process should speed up.
 
 ```{r, echo=FALSE}
 suppressMessages(
   delete_sp_list(
     list_name = "penguins",
+    confirm = FALSE,
+    site = sp_site
+  )
+)
+
+suppressMessages(
+  delete_sp_list(
+    list_name = "North Carolina SIDS data",
     confirm = FALSE,
     site = sp_site
   )

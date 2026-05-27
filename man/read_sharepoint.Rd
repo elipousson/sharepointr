@@ -81,5 +81,5 @@ If the file has none of these file extensions, an attempt is made to read the
 file with \code{\link[readr:read_lines]{readr::read_lines()}}.
 
 The function also serves as a wrapper for \code{\link[=list_sp_list_items]{list_sp_list_items()}} if the
-provided \code{file} parameter is a SharePoint list URL.
+provided \code{file} parameter is a SharePoint list URL or a \code{ms_list} object.
 }

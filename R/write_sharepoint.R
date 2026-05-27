@@ -78,6 +78,9 @@ write_sharepoint <- function(
     readr::write_rds(x, file = file, ...)
   }
 
+  # TODO: Explore if write_sharepoint should include support for creating list
+  # items comparable to read_sharepoint support for ms_list objects and list URLs
+
   upload_sp_item(
     file = file,
     dest = dest,
@@ -226,6 +229,7 @@ upload_sp_items <- function(
     size = length(src)
   )
 
+  # TODO: Implement parallel option w/ in_parallel
   dest_list <- purrr::map2_chr(
     src,
     dest,

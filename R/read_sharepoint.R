@@ -22,7 +22,7 @@
 #' file with [readr::read_lines()].
 #'
 #' The function also serves as a wrapper for [list_sp_list_items()] if the
-#' provided `file` parameter is a SharePoint list URL.
+#' provided `file` parameter is a SharePoint list URL or a `ms_list` object.
 #'
 #' @name read_sharepoint
 #' @param file Required. A SharePoint shared file URL, document URL, or, if
@@ -51,6 +51,11 @@ read_sharepoint <- function(
   site_id = NULL,
   site = NULL
 ) {
+  if (is_ms_obj(file, "ms_list")) {
+    items <- list_sp_list_items(sp_list = file, ...)
+    return(items)
+  }
+
   if (stringr::str_detect(file, ":l:|/Lists/")) {
     items <- list_sp_list_items(
       list_name = file,

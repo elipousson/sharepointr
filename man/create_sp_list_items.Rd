@@ -65,7 +65,8 @@ update_sp_list_item(
 }
 \arguments{
 \item{data}{Required. A data frame to import as items to the supplied or
-identified SharePoint list.}
+identified SharePoint list. If data is an sf object, the geometry column is
+coerced to text using \code{\link[sf:st_as_text]{sf::st_as_text()}}.}
 
 \item{list_name, list_id}{SharePoint List name or ID string.}
 

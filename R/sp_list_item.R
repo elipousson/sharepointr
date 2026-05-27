@@ -363,7 +363,8 @@ get_sp_list_item <- function(
 #'
 #' @aliases import_sp_list_items
 #' @param data Required. A data frame to import as items to the supplied or
-#'   identified SharePoint list.
+#'   identified SharePoint list. If data is an sf object, the geometry column is
+#'   coerced to text using [sf::st_as_text()].
 #' @param strict Not yet implemented as of 2024-08-12. If `TRUE`, all column
 #'   names in data must be matched to field names in the supplied SharePoint
 #'   list. If `FALSE` (default), unmatched columns will be dropped with a
@@ -451,6 +452,15 @@ create_sp_list_items <- function(
       drive = drive,
       call = call
     )
+
+  # Coerce sf column to WKT
+  if (inherits(data, "sf")) {
+    check_installed("sf")
+    sf_column <- attributes(data)[["sf_column"]]
+    wkt <- sf::st_as_text(data[[sf_column]])
+    data <- sf::st_drop_geometry(data)
+    data[[sf_column]] <- wkt
+  }
 
   if (allow_display_nm) {
     # FIXME: Figure out why this errors for some input data

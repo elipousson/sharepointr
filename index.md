@@ -9,6 +9,7 @@ with files stored in SharePoint by extending the
 You can install the development version of SharePointR like so:
 
 ``` r
+
 # pak::pkg_install("elipousson/sharepointr")
 ```
 
@@ -35,6 +36,7 @@ and adding support for the specification of SharePoint sites, drives,
 and items using SharePoint URLs instead of item or drive ID values.
 
 ``` r
+
 library(sharepointr)
 ```
 
@@ -55,6 +57,7 @@ for Microsoft Word files or
 for common spatial data files):
 
 ``` r
+
 docx_shared_url <- "https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/General/Baltimore%20Data%20Academy/Baltimore%20Data%20Academy%20Announcement%20Content.docx?d=w0a50d3cd74ce4a8da6d82596037f0148&csf=1&web=1&e=cBURo2"
 
 read_sharepoint(docx_shared_url)
@@ -117,6 +120,7 @@ returns a `ms_drive_item` object and supports parsing for shared file
 and folder URLs:
 
 ``` r
+
 get_sp_item(docx_shared_url)
 #> Loading Microsoft Graph login for default tenant
 #> <Drive item 'Baltimore Data Academy Announcement Content.docx'>
@@ -138,6 +142,7 @@ Set `as_data_frame = TRUE` to return a data frame instead of a
 `ms_drive_item` object:
 
 ``` r
+
 get_sp_item(docx_shared_url, as_data_frame = TRUE)
 #> Loading Microsoft Graph login for default tenant
 #>                                                                                                                           @odata.context
@@ -175,6 +180,7 @@ is the function that powers
 [`read_sharepoint()`](https://elipousson.github.io/sharepointr/reference/read_sharepoint.md)):
 
 ``` r
+
 withr::with_tempdir({
   docx_dest <- download_sp_item(docx_shared_url)
 
@@ -201,6 +207,7 @@ wraps this method to return a data frame similar to the output from
 [`fs::dir_info()`](https://fs.r-lib.org/reference/dir_ls.html):
 
 ``` r
+
 sp_dir_info("https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/General/Baltimore%20Data%20Academy")
 #> Loading Microsoft Graph login for default tenant
 #>                                                                                                                                       name
@@ -273,6 +280,7 @@ is a minimal wrapper for
 [`Microsoft365R::get_sharepoint_site()`](https://rdrr.io/pkg/Microsoft365R/man/client.html):
 
 ``` r
+
 site_url <- "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance"
 
 get_sp_site(site_url = site_url)
@@ -295,6 +303,7 @@ the name of the drive (otherwise it returns the drive named in the
 “sharepointr.default_drive_name” option):
 
 ``` r
+
 get_sp_drive(docx_shared_url)
 #> Loading Microsoft Graph login for default tenant
 #> <Document library 'Documents'>

@@ -34,7 +34,8 @@ read the file with
 
 The function also serves as a wrapper for
 [`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md)
-if the provided `file` parameter is a SharePoint list URL.
+if the provided `file` parameter is a SharePoint list URL or a `ms_list`
+object.
 
 ## Usage
 

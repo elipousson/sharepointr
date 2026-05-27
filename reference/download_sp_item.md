@@ -137,6 +137,7 @@ the value for the `dest` can be inferred from the item properties.
 ## Examples
 
 ``` r
+
 # Download a single directory
 
 sp_dir_url <- "<SharePoint directory url>"

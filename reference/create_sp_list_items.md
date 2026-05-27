@@ -67,7 +67,9 @@ update_sp_list_item(
 - data:
 
   Required. A data frame to import as items to the supplied or
-  identified SharePoint list.
+  identified SharePoint list. If data is an sf object, the geometry
+  column is coerced to text using
+  [`sf::st_as_text()`](https://r-spatial.github.io/sf/reference/st_as_text.html).
 
 - list_name, list_id:
 

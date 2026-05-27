@@ -1,7 +1,10 @@
 # Convert a data frame to a column definition list
 
 `data_as_column_definition_list()` is used to create a column definition
-list based on an existing data frame.
+list based on an existing data frame. This function is used internally
+by
+[`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+when `create_list = TRUE`.
 
 ## Usage
 
@@ -38,6 +41,41 @@ data_as_column_definition_list(
 - ignore_na:
 
   If `TRUE`, drop any parameters with a `NA` value.
+
+- definitions_as:
+
+  If `"definition_list"` (default) return named list output from
+  [`create_column_definition_list()`](https://elipousson.github.io/sharepointr/reference/create_column_definition_list.md).
+  If `"table"` return a dataframe with the column names and types.
+
+## Details
+
+Converting R data types to SharePoint column definitions
+
+The type for each vector in the input data frame is checked with
+[`vctrs::vec_ptype_abbr`](https://vctrs.r-lib.org/reference/vec_ptype_full.html)
+and mapped to corresponding SharePoint list column definitions:
+
+- factors are specified as choice columns
+
+- integers are specified as number columns with `decimals` set to "none"
+
+- characters with any value exceeding 255 characters have
+  `multiple_lines` set to `TRUE`
+
+- characters composed entirely of URL values are specified as hyperlink
+  columns
+
+- dates are specified as date columns
+
+- dttm values are specified as datetime columns
+
+- logical values are specified as boolean columns if they include no NA
+  values or text columns if they do
+
+All other vectors are specified as text columns. If the values of any
+input factor column contain the same character specified with `split`
+the choices will not be configured correctly.
 
 ## Examples
 

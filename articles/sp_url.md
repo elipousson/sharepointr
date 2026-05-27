@@ -1,6 +1,7 @@
 # Using SharePoint URLs to work with items and lists
 
 ``` r
+
 library(sharepointr)
 ```
 
@@ -8,6 +9,7 @@ This is a folder URL. It is a shared link where people with existing
 access can use the link.
 
 ``` r
+
 dir_url <- "https://bmore.sharepoint.com/:f:/r/sites/DOP-CPR/Shared%20Documents/INSPIRE%20Program%20%F0%9F%8F%AB%F0%9F%9A%B8%F0%9F%8C%B3?csf=1&web=1&e=W5dbYz"
 ```
 
@@ -16,6 +18,7 @@ they don’t all work with this package yet. You can parse a URL into
 smaller parts:
 
 ``` r
+
 sp_url_parse(dir_url)
 #> $base_url
 #> [1] "https://bmore.sharepoint.com"
@@ -61,6 +64,7 @@ These parts can be used as the `path`, `site_url`, and other parameters
 can be used to get sites, drives, lists, and items from SharePoint:
 
 ``` r
+
 get_sp_site(dir_url)
 #> Loading Microsoft Graph login for default tenant
 #> <Sharepoint site 'DOP-CPR'>
@@ -97,6 +101,7 @@ get_sp_drive(dir_url)
 With a directory URL, you can get a list of files:
 
 ``` r
+
 dir_info <- sp_dir_info(dir_url)
 #> Loading Microsoft Graph login for default tenant
 
@@ -168,6 +173,7 @@ dir_info
 You can use the same URL to get a character vector of file names:
 
 ``` r
+
 sp_dir_ls(dir_url)
 #> Loading Microsoft Graph login for default tenant
 #>  [1] "INSPIRE Plan Histories (CHAP)"                              
@@ -205,6 +211,7 @@ sp_dir_ls(dir_url)
 But you can’t use that URL to get a list:
 
 ``` r
+
 get_sp_list(dir_url)
 #> Error:
 #> ! `url` must be a URL with ":l:" or "/Lists/" to be a valid
@@ -215,6 +222,7 @@ SharePoint lists have two different styles of URLs (that I’ve seen) and
 they both work:
 
 ``` r
+
 list_url <- "https://bmore.sharepoint.com/:l:/r/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker?e=0P1fFX"
 
 get_sp_list(list_url)
@@ -235,6 +243,7 @@ get_sp_list(list_url)
 The second styles includes the query parameter `env=WebViewList`:
 
 ``` r
+
 "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"
 #> [1] "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"
 ```
@@ -245,6 +254,7 @@ and
 [`get_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/get_sp_item.md):
 
 ``` r
+
 file_url <- "https://bmore.sharepoint.com/:w:/r/sites/DOP-CPR/Shared%20Documents/INSPIRE%20Program%20%F0%9F%8F%AB%F0%9F%9A%B8%F0%9F%8C%B3/INSPIRE%20Plans%20In%20Progress%20%E2%9C%8F%EF%B8%8F/Govans%20ES/Govans%20Final%20Planning%20Document%20and%20related%20materials/Govans%20INSPIRE%20Plan%20-%20Final%20draft%20before%20layout.docx?d=w3408fbc67fa2462187409eb240eb4df2&csf=1&web=1&e=4dcgze"
 
 get_sp_item(file_url)
@@ -257,6 +267,7 @@ Or you can also use a document URL (as long as the default library is
 set to match the document library of the supplied URL):
 
 ``` r
+
 document_url <- "https://bmore.sharepoint.com/:w:/r/sites/DOP-CPR/_layouts/15/Doc.aspx?sourcedoc=%7B3408FBC6-7FA2-4621-8740-9EB240EB4DF2%7D&file=Govans%20INSPIRE%20Plan%20-%20Final%20draft%20before%20layout.docx&action=default&mobileredirect=true"
 
 get_sp_item(document_url)

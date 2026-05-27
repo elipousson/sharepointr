@@ -1,6 +1,7 @@
 # Reading and writing items from SharePoint
 
 ``` r
+
 library(sharepointr)
 ```
 
@@ -11,6 +12,7 @@ You can use
 to download files or folders from SharePoint:
 
 ``` r
+
 docx_url <- "https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernance/Policy%20Documents/Data%20Classification%20Standard.docx?d=w54a9ae7eaa894e94b6d6d14516f3aaa4&csf=1&web=1&e=ee7ZSX"
 
 download_sp_item(
@@ -33,6 +35,7 @@ depending on the file extension, tries to read the file using
 [sf](https://r-spatial.github.io/sf/).
 
 ``` r
+
 docx <- read_sharepoint(docx_url)
 #> Loading Microsoft Graph login for default tenant
 
@@ -83,6 +86,7 @@ You can use
 to upload a local file to a SharePoint folder or document library.
 
 ``` r
+
 folder_url <- "https://bmore.sharepoint.com/:f:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/RStats?csf=1&web=1&e=S1XxVU"
 
 upload_sp_item(
@@ -97,6 +101,7 @@ Using
 we can confirm that the file has been uploaded:
 
 ``` r
+
 sp_drive <- get_sp_drive(folder_url)
 #> Loading Microsoft Graph login for default tenant
 
@@ -123,6 +128,7 @@ tries to guess the appropriate output function based on the object
 class.
 
 ``` r
+
 write_sharepoint(
   mtcars,
   file = "mtcars.csv",
@@ -140,6 +146,7 @@ remove but, in this case, it is easier to set the `drive` argument along
 with a relative filepath:
 
 ``` r
+
 # Remove the file
 delete_sp_item(
   file.path("RStats", "nc.gpkg"),
@@ -167,6 +174,7 @@ This last example is not computed but it shows how to list and remove
 empty nested directories left over from a failed manual import;
 
 ``` r
+
 # List directories
 dir_info <- sp_dir_info("<SharePoint Folder URL>", type = "directory", recurse = TRUE)
 

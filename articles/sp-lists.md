@@ -1,6 +1,7 @@
 # Reading and writing to SharePoint Lists
 
 ``` r
+
 library(sharepointr)
 options(cli.default_handler = suppressMessages)
 ```
@@ -27,6 +28,7 @@ takes a site URL and returns a data frame with information about all
 site lists:
 
 ``` r
+
 site_lists <- list_sp_lists(
   site_url = "https://bmore.sharepoint.com/sites/DOP-ALL"
 )
@@ -80,6 +82,7 @@ for multiple lists or
 to return a single list.
 
 ``` r
+
 sp_site <- get_sp_site(
   "https://bmore.sharepoint.com/sites/DOP-ALL"
 )
@@ -109,6 +112,7 @@ URL in place of a list name with no site, or to pass a list object
 directly:
 
 ``` r
+
 rooms <- list_sp_list_items(list_name = "DOP Rooms", site = sp_site)
 
 rooms <- list_sp_list_items(
@@ -144,6 +148,7 @@ The id values are not visible by default when looking at a Microsoft
 List online but they are included in the list item data frame:
 
 ``` r
+
 get_sp_list_item(id = 26, sp_list = room_list)
 #> <Sharepoint list item '08-COM02'>
 #>   directory id: 26 
@@ -160,6 +165,7 @@ A list name and site (or site URL) are the only requirements to create a
 list:
 
 ``` r
+
 penguins_list <- create_sp_list(
   list_name = "penguins",
   description = "Measurements of Penguins near Palmer Station, Antarctica",
@@ -187,6 +193,7 @@ created using the
 function or one of the column type-specific variations:
 
 ``` r
+
 create_text_column("Text Column", multiple_lines = TRUE)
 #> $name
 #> [1] "Text Column"
@@ -238,6 +245,7 @@ You can specify multiple columns at once using a list or data frame of
 parameters (leaving blank values where a parameter is not applicable):
 
 ``` r
+
 create_column_definition_list(
   definitions = data.frame(
     name = c("Text Column", "Number Column"),
@@ -275,6 +283,7 @@ you can alternatively use
 [`data_as_column_definition_list()`](https://elipousson.github.io/sharepointr/reference/data_as_column_definition_list.md):
 
 ``` r
+
 penguins_column_defintions <- data_as_column_definition_list(penguins)
 
 str(penguins_column_defintions)
@@ -340,6 +349,7 @@ also allows users to create a list and populate the list with items in a
 single function call by setting `create_list = TRUE`:
 
 ``` r
+
 create_sp_list_items(
   list_name = "penguins",
   description = "Measurements of Penguins near Palmer Station, Antarctica",

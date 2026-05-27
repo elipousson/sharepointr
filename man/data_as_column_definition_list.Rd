@@ -28,10 +28,34 @@ appropriate Microsoft Lists column definition.}
   }
 
 \item{ignore_na}{If \code{TRUE}, drop any parameters with a \code{NA} value.}
+
+\item{definitions_as}{If \code{"definition_list"} (default) return named list
+output from \code{create_column_definition_list()}. If \code{"table"} return a
+dataframe with the column names and types.}
 }
 \description{
 \code{\link[=data_as_column_definition_list]{data_as_column_definition_list()}} is used to create a column definition list
-based on an existing data frame.
+based on an existing data frame. This function is used internally by
+\code{create_sp_list_items()} when \code{create_list = TRUE}.
+}
+\details{
+Converting R data types to SharePoint column definitions
+
+The type for each vector in the input data frame is checked with
+\code{vctrs::vec_ptype_abbr} and mapped to corresponding SharePoint list column
+definitions:
+\itemize{
+\item factors are specified as choice columns
+\item integers are specified as number columns with \code{decimals} set to "none"
+\item characters with any value exceeding 255 characters have \code{multiple_lines} set to \code{TRUE}
+\item characters composed entirely of URL values are specified as hyperlink columns
+\item dates are specified as date columns
+\item dttm values are specified as datetime columns
+\item logical values are specified as boolean columns if they include no NA values or text columns if they do
+}
+
+All other vectors are specified as text columns.
+If the values of any input factor column contain the same character specified with \code{split} the choices will not be configured correctly.
 }
 \examples{
 data_as_column_definition_list(mtcars)

@@ -683,13 +683,33 @@ get_column_default <- function(
 #'
 #'
 #' [data_as_column_definition_list()] is used to create a column definition list
-#' based on an existing data frame.
+#' based on an existing data frame. This function is used internally by
+#' `create_sp_list_items()` when `create_list = TRUE`.
+#'
 #' @param data A data frame input. Column types are used to infer the
 #' appropriate Microsoft Lists column definition.
 #' @param definitions_as If `"definition_list"` (default) return named list
 #' output from `create_column_definition_list()`. If `"table"` return a
 #' dataframe with the column names and types.
 #' @param ... Ignored.
+#'
+#' @details Converting R data types to SharePoint column definitions
+#'
+#' The type for each vector in the input data frame is checked with
+#' `vctrs::vec_ptype_abbr` and mapped to corresponding SharePoint list column
+#' definitions:
+#'
+#' - factors are specified as choice columns
+#' - integers are specified as number columns with `decimals` set to "none"
+#' - characters with any value exceeding 255 characters have `multiple_lines` set to `TRUE`
+#' - characters composed entirely of URL values are specified as hyperlink columns
+#' - dates are specified as date columns
+#' - dttm values are specified as datetime columns
+#' - logical values are specified as boolean columns if they include no NA values or text columns if they do
+#'
+#' All other vectors are specified as text columns.
+#' If the values of any input factor column contain the same character specified with `split` the choices will not be configured correctly.
+#'
 #' @inheritParams create_column_definition_list
 #' @inheritParams create_choice_column
 #' @examples
@@ -716,7 +736,6 @@ data_as_column_definition_list <- function(
         "fct" = "choice",
         "dbl" = "number",
         "int" = "number",
-        # NOTE: Logical NA values are not supported
         "lgl" = "boolean",
         "date" = "date",
         "dttm" = "datetime",
@@ -730,6 +749,12 @@ data_as_column_definition_list <- function(
         type <- "hyperlink"
       }
 
+      # NOTE: Logical NA values are not supported, use text instead
+      if (any(na_x) && type == "boolean") {
+        # TODO: Add warning
+        type <- "text"
+      }
+
       type
     }
   )
@@ -741,6 +766,10 @@ data_as_column_definition_list <- function(
         name = names(data)[[x]],
         type = col_types[[x]]
       )
+
+      if (def[["type"]] == "text" && any(nchar(data[[x]]) > 255)) {
+        def[["multiple_lines"]] <- TRUE
+      }
 
       # TODO: Add check for length for text columns
 

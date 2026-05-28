@@ -61,7 +61,10 @@ parameters\]
 SharePoint Planner URL:
 
 https://tasks.office.com/\[tenant\].onmicrosoft.com/en-US/Home/Planner/#/plantaskboard?groupId=\[Group
-ID\]&planId=\[Plan ID\]
+ID\]&planId=\[Plan ID\] (former)
+
+https://planner.cloud.microsoft/webui/v1/plan/\[Plan ID\]?tid=\[tenant\]
+(current)
 
 SharePoint Document Library (or Drive) URL:
 

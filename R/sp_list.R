@@ -820,7 +820,7 @@ sp_list_column_as_id <- function(
   ]
 }
 
-#' Create SharePoint list lookup column
+#' Create SharePoint list lookup column and update lookup column items
 #'
 #' [create_sp_list_lookup_column()] is a wrapper for [create_lookup_column()]
 #' and [create_sp_list_column()] that allows for the creation of a column in one
@@ -828,6 +828,10 @@ sp_list_column_as_id <- function(
 #'
 #' @param sp_list A `ms_list` object. If supplied, `list_name`, `site`, and
 #' `site_url` are all ignored.
+#' @param ... For [create_sp_list_lookup_column()], additional parameters are
+#' passed to [create_lookup_column()]. For [update_sp_list_lookup_items()],
+#' additional parameters are passed to [get_sp_list_items()] (if `data = NULL`)
+#' and to [update_sp_list_items()].
 #' @inheritParams create_sp_list_column
 #' @inheritParams create_lookup_column
 #' @inheritDotParams create_lookup_column -name -lookup_list_id
@@ -836,8 +840,9 @@ sp_list_column_as_id <- function(
 create_sp_list_lookup_column <- function(
   column_name,
   sp_list = NULL,
-  sp_lookup_list,
+  lookup_list = NULL,
   lookup_list_column = column_name,
+  sp_lookup_list = NULL,
   list_name = NULL,
   site = NULL,
   site_url = NULL,
@@ -846,7 +851,7 @@ create_sp_list_lookup_column <- function(
   lookup_column_definition <- create_lookup_column(
     name = column_name,
     lookup_list_column = lookup_list_column,
-    lookup_list = sp_lookup_list,
+    lookup_list = sp_lookup_list %||% lookup_list,
     ...
   )
 
@@ -856,6 +861,95 @@ create_sp_list_lookup_column <- function(
     list_name = list_name,
     site = site,
     site_url = site_url
+  )
+}
+
+#' [update_sp_list_lookup_items()] provides an easy way to update item lookup
+#' column values. The function requires a shared join column between the target
+#' SharePoint list (`sp_list`) and the list specified in the lookup column
+#' (`lookup_list`). The function joins the data from the target list and the
+#' data from the lookup list (either user provided or retrieved based on the
+#' provided lists), renames the column to match the required pattern of
+#' "{column_name}LookupId", and calls [update_sp_list_items()] with
+#' `check_fields = FALSE`. As of May 2026, the function does not support
+#' multiple values for lookup columns.
+#'
+#' @rdname create_sp_list_lookup_column
+#' @keywords internal
+#' @export
+update_sp_list_lookup_items <- function(
+  sp_list = NULL,
+  data = NULL,
+  column_name,
+  lookup_list_data = NULL,
+  lookup_list = NULL,
+  join_column = column_name,
+  ...,
+  .id = "id",
+  na_fields = c("drop", "replace"),
+  .progress = TRUE,
+  call = caller_env()
+) {
+  check_string(join_column)
+  check_string(column_name)
+
+  data <- data %||%
+    get_sp_list_items(
+      sp_list = sp_list,
+      ...,
+      select = c(.id, join_column)
+    )
+
+  lookup_list_data <- lookup_list_data %||%
+    get_sp_list_items(
+      sp_list = lookup_list,
+      select = c(.id, join_column)
+    )
+
+  check_data_frame(data)
+  check_data_frame(lookup_list_data)
+
+  lookup_column_name <- paste0(
+    column_name,
+    "LookupId"
+  )
+
+  lookup_list_data <- lookup_list_data |>
+    dplyr::select(
+      tidyselect::all_of(
+        set_names(
+          c(.id, join_column),
+          c(lookup_column_name, join_column)
+        )
+      )
+    )
+
+  items <- dplyr::left_join(
+    dplyr::select(
+      data,
+      tidyselect::all_of(c(.id, join_column))
+    ),
+    lookup_list_data,
+    by = join_column
+  ) |>
+    dplyr::select(
+      tidyselect::all_of(c(.id, lookup_column_name))
+    )
+
+  # TODO: Add support for multiple values w/ odata.type component of API call
+  # This could be implemented here or in update_sp_list_items
+  # See https://stackoverflow.com/a/56356460
+
+  update_sp_list_items(
+    data = items,
+    sp_list = sp_list,
+    ...,
+    .id = .id,
+    allow_display_nm = FALSE,
+    check_fields = FALSE,
+    na_fields = na_fields,
+    .progress = .progress,
+    call = call
   )
 }
 

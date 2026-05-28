@@ -767,11 +767,12 @@ data_as_column_definition_list <- function(
         type = col_types[[x]]
       )
 
-      if (def[["type"]] == "text" && any(nchar(data[[x]]) > 255)) {
+      has_long_text <- def[["type"]] == "text" &&
+        any(nchar(data[[x]], keepNA = FALSE) > 255)
+
+      if (has_long_text) {
         def[["multiple_lines"]] <- TRUE
       }
-
-      # TODO: Add check for length for text columns
 
       if (def[["type"]] == "choice") {
         # type is only "choices" if column value is factor

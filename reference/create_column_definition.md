@@ -145,6 +145,11 @@ create_term_column(name, ..., allow_multiple = TRUE, show_full_name = NULL)
 
   If `TRUE`, column can't be deleted separate from the list.
 
+- indexed, sealed, propagate_changes, read_only, validation, id,
+  show_full_name:
+
+  Additional arguments used by `create_column_definition()`.
+
 - required:
 
   If `TRUE`, column will be required.

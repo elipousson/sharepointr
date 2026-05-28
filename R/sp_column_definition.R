@@ -32,6 +32,7 @@
 #' @param default Default value set by helper [get_column_default()] function.
 #' @param description Column description.
 #' @param displayname Column display name.
+#' @param indexed,sealed,propagate_changes,read_only,validation,id,show_full_name Additional arguments used by [create_column_definition()].
 #' @keywords lists
 #'
 #' @details Display as options

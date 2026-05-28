@@ -142,6 +142,8 @@ appended to the end of the column definition list.}
 
 \item{deletable}{If \code{TRUE}, column can't be deleted separate from the list.}
 
+\item{indexed, sealed, propagate_changes, read_only, validation, id, show_full_name}{Additional arguments used by \code{\link[=create_column_definition]{create_column_definition()}}.}
+
 \item{required}{If \code{TRUE}, column will be required.}
 
 \item{default}{Default value set by helper \code{\link[=get_column_default]{get_column_default()}} function.}

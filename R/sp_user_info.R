@@ -22,13 +22,16 @@ list_sp_site_user_info <- function(
   )
 }
 
-#' Convert a vector of user identifiers to lookup ID values (or another type of identifier) using the hidden SharePoint "User Information List"
+#' Convert a vector of user identifiers to lookup ID values (or another type of
+#' identifier) using the hidden SharePoint "User Information List"
 #'
-#' @param users A character vector of email addresses (or another identifier as specified by `users_id`). Not case sensitive.
+#' @param users A character vector of email addresses (or another identifier as
+#' specified by `users_id`). Not case sensitive.
 #' @param user_info_list Data frame from "User Information List". Typically,
 #' created with [list_sp_site_user_info()]. @param ... Parameters passed to
 #' [list_sp_site_user_info()] if `user_info_list` is not supplied.
-#' @param users_id Type of `users` vector to expect as input. Defaults to `"EMail"`.
+#' @param users_id Type of `users` vector to expect as input. Defaults to
+#' `"EMail"`.
 #' @param lookup_id Type of lookup ID value to return. Defaults to `"id"`.
 #' @param allow_hidden If `TRUE`, include users with `UserInfoHidden = TRUE` in
 #' the possible results. Defaults to `FALSE`.

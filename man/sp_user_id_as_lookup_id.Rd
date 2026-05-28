@@ -2,7 +2,8 @@
 % Please edit documentation in R/sp_user_info.R
 \name{sp_user_id_as_lookup_id}
 \alias{sp_user_id_as_lookup_id}
-\title{Convert a vector of user identifiers to lookup ID values (or another type of identifier) using the hidden SharePoint "User Information List"}
+\title{Convert a vector of user identifiers to lookup ID values (or another type of
+identifier) using the hidden SharePoint "User Information List"}
 \usage{
 sp_user_id_as_lookup_id(
   users,
@@ -14,13 +15,15 @@ sp_user_id_as_lookup_id(
 )
 }
 \arguments{
-\item{users}{A character vector of email addresses (or another identifier as specified by \code{users_id}). Not case sensitive.}
+\item{users}{A character vector of email addresses (or another identifier as
+specified by \code{users_id}). Not case sensitive.}
 
 \item{user_info_list}{Data frame from "User Information List". Typically,
 created with \code{\link[=list_sp_site_user_info]{list_sp_site_user_info()}}. @param ... Parameters passed to
 \code{\link[=list_sp_site_user_info]{list_sp_site_user_info()}} if \code{user_info_list} is not supplied.}
 
-\item{users_id}{Type of \code{users} vector to expect as input. Defaults to \code{"EMail"}.}
+\item{users_id}{Type of \code{users} vector to expect as input. Defaults to
+\code{"EMail"}.}
 
 \item{lookup_id}{Type of lookup ID value to return. Defaults to \code{"id"}.}
 
@@ -28,6 +31,7 @@ created with \code{\link[=list_sp_site_user_info]{list_sp_site_user_info()}}. @p
 the possible results. Defaults to \code{FALSE}.}
 }
 \description{
-Convert a vector of user identifiers to lookup ID values (or another type of identifier) using the hidden SharePoint "User Information List"
+Convert a vector of user identifiers to lookup ID values (or another type of
+identifier) using the hidden SharePoint "User Information List"
 }
 \keyword{internal}

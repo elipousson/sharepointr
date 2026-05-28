@@ -52,6 +52,29 @@ docx <- read_sharepoint(docx_url)
 docx
 ```
 
+By default, `read_sharepoint()` checks the file extension the provided item and uses the appropriate function from `{readr}`, `{officer}`, or `{sf}`.
+Using the `.f` argument, `read_sharepoint()` also allows a user provided function to read the input:
+
+```{r}
+wb_url <- "https://bmore.sharepoint.com/:x:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/Data%20Governance/Agency%20Naming%20Conventions.xlsx?d=w98ecba59d1f84c23862c6ad71e7f8695&csf=1&web=1&e=sSuZYo"
+
+wb <- read_sharepoint(wb_url, .f = openxlsx2::wb_load)
+
+wb
+```
+
+As a convenience, `read_sharepoint()` also supports reading SharePoint lists as a wrapper for `get_sp_list_items()`:
+
+```{r}
+list_url <- "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker"
+
+list_items <- read_sharepoint(list_url)
+
+list_items
+```
+
+See the [Reading and writing to SharePoint Lists](/articles/sp-lists.html) article for more information.
+
 ## Writing and uploading files to SharePoint
 
 You can use `upload_sp_item()` to upload a local file to a SharePoint folder or document library.
@@ -111,7 +134,7 @@ delete_sp_item(
 
 If you do not know the URL or file path for an item on SharePoint you can also use the directory info functions to list items typically using the `sp_dir_info()` function. This function supports recursive listings but this can be slow depending on the number of items in the SharePoint library.
 
-This last example is not computed but it shows how to list and remove empty nested directories left over from a failed manual import;
+This last example is not computed but it shows how to list and remove empty nested directories left over from a failed manual import:
 
 ```{r delete_empty_dirs, eval = FALSE}
 # List directories
@@ -132,7 +155,7 @@ drive <- get_sp_drive(
 )
 
 # Delete empty directories and skip confirmation
-walk(
+purrr::walk(
   empty_dirs[["id"]],
   \(x) {
     delete_sp_item(

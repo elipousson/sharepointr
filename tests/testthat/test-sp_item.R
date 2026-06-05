@@ -4,7 +4,7 @@ test_that("get_sp_item works", {
   )
 
   sp_item <- get_sp_item(
-    "https://bmore.sharepoint.com/:b:/r/sites/DOP-ALL/Shared%20Documents/General/Benton%20Building%20Directory%20-%20By%20Agency.pdf?csf=1&web=1&e=67O0Ch"
+    "https://bmore.sharepoint.com/:b:/r/sites/DOP-ALL/Shared%20Documents/General/Benton-Building-Directory_By-Agency.pdf?csf=1&web=1&e=m8M5KO"
   )
 
   expect_s3_class(

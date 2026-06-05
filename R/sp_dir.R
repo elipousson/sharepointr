@@ -137,21 +137,12 @@ sp_dir_info <- function(
     type <- "any"
   }
 
-  if (type == "file") {
-    item_list <- drive$list_files(
-      path = path,
-      info = info,
-      full_names = full_names,
-      pagesize = pagesize
-    )
-  } else {
-    item_list <- drive$list_items(
-      path = path,
-      info = info,
-      full_names = full_names,
-      pagesize = pagesize
-    )
-  }
+  item_list <- drive$list_items(
+    path = path,
+    info = info,
+    full_names = full_names,
+    pagesize = pagesize
+  )
 
   if (!is.null(regexp)) {
     path_name <- item_list

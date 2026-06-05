@@ -14,11 +14,14 @@ list_sp_list_items(
   ...,
   filter = NULL,
   select = NULL,
+  order_by = NULL,
+  order_dir = "desc",
   all_metadata = FALSE,
   as_data_frame = TRUE,
   col_formatting = c("asis", "date"),
   display_nm = c("drop", "label", "replace"),
   select_type = c("asis", "editable", "external"),
+  tz = Sys.timezone(),
   name_repair = "unique",
   pagesize = 5000,
   site_url = NULL,
@@ -90,6 +93,10 @@ on using filter query parameters.}
 data frame of list items. If \code{NULL}, the data frame includes all columns
 from the list.}
 
+\item{order_by}{Optional. Field name to order by.}
+
+\item{order_dir}{Direction to order results if \code{order_by} is provided.}
+
 \item{all_metadata}{If \code{TRUE}, the returned data frame will contain extended
 metadata as separate columns, while the data fields will be in a nested
 data frame named fields. This is always set to \code{FALSE} if \code{n = NULL} or
@@ -116,6 +123,9 @@ names and invalid data frames can result.}
 \item{select_type}{Type of columns to select. Ignored if \code{select} is supplied.
 "asis" (default) returns all available columns. "editable" returns ID and all
 non-read-only columns and "external" returns ID and all non-internal columns.}
+
+\item{tz}{Time zone to use in reformatting date/time columns if
+\code{col_formatting = "date"}. Defaults to \code{Sys.timezone()}.}
 
 \item{name_repair}{Passed to repair argument of \code{\link[vctrs:vec_as_names]{vctrs::vec_as_names()}}}
 
@@ -145,8 +155,8 @@ mentioned in error messages as the source of the error. See the
 record number starting from 1 with the first record.}
 }
 \description{
-\code{\link[=list_sp_list_items]{list_sp_list_items()}} lists \code{sp_list} items. Additional functions should be
-completed for the \code{get_item}, \code{create_item}, \code{update_item}, and \code{delete_item}
-methods documented in \link[Microsoft365R:ms_list]{Microsoft365R::ms_list}.
+\code{\link[=list_sp_list_items]{list_sp_list_items()}} lists \code{sp_list} items. This function uses a modified
+version of the \code{list_items} method for \code{Microsoft365R::ms_list} objects that
+adds the \code{order_by} and \code{order_dir} arguments.
 }
 \keyword{lists}

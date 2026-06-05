@@ -15,8 +15,10 @@ BugReports: https://github.com/elipousson/sharepointr/issues
 Depends:
     R (>= 4.1.0)
 Imports:
+    AzureGraph,
     cli,
     glue,
+    httr,
     httr2,
     lifecycle,
     Microsoft365R,

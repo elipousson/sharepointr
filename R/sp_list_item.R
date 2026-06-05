@@ -1,8 +1,8 @@
 #' Get, list, update, and delete SharePoint list items
 #'
-#' [list_sp_list_items()] lists `sp_list` items. Additional functions should be
-#' completed for the `get_item`, `create_item`, `update_item`, and `delete_item`
-#' methods documented in [Microsoft365R::ms_list].
+#' [list_sp_list_items()] lists `sp_list` items. This function uses a modified
+#' version of the `list_items` method for `Microsoft365R::ms_list` objects that
+#' adds the `order_by` and `order_dir` arguments.
 #' @name sp_list_item
 #' @keywords lists
 NULL
@@ -21,6 +21,8 @@ NULL
 #'   `as_data_frame = FALSE`.
 #' @param pagesize Number of list items to return. Reduce from default of 5000
 #'   is experiencing timeouts.
+#' @param order_by Optional. Field name to order by.
+#' @param order_dir Direction to order results if `order_by` is provided.
 #' @param display_nm Option of "drop" (default), "label", or "replace". If
 #'   "drop", display names are not accessed or used. If "label", display names
 #'   are used to label matching columns in the returned data frame. If
@@ -34,6 +36,8 @@ NULL
 #' @param select_type Type of columns to select. Ignored if `select` is supplied.
 #' "asis" (default) returns all available columns. "editable" returns ID and all
 #' non-read-only columns and "external" returns ID and all non-internal columns.
+#' @param tz Time zone to use in reformatting date/time columns if
+#' `col_formatting = "date"`. Defaults to `Sys.timezone()`.
 #' @param name_repair Passed to repair argument of [vctrs::vec_as_names()]
 #' @export
 list_sp_list_items <- function(
@@ -43,11 +47,14 @@ list_sp_list_items <- function(
   ...,
   filter = NULL,
   select = NULL,
+  order_by = NULL,
+  order_dir = "desc",
   all_metadata = FALSE,
   as_data_frame = TRUE,
   col_formatting = c("asis", "date"),
   display_nm = c("drop", "label", "replace"),
   select_type = c("asis", "editable", "external"),
+  tz = Sys.timezone(),
   name_repair = "unique",
   pagesize = 5000,
   site_url = NULL,
@@ -76,15 +83,9 @@ list_sp_list_items <- function(
       call = call
     )
 
-  check_ms_obj(sp_list, "ms_list", call = call)
-
   # FIXME: I think this is not necessary since Microsoft365R already does the
   # same thing
   if (is.character(select)) {
-    if ("id" %in% select) {
-      select[select == "id"] <- "ID"
-    }
-
     if (select_type != "asis") {
       cli::cli_bullets(
         c("!" = "{.arg select_type} is ignored if {.arg} select is provided.")
@@ -92,7 +93,6 @@ list_sp_list_items <- function(
       select_type <- "asis"
     }
 
-    select <- paste0(select, collapse = ",")
   } else if (select_type != "asis") {
     # Get editable or visible columns
     sp_list_cols <- get_sp_list_metadata(
@@ -101,10 +101,7 @@ list_sp_list_items <- function(
       call = call
     )
 
-    select <- paste0(
-      c("ID", sp_list_cols[["name"]]),
-      collapse = ","
-    )
+    select <- c("ID", sp_list_cols[["name"]])
   }
 
   cli::cli_progress_step(
@@ -113,11 +110,14 @@ list_sp_list_items <- function(
 
   # List items
   # FIXME: Is Title not returned when no values are in place for Title?
-  sp_list_items <- sp_list$list_items(
+  sp_list_items <- .ms365_list_items(
+    sp_list = sp_list,
     filter = filter,
     select = select,
+    order_by = order_by,
+    order_dir = order_dir,
     all_metadata = all_metadata,
-    as_data_frame = as_data_frame,
+    simplify = as_data_frame,
     pagesize = pagesize
   )
 
@@ -136,6 +136,7 @@ list_sp_list_items <- function(
   # }
 
   if (col_formatting != "asis") {
+    # TODO: Avoid duplicate call if sp_list_cols object is already available
     sp_list_col_info <- sp_list$get_column_info()
 
     # Limit to available columns in case select is used or blank columns are dropped
@@ -156,10 +157,10 @@ list_sp_list_items <- function(
         .f = \(items, i) {
           nm <- date_col_names[i]
           if (date_time_col_format[i, ][["format"]] == "dateOnly") {
-            items[[nm]] <- as.Date(items[[nm]])
+            items[[nm]] <- as.Date(.ms365_dttm(items[[nm]], tz = tz))
           } else if (date_time_col_format[i, ][["format"]] == "dateTime") {
             # TODO: This option is not tested.
-            items[[nm]] <- as.POSIXct(items[[nm]])
+            items[[nm]] <- .ms365_dttm(items[[nm]], tz = tz)
           }
 
           items
@@ -258,6 +259,103 @@ get_sp_list_items <- function(
     drive = drive,
     call = call
   )
+}
+
+#' Format date time values
+#' @noRd
+.ms365_dttm <- function(
+  x,
+  format = "%Y-%m-%dT%H:%M:%SZ",
+  tz = Sys.timezone()
+) {
+  x <- as.POSIXct(x, format = format, tz = "UTC")
+  attr(x, "tzone") <- tz
+  x
+}
+
+#' Adapted from the list_items method for `Microsoft365R::ms_list` objects
+#' <https://github.com/Azure/Microsoft365R/blob/master/R/ms_list.R>
+#' @noRd
+.ms365_list_items <- function(
+  sp_list,
+  filter = NULL,
+  select = NULL,
+  n = Inf,
+  pagesize = 5000,
+  order_by = NULL,
+  order_dir = "desc",
+  simplify = TRUE,
+  all_metadata = FALSE,
+  time_cols = c("Created", "Modified"),
+  call = caller_env()
+) {
+  check_string(filter, allow_null = TRUE, call = call)
+  options <- list(
+    expand = "fields",
+    `$filter` = filter,
+    `$top` = pagesize
+  )
+
+  if (!is.null(select)) {
+    check_character(select, call = call)
+
+    if ("id" %in% select) {
+      select[select == "id"] <- "ID"
+    }
+
+    options[["expand"]] <- paste0(
+      "fields(select=",
+      paste0(select, collapse = ","),
+      ")"
+    )
+  }
+
+  if (!is.null(order_by)) {
+    check_string(order_by, call = call)
+    order_dir <- arg_match0(order_dir, c("desc", "asc"), error_call = call)
+    order_by <- paste0("fields/", order_by, " ", order_dir)
+
+    options <- c(
+      options,
+      list(
+        `$orderby` = order_by
+      )
+    )
+  }
+
+  headers <- httr::add_headers(
+    Prefer = "HonorNonIndexedQueriesWarningMayFailRandomly"
+  )
+
+  check_ms_obj(sp_list, "ms_list", call = call)
+
+  resp <- sp_list$do_operation(
+    "items",
+    options = options,
+    headers,
+    simplify = simplify
+  )
+
+  pager <- sp_list$get_list_pager(
+    resp,
+    site_id = sp_list$properties$parentReference$siteId,
+    list_id = sp_list$properties$id
+  )
+
+  # get item list
+  list_values <- AzureGraph::extract_list_values(pager, n)
+
+  # return the iterator if n is NULL or simplify is FALSE
+  if (is.null(n) || !simplify || all_metadata) {
+    return(list_values)
+  }
+
+  # format date/time columns using graph_dttm
+  # for (nm in intersect(time_cols, names(list_values$fields))) {
+  #   list_values$fields[, nm] <- .ms365_dttm(list_values$fields[, nm])
+  # }
+
+  list_values$fields
 }
 
 #' Pull a vector of display names named with corresponding column names

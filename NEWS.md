@@ -13,6 +13,8 @@
 * Add support for reading list items with `read_sharepoint()`. (2025-08-26)
 * Add `delete_sp_list_item()` and `delete_sp_list_items()`. (2025-08-26)
 * Add `copy_column_definition_list()` (2026-03-13)
+* Add `update_sp_list_lookup_items()` (2026-05-28).
+* Add the `order_by` and `order_dir` arguments to `list_sp_list_items()`. (2026-06-05)
 
 ## Fixes
 
@@ -24,6 +26,8 @@
 * Revise `read_sharepoint()` to support zipped shapefiles. (2024-07-25)
 * Improve printing of custom `.f` argument in `read_sharepoint()`. (2024-10-10)
 * Alert users if input `data` is empty for `create_sp_list_items()`, `update_sp_list_items()` and error if input `item_id` is length 0 for `delete_sp_list_items()`. (2026-01-06)
+* Improve handling of `sf` data inputs for `create_sp_list_items()` (2026-05-27).
+* Add `{httr}` and `{AzureGraph}` to Imports to re-implement an internal version of the `list_items` method for `Microsoft365R::ms_list` objects. (2026-06-05)
 
 # sharepointr 0.1.0
 

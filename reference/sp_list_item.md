@@ -22,6 +22,7 @@ list_sp_list_items(
   col_formatting = c("asis", "date"),
   display_nm = c("drop", "label", "replace"),
   select_type = c("asis", "editable", "external"),
+  n = NULL,
   tz = Sys.timezone(),
   name_repair = "unique",
   pagesize = 5000,
@@ -40,10 +41,14 @@ get_sp_list_items(
   ...,
   filter = NULL,
   select = NULL,
+  order_by = NULL,
+  order_dir = "desc",
   all_metadata = FALSE,
   as_data_frame = TRUE,
   col_formatting = c("asis", "date"),
   display_nm = c("drop", "label", "replace"),
+  n = NULL,
+  tz = Sys.timezone(),
   name_repair = "unique",
   pagesize = 5000,
   site_url = NULL,
@@ -164,6 +169,11 @@ get_sp_list_item(
   (default) returns all available columns. "editable" returns ID and all
   non-read-only columns and "external" returns ID and all non-internal
   columns.
+
+- n:
+
+  Maximum number of lists, plans, tasks, or other items to return.
+  Defaults to `NULL` which sets n to `Inf`.
 
 - tz:
 

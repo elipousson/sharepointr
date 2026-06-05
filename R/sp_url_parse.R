@@ -239,7 +239,7 @@ sp_webview_list_url_parse <- function(url) {
 
   sp_url_parts[["list_name"]] <- stringr::str_extract(
     parts[["path"]],
-    "(?<=/Lists/).+(?=/AllItems\\.aspx)"
+    "(?<=/Lists/).+(?=/([^/]+)\\.aspx)"
   )
 
   sp_url_parts[["list_name"]] <- utils::URLdecode(sp_url_parts[["list_name"]])

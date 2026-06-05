@@ -63,7 +63,8 @@ is_sp_folder_url <- function(x) {
 #' @noRd
 is_sp_webview_list_url <- function(x) {
   is_webview_list <- !is_sp_type_url(x, type = "l") &
-    grepl("/Lists/.+AllItems\\.aspx", x)
+    (grepl("/Lists/.+AllItems\\.aspx", x) |
+      grepl("/Lists/.+\\.aspx", x))
 
   is_sp_url(x) & is_webview_list
 }

@@ -21,6 +21,7 @@ list_sp_list_items(
   col_formatting = c("asis", "date"),
   display_nm = c("drop", "label", "replace"),
   select_type = c("asis", "editable", "external"),
+  n = NULL,
   tz = Sys.timezone(),
   name_repair = "unique",
   pagesize = 5000,
@@ -39,10 +40,14 @@ get_sp_list_items(
   ...,
   filter = NULL,
   select = NULL,
+  order_by = NULL,
+  order_dir = "desc",
   all_metadata = FALSE,
   as_data_frame = TRUE,
   col_formatting = c("asis", "date"),
   display_nm = c("drop", "label", "replace"),
+  n = NULL,
+  tz = Sys.timezone(),
   name_repair = "unique",
   pagesize = 5000,
   site_url = NULL,
@@ -123,6 +128,9 @@ names and invalid data frames can result.}
 \item{select_type}{Type of columns to select. Ignored if \code{select} is supplied.
 "asis" (default) returns all available columns. "editable" returns ID and all
 non-read-only columns and "external" returns ID and all non-internal columns.}
+
+\item{n}{Maximum number of lists, plans, tasks, or other items to return.
+Defaults to \code{NULL} which sets n to \code{Inf}.}
 
 \item{tz}{Time zone to use in reformatting date/time columns if
 \code{col_formatting = "date"}. Defaults to \code{Sys.timezone()}.}

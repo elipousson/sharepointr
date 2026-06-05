@@ -54,6 +54,7 @@ list_sp_list_items <- function(
   col_formatting = c("asis", "date"),
   display_nm = c("drop", "label", "replace"),
   select_type = c("asis", "editable", "external"),
+  n = NULL,
   tz = Sys.timezone(),
   name_repair = "unique",
   pagesize = 5000,
@@ -92,7 +93,6 @@ list_sp_list_items <- function(
       )
       select_type <- "asis"
     }
-
   } else if (select_type != "asis") {
     # Get editable or visible columns
     sp_list_cols <- get_sp_list_metadata(
@@ -118,6 +118,7 @@ list_sp_list_items <- function(
     order_dir = order_dir,
     all_metadata = all_metadata,
     simplify = as_data_frame,
+    n = n,
     pagesize = pagesize
   )
 
@@ -226,10 +227,14 @@ get_sp_list_items <- function(
   ...,
   filter = NULL,
   select = NULL,
+  order_by = NULL,
+  order_dir = "desc",
   all_metadata = FALSE,
   as_data_frame = TRUE,
   col_formatting = c("asis", "date"),
   display_nm = c("drop", "label", "replace"),
+  n = NULL,
+  tz = Sys.timezone(),
   name_repair = "unique",
   pagesize = 5000,
   site_url = NULL,
@@ -246,10 +251,14 @@ get_sp_list_items <- function(
     ...,
     filter = filter,
     select = select,
+    order_by = order_by,
+    order_dir = order_dir,
     all_metadata = all_metadata,
     as_data_frame = as_data_frame,
     col_formatting = col_formatting,
     display_nm = display_nm,
+    n = n,
+    tz = tz,
     name_repair = name_repair,
     pagesize = pagesize,
     site_url = site_url,
@@ -280,7 +289,7 @@ get_sp_list_items <- function(
   sp_list,
   filter = NULL,
   select = NULL,
-  n = Inf,
+  n = NULL,
   pagesize = 5000,
   order_by = NULL,
   order_dir = "desc",
@@ -290,6 +299,7 @@ get_sp_list_items <- function(
   call = caller_env()
 ) {
   check_string(filter, allow_null = TRUE, call = call)
+
   options <- list(
     expand = "fields",
     `$filter` = filter,
@@ -311,15 +321,11 @@ get_sp_list_items <- function(
   }
 
   if (!is.null(order_by)) {
-    check_string(order_by, call = call)
-    order_dir <- arg_match0(order_dir, c("desc", "asc"), error_call = call)
-    order_by <- paste0("fields/", order_by, " ", order_dir)
-
-    options <- c(
+    options <- opt_order_by(
       options,
-      list(
-        `$orderby` = order_by
-      )
+      order_by,
+      order_dir,
+      call
     )
   }
 
@@ -342,6 +348,8 @@ get_sp_list_items <- function(
     list_id = sp_list$properties$id
   )
 
+  n <- n %||% Inf
+
   # get item list
   list_values <- AzureGraph::extract_list_values(pager, n)
 
@@ -356,6 +364,26 @@ get_sp_list_items <- function(
   # }
 
   list_values$fields
+}
+
+#' Add orderby to options
+#' @noRd
+opt_order_by <- function(
+  opt,
+  order_by,
+  order_dir = c("desc", "asc"),
+  call = caller_env()
+) {
+  check_string(order_by, call = call)
+  order_dir <- arg_match(order_dir, error_call = call)
+  order_by <- paste0("fields/", order_by, " ", order_dir)
+
+  c(
+    opt,
+    list(
+      `$orderby` = order_by
+    )
+  )
 }
 
 #' Pull a vector of display names named with corresponding column names

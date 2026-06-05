@@ -49,6 +49,12 @@
 - Add
   [`copy_column_definition_list()`](https://elipousson.github.io/sharepointr/reference/copy_column_definition_list.md)
   (2026-03-13)
+- Add
+  [`update_sp_list_lookup_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
+  (2026-05-28).
+- Add the `order_by` and `order_dir` arguments to
+  [`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md).
+  (2026-06-05)
 
 ### Fixes
 
@@ -77,6 +83,14 @@
   and error if input `item_id` is length 0 for
   [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md).
   (2026-01-06)
+- Improve handling of `sf` data inputs for
+  [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  (2026-05-27).
+- Add [httr](https://httr.r-lib.org/) and
+  [AzureGraph](https://github.com/Azure/AzureGraph) to Imports to
+  re-implement an internal version of the `list_items` method for
+  [`Microsoft365R::ms_list`](https://rdrr.io/pkg/Microsoft365R/man/ms_list.html)
+  objects. (2026-06-05)
 
 ## sharepointr 0.1.0
 

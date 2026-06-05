@@ -1,9 +1,9 @@
 # Get, list, update, and delete SharePoint list items
 
-`list_sp_list_items()` lists `sp_list` items. Additional functions
-should be completed for the `get_item`, `create_item`, `update_item`,
-and `delete_item` methods documented in
-[Microsoft365R::ms_list](https://rdrr.io/pkg/Microsoft365R/man/ms_list.html).
+`list_sp_list_items()` lists `sp_list` items. This function uses a
+modified version of the `list_items` method for
+[`Microsoft365R::ms_list`](https://rdrr.io/pkg/Microsoft365R/man/ms_list.html)
+objects that adds the `order_by` and `order_dir` arguments.
 
 ## Usage
 
@@ -15,11 +15,14 @@ list_sp_list_items(
   ...,
   filter = NULL,
   select = NULL,
+  order_by = NULL,
+  order_dir = "desc",
   all_metadata = FALSE,
   as_data_frame = TRUE,
   col_formatting = c("asis", "date"),
   display_nm = c("drop", "label", "replace"),
   select_type = c("asis", "editable", "external"),
+  tz = Sys.timezone(),
   name_repair = "unique",
   pagesize = 5000,
   site_url = NULL,
@@ -114,6 +117,14 @@ get_sp_list_item(
   frame of list items. If `NULL`, the data frame includes all columns
   from the list.
 
+- order_by:
+
+  Optional. Field name to order by.
+
+- order_dir:
+
+  Direction to order results if `order_by` is provided.
+
 - all_metadata:
 
   If `TRUE`, the returned data frame will contain extended metadata as
@@ -153,6 +164,12 @@ get_sp_list_item(
   (default) returns all available columns. "editable" returns ID and all
   non-read-only columns and "external" returns ID and all non-internal
   columns.
+
+- tz:
+
+  Time zone to use in reformatting date/time columns if
+  `col_formatting = "date"`. Defaults to
+  [`Sys.timezone()`](https://rdrr.io/r/base/timezones.html).
 
 - name_repair:
 

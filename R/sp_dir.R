@@ -118,11 +118,8 @@ sp_dir_info <- function(
 
   check_ms_drive(drive, call = call)
 
-  if (path == "") {
-    path <- NULL
-  }
-
-  path <- path %||% "/"
+  # TODO: Check if removing this and replacing "/" w/ "" breaks anything
+  path <- path %||% ""
 
   info <- arg_match(info, values = c("partial", "name", "all"), call = call)
 
@@ -136,6 +133,9 @@ sp_dir_info <- function(
     )
     type <- "any"
   }
+
+  # Remove leading slash
+  path <- str_remove_slash(path)
 
   item_list <- drive$list_items(
     path = path,

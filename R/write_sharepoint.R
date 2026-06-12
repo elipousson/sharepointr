@@ -110,7 +110,9 @@ write_sharepoint <- function(
 #' @param dest Destination on SharePoint for file to upload. Must be a
 #'  `ms_drive_item` for a folder, a SharePoint folder URL, or a drive path. If
 #'  a `ms_drive_item` is provided and `drive_name` is NULL, the item URL is used
-#'  to determine the drive.
+#'  to determine the drive. If `NULL`, the top level of the provided drive is
+#'  used as the destination. If file is a directory, `dest` must be an *existing*
+#'  directory.
 #' @param src Data source path passed to `upload_folder` or `upload_file`
 #'   method. Defaults to `NULL` and set to use file value by default.
 #' @param overwrite If `FALSE` (default), error if an item with the name
@@ -124,7 +126,7 @@ write_sharepoint <- function(
 #' @export
 upload_sp_item <- function(
   file = NULL,
-  dest,
+  dest = NULL,
   ...,
   src = NULL,
   overwrite = FALSE,
@@ -172,15 +174,17 @@ upload_sp_item <- function(
   } else if (is.character(dest)) {
     # Assume `dest` is a file path if it's not a SharePoint URL
     file_path <- dest
-  } else {
+  }
+
+  dest <- dest %||% ""
+
+  if (!is_string(dest)) {
     cli_abort(
       "{.arg dest} must be a SharePoint folder URL, a file path,
-      or a {.cls ms_drive_item} object.",
+      a path to an existing SharePoint folder, or a {.cls ms_drive_item} object.",
       call = call
     )
   }
-
-  check_string(dest, allow_empty = FALSE, call = call)
 
   drive <- drive %||%
     get_sp_drive(
@@ -193,9 +197,9 @@ upload_sp_item <- function(
   check_ms_drive(drive, call = call)
 
   if (!overwrite) {
-    file_list <- sp_dir_info(drive = drive, path = file_path, call = call)
+    file_names <- sp_dir_info(drive = drive, path = file_path, info = "name", call = call)
 
-    if (basename(src) %in% file_list[["name"]]) {
+    if (basename(src) %in% file_names) {
       cli_abort(
         c(
           "{.file {basename(src)}} already exists on SharePoint drive at {.arg dest}",
@@ -283,12 +287,17 @@ upload_sp_src <- function(
   overwrite = FALSE,
   call = caller_env()
 ) {
+  if (stringr::str_detect(dest, "^/")) {
+    dest <- str_remove_slash(dest)
+  }
+
   if (fs::dir_exists(src)) {
     cli_progress_step(
       msg = "Uploading directory to SharePoint drive",
       msg_done = "Directory upload complete"
     )
 
+    # TODO: Add support for folder uploads when `dest` does not yet exist
     drive$upload_folder(
       src = src,
       dest = dest,
@@ -305,6 +314,10 @@ upload_sp_src <- function(
       msg = "Uploading file {.file {basename(src)}} to SharePoint drive",
       msg_done = "File upload complete"
     )
+
+    if (dest == "") {
+      dest <- fs::path_file(src)
+    }
 
     drive$upload_file(
       src = src,

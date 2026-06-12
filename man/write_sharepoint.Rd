@@ -33,8 +33,10 @@ outputs.}
 \code{\link[readr:write_delim]{readr::write_csv()}} or \code{\link[readr:read_rds]{readr::write_rds()}}, \code{dsn} for \code{sf::write_sf()},
 or \code{target} for \code{print()} (when working with \code{{officer}} class objects).}
 
-\item{dest}{Destination on SharePoint for file to upload. SharePoint folder
-URLs are supported.}
+\item{dest}{Destination on SharePoint for file to upload. Must be a
+\code{ms_drive_item} for a folder, a SharePoint folder URL, or a drive path. If
+a \code{ms_drive_item} is provided and \code{drive_name} is NULL, the item URL is used
+to determine the drive.}
 
 \item{...}{Additional parameters passed to write function.}
 

@@ -107,8 +107,10 @@ write_sharepoint <- function(
 #' @name upload_sp_item
 #' @param file Path for file or directory to upload. Optional if `src` is
 #'   supplied.
-#' @param dest Destination on SharePoint for file to upload. SharePoint folder
-#'   URLs are supported.
+#' @param dest Destination on SharePoint for file to upload. Must be a
+#'  `ms_drive_item` for a folder, a SharePoint folder URL, or a drive path. If
+#'  a `ms_drive_item` is provided and `drive_name` is NULL, the item URL is used
+#'  to determine the drive.
 #' @param src Data source path passed to `upload_folder` or `upload_file`
 #'   method. Defaults to `NULL` and set to use file value by default.
 #' @param overwrite If `FALSE` (default), error if an item with the name
@@ -143,6 +145,21 @@ upload_sp_item <- function(
     src <- file
   }
 
+  # NOTE: This is duplicative with a check in the `upload_sp_src` internal
+  # function
+  if (!fs::file_exists(src) && !fs::dir_exists(src)) {
+    cli_abort(
+      "{.arg file} or {.arg src} does not exist.",
+      call = call
+    )
+  }
+
+  if (is_ms_drive_item(dest, TRUE)) {
+    file_path <- dest$get_path()
+    drive_name <- drive_name %||% dest$properties$webUrl
+    dest <- file_path
+  }
+
   if (is_sp_url(dest)) {
     url <- dest
 
@@ -152,6 +169,15 @@ upload_sp_item <- function(
 
     dest <- str_c_url(file_path, basename(src))
     drive_name <- url
+  } else if (is.character(dest)) {
+    # Assume `dest` is a file path if it's not a SharePoint URL
+    file_path <- dest
+  } else {
+    cli_abort(
+      "{.arg dest} must be a SharePoint folder URL, a file path,
+      or a {.cls ms_drive_item} object.",
+      call = call
+    )
   }
 
   check_string(dest, allow_empty = FALSE, call = call)
@@ -212,7 +238,7 @@ upload_sp_items <- function(
 
   check_character(src, call = call)
 
-  if (is_url(dest) && has_length(dest, 1)) {
+  if (is_url(dest) && has_length(dest, 1) || is_ms_drive_item(dest, TRUE)) {
     dest <- purrr::map_chr(
       src,
       \(x) {
@@ -257,7 +283,7 @@ upload_sp_src <- function(
   overwrite = FALSE,
   call = caller_env()
 ) {
-  if (dir.exists(src)) {
+  if (fs::dir_exists(src)) {
     cli_progress_step(
       msg = "Uploading directory to SharePoint drive",
       msg_done = "Directory upload complete"
@@ -274,7 +300,7 @@ upload_sp_src <- function(
     return(invisible(dest))
   }
 
-  if (file.exists(src)) {
+  if (fs::file_exists(src)) {
     cli_progress_step(
       msg = "Uploading file {.file {basename(src)}} to SharePoint drive",
       msg_done = "File upload complete"

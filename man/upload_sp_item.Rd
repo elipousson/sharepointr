@@ -26,8 +26,10 @@ upload_sp_items(file = NULL, dest, ..., src = NULL, call = caller_env())
 \item{file}{Path for file or directory to upload. Optional if \code{src} is
 supplied.}
 
-\item{dest}{Destination on SharePoint for file to upload. SharePoint folder
-URLs are supported.}
+\item{dest}{Destination on SharePoint for file to upload. Must be a
+\code{ms_drive_item} for a folder, a SharePoint folder URL, or a drive path. If
+a \code{ms_drive_item} is provided and \code{drive_name} is NULL, the item URL is used
+to determine the drive.}
 
 \item{...}{Additional parameters passed to \code{\link[=get_sp_site]{get_sp_site()}} or
 \code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}}.}

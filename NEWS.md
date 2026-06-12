@@ -13,8 +13,9 @@
 * Add support for reading list items with `read_sharepoint()`. (2025-08-26)
 * Add `delete_sp_list_item()` and `delete_sp_list_items()`. (2025-08-26)
 * Add `copy_column_definition_list()` (2026-03-13)
-* Add `update_sp_list_lookup_items()` (2026-05-28).
+* Add `update_sp_list_lookup_items()`. (2026-05-28)
 * Add the `order_by` and `order_dir` arguments to `list_sp_list_items()`. (2026-06-05)
+* Add support for `ms_drive_item` inputs for `dest` argument of `upload_sp_item()` and `upload_sp_items()`. (2026-06-12)
 
 ## Fixes
 

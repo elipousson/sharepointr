@@ -14,6 +14,11 @@ is_ms_drive <- function(x) {
 }
 
 #' @noRd
+is_ms_drive_item <- function(x, require_folder = FALSE) {
+  is_ms_obj(x, "ms_drive_item") && (!require_folder || x$is_folder())
+}
+
+#' @noRd
 check_ms_obj <- function(
   x,
   what,

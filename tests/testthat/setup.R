@@ -3,7 +3,7 @@ skip_if_no_ms_site <- function(url) {
   site_url <- url_parts[["site_url"]]
 
   if (!is_sp_site_url(site_url)) {
-    return(skip("{.arg url} must be a valid SharePoint site URL"))
+    return(skip("`url` must be a valid SharePoint site URL"))
   }
 
   sp_site <- rlang::try_fetch(

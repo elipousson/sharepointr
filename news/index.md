@@ -50,11 +50,16 @@
   [`copy_column_definition_list()`](https://elipousson.github.io/sharepointr/reference/copy_column_definition_list.md)
   (2026-03-13)
 - Add
-  [`update_sp_list_lookup_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
-  (2026-05-28).
+  [`update_sp_list_lookup_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md).
+  (2026-05-28)
 - Add the `order_by` and `order_dir` arguments to
   [`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md).
   (2026-06-05)
+- Add support for `ms_drive_item` inputs for `dest` argument of
+  [`upload_sp_item()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)
+  and
+  [`upload_sp_items()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md).
+  (2026-06-12)
 
 ### Fixes
 

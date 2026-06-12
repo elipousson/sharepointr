@@ -104,8 +104,10 @@ or <code>target</code> for <code><a href="https://rdrr.io/r/base/print.html" cla
 
 
 <dt id="arg-dest">dest<a class="anchor" aria-label="anchor" href="#arg-dest"></a></dt>
-<dd><p>Destination on SharePoint for file to upload. SharePoint folder
-URLs are supported.</p></dd>
+<dd><p>Destination on SharePoint for file to upload. Must be a
+<code>ms_drive_item</code> for a folder, a SharePoint folder URL, or a drive path. If
+a <code>ms_drive_item</code> is provided and <code>drive_name</code> is NULL, the item URL is used
+to determine the drive.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

@@ -107,7 +107,9 @@ or <code>target</code> for <code><a href="https://rdrr.io/r/base/print.html" cla
 <dd><p>Destination on SharePoint for file to upload. Must be a
 <code>ms_drive_item</code> for a folder, a SharePoint folder URL, or a drive path. If
 a <code>ms_drive_item</code> is provided and <code>drive_name</code> is NULL, the item URL is used
-to determine the drive.</p></dd>
+to determine the drive. If <code>NULL</code>, the top level of the provided drive is
+used as the destination. If file is a directory, <code>dest</code> must be an <em>existing</em>
+directory.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

@@ -379,7 +379,7 @@ for the time being.
 - [`create_sp_list_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_column.md)
   [`update_sp_list_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_column.md)
   [`delete_sp_list_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_column.md)
-  : Create, update, and delete SharePoint list columns
+  : Create, update, and delete a SharePoint list column
 - [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
   [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
   [`update_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
@@ -403,7 +403,7 @@ for the time being.
   [`get_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/get_sp_item.md)
   : Get a SharePoint item or item properties
 - [`get_sp_list_column()`](https://elipousson.github.io/sharepointr/reference/get_sp_list_column.md)
-  : Get SharePoint list column definition
+  : Get SharePoint list column definition for a single column
 - [`list_sp_drives()`](https://elipousson.github.io/sharepointr/reference/list_sp_drives.md)
   : List drives for a SharePoint site
 - [`list_sp_item_versions()`](https://elipousson.github.io/sharepointr/reference/list_sp_item_versions.md)

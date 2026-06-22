@@ -1,9 +1,9 @@
-# Create, update, and delete SharePoint list columns
+# Create, update, and delete a SharePoint list column
 
 `create_sp_list_column()` adds a column to a SharePoint list and
 `delete_sp_list_column()` removes a column to a SharePoint list.
 `update_sp_list_column()` updates a column definition for an existing
-column in a SharePoint list (but is not yet implemented).
+column in a SharePoint list.
 
 ## Usage
 
@@ -14,8 +14,8 @@ create_sp_list_column(
   column_name = NULL,
   column_definition = NULL,
   list_name = NULL,
-  site = NULL,
-  site_url = NULL
+  site_url = NULL,
+  site = NULL
 )
 
 update_sp_list_column(
@@ -24,6 +24,8 @@ update_sp_list_column(
   column_id = NULL,
   ...,
   list_name = NULL,
+  site_url = NULL,
+  site = NULL,
   column_definition = NULL,
   column_name_type = "name"
 )
@@ -33,6 +35,8 @@ delete_sp_list_column(
   column_name = NULL,
   column_id = NULL,
   list_name = NULL,
+  site_url = NULL,
+  site = NULL,
   column_name_type = "name"
 )
 ```
@@ -106,17 +110,17 @@ delete_sp_list_column(
 
   List name. Required if `sp_list` is `NULL`.
 
-- site:
-
-  A `ms_site` object. If `site` is supplied, `site_url`, `site_name`,
-  and `site_id` are ignored.
-
 - site_url:
 
   A SharePoint site URL in the format "https://\[tenant
   name\].sharepoint.com/sites/\[site name\]". Any SharePoint item or
   document URL can also be parsed to build a site URL using the tenant
   and site name included in the URL.
+
+- site:
+
+  A `ms_site` object. If `site` is supplied, `site_url`, `site_name`,
+  and `site_id` are ignored.
 
 - column_name_type:
 

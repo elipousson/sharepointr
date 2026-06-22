@@ -1,6 +1,7 @@
-# Get SharePoint list column definition
+# Get SharePoint list column definition for a single column
 
-`get_sp_list_column()` get a list column definition.
+`get_sp_list_column()` gets a list column definition for a single column
+specified by column name or ID.
 
 ## Usage
 
@@ -11,8 +12,10 @@ get_sp_list_column(
   column_id = NULL,
   ...,
   list_name = NULL,
-  list_id = NULL,
-  column_name_type = "name"
+  site_url = NULL,
+  site = NULL,
+  column_name_type = "name",
+  call = caller_env()
 )
 ```
 
@@ -37,13 +40,6 @@ get_sp_list_column(
 
   :   SharePoint List name or ID string.
 
-  `metadata`
-
-  :   If `TRUE`,
-      [`get_sp_list()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
-      applies the `get_column_info` method to the returned SharePoint
-      list and returns a data frame with column metadata for the list.
-
   `drive_name,drive_id`
 
   :   SharePoint Drive name or ID passed to `get_drive` method for
@@ -54,36 +50,33 @@ get_sp_list_column(
   :   A `ms_drive` object. If `drive` is supplied, `drive_name` and
       `drive_id` are ignored.
 
-  `site_url`
+- site_url:
 
-  :   A SharePoint site URL in the format "https://\[tenant
-      name\].sharepoint.com/sites/\[site name\]". Any SharePoint item or
-      document URL can also be parsed to build a site URL using the
-      tenant and site name included in the URL.
+  A SharePoint site URL in the format "https://\[tenant
+  name\].sharepoint.com/sites/\[site name\]". Any SharePoint item or
+  document URL can also be parsed to build a site URL using the tenant
+  and site name included in the URL.
 
-  `call`
+- site:
 
-  :   The execution environment of a currently running function, e.g.
-      `caller_env()`. The function will be mentioned in error messages
-      as the source of the error. See the `call` argument of
-      [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-      information.
-
-  `site`
-
-  :   A `ms_site` object. If `site` is supplied, `site_url`,
-      `site_name`, and `site_id` are ignored.
-
-- list_name, list_id:
-
-  SharePoint List name or ID string.
+  A `ms_site` object. If `site` is supplied, `site_url`, `site_name`,
+  and `site_id` are ignored.
 
 - column_name_type:
 
   "name" or "displayName". Used to match column ID so column_name must
   be unique if `column_name_type = "displayName"`.
 
+- call:
+
+  The execution environment of a currently running function, e.g.
+  `caller_env()`. The function will be mentioned in error messages as
+  the source of the error. See the `call` argument of
+  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
+  information.
+
 ## Details
 
-See Graph API documentation
-<https://learn.microsoft.com/en-us/graph/api/columndefinition-get?view=graph-rest-1.0&tabs=http>
+See the [Get columnDefinition Graph API
+documentation](https://learn.microsoft.com/en-us/graph/api/columndefinition-get?view=graph-rest-1.0&tabs=http)
+for more information.

@@ -506,7 +506,7 @@ create_group_column <- function(
 #' for [create_picture_column()]).
 #' @export
 create_hyperlink_column <- function(name, ..., is_picture = FALSE) {
-  create_person_column(
+  create_column_definition(
     name = name,
     ...,
     isPicture = is_picture,
@@ -517,7 +517,7 @@ create_hyperlink_column <- function(name, ..., is_picture = FALSE) {
 #' @rdname create_column_definition
 #' @export
 create_picture_column <- function(name, ..., is_picture = TRUE) {
-  create_person_column(
+  create_column_definition(
     name = name,
     ...,
     isPicture = is_picture,
@@ -559,7 +559,7 @@ create_term_column <- function(
     ...,
     showFullyQualifiedName = show_full_name,
     allowMultipleValues = allow_multiple,
-    .col_type = "termColumn"
+    .col_type = "term"
   )
 }
 
@@ -740,13 +740,14 @@ data_as_column_definition_list <- function(
         "lgl" = "boolean",
         "date" = "date",
         "dttm" = "datetime",
+        # NOTE: "list" type columns are treated as text
         "text"
         # NA_character_
       )
 
       na_x <- is.na(x)
 
-      if (!all(na_x) & all(is_url(x) | na_x)) {
+      if (!all(na_x) && all(is_url(x) | na_x)) {
         type <- "hyperlink"
       }
 

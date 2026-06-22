@@ -4,7 +4,7 @@
 \alias{create_sp_list_column}
 \alias{update_sp_list_column}
 \alias{delete_sp_list_column}
-\title{Create, update, and delete SharePoint list columns}
+\title{Create, update, and delete a SharePoint list column}
 \usage{
 create_sp_list_column(
   sp_list = NULL,
@@ -12,8 +12,8 @@ create_sp_list_column(
   column_name = NULL,
   column_definition = NULL,
   list_name = NULL,
-  site = NULL,
-  site_url = NULL
+  site_url = NULL,
+  site = NULL
 )
 
 update_sp_list_column(
@@ -22,6 +22,8 @@ update_sp_list_column(
   column_id = NULL,
   ...,
   list_name = NULL,
+  site_url = NULL,
+  site = NULL,
   column_definition = NULL,
   column_name_type = "name"
 )
@@ -31,6 +33,8 @@ delete_sp_list_column(
   column_name = NULL,
   column_id = NULL,
   list_name = NULL,
+  site_url = NULL,
+  site = NULL,
   column_name_type = "name"
 )
 }
@@ -64,13 +68,13 @@ and any required additional parameters are provided.}
 
 \item{list_name}{List name. Required if \code{sp_list} is \code{NULL}.}
 
-\item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
-\code{site_name}, and \code{site_id} are ignored.}
-
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL can also be parsed to build a site URL using the tenant and site name
 included in the URL.}
+
+\item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
+\code{site_name}, and \code{site_id} are ignored.}
 
 \item{column_name_type}{"name" or "displayName". Used to match column ID so
 column_name must be unique if \code{column_name_type = "displayName"}.}
@@ -79,7 +83,7 @@ column_name must be unique if \code{column_name_type = "displayName"}.}
 \code{\link[=create_sp_list_column]{create_sp_list_column()}} adds a column to a SharePoint list and
 \code{\link[=delete_sp_list_column]{delete_sp_list_column()}} removes a column to a SharePoint list.
 \code{\link[=update_sp_list_column]{update_sp_list_column()}} updates a column definition for an existing column
-in a SharePoint list (but is not yet implemented).
+in a SharePoint list.
 }
 \details{
 See documentation:

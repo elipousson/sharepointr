@@ -616,15 +616,15 @@ create_list_info <- function(
   )
 }
 
-#' Get SharePoint list column definition
+#' Get SharePoint list column definition for a single column
 #'
-#' [get_sp_list_column()] get a list column definition.
+#' [get_sp_list_column()] gets a list column definition for a single column
+#' specified by column name or ID.
 #'
-#' See Graph API documentation
-#' <https://learn.microsoft.com/en-us/graph/api/columndefinition-get?view=graph-rest-1.0&tabs=http>
+#' See the [Get columnDefinition Graph API documentation](https://learn.microsoft.com/en-us/graph/api/columndefinition-get?view=graph-rest-1.0&tabs=http) for more information.
 #'
 #' @inheritParams get_sp_list
-#' @inheritDotParams get_sp_list -as_data_frame
+#' @inheritDotParams get_sp_list -as_data_frame -metadata
 #' @param column_name,column_id Column name or ID to get a definition for.
 #' @param column_name_type "name" or "displayName". Used to match column ID so
 #' column_name must be unique if `column_name_type = "displayName"`.
@@ -635,15 +635,20 @@ get_sp_list_column <- function(
   column_id = NULL,
   ...,
   list_name = NULL,
-  list_id = NULL,
-  column_name_type = "name"
+  site_url = NULL,
+  site = NULL,
+  column_name_type = "name",
+  call = caller_env()
 ) {
   sp_list <- sp_list %||%
     get_sp_list(
       list_name = list_name,
-      list_id = list_id,
       ...,
-      as_data_frame = FALSE
+      site_url = site_url,
+      site = site,
+      metadata = FALSE,
+      as_data_frame = FALSE,
+      call = call
     )
 
   if (!is.null(column_name) && is.null(column_id)) {
@@ -651,6 +656,10 @@ get_sp_list_column <- function(
       column_name = column_name,
       sp_list = sp_list,
       column_name_type = column_name_type
+    )
+  } else if (!is_string(column_id)) {
+    cli::cli_abort(
+      "{.arg column_id} or {.arg column_name} must be provided."
     )
   }
 
@@ -664,12 +673,12 @@ get_sp_list_column <- function(
   )
 }
 
-#' Create, update, and delete SharePoint list columns
+#' Create, update, and delete a SharePoint list column
 #'
 #' [create_sp_list_column()] adds a column to a SharePoint list and
 #' [delete_sp_list_column()] removes a column to a SharePoint list.
 #' [update_sp_list_column()] updates a column definition for an existing column
-#' in a SharePoint list (but is not yet implemented).
+#' in a SharePoint list.
 #'
 #' See documentation:
 #' <https://learn.microsoft.com/en-us/graph/api/list-post-columns?view=graph-rest-1.0&tabs=http>
@@ -687,14 +696,14 @@ create_sp_list_column <- function(
   column_name = NULL,
   column_definition = NULL,
   list_name = NULL,
-  site = NULL,
-  site_url = NULL
+  site_url = NULL,
+  site = NULL
 ) {
   sp_list <- sp_list %||%
     get_sp_list(
       list_name = list_name,
-      site = site,
       site_url = site_url,
+      site = site,
       as_data_frame = FALSE
     )
 
@@ -725,12 +734,16 @@ update_sp_list_column <- function(
   column_id = NULL,
   ...,
   list_name = NULL,
+  site_url = NULL,
+  site = NULL,
   column_definition = NULL,
   column_name_type = "name"
 ) {
   sp_list <- sp_list %||%
     get_sp_list(
       list_name = list_name,
+      site_url = site_url,
+      site = site,
       as_data_frame = FALSE
     )
 
@@ -743,6 +756,10 @@ update_sp_list_column <- function(
       column_name = column_name,
       sp_list = sp_list,
       column_name_type = column_name_type
+    )
+  } else if (!is_string(column_id)) {
+    cli::cli_abort(
+      "{.arg column_id} or {.arg column_name} must be provided."
     )
   }
 
@@ -781,11 +798,15 @@ delete_sp_list_column <- function(
   column_name = NULL,
   column_id = NULL,
   list_name = NULL,
+  site_url = NULL,
+  site = NULL,
   column_name_type = "name"
 ) {
   sp_list <- sp_list %||%
     get_sp_list(
       list_name = list_name,
+      site_url = site_url,
+      site = site,
       as_data_frame = FALSE
     )
 
@@ -794,6 +815,10 @@ delete_sp_list_column <- function(
       column_name = column_name,
       sp_list = sp_list,
       column_name_type = column_name_type
+    )
+  } else if (!is_string(column_id)) {
+    cli::cli_abort(
+      "{.arg column_id} or {.arg column_name} must be provided."
     )
   }
 
@@ -811,9 +836,14 @@ delete_sp_list_column <- function(
 sp_list_column_as_id <- function(
   column_name,
   sp_list = NULL,
-  column_name_type = "name"
+  column_name_type = "name",
+  call = caller_env()
 ) {
-  column_name_type <- arg_match0(column_name_type, c("name", "displayName"))
+  column_name_type <- arg_match0(
+    column_name_type,
+    c("name", "displayName"),
+    error_call = call
+  )
   column_info <- sp_list$get_column_info()
   column_info[["id"]][
     match(column_name, column_info[[column_name_type]])

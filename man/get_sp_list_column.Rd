@@ -2,7 +2,7 @@
 % Please edit documentation in R/sp_list.R
 \name{get_sp_list_column}
 \alias{get_sp_list_column}
-\title{Get SharePoint list column definition}
+\title{Get SharePoint list column definition for a single column}
 \usage{
 get_sp_list_column(
   sp_list = NULL,
@@ -10,8 +10,10 @@ get_sp_list_column(
   column_id = NULL,
   ...,
   list_name = NULL,
-  list_id = NULL,
-  column_name_type = "name"
+  site_url = NULL,
+  site = NULL,
+  column_name_type = "name",
+  call = caller_env()
 )
 }
 \arguments{
@@ -25,34 +27,32 @@ parameters passed to \code{...} are all ignored.}
   Arguments passed on to \code{\link[=get_sp_list]{get_sp_list}}
   \describe{
     \item{\code{list_name,list_id}}{SharePoint List name or ID string.}
-    \item{\code{metadata}}{If \code{TRUE}, \code{\link[=get_sp_list]{get_sp_list()}} applies the \code{get_column_info}
-method to the returned SharePoint list and returns a data frame with column
-metadata for the list.}
     \item{\code{drive_name,drive_id}}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
     \item{\code{drive}}{A \code{ms_drive} object. If \code{drive} is supplied, \code{drive_name} and
 \code{drive_id} are ignored.}
-    \item{\code{site_url}}{A SharePoint site URL in the format "https://[tenant
+  }}
+
+\item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL can also be parsed to build a site URL using the tenant and site name
 included in the URL.}
-    \item{\code{call}}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
-    \item{\code{site}}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
-\code{site_name}, and \code{site_id} are ignored.}
-  }}
 
-\item{list_name, list_id}{SharePoint List name or ID string.}
+\item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
+\code{site_name}, and \code{site_id} are ignored.}
 
 \item{column_name_type}{"name" or "displayName". Used to match column ID so
 column_name must be unique if \code{column_name_type = "displayName"}.}
+
+\item{call}{The execution environment of a currently
+running function, e.g. \code{caller_env()}. The function will be
+mentioned in error messages as the source of the error. See the
+\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \description{
-\code{\link[=get_sp_list_column]{get_sp_list_column()}} get a list column definition.
+\code{\link[=get_sp_list_column]{get_sp_list_column()}} gets a list column definition for a single column
+specified by column name or ID.
 }
 \details{
-See Graph API documentation
-\url{https://learn.microsoft.com/en-us/graph/api/columndefinition-get?view=graph-rest-1.0&tabs=http}
+See the \href{https://learn.microsoft.com/en-us/graph/api/columndefinition-get?view=graph-rest-1.0&tabs=http}{Get columnDefinition Graph API documentation} for more information.
 }

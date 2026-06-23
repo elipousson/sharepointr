@@ -49,16 +49,20 @@ list_sp_group_members <- function(
   site_name = NULL,
   site_id = NULL,
   ...,
+  sp_group = NULL,
   as_data_frame = TRUE,
   call = caller_env()
 ) {
-  sp_group <- get_sp_group(
-    site_url = site_url,
-    site_name = site_name,
-    site_id = site_id,
-    ...,
-    call = call
-  )
+  sp_group <- sp_group %||%
+    get_sp_group(
+      site_url = site_url,
+      site_name = site_name,
+      site_id = site_id,
+      ...,
+      call = call
+    )
+
+  check_ms_obj(sp_group, "az_group", call = call)
 
   members <- ms_obj_list_as_data_frame(
     sp_group$list_members(),

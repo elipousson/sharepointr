@@ -1,8 +1,16 @@
 test_that("sp_url_parse works", {
   test_file_url <- "https://bmore.sharepoint.com/:u:/r/sites/DOP-CPR/Shared%20Documents/Baltimore%20Greenway%20Trails%20Network/Green%20Network%20Addendum/Data/waterfront_promenade_osm.geojson?csf=1&web=1&e=jCKLbT"
+  test_dir_url <- "https://bmore.sharepoint.com/:f:/r/sites/DOP-CPR/Shared%20Documents/Baltimore%20Greenway%20Trails%20Network/Green%20Network%20Addendum/Data?csf=1&web=1&e=5VuyG6"
+  # FIXME: Replace w/ a DOP-CPR site url
+  test_list_url <- "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"
+  test_drive_url <- "https://bmore.sharepoint.com/sites/DOP-CPR/Shared%20Documents/Forms/AllItems.aspx"
 
   expect_true(
     is_sp_type_url(test_file_url, "u")
+  )
+
+  expect_false(
+    is_sp_url(character(0))
   )
 
   parsed_file_url <- sp_url_parse(test_file_url)
@@ -21,8 +29,6 @@ test_that("sp_url_parse works", {
     "Baltimore Greenway Trails Network/Green Network Addendum/Data/waterfront_promenade_osm.geojson"
   )
 
-  test_dir_url <- "https://bmore.sharepoint.com/:f:/r/sites/DOP-CPR/Shared%20Documents/Baltimore%20Greenway%20Trails%20Network/Green%20Network%20Addendum/Data?csf=1&web=1&e=5VuyG6"
-
   expect_true(
     is_sp_folder_url(test_dir_url)
   )
@@ -32,9 +38,6 @@ test_that("sp_url_parse works", {
   expect_identical(parsed_dir_url[["url_type"]], "f")
 
   expect_null(parsed_dir_url[["file"]])
-
-  # FIXME: Replace w/ a DOP-CPR site url
-  test_list_url <- "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"
 
   expect_true(
     is_sp_webview_list_url(test_list_url)
@@ -51,8 +54,6 @@ test_that("sp_url_parse works", {
     parsed_list_url[["site_name"]],
     "MayorsOffice-DataGovernance"
   )
-
-  test_drive_url <- "https://bmore.sharepoint.com/sites/DOP-CPR/Shared%20Documents/Forms/AllItems.aspx"
 
   expect_true(
     is_sp_drive_url(test_drive_url)

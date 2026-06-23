@@ -7,7 +7,7 @@ skip_if_no_ms_site <- function(url) {
   }
 
   sp_site <- rlang::try_fetch(
-    get_sp_site(site_url),
+    suppressMessages(get_sp_site(site_url)),
     error = function(cnd) {
       NULL
     }
@@ -23,7 +23,7 @@ skip_if_no_ms_site <- function(url) {
 
 withr::local_options(
   list(
-    sharepointr.cache = TRUE,
+    sharepointr.cache = FALSE,
     sharepointr.refresh = FALSE,
     sharepointr.cache_dir = fs::path_temp()
   ),

@@ -12,6 +12,11 @@ test_that("get_sp_list, get_sp_list_items, and get_sp_list_item works", {
     "ms_list"
   )
 
+  expect_s3_class(
+    get_sp_list_metadata(sp_list = sp_list),
+    "data.frame"
+  )
+
   sp_list_items <- get_sp_list_items(
     sp_list = sp_list,
     n = 2
@@ -20,6 +25,19 @@ test_that("get_sp_list, get_sp_list_items, and get_sp_list_item works", {
   expect_s3_class(
     sp_list_items,
     "data.frame"
+  )
+
+  withr::with_tempdir(
+    {
+      download_sp_list(
+        sp_list = sp_list,
+        new_path = "Staff-Directory.csv"
+      )
+
+      expect_true(
+        fs::file_exists("Staff-Directory.csv")
+      )
+    }
   )
 })
 

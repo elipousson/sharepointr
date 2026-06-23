@@ -197,7 +197,12 @@ upload_sp_item <- function(
   check_ms_drive(drive, call = call)
 
   if (!overwrite) {
-    file_names <- sp_dir_info(drive = drive, path = file_path, info = "name", call = call)
+    file_names <- sp_dir_info(
+      drive = drive,
+      path = file_path,
+      info = "name",
+      call = call
+    )
 
     if (basename(src) %in% file_names) {
       cli_abort(

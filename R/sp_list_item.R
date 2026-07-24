@@ -928,6 +928,15 @@ update_sp_list_item <- function(
       .data,
       i = !is.na(.data)
     )
+
+    if (has_length(.data, 1) && has_name(.data, "id") || is_empty(.data)) {
+      cli::cli_bullets(
+        c("!" = "{.arg .data} is empty after dropping `NA` values.
+        Item can't be updated.")
+      )
+
+      return(invisible(.data))
+    }
   } else if (na_fields == "replace") {
     # Replace any NA_integer_ or NA_real_ values w/ NA
     .data <- vctrs::vec_assign(

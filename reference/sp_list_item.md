@@ -102,6 +102,18 @@ get_sp_list_item(
       applies the `get_column_info` method to the returned SharePoint
       list and returns a data frame with column metadata for the list.
 
+  `keep`
+
+  :   One of "all" (default), "editable", "external" (non-internal
+      fields). Argument determines if the returned list metadata
+      includes read only columns or hidden columns.
+
+  `sync_fields`
+
+  :   If `TRUE`, use the `sync_fields` method to sync the fields of the
+      local `ms_list` object with the fields of the SharePoint List
+      source before retrieving list metadata.
+
   `drive_name,drive_id`
 
   :   SharePoint Drive name or ID passed to `get_drive` method for

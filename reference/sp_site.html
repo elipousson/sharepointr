@@ -112,6 +112,15 @@ alternative to the SharePoint site URL. Exactly one of  <code>site_url</code>,
     <dt><code>tenant</code></dt>
 <dd><p>For <code>get_business_onedrive</code>, <code>get_sharepoint_site</code> and <code>get_team</code>, the name of your Azure Active Directory (AAD) tenant. If not supplied, use the value of the <code>CLIMICROSOFT365_TENANT</code> environment variable, or "common" if that is unset.</p></dd>
 
+    <dt><code>team_name,team_id</code></dt>
+<dd><p>For <code>get_team</code>, either the name or ID of the team to retrieve. Supply exactly one of these.</p></dd>
+
+    <dt><code>shared_mbox_id,shared_mbox_name,shared_mbox_email</code></dt>
+<dd><p>For <code>get_business_outlook</code>, an ID/principal name/email address. Supply exactly one of these to retrieve a shared mailbox. If all are NULL (the default), retrieve your own mailbox.</p></dd>
+
+    <dt><code>chat_id</code></dt>
+<dd><p>For <code>get_chat</code>, the ID of a group, one-on-one or meeting chat in Teams.</p></dd>
+
 
 </dl></dd>
 

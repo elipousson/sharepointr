@@ -140,6 +140,16 @@ parameters passed to <code>...</code> are all ignored.</p></dd>
 method to the returned SharePoint list and returns a data frame with column
 metadata for the list.</p></dd>
 
+    <dt><code>keep</code></dt>
+<dd><p>One of "all" (default), "editable", "external" (non-internal
+fields). Argument determines if the returned list metadata includes read
+only columns or hidden columns.</p></dd>
+
+    <dt><code>sync_fields</code></dt>
+<dd><p>If <code>TRUE</code>, use the <code>sync_fields</code> method to sync the fields
+of the local <code>ms_list</code> object with the fields of the SharePoint List source
+before retrieving list metadata.</p></dd>
+
     <dt><code>drive_name,drive_id</code></dt>
 <dd><p>SharePoint Drive name or ID passed to <code>get_drive</code>
 method for SharePoint site object.</p></dd>

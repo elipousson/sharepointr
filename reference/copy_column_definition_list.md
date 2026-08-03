@@ -37,6 +37,13 @@ copy_column_definition_list(sp_list = NULL, ...)
       `metadata = TRUE` as list metadata is always returned as a data
       frame.
 
+  `metadata`
+
+  :   If `TRUE`,
+      [`get_sp_list()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
+      applies the `get_column_info` method to the returned SharePoint
+      list and returns a data frame with column metadata for the list.
+
   `keep`
 
   :   One of "all" (default), "editable", "external" (non-internal
@@ -78,6 +85,20 @@ copy_column_definition_list(sp_list = NULL, ...)
 
   :   A `ms_site` object. If `site` is supplied, `site_url`,
       `site_name`, and `site_id` are ignored.
+
+  `filter`
+
+  :   A string with [an OData
+      expression](https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter)
+      apply as a filter to the results. Learn more in the [Microsoft
+      Graph API
+      documentation](https://learn.microsoft.com/en-us/graph/filter-query-parameter)
+      on using filter query parameters.
+
+  `n`
+
+  :   Maximum number of lists, plans, tasks, or other items to return.
+      Defaults to `NULL` which sets n to `Inf`.
 
 ## Details
 

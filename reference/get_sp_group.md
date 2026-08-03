@@ -24,6 +24,7 @@ list_sp_group_members(
   site_name = NULL,
   site_id = NULL,
   ...,
+  sp_group = NULL,
   as_data_frame = TRUE,
   call = caller_env()
 )
@@ -63,6 +64,11 @@ list_sp_group_members(
   the source of the error. See the `call` argument of
   [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
   information.
+
+- sp_group:
+
+  A "az_group" object returned by `get_sp_group()` or using the
+  `get_group` method.
 
 - as_data_frame:
 

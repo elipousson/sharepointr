@@ -58,6 +58,14 @@ delete_sp_list_column(
 
   :   Column name.
 
+  `display_as`
+
+  :   Value displayed as option. For `create_choice_column` one
+      of`c("checkBoxes", "dropDownMenu", "radioButtons")`. For
+      `create_number_column`, one of `c("number", "percentage")`. For
+      `create_datetime_column`, one of
+      `c("default", "friendly", "standard")`.
+
   `.col_type`
 
   :   Column type. Defaults to "text". Must be one of "boolean",
@@ -94,6 +102,130 @@ delete_sp_list_column(
   `displayname`
 
   :   Column display name.
+
+  `indexed,sealed,propagate_changes,read_only,validation,id,show_full_name`
+
+  :   Additional arguments used by
+      [`create_column_definition()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md).
+
+  `multiple_lines`
+
+  :   Logical. If `TRUE`, allow multiple lines of text.
+
+  `append_changes`
+
+  :   Logical. If `TRUE`, append changes to existing value for column.
+
+  `lines`
+
+  :   Whole number.
+
+  `max_length`
+
+  :   Whole number. Max length in number of characters.
+
+  `text_type`
+
+  :   One of `c("plain", "richText")`
+
+  `choices`
+
+  :   A character vector of choice options.
+
+  `allow_na`
+
+  :   If `TRUE`, allow NA values in `choices`.
+
+  `na_replacement`
+
+  :   Used as `replacement` by
+      [`stringr::str_replace_na()`](https://stringr.tidyverse.org/reference/str_replace_na.html)
+      on `choices` if they contain NA values.
+
+  `allow_text`
+
+  :   If `TRUE`, allow text entry in the choice column.
+
+  `decimals`
+
+  :   One of `c("none", "one", "two", "three", "four", "five")` or a
+      numeric value between 0 and 5.
+
+  `max,min`
+
+  :   Minimum and maximum values allowed in number column.
+
+  `locale`
+
+  :   Locale
+
+  `formula`
+
+  :   Required string with formula for calculated column definition. See
+      [examples of common formulas in
+      lists](https://support.microsoft.com/en-us/office/examples-of-common-formulas-in-lists-d81f5f21-2b4e-45ce-b170-bf7ebf6988b3).
+      Reference existing columns using the display name enclosed in
+      square brackets. The formula must start with an equals sign `"="`
+      which this function appends to the formula text if it is missing.
+
+  `format`
+
+  :   `"dateOnly"` or `"dateTime"`. Required by
+      `create_calculated_column` if `output_type` is "dateTime"
+      otherwise ignored.
+
+  `output_type`
+
+  :   Value type returned by calculated formula. One of
+      `c("text", "boolean", "currency", "dateTime", "number")`
+
+  `lookup_list_column`
+
+  :   Name of lookup column in the lookup list to use.
+
+  `lookup_list_id,lookup_list`
+
+  :   Lookup list ID string or "ms_list" class object with id value in
+      list properties.
+
+  `allow_multiple`
+
+  :   If `TRUE`, allow lookup column to return multiple values.
+
+  `allow_unlimited_length`
+
+  :   If `TRUE`, allow lookup column to return any length value.
+
+  `primary_lookup_column_id`
+
+  :   If column definition is for a secondary column, the primary lookup
+      column ID must be supplied.
+
+  `from_type`
+
+  :   What type of resources to choose from. Defaults to "peopleOnly"
+      for
+      [`create_person_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
+      or "peopleAndGroups" for
+      [`create_group_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
+
+  `is_picture`
+
+  :   Logical indicator for display of hyperlink value as link (`FALSE`,
+      default for
+      [`create_hyperlink_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md))
+      or image (`TRUE`, default for
+      [`create_picture_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)).
+
+  `split`
+
+  :   character vector (or object which can be coerced to such)
+      containing [regular
+      expression](https://rdrr.io/r/base/regex.html)(s) (unless
+      `fixed = TRUE`) to use for splitting. If empty matches occur, in
+      particular if `split` has length 0, `x` is split into single
+      characters. If `split` has length greater than 1, it is re-cycled
+      along `x`.
 
 - column_name, column_id:
 

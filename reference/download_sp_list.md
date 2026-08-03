@@ -46,6 +46,18 @@ download_sp_list(
       applies the `get_column_info` method to the returned SharePoint
       list and returns a data frame with column metadata for the list.
 
+  `keep`
+
+  :   One of "all" (default), "editable", "external" (non-internal
+      fields). Argument determines if the returned list metadata
+      includes read only columns or hidden columns.
+
+  `sync_fields`
+
+  :   If `TRUE`, use the `sync_fields` method to sync the fields of the
+      local `ms_list` object with the fields of the SharePoint List
+      source before retrieving list metadata.
+
   `drive_name,drive_id`
 
   :   SharePoint Drive name or ID passed to `get_drive` method for
@@ -67,6 +79,20 @@ download_sp_list(
 
   :   A `ms_site` object. If `site` is supplied, `site_url`,
       `site_name`, and `site_id` are ignored.
+
+  `filter`
+
+  :   A string with [an OData
+      expression](https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter)
+      apply as a filter to the results. Learn more in the [Microsoft
+      Graph API
+      documentation](https://learn.microsoft.com/en-us/graph/filter-query-parameter)
+      on using filter query parameters.
+
+  `n`
+
+  :   Maximum number of lists, plans, tasks, or other items to return.
+      Defaults to `NULL` which sets n to `Inf`.
 
 - new_path:
 

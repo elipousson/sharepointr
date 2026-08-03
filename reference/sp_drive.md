@@ -63,6 +63,13 @@ cache_sp_drive(
       SharePoint site URL. Exactly one of `site_url`, `site_name`, and
       `site_id` must be supplied.
 
+  `cache_dir`
+
+  :   Cache directory. By default, uses an option named
+      "sharepointr.cache_dir". If "sharepointr.cache_dir" is not set,
+      the cache directory is set to
+      `rappdirs::user_cache_dir("sharepointr")`.
+
 - site_url:
 
   A SharePoint site URL in the format "https://\[tenant

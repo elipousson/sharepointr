@@ -58,6 +58,13 @@ list_sp_drives(
       `cache_file` with the new object. If `FALSE`, error if a cached
       file with the same `cache_file` name already exists.
 
+  `cache_dir`
+
+  :   Cache directory. By default, uses an option named
+      "sharepointr.cache_dir". If "sharepointr.cache_dir" is not set,
+      the cache directory is set to
+      `rappdirs::user_cache_dir("sharepointr")`.
+
 - site:
 
   A `ms_site` object. If `site` is supplied, `site_url`, `site_name`,

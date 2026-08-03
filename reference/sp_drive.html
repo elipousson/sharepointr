@@ -104,6 +104,11 @@ information. If <code>drive_name</code> is a URL, it is used as <code>drive_url<
 alternative to the SharePoint site URL. Exactly one of  <code>site_url</code>,
 <code>site_name</code>, and <code>site_id</code> must be supplied.</p></dd>
 
+    <dt><code>cache_dir</code></dt>
+<dd><p>Cache directory. By default, uses an option
+named "sharepointr.cache_dir". If "sharepointr.cache_dir" is not set, the
+cache directory is set to <code>rappdirs::user_cache_dir("sharepointr")</code>.</p></dd>
+
 
 </dl></dd>
 

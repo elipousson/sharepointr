@@ -71,6 +71,7 @@ coerced into character columns. This should be addressed in a later update.</p>
 <span>  site_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
+<span>  sp_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  as_data_frame <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -108,6 +109,10 @@ alternative to the SharePoint site URL. Exactly one of  <code>site_url</code>,
 running function, e.g. <code>caller_env()</code>. The function will be
 mentioned in error messages as the source of the error. See the
 <code>call</code> argument of <code><a href="https://rlang.r-lib.org/reference/abort.html" class="external-link">abort()</a></code> for more information.</p></dd>
+
+
+<dt id="arg-sp-group">sp_group<a class="anchor" aria-label="anchor" href="#arg-sp-group"></a></dt>
+<dd><p>A "az_group" object returned by  <code>get_sp_group()</code> or using the <code>get_group</code> method.</p></dd>
 
 
 <dt id="arg-as-data-frame">as_data_frame<a class="anchor" aria-label="anchor" href="#arg-as-data-frame"></a></dt>

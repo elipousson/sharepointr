@@ -95,6 +95,11 @@ as a local option. If <code>FALSE</code>, use the cached <code>ms_site</code> ob
 <code>cache_file</code> with the new object. If <code>FALSE</code>, error if a cached file with
 the same <code>cache_file</code> name already exists.</p></dd>
 
+    <dt><code>cache_dir</code></dt>
+<dd><p>Cache directory. By default, uses an option
+named "sharepointr.cache_dir". If "sharepointr.cache_dir" is not set, the
+cache directory is set to <code>rappdirs::user_cache_dir("sharepointr")</code>.</p></dd>
+
 
 </dl></dd>
 

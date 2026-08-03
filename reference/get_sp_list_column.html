@@ -79,6 +79,16 @@ parameters passed to <code>...</code> are all ignored.</p></dd>
 <dd><p>Arguments passed on to <code><a href="sp_list.html">get_sp_list</a></code></p><dl><dt><code>list_name,list_id</code></dt>
 <dd><p>SharePoint List name or ID string.</p></dd>
 
+    <dt><code>keep</code></dt>
+<dd><p>One of "all" (default), "editable", "external" (non-internal
+fields). Argument determines if the returned list metadata includes read
+only columns or hidden columns.</p></dd>
+
+    <dt><code>sync_fields</code></dt>
+<dd><p>If <code>TRUE</code>, use the <code>sync_fields</code> method to sync the fields
+of the local <code>ms_list</code> object with the fields of the SharePoint List source
+before retrieving list metadata.</p></dd>
+
     <dt><code>drive_name,drive_id</code></dt>
 <dd><p>SharePoint Drive name or ID passed to <code>get_drive</code>
 method for SharePoint site object.</p></dd>
@@ -87,8 +97,21 @@ method for SharePoint site object.</p></dd>
 <dd><p>A <code>ms_drive</code> object. If <code>drive</code> is supplied, <code>drive_name</code> and
 <code>drive_id</code> are ignored.</p></dd>
 
+    <dt><code>filter</code></dt>
+<dd><p>A string with <a href="https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter" class="external-link">an OData expression</a>
+apply as a filter to the results. Learn more in the <a href="https://learn.microsoft.com/en-us/graph/filter-query-parameter" class="external-link">Microsoft Graph API documentation</a>
+on using filter query parameters.</p></dd>
+
+    <dt><code>n</code></dt>
+<dd><p>Maximum number of lists, plans, tasks, or other items to return.
+Defaults to <code>NULL</code> which sets n to <code>Inf</code>.</p></dd>
+
 
 </dl></dd>
+
+
+<dt id="arg-list-name">list_name<a class="anchor" aria-label="anchor" href="#arg-list-name"></a></dt>
+<dd><p>SharePoint List name. Optional if <code>sp_list</code> or <code>list_id</code> are provided.</p></dd>
 
 
 <dt id="arg-site-url">site_url<a class="anchor" aria-label="anchor" href="#arg-site-url"></a></dt>

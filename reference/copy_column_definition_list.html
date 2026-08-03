@@ -70,6 +70,11 @@ data frame with n rows or all lists available for the SharePoint site or
 drive. Defaults to <code>FALSE</code>. Ignored is <code>metadata = TRUE</code> as list metadata
 is always returned as a data frame.</p></dd>
 
+    <dt><code>metadata</code></dt>
+<dd><p>If <code>TRUE</code>, <code><a href="sp_list.html">get_sp_list()</a></code> applies the <code>get_column_info</code>
+method to the returned SharePoint list and returns a data frame with column
+metadata for the list.</p></dd>
+
     <dt><code>keep</code></dt>
 <dd><p>One of "all" (default), "editable", "external" (non-internal
 fields). Argument determines if the returned list metadata includes read
@@ -103,6 +108,15 @@ mentioned in error messages as the source of the error. See the
     <dt><code>site</code></dt>
 <dd><p>A <code>ms_site</code> object. If <code>site</code> is supplied, <code>site_url</code>,
 <code>site_name</code>, and <code>site_id</code> are ignored.</p></dd>
+
+    <dt><code>filter</code></dt>
+<dd><p>A string with <a href="https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter" class="external-link">an OData expression</a>
+apply as a filter to the results. Learn more in the <a href="https://learn.microsoft.com/en-us/graph/filter-query-parameter" class="external-link">Microsoft Graph API documentation</a>
+on using filter query parameters.</p></dd>
+
+    <dt><code>n</code></dt>
+<dd><p>Maximum number of lists, plans, tasks, or other items to return.
+Defaults to <code>NULL</code> which sets n to <code>Inf</code>.</p></dd>
 
 
 </dl></dd>

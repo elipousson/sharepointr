@@ -78,6 +78,22 @@ cache_sp_site(
       supplied, use the value of the `CLIMICROSOFT365_TENANT`
       environment variable, or "common" if that is unset.
 
+  `team_name,team_id`
+
+  :   For `get_team`, either the name or ID of the team to retrieve.
+      Supply exactly one of these.
+
+  `shared_mbox_id,shared_mbox_name,shared_mbox_email`
+
+  :   For `get_business_outlook`, an ID/principal name/email address.
+      Supply exactly one of these to retrieve a shared mailbox. If all
+      are NULL (the default), retrieve your own mailbox.
+
+  `chat_id`
+
+  :   For `get_chat`, the ID of a group, one-on-one or meeting chat in
+      Teams.
+
 - cache:
 
   If `TRUE`, cache site to a file using `cache_sp_site()`.

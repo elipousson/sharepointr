@@ -33,7 +33,7 @@ delete_sp_list_items(
 \item{sp_list_item}{Optional. A SharePoint list item object to delete.}
 
 \item{...}{Additional parameters passed to \code{\link[=get_sp_site]{get_sp_site()}} or
-\code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}}.}
+\code{\link[Microsoft365R:get_sharepoint_site]{Microsoft365R::get_sharepoint_site()}}.}
 
 \item{list_name, list_id}{SharePoint List name or ID string.}
 

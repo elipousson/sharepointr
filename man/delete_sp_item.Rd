@@ -36,7 +36,7 @@ depending on the policies set up by your SharePoint administrator policies.
 Note, that this method can be slow for large folders.}
 
 \item{...}{
-  Arguments passed on to \code{\link[=get_sp_item]{get_sp_item}}
+  Arguments passed on to \code{\link{get_sp_item}}
   \describe{
     \item{\code{drive_name,drive_id}}{SharePoint drive name or ID.}
     \item{\code{as_data_frame}}{If \code{TRUE}, return a data frame. If \code{FALSE} (default),

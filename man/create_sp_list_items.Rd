@@ -75,7 +75,7 @@ coerced to text using \code{\link[sf:st_as_text]{sf::st_as_text()}}.}
 parameters passed to \code{...} are all ignored.}
 
 \item{...}{Additional parameters passed to \code{\link[=get_sp_site]{get_sp_site()}} or
-\code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}}.}
+\code{\link[Microsoft365R:get_sharepoint_site]{Microsoft365R::get_sharepoint_site()}}.}
 
 \item{allow_display_nm}{If \code{TRUE}, allow data to use list field display names
 instead of standard names. Note this requires a separate API call so may

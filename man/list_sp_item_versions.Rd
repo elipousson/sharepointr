@@ -8,7 +8,7 @@ list_sp_item_versions(..., sp_item = NULL, as_data_frame = TRUE)
 }
 \arguments{
 \item{...}{
-  Arguments passed on to \code{\link[=get_sp_item]{get_sp_item}}
+  Arguments passed on to \code{\link{get_sp_item}}
   \describe{
     \item{\code{path}}{A SharePoint file URL or the relative path to a file located in a
 SharePoint drive. If input is a relative path, the string should \emph{not}

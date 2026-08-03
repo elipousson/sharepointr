@@ -48,14 +48,68 @@ URL can also be parsed to build a site URL using the tenant and site name
 included in the URL.}
 
 \item{...}{
-  Arguments passed on to \code{\link[=create_lookup_column]{create_lookup_column}}
+  Arguments passed on to \code{\link{create_lookup_column}}
   \describe{
+    \item{\code{display_as}}{Value displayed as option. For \code{create_choice_column} one
+of\code{c("checkBoxes", "dropDownMenu", "radioButtons")}. For
+\code{create_number_column}, one of \code{c("number", "percentage")}. For
+\code{create_datetime_column}, one of \code{c("default", "friendly", "standard")}.}
+    \item{\code{.col_type}}{Column type. Defaults to "text". Must be one of "boolean",
+"calculated", "choice", "currency", "dateTime", "lookup", "number",
+"personOrGroup", "text", "term", "hyperlinkOrPicture", "thumbnail",
+"contentApprovalStatus", or "geolocation".}
+    \item{\code{enforce_unique}}{Enforce unique values in column.}
+    \item{\code{hidden}}{If \code{TRUE}, column will be hidden by default.}
+    \item{\code{deletable}}{If \code{TRUE}, column can't be deleted separate from the list.}
+    \item{\code{required}}{If \code{TRUE}, column will be required.}
+    \item{\code{default}}{Default value set by helper \code{\link[=get_column_default]{get_column_default()}} function.}
+    \item{\code{description}}{Column description.}
+    \item{\code{displayname}}{Column display name.}
+    \item{\code{indexed,sealed,propagate_changes,read_only,validation,id,show_full_name}}{Additional arguments used by \code{\link[=create_column_definition]{create_column_definition()}}.}
+    \item{\code{multiple_lines}}{Logical. If \code{TRUE}, allow multiple lines of text.}
+    \item{\code{append_changes}}{Logical. If \code{TRUE}, append changes to existing value
+for column.}
+    \item{\code{lines}}{Whole number.}
+    \item{\code{max_length}}{Whole number. Max length in number of characters.}
+    \item{\code{text_type}}{One of \code{c("plain", "richText")}}
+    \item{\code{choices}}{A character vector of choice options.}
+    \item{\code{allow_na}}{If \code{TRUE}, allow NA values in \code{choices}.}
+    \item{\code{na_replacement}}{Used as \code{replacement} by \code{\link[stringr:str_replace_na]{stringr::str_replace_na()}} on
+\code{choices} if they contain NA values.}
+    \item{\code{allow_text}}{If \code{TRUE}, allow text entry in the choice column.}
+    \item{\code{decimals}}{One of \code{c("none", "one", "two", "three", "four", "five")} or
+a numeric value between 0 and 5.}
+    \item{\code{max,min}}{Minimum and maximum values allowed in number column.}
+    \item{\code{locale}}{Locale}
+    \item{\code{formula}}{Required string with formula for calculated column definition.
+See \href{https://support.microsoft.com/en-us/office/examples-of-common-formulas-in-lists-d81f5f21-2b4e-45ce-b170-bf7ebf6988b3}{examples of common formulas in lists}.
+Reference existing columns using the display name enclosed in square
+brackets. The formula must start with an equals sign \code{"="} which this
+function appends to the formula text if it is missing.}
+    \item{\code{format}}{\code{"dateOnly"} or \code{"dateTime"}. Required by
+\code{create_calculated_column} if \code{output_type} is "dateTime" otherwise ignored.}
+    \item{\code{output_type}}{Value type returned by calculated formula. One of
+\code{c("text", "boolean", "currency", "dateTime", "number")}}
     \item{\code{allow_multiple}}{If \code{TRUE}, allow lookup column to return multiple
 values.}
     \item{\code{allow_unlimited_length}}{If \code{TRUE}, allow lookup column to
 return any length value.}
     \item{\code{primary_lookup_column_id}}{If column definition is for a secondary
 column, the primary lookup column ID must be supplied.}
+    \item{\code{from_type}}{What type of resources to choose from. Defaults to
+"peopleOnly" for \code{\link[=create_person_column]{create_person_column()}} or "peopleAndGroups" for
+\code{\link[=create_group_column]{create_group_column()}}}
+    \item{\code{is_picture}}{Logical indicator for display of hyperlink value as link
+(\code{FALSE}, default for \code{\link[=create_hyperlink_column]{create_hyperlink_column()}}) or image (\code{TRUE}, default
+for \code{\link[=create_picture_column]{create_picture_column()}}).}
+    \item{\code{split}}{
+    character vector (or object which can be coerced to such)
+    containing \link[base]{regular expression}(s) (unless \code{fixed = TRUE})
+    to use for splitting.  If empty matches occur, in particular if
+    \code{split} has length 0, \code{x} is split into single characters.
+    If \code{split} has length greater than 1, it is re-cycled along
+    \code{x}.
+  }
   }}
 }
 \description{

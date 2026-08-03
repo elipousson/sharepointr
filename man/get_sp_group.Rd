@@ -20,6 +20,7 @@ list_sp_group_members(
   site_name = NULL,
   site_id = NULL,
   ...,
+  sp_group = NULL,
   as_data_frame = TRUE,
   call = caller_env()
 )
@@ -35,7 +36,7 @@ alternative to the SharePoint site URL. Exactly one of  \code{site_url},
 \code{site_name}, and \code{site_id} must be supplied.}
 
 \item{...}{Additional parameters passed to \code{\link[=get_sp_site]{get_sp_site()}} or
-\code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}}.}
+\code{\link[Microsoft365R:get_sharepoint_site]{Microsoft365R::get_sharepoint_site()}}.}
 
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
@@ -44,6 +45,8 @@ alternative to the SharePoint site URL. Exactly one of  \code{site_url},
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
+
+\item{sp_group}{A "az_group" object returned by  \code{\link[=get_sp_group]{get_sp_group()}} or using the \code{get_group} method.}
 
 \item{as_data_frame}{If \code{TRUE} (default), converted list of members into a
 data frame with a list column named \code{az_user} that contains the member

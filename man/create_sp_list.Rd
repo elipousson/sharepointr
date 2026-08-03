@@ -53,7 +53,7 @@ delete_sp_list(
 \item{list_name}{Required. List name used as \code{displayName} property.}
 
 \item{...}{Additional parameters passed to \code{\link[=get_sp_site]{get_sp_site()}} or
-\code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}}.}
+\code{\link[Microsoft365R:get_sharepoint_site]{Microsoft365R::get_sharepoint_site()}}.}
 
 \item{description}{Optional description.}
 

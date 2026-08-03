@@ -30,7 +30,7 @@ noted in the description. All other object types are saved as \code{rds}
 outputs.}
 
 \item{file}{File to write to. Passed to \code{file} parameter for
-\code{\link[readr:write_delim]{readr::write_csv()}} or \code{\link[readr:read_rds]{readr::write_rds()}}, \code{dsn} for \code{sf::write_sf()},
+\code{\link[readr:write_csv]{readr::write_csv()}} or \code{\link[readr:write_rds]{readr::write_rds()}}, \code{dsn} for \code{sf::write_sf()},
 or \code{target} for \code{print()} (when working with \code{{officer}} class objects).}
 
 \item{dest}{Destination on SharePoint for file to upload. Must be a
@@ -84,10 +84,10 @@ Invisibly returns the input object x.
 \code{\link[=write_sharepoint]{write_sharepoint()}} uses \code{\link[=upload_sp_item]{upload_sp_item()}} to upload an object created
 using:
 \itemize{
-\item \code{\link[sf:st_write]{sf::write_sf()}} if x is an \code{sf} object
-\item \code{\link[readr:write_delim]{readr::write_csv()}} if x is a \code{data.frame} and file does not include a xlsx extension
+\item \code{\link[sf:write_sf]{sf::write_sf()}} if x is an \code{sf} object
+\item \code{\link[readr:write_csv]{readr::write_csv()}} if x is a \code{data.frame} and file does not include a xlsx extension
 \item \code{\link[openxlsx2:write_xlsx]{openxlsx2::write_xlsx()}} if x is a \code{data.frame} file does include a xlsx extension
 \item The \code{\link[=print]{print()}} method from \code{{officer}} if x is a \code{rdocx}, \code{rpptx}, or \code{rxlsx} object
-\item \code{\link[readr:read_rds]{readr::write_rds()}} if x is any other class
+\item \code{\link[readr:write_rds]{readr::write_rds()}} if x is any other class
 }
 }

@@ -38,12 +38,15 @@ alternative to the SharePoint site URL. Exactly one of  \code{site_url},
 \code{site_name}, and \code{site_id} must be supplied.}
 
 \item{...}{
-  Arguments passed on to \code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site}}
+  Arguments passed on to \code{\link[Microsoft365R:get_sharepoint_site]{Microsoft365R::get_sharepoint_site}}
   \describe{
     \item{\code{app}}{A custom app registration ID to use for authentication. See below.}
     \item{\code{scopes}}{The Microsoft Graph scopes (permissions) to obtain. It should never be necessary to change these.}
     \item{\code{token}}{An AAD OAuth token object, of class \code{AzureAuth::AzureToken}. If supplied, the \code{tenant}, \code{app}, \code{scopes} and \code{...} arguments will be ignored. See "Authenticating with a token" below.}
     \item{\code{tenant}}{For \code{get_business_onedrive}, \code{get_sharepoint_site} and \code{get_team}, the name of your Azure Active Directory (AAD) tenant. If not supplied, use the value of the \code{CLIMICROSOFT365_TENANT} environment variable, or "common" if that is unset.}
+    \item{\code{team_name,team_id}}{For \code{get_team}, either the name or ID of the team to retrieve. Supply exactly one of these.}
+    \item{\code{shared_mbox_id,shared_mbox_name,shared_mbox_email}}{For \code{get_business_outlook}, an ID/principal name/email address. Supply exactly one of these to retrieve a shared mailbox. If all are NULL (the default), retrieve your own mailbox.}
+    \item{\code{chat_id}}{For \code{get_chat}, the ID of a group, one-on-one or meeting chat in Teams.}
   }}
 
 \item{cache}{If \code{TRUE}, cache site to a file using \code{\link[=cache_sp_site]{cache_sp_site()}}.}
@@ -70,7 +73,7 @@ named "sharepointr.cache_dir". If "sharepointr.cache_dir" is not set, the
 cache directory is set to \code{rappdirs::user_cache_dir("sharepointr")}.}
 }
 \description{
-\code{\link[=get_sp_site]{get_sp_site()}} is a wrapper for \code{\link[Microsoft365R:client]{Microsoft365R::get_sharepoint_site()}} and
+\code{\link[=get_sp_site]{get_sp_site()}} is a wrapper for \code{\link[Microsoft365R:get_sharepoint_site]{Microsoft365R::get_sharepoint_site()}} and
 returns a \code{ms_site} object. \code{\link[=cache_sp_site]{cache_sp_site()}} allows you to cache a default
 SharePoint site for use by other functions. Users seeking to access a
 SharePoint subsite must provide the \code{site_id} instead of a \code{site_url} or

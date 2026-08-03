@@ -47,7 +47,7 @@ is a document URL, the \code{default_drive_name} argument is used as the
 and site URL.}
 
 \item{...}{
-  Arguments passed on to \code{\link[=get_sp_drive]{get_sp_drive}}
+  Arguments passed on to \code{\link{get_sp_drive}}
   \describe{
     \item{\code{drive_name,drive_id}}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}

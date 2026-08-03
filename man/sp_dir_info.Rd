@@ -44,7 +44,7 @@ character vector. If a vector or path of URLs are supplied, provide a
 \code{drive} object to improve performance.}
 
 \item{...}{
-  Arguments passed on to \code{\link[=get_sp_drive]{get_sp_drive}}
+  Arguments passed on to \code{\link{get_sp_drive}}
   \describe{
     \item{\code{drive_url}}{A SharePoint Drive URL to parse for a Drive name and other
 information. If \code{drive_name} is a URL, it is used as \code{drive_url}.}
@@ -105,9 +105,9 @@ mentioned in error messages as the source of the error. See the
 }
 \description{
 \code{\link[=sp_dir_info]{sp_dir_info()}} is a wrapper for the \code{list_files} method with some additional
-features based on \code{\link[fs:dir_ls]{fs::dir_info()}}. \code{\link[=sp_dir_ls]{sp_dir_ls()}} returns a character vector
+features based on \code{\link[fs:dir_info]{fs::dir_info()}}. \code{\link[=sp_dir_ls]{sp_dir_ls()}} returns a character vector
 and does not yet include support for the \code{recurse} argument.  If
-\code{{fs}} is installed, the size column is formatted using \code{\link[fs:fs_bytes]{fs::as_fs_bytes()}}
+\code{{fs}} is installed, the size column is formatted using \code{\link[fs:as_fs_bytes]{fs::as_fs_bytes()}}
 and an additional "type" factor column is added with values for directory and
 file.
 }

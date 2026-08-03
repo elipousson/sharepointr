@@ -18,7 +18,7 @@ sp_dir_create(
 \item{path}{A character vector of one or more paths.}
 
 \item{...}{
-  Arguments passed on to \code{\link[=get_sp_drive]{get_sp_drive}}
+  Arguments passed on to \code{\link{get_sp_drive}}
   \describe{
     \item{\code{drive_url}}{A SharePoint Drive URL to parse for a Drive name and other
 information. If \code{drive_name} is a URL, it is used as \code{drive_url}.}

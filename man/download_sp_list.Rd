@@ -15,7 +15,7 @@ download_sp_list(
 }
 \arguments{
 \item{...}{
-  Arguments passed on to \code{\link[=get_sp_list]{get_sp_list}}
+  Arguments passed on to \code{\link{get_sp_list}}
   \describe{
     \item{\code{list_name,list_id}}{SharePoint List name or ID string.}
     \item{\code{as_data_frame}}{If \code{TRUE}, return a data frame with a "ms_list" column.
@@ -26,6 +26,12 @@ is always returned as a data frame.}
     \item{\code{metadata}}{If \code{TRUE}, \code{\link[=get_sp_list]{get_sp_list()}} applies the \code{get_column_info}
 method to the returned SharePoint list and returns a data frame with column
 metadata for the list.}
+    \item{\code{keep}}{One of "all" (default), "editable", "external" (non-internal
+fields). Argument determines if the returned list metadata includes read
+only columns or hidden columns.}
+    \item{\code{sync_fields}}{If \code{TRUE}, use the \code{sync_fields} method to sync the fields
+of the local \code{ms_list} object with the fields of the SharePoint List source
+before retrieving list metadata.}
     \item{\code{drive_name,drive_id}}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
     \item{\code{drive}}{A \code{ms_drive} object. If \code{drive} is supplied, \code{drive_name} and
@@ -36,6 +42,11 @@ URL can also be parsed to build a site URL using the tenant and site name
 included in the URL.}
     \item{\code{site}}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
+    \item{\code{filter}}{A string with \href{https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter}{an OData expression}
+apply as a filter to the results. Learn more in the \href{https://learn.microsoft.com/en-us/graph/filter-query-parameter}{Microsoft Graph API documentation}
+on using filter query parameters.}
+    \item{\code{n}}{Maximum number of lists, plans, tasks, or other items to return.
+Defaults to \code{NULL} which sets n to \code{Inf}.}
   }}
 
 \item{new_path}{Optional path to new file. If not \code{new_path} provided, the

@@ -24,14 +24,27 @@ parameters passed to \code{...} are all ignored.}
 \item{column_name, column_id}{Column name or ID to get a definition for.}
 
 \item{...}{
-  Arguments passed on to \code{\link[=get_sp_list]{get_sp_list}}
+  Arguments passed on to \code{\link{get_sp_list}}
   \describe{
     \item{\code{list_name,list_id}}{SharePoint List name or ID string.}
+    \item{\code{keep}}{One of "all" (default), "editable", "external" (non-internal
+fields). Argument determines if the returned list metadata includes read
+only columns or hidden columns.}
+    \item{\code{sync_fields}}{If \code{TRUE}, use the \code{sync_fields} method to sync the fields
+of the local \code{ms_list} object with the fields of the SharePoint List source
+before retrieving list metadata.}
     \item{\code{drive_name,drive_id}}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
     \item{\code{drive}}{A \code{ms_drive} object. If \code{drive} is supplied, \code{drive_name} and
 \code{drive_id} are ignored.}
+    \item{\code{filter}}{A string with \href{https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter}{an OData expression}
+apply as a filter to the results. Learn more in the \href{https://learn.microsoft.com/en-us/graph/filter-query-parameter}{Microsoft Graph API documentation}
+on using filter query parameters.}
+    \item{\code{n}}{Maximum number of lists, plans, tasks, or other items to return.
+Defaults to \code{NULL} which sets n to \code{Inf}.}
   }}
+
+\item{list_name}{SharePoint List name. Optional if \code{sp_list} or \code{list_id} are provided.}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document

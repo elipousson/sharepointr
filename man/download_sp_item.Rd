@@ -36,10 +36,10 @@ location and filename for downloaded item.}
 supplied. If path contains a file name, the item will be downloaded using
 that file name instead of the file name of the original item. If \code{new_path}
 refers to a nonexistent directory and the item is a file, the directory
-will be silently created using \code{\link[fs:create]{fs::dir_create()}}.}
+will be silently created using \code{\link[fs:dir_create]{fs::dir_create()}}.}
 
 \item{...}{
-  Arguments passed on to \code{\link[=get_sp_item]{get_sp_item}}
+  Arguments passed on to \code{\link{get_sp_item}}
   \describe{
     \item{\code{drive_name,drive_id}}{SharePoint drive name or ID.}
     \item{\code{properties}}{If \code{TRUE}, use the \code{get_item_properties} method and return

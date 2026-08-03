@@ -22,9 +22,9 @@ folder for \code{rappdirs::user_cache_dir("AzureR")} (for Windows) or
 "graph_logins.json". Set to \code{NULL} if path contains a file name.}
 }
 \description{
-\code{\link[=AzureR_config_ls]{AzureR_config_ls()}} uses \code{\link[rappdirs:user_data_dir]{rappdirs::user_config_dir()}} and \code{\link[fs:dir_ls]{fs::dir_ls()}} to
+\code{\link[=AzureR_config_ls]{AzureR_config_ls()}} uses \code{\link[rappdirs:user_config_dir]{rappdirs::user_config_dir()}} and \code{\link[fs:dir_ls]{fs::dir_ls()}} to
 list files from the AzureR configuration directory. \code{\link[=AzureR_config_delete]{AzureR_config_delete()}}
-uses \code{\link[fs:delete]{fs::file_delete()}} to remove the "graph_logins.json" configuration file
+uses \code{\link[fs:file_delete]{fs::file_delete()}} to remove the "graph_logins.json" configuration file
 if needed. Use this function with caution but it may be an option to address
 a "Unable to refresh token" error.
 }

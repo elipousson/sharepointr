@@ -13,7 +13,7 @@ copy_column_definition_list(sp_list = NULL, ...)
 from.}
 
 \item{...}{
-  Arguments passed on to \code{\link[=get_sp_list_metadata]{get_sp_list_metadata}}
+  Arguments passed on to \code{\link{get_sp_list_metadata}}
   \describe{
     \item{\code{list_name,list_id}}{SharePoint List name or ID string.}
     \item{\code{as_data_frame}}{If \code{TRUE}, return a data frame with a "ms_list" column.
@@ -21,6 +21,9 @@ from.}
 data frame with n rows or all lists available for the SharePoint site or
 drive. Defaults to \code{FALSE}. Ignored is \code{metadata = TRUE} as list metadata
 is always returned as a data frame.}
+    \item{\code{metadata}}{If \code{TRUE}, \code{\link[=get_sp_list]{get_sp_list()}} applies the \code{get_column_info}
+method to the returned SharePoint list and returns a data frame with column
+metadata for the list.}
     \item{\code{keep}}{One of "all" (default), "editable", "external" (non-internal
 fields). Argument determines if the returned list metadata includes read
 only columns or hidden columns.}
@@ -41,6 +44,11 @@ mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
     \item{\code{site}}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
+    \item{\code{filter}}{A string with \href{https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter}{an OData expression}
+apply as a filter to the results. Learn more in the \href{https://learn.microsoft.com/en-us/graph/filter-query-parameter}{Microsoft Graph API documentation}
+on using filter query parameters.}
+    \item{\code{n}}{Maximum number of lists, plans, tasks, or other items to return.
+Defaults to \code{NULL} which sets n to \code{Inf}.}
   }}
 }
 \description{

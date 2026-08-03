@@ -36,7 +36,7 @@ the description or supplied to \code{.f}}
 supplied. If path contains a file name, the item will be downloaded using
 that file name instead of the file name of the original item. If \code{new_path}
 refers to a nonexistent directory and the item is a file, the directory
-will be silently created using \code{\link[fs:create]{fs::dir_create()}}.}
+will be silently created using \code{\link[fs:dir_create]{fs::dir_create()}}.}
 
 \item{overwrite}{If \code{TRUE}, replace the existing cached object named by
 \code{cache_file} with the new object. If \code{FALSE}, error if a cached file with
@@ -74,7 +74,7 @@ object.
 \code{\link[officer:read_pptx]{officer::read_pptx()}} are used to read the file into a \code{rdocx} or \code{rpptx}
 object.
 \item If the file has a "gpkg", "geojson", "kml", "gdb", or "zip" file extension,
-\code{\link[sf:st_read]{sf::read_sf()}} is used to read the file into a \code{sf} data frame.
+\code{\link[sf:read_sf]{sf::read_sf()}} is used to read the file into a \code{sf} data frame.
 }
 
 If the file has none of these file extensions, an attempt is made to read the

@@ -41,11 +41,14 @@ information. If \code{drive_name} is a URL, it is used as \code{drive_url}.}
 \code{ms_drive} object. Defaults to \code{FALSE}.}
 
 \item{...}{
-  Arguments passed on to \code{\link[=get_sp_site]{get_sp_site}}
+  Arguments passed on to \code{\link{get_sp_site}}
   \describe{
     \item{\code{site_name,site_id}}{Site name or ID of the SharePoint site as an
 alternative to the SharePoint site URL. Exactly one of  \code{site_url},
 \code{site_name}, and \code{site_id} must be supplied.}
+    \item{\code{cache_dir}}{Cache directory. By default, uses an option
+named "sharepointr.cache_dir". If "sharepointr.cache_dir" is not set, the
+cache directory is set to \code{rappdirs::user_cache_dir("sharepointr")}.}
   }}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant

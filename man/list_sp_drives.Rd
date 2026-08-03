@@ -15,7 +15,7 @@ list_sp_drives(
 }
 \arguments{
 \item{...}{
-  Arguments passed on to \code{\link[=get_sp_site]{get_sp_site}}
+  Arguments passed on to \code{\link{get_sp_site}}
   \describe{
     \item{\code{site_url}}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
@@ -31,6 +31,9 @@ as a local option. If \code{FALSE}, use the cached \code{ms_site} object.}
     \item{\code{overwrite}}{If \code{TRUE}, replace the existing cached object named by
 \code{cache_file} with the new object. If \code{FALSE}, error if a cached file with
 the same \code{cache_file} name already exists.}
+    \item{\code{cache_dir}}{Cache directory. By default, uses an option
+named "sharepointr.cache_dir". If "sharepointr.cache_dir" is not set, the
+cache directory is set to \code{rappdirs::user_cache_dir("sharepointr")}.}
   }}
 
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},

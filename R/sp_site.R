@@ -22,8 +22,7 @@ NULL
 #'   `site_name`, and `site_id` must be supplied.
 #' @param ... Additional parameters passed to [get_sp_site()] or
 #'   [Microsoft365R::get_sharepoint_site()].
-#' @inheritDotParams Microsoft365R::get_sharepoint_site -site_url -site_name
-#' -site_id
+#' @inheritDotParams Microsoft365R::get_sharepoint_site -site_url -site_name -site_id
 #' @param refresh If `TRUE`, get a new site even if the existing site is cached
 #'   as a local option. If `FALSE`, use the cached `ms_site` object.
 #' @param cache If `TRUE`, cache site to a file using [cache_sp_site()].

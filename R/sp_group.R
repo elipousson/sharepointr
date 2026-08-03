@@ -39,6 +39,7 @@ get_sp_group <- function(
 }
 
 #' @name list_sp_group_members
+#' @param sp_group A "az_group" object returned by  [get_sp_group()] or using the `get_group` method.
 #' @param as_data_frame If `TRUE` (default), converted list of members into a
 #'   data frame with a list column named `az_user` that contains the member
 #'   list and properties converted into columns.

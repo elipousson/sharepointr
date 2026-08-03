@@ -624,6 +624,7 @@ create_list_info <- function(
 #' See the [Get columnDefinition Graph API documentation](https://learn.microsoft.com/en-us/graph/api/columndefinition-get?view=graph-rest-1.0&tabs=http) for more information.
 #'
 #' @inheritParams get_sp_list
+#' @param list_name SharePoint List name. Optional if `sp_list` or `list_id` are provided.
 #' @inheritDotParams get_sp_list -as_data_frame -metadata
 #' @param column_name,column_id Column name or ID to get a definition for.
 #' @param column_name_type "name" or "displayName". Used to match column ID so
@@ -1021,10 +1022,10 @@ sp_list_internal_colnames <- c(
 #' <https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/connections/connection-sharepoint-online#notes>
 #' @noRd
 sp_list_sys_colnames <- c(
-  "​​​​​​Identifier",
+  "\\u200b\\u200b\\u200b\\u200b\\u200b\\u200bIdentifier",
   "IsFolder",
   "Thumbnail",
-  "Link​",
+  "Link\\u200b",
   "Name",
   "FilenameWithExtension",
   "Path",

@@ -931,8 +931,10 @@ update_sp_list_item <- function(
 
     if (has_length(.data, 1) && has_name(.data, "id") || is_empty(.data)) {
       cli::cli_bullets(
-        c("!" = "{.arg .data} is empty after dropping `NA` values.
-        Item can't be updated.")
+        c(
+          "!" = "{.arg .data} is empty after dropping `NA` values.
+        Item can't be updated."
+        )
       )
 
       return(invisible(.data))
@@ -1048,7 +1050,9 @@ create_sp_list_item <- function(
 
   if (!.keep_na) {
     # Required for numeric fields
-    .fields <- purrr::discard(.fields, is.na)
+    .fields <- purrr::discard(.fields, \(x) {
+      all(is.na(x))
+    })
   }
 
   # Drop NULL values
@@ -1057,6 +1061,39 @@ create_sp_list_item <- function(
   if (is_empty(.fields)) {
     # FIXME: Add warning if .fields has no valid input
     return(invisible(.fields))
+  }
+
+  multi_fields <- purrr::discard(
+    .fields,
+    \(x) {
+      has_length(x, 1)
+    }
+  )
+
+  if (has_length(multi_fields)) {
+    .fields <- c(
+      .fields,
+      set_names(
+        purrr::map(
+          multi_fields,
+          \(x) {
+            # TODO: Add support for additional Collection types
+            # https://learn.microsoft.com/en-us/rest/api/searchservice/supported-data-types#edm-data-types-for-nonvector-fields
+            if (is.character(x)) {
+              "Collection(Edm.String)"
+            } else if (is.numeric(x)) {
+              "Collection(Edm.Int32)"
+            } else if (is.logical(x)) {
+              "Collection(Edm.Boolean)"
+            }
+          }
+        ),
+        paste0(
+          names(multi_fields),
+          "@odata.type"
+        )
+      )
+    )
   }
 
   # TODO: Add check if data in .fields matches schema from list

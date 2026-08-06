@@ -21,6 +21,39 @@ skip_if_no_ms_site <- function(url) {
   )
 }
 
+skip_if_no_ms_team <- function(team_name = NULL, team_id = NULL, ...) {
+  ms_team <- rlang::try_fetch(
+    suppressMessages(get_ms_team(
+      team_name = team_name,
+      team_id = team_id,
+      ...
+    )),
+    error = function(cnd) {
+      NULL
+    }
+  )
+
+  skip_if_not(
+    inherits(ms_team, "ms_team"),
+    message = glue::glue(
+      "User must have access to the Microsoft Team {team_name %||% team_id}"
+    )
+  )
+}
+
+#' Build a unique marker string used to find list items created by a test
+#' @noRd
+sp_test_marker <- function(label) {
+  paste0(
+    "sharepointr-test-",
+    label,
+    "-",
+    as.integer(Sys.time()),
+    "-",
+    sample.int(1e6, 1)
+  )
+}
+
 withr::local_options(
   list(
     sharepointr.cache = FALSE,

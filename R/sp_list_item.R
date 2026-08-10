@@ -300,6 +300,14 @@ get_sp_list_items <- function(
 ) {
   check_string(filter, allow_null = TRUE, call = call)
 
+  # Preserve the "id" naming convention used by list metadata (see
+  # sp_list_ptype_col_metadata()) for the ptype built below, independent of
+  # the "ID" naming the Graph API query requires
+  select_ptype <- select
+  if (!is.null(select_ptype) && "ID" %in% select_ptype) {
+    select_ptype[select_ptype == "ID"] <- "id"
+  }
+
   options <- list(
     expand = "fields",
     `$filter` = filter,
@@ -363,7 +371,16 @@ get_sp_list_items <- function(
   #   list_values$fields[, nm] <- .ms365_dttm(list_values$fields[, nm])
   # }
 
-  list_values$fields
+  # Guarantee every list column is present, in list order, even when a field
+  # is empty for every returned item (and so is otherwise dropped entirely by
+  # the Graph API)
+  ptype_df <- sp_list_as_ptype_data_frame(
+    sp_list = sp_list,
+    select = select_ptype,
+    raw = TRUE
+  )
+
+  vctrs::vec_rbind(ptype_df, list_values$fields)
 }
 
 #' Add orderby to options
@@ -932,8 +949,8 @@ update_sp_list_item <- function(
     if (has_length(.data, 1) && has_name(.data, "id") || is_empty(.data)) {
       cli::cli_bullets(
         c(
-          "!" = "{.arg .data} is empty after dropping `NA` values.
-        Item can't be updated."
+          "!" = "{.arg .data} is empty after dropping `NA` values.",
+          "Item can't be updated."
         )
       )
 
@@ -985,6 +1002,10 @@ update_sp_list_item <- function(
     # TODO: Implement check_fields if `sp_list_item` is supplied
   }
 
+  # Append "@odata.type" fields so multi-value (Collection) columns are
+  # recognized by the Graph API
+  update_data <- append_field_odata_types(update_data)
+
   if (!is.null(sp_list)) {
     cli_progress_step(
       "Updating item {.val {item_id}}"
@@ -1022,6 +1043,48 @@ update_sp_list_item <- function(
   invisible(.data)
 }
 
+#' Append "@odata.type" fields for multi-value (Collection) fields
+#'
+#' Adds a sibling `"{name}@odata.type"` entry for any field with a value of
+#' length greater than 1 so the Graph API recognizes the field as a
+#' Collection instead of a scalar.
+#' <https://learn.microsoft.com/en-us/rest/api/searchservice/supported-data-types#edm-data-types-for-nonvector-fields>
+#' @noRd
+append_field_odata_types <- function(fields) {
+  multi_fields <- purrr::discard(
+    fields,
+    \(x) {
+      has_length(x, 1)
+    }
+  )
+
+  if (!has_length(multi_fields)) {
+    return(fields)
+  }
+
+  c(
+    fields,
+    set_names(
+      purrr::map(
+        multi_fields,
+        \(x) {
+          # TODO: Add support for additional Collection types
+          if (is.character(x)) {
+            "Collection(Edm.String)"
+          } else if (is.numeric(x)) {
+            "Collection(Edm.Int32)"
+          } else if (is.logical(x)) {
+            "Collection(Edm.Boolean)"
+          }
+        }
+      ),
+      paste0(
+        names(multi_fields),
+        "@odata.type"
+      )
+    )
+  )
+}
 
 #' Alternate syntax for create list item
 #'
@@ -1063,38 +1126,7 @@ create_sp_list_item <- function(
     return(invisible(.fields))
   }
 
-  multi_fields <- purrr::discard(
-    .fields,
-    \(x) {
-      has_length(x, 1)
-    }
-  )
-
-  if (has_length(multi_fields)) {
-    .fields <- c(
-      .fields,
-      set_names(
-        purrr::map(
-          multi_fields,
-          \(x) {
-            # TODO: Add support for additional Collection types
-            # https://learn.microsoft.com/en-us/rest/api/searchservice/supported-data-types#edm-data-types-for-nonvector-fields
-            if (is.character(x)) {
-              "Collection(Edm.String)"
-            } else if (is.numeric(x)) {
-              "Collection(Edm.Int32)"
-            } else if (is.logical(x)) {
-              "Collection(Edm.Boolean)"
-            }
-          }
-        ),
-        paste0(
-          names(multi_fields),
-          "@odata.type"
-        )
-      )
-    )
-  }
+  .fields <- append_field_odata_types(.fields)
 
   # TODO: Add check if data in .fields matches schema from list
 
@@ -1229,12 +1261,12 @@ delete_sp_list_items <- function(
   invisible(resp_list)
 }
 
+#' Get list column metadata renamed and ordered to match the data frame
+#' returned for list items (ID -> id, lookup/personOrGroup columns -> "{name}LookupId")
 #' @noRd
-sp_list_as_ptype_data_frame <- function(
-  ...,
+sp_list_ptype_col_metadata <- function(
   sp_list = NULL,
-  col_metadata = NULL,
-  select = NULL
+  col_metadata = NULL
 ) {
   col_metadata <- col_metadata %||%
     get_sp_list_metadata(
@@ -1277,55 +1309,187 @@ sp_list_as_ptype_data_frame <- function(
     value = "id"
   )
 
-  col_metadata <- set_names(
+  set_names(
     col_metadata,
     col_nm
   )
+}
 
-  ptype_list <- purrr::map(
-    col_metadata,
-    \(x) {
-      vctrs::vec_case_when(
-        conditions = list(
-          has_name(x, "number"),
-          has_name(x, "choice"),
-          has_name(x, "dateTime") &
-            identical(x[["dateTime"]][["format"]], "dateOnly"),
-          has_name(x, "dateTime") &
-            identical(x[["dateTime"]][["format"]], "dateTime")
-        ),
-        values = list(
-          list(NA_real_),
-          list(
-            factor(
-              NA,
-              levels = c(
-                NA,
-                unlist(x[["choice"]][["choices"]])
-              )
-            )
-          ),
-          list(as.Date(NA)),
-          list(c.POSIXct(NA))
-        ),
-        default = list(NA_character_)
-      )[[1]]
-    }
+#' Does a column definition allow multiple values (a Collection field)?
+#'
+#' Checks the `allowMultipleValues`/`allowMultipleSelection` properties used
+#' by lookup, personOrGroup, and term columns. Choice columns don't
+#' consistently return `allowMultipleValues`, so `displayAs = "checkBoxes"`
+#' (the only multi-select display option) is also treated as multi-valued.
+#' @noRd
+sp_list_col_is_multi <- function(x) {
+  if (
+    has_name(x, "choice") &&
+      identical(x[["choice"]][["displayAs"]], "checkBoxes")
+  ) {
+    return(TRUE)
+  }
+
+  any(
+    purrr::map_lgl(
+      x,
+      \(sub) {
+        if (!is.list(sub)) {
+          return(FALSE)
+        }
+
+        is_true(sub[["allowMultipleValues"]]) ||
+          is_true(sub[["allowMultipleSelection"]])
+      }
+    )
   )
+}
+
+#' "Friendly" ptype for a single list column (used to format columns as Date,
+#' POSIXct, or factor)
+#' @noRd
+sp_list_col_ptype <- function(x) {
+  # Column types that can return complex/nested values (hyperlinkOrPicture,
+  # thumbnail, geolocation, calculated, term, ...), as well as internal/
+  # system fields with inconsistent or missing type metadata (e.g.
+  # "Attachments" has no declared type at all and "ItemChildCount" is
+  # modeled as a pseudo-lookup column), are left flexible rather than
+  # guessed at
+  known_scalar_types <- c(
+    "number",
+    "currency",
+    "choice",
+    "dateTime",
+    "text",
+    "lookup",
+    "personOrGroup"
+  )
+
+  # TODO: Improve handling for the internal integer columns
+  if (
+    x[["name"]] %in%
+      sp_list_internal_colnames ||
+      !any(has_name(x, known_scalar_types))
+  ) {
+    return(vctrs::unspecified())
+  }
+
+  # vec_case_when() needs a single length-1 value per branch (hence the
+  # NA placeholders below); vec_ptype() then collapses the resolved value to
+  # a true zero-length ptype so the final data frame has 0 rows
+  vctrs::vec_ptype(
+    vctrs::vec_case_when(
+      conditions = list(
+        any(has_name(x, c("number", "currency"))),
+        has_name(x, "choice"),
+        has_name(x, "dateTime") &
+          identical(x[["dateTime"]][["format"]], "dateOnly"),
+        has_name(x, "dateTime") &
+          identical(x[["dateTime"]][["format"]], "dateTime")
+      ),
+      values = list(
+        list(NA_real_),
+        list(
+          factor(
+            NA,
+            levels = c(
+              NA,
+              unlist(x[["choice"]][["choices"]])
+            )
+          )
+        ),
+        list(as.Date(NA)),
+        list(c.POSIXct(NA))
+      ),
+      default = list(NA_character_)
+    )[[1]]
+  )
+}
+
+#' "Raw" (asis) ptype for a single list column, matching the type the Graph
+#' API returns before any `col_formatting` is applied. Multi-value (Collection)
+#' columns are represented as list-columns.
+#' @noRd
+sp_list_col_raw_ptype <- function(x) {
+  # TODO: Improve handling for the internal integer columns
+  # if (
+  #   "name" %in%
+  #     c(
+  #       "ID",
+  #       "id",
+  #       "ItemChildCount",
+  #       "FolderChildCount",
+  #       "AppAuthorLookupId",
+  #       "AppEditorLookupId"
+  #     )
+  # ) {
+  #   scalar_ptype <- integer()
+  # }
+
+  if (x[["name"]] %in% sp_list_internal_colnames) {
+    # See sp_list_col_ptype() for why internal/system fields are exempted
+    return(vctrs::unspecified())
+  }
+
+  if (any(has_name(x, c("number", "currency")))) {
+    scalar_ptype <- double()
+  } else if (has_name(x, "boolean")) {
+    scalar_ptype <- logical()
+  } else if (
+    any(has_name(x, c("text", "choice", "dateTime", "lookup", "personOrGroup")))
+  ) {
+    scalar_ptype <- character()
+  } else {
+    # Column types that can return complex/nested values (hyperlinkOrPicture,
+    # thumbnail, geolocation, calculated, term, ...) are left flexible rather
+    # than guessed at
+    return(vctrs::unspecified())
+  }
+
+  if (!sp_list_col_is_multi(x)) {
+    return(scalar_ptype)
+  }
+
+  vctrs::list_of(.ptype = scalar_ptype)
+}
+
+#' Build a ptype (prototype) data frame with a column for every field in a
+#' SharePoint list, in list order. Used to guarantee that
+#' [list_sp_list_items()] always returns every column, even when a field is
+#' empty for every returned item (and so is otherwise dropped entirely by the
+#' Graph API).
+#' @param raw If `TRUE`, use the raw (asis) type the Graph API returns instead
+#' of the "friendly" formatted type (`Date`, `POSIXct`, `factor`).
+#' @noRd
+sp_list_as_ptype_data_frame <- function(
+  ...,
+  sp_list = NULL,
+  col_metadata = NULL,
+  select = NULL,
+  raw = FALSE
+) {
+  col_metadata <- sp_list_ptype_col_metadata(
+    sp_list = sp_list,
+    col_metadata = col_metadata
+  )
+
+  col_nm <- names(col_metadata)
+
+  ptype_fn <- sp_list_col_ptype
+
+  if (raw) {
+    ptype_fn <- sp_list_col_raw_ptype
+  }
+
+  ptype_list <- purrr::map(col_metadata, ptype_fn)
 
   ptype_list <- c(
     list(`@odata.etag` = NA_character_),
     ptype_list
   )
 
+  # TODO: Check if validating select after renaming Lookup columns creates issues
   if (!is.null(select)) {
-    external_cols <- purrr::discard(
-      col_metadata,
-      \(x) {
-        x[["name"]] %in% sp_list_internal_colnames
-      }
-    )
-
     select <- arg_match(
       select,
       values = c(
@@ -1337,8 +1501,7 @@ sp_list_as_ptype_data_frame <- function(
 
     ptype_list <- vctrs::vec_slice(
       ptype_list,
-      i = (names(ptype_list) %in% select) |
-        names(ptype_list) %in% names(external_cols)
+      i = names(ptype_list) %in% select
     )
   }
 

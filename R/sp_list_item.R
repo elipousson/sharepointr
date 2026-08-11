@@ -1148,7 +1148,8 @@ create_sp_list_item <- function(
 #' [delete_sp_list_items()] deletes multiple SharePoint list items. Set
 #' `confirm = FALSE` to use without interactive confirmation.
 #'
-#' @param item_id ID value for list item or items to delete.
+#' @param item_id ID value for list item or items to delete. `item_id` can also
+#' be a data frame with a column named "id".
 #' @param sp_list_item Optional. A SharePoint list item object to delete.
 #' @inheritParams get_sp_list_item
 #' @param confirm If `TRUE` (default), user confirmation is required to delete
@@ -1179,6 +1180,14 @@ delete_sp_list_item <- function(
       site = site,
       call = call
     )
+
+  if (is.data.frame(item_id)) {
+    stopifnot(
+      has_name(item_id, "id")
+    )
+
+    item_id <- item_id[["id"]]
+  }
 
   item_id <- item_id %||% sp_list_item[["properties"]][["id"]]
 
@@ -1225,6 +1234,12 @@ delete_sp_list_items <- function(
     )
 
     item_id <- sp_list_items[["id"]]
+  } else if (is.data.frame(item_id)) {
+    stopifnot(
+      has_name(item_id, "id")
+    )
+
+    item_id <- item_id[["id"]]
   }
 
   if (rlang::has_length(item_id, 0)) {
@@ -1374,6 +1389,7 @@ sp_list_col_ptype <- function(x) {
     return(vctrs::unspecified())
   }
 
+  # TODO: Figure out a less convoluted process than this
   # vec_case_when() needs a single length-1 value per branch (hence the
   # NA placeholders below); vec_ptype() then collapses the resolved value to
   # a true zero-length ptype so the final data frame has 0 rows

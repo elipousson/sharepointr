@@ -638,10 +638,10 @@ download_sp_list <- function(
   new_path <- new_path %||% list_filename
 
   # TODO: Add option to write list directly to Google Sheets
-  if (stringr::str_detect(new_path, "csv$")) {
+  if (stringr::str_detect(new_path, "\\.csv$")) {
     check_installed("readr", call = call)
     readr::write_csv(sp_list_df, file = new_path)
-  } else if (stringr::str_detect(new_path, ".xlsx$")) {
+  } else if (stringr::str_detect(new_path, "\\.xlsx$")) {
     check_installed("openxlsx2", call = call)
     openxlsx2::write_xlsx(sp_list_df, file = new_path)
   }

@@ -1222,15 +1222,17 @@ delete_sp_list_items <- function(
   sp_list = NULL,
   filter = NULL,
   confirm = TRUE,
-  .progress = TRUE
+  .progress = TRUE,
+  call = caller_env()
 ) {
-  sp_list <- sp_list %||% get_sp_list(...)
+  sp_list <- sp_list %||% get_sp_list(..., call = call)
 
   if (is.null(item_id)) {
     sp_list_items <- list_sp_list_items(
       sp_list = sp_list,
       filter = filter,
-      select = "id"
+      select = "id",
+      call = call
     )
 
     item_id <- sp_list_items[["id"]]
@@ -1244,7 +1246,8 @@ delete_sp_list_items <- function(
 
   if (rlang::has_length(item_id, 0)) {
     cli::cli_abort(
-      "List items can't be deleted when {.arg item_id} is length 0."
+      "List items can't be deleted when {.arg item_id} is length 0.",
+      call = call
     )
   }
 

@@ -82,10 +82,12 @@ get_cached_ms_obj <- function(
     return(ms_obj)
   }
 
+  file.remove(cache_file)
+
   cli_abort(
     c(
       "Cached file {.file {cache_file}} must be a {.cls {what}} object",
-      "v" = "Removing invalid cached file."
+      "v" = "Invalid file removed from cache."
     ),
     call = call
   )

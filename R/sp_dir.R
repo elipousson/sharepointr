@@ -121,7 +121,11 @@ sp_dir_info <- function(
   # TODO: Check if removing this and replacing "/" w/ "" breaks anything
   path <- path %||% ""
 
-  info <- arg_match(info, values = c("partial", "name", "all"), call = call)
+  info <- arg_match(
+    info,
+    values = c("partial", "name", "all"),
+    error_call = call
+  )
 
   type <- arg_match(type, c("any", "file", "directory"), error_call = call)
 
@@ -129,7 +133,7 @@ sp_dir_info <- function(
 
   if (recurse && (type == "file")) {
     cli::cli_alert_warning(
-      "{.arg type} is always set to {.val {any}} if {.code recurse = TRUE}"
+      "{.arg type} is always set to {.val any} if {.code recurse = TRUE}"
     )
     type <- "any"
   }
@@ -169,7 +173,7 @@ sp_dir_info <- function(
   )
 
   if (is_installed("fs")) {
-    item_list[["size"]] <- vec_fmt_sp_item_size(item_list[["size"]])
+    item_list <- fmt_sp_item_size(item_list, "size")
 
     item_list[["type"]] <- factor(
       vapply(

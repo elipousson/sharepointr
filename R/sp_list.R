@@ -567,7 +567,7 @@ delete_sp_list <- function(
     nm <- sp_list[["properties"]][["displayName"]]
     check_yes(
       cli::format_inline(
-        "Do you want to delete the list {.val nm}?"
+        "Do you want to delete the list {.val {nm}}?"
       ),
       call = call
     )

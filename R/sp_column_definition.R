@@ -874,7 +874,7 @@ copy_column_definition_list <- function(sp_list = NULL, ...) {
         x <- as.list(x)
 
         # Drop blank description values
-        if (x[["description"]] == "") {
+        if (!is.na(x[["description"]]) && x[["description"]] == "") {
           x[["description"]] <- NULL
         }
 

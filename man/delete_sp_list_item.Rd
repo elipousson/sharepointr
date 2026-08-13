@@ -24,7 +24,8 @@ delete_sp_list_items(
   sp_list = NULL,
   filter = NULL,
   confirm = TRUE,
-  .progress = TRUE
+  .progress = TRUE,
+  call = caller_env()
 )
 }
 \arguments{

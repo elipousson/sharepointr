@@ -35,7 +35,7 @@ delete_sp_list_items(
 - item_id:
 
   ID value for list item or items to delete. `item_id` can also be a
-  data frame with a column named id.
+  data frame with a column named "id".
 
 - sp_list_item:
 

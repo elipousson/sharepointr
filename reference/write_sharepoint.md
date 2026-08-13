@@ -66,7 +66,7 @@ write_sharepoint(
 
   Destination on SharePoint for file to upload. Must be a
   `ms_drive_item` for a folder, a SharePoint folder URL, or a drive
-  path. If a `ms_drive_item` is provided and `drive_name` is NULL, the
+  path. If a `ms_drive_item` is provided and `drive_name` is `NULL`, the
   item URL is used to determine the drive. If `NULL`, the top level of
   the provided drive is used as the destination. If file is a directory,
   `dest` must be an *existing* directory.

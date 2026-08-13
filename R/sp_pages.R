@@ -70,7 +70,15 @@ get_sp_page <- function(page_url = NULL, page_id = NULL, ..., site = NULL) {
       TRUE
     )
 
-    page_id <- sp_site_pages[sp_site_page_match][["id"]]
+    matched_pages <- sp_site_pages[sp_site_page_match]
+
+    if (rlang::is_empty(matched_pages)) {
+      cli_abort(
+        "Can't find a page matching {.arg page_url} at {.val {page_url_parts[[\"page_name\"]]}}."
+      )
+    }
+
+    page_id <- matched_pages[[1]][["id"]]
   }
 
   op <- paste0("pages/", page_id, "/microsoft.graph.sitePage")

@@ -630,7 +630,7 @@ create_column_definition_list <- function(
       )
 
       if (ignore_na) {
-        na_params <- purrr::map_lgl(params, is.na)
+        na_params <- purrr::map_lgl(params, \(x) all(is.na(x)))
         params <- vctrs::vec_slice(
           params,
           i = !na_params

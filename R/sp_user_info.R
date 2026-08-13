@@ -61,9 +61,9 @@ sp_user_id_as_lookup_id <- function(
     tolower(user_info_list[[users_id]])
   )
 
-  user_index[!is.na(user_index)] <- user_info_list[[lookup_id]][[user_index[
-    !is.na(user_index)
-  ]]]
+  user_index[!is.na(user_index)] <- user_info_list[[lookup_id]][
+    user_index[!is.na(user_index)]
+  ]
 
   user_index
 }

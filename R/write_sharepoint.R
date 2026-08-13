@@ -220,7 +220,7 @@ upload_sp_item <- function(
       cli_abort(
         c(
           # TODO: Replace {.arg dest} w/ {.path {dir_path}} - just need to check it works
-          "{.file {overwrite_file} already exists on SharePoint drive at {.arg dest}",
+          "{.file {overwrite_file}} already exists on SharePoint drive at {.arg dest}",
           "i" = "Set {.code overwrite = TRUE} to replace the existing item."
         ),
         call = call

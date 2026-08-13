@@ -197,9 +197,15 @@ upload_sp_item <- function(
   check_ms_drive(drive, call = call)
 
   if (!overwrite) {
+    check_installed("fs")
+
     dir_path <- file_path
+    overwrite_file <- fs::path_file(src)
+
+    # TODO: Check congruence between src file extension and destination file extension
     if (fs::path_ext(file_path) != "") {
       dir_path <- fs::path_dir(file_path)
+      overwrite_file <- fs::path_file(file_path)
     }
 
     file_names <- sp_dir_info(
@@ -210,10 +216,11 @@ upload_sp_item <- function(
       call = call
     )
 
-    if (basename(src) %in% file_names) {
+    if (overwrite_file %in% file_names) {
       cli_abort(
         c(
-          "{.file {basename(src)}} already exists on SharePoint drive at {.arg dest}",
+          # TODO: Replace {.arg dest} w/ {.path {dir_path}} - just need to check it works
+          "{.file {overwrite_file} already exists on SharePoint drive at {.arg dest}",
           "i" = "Set {.code overwrite = TRUE} to replace the existing item."
         ),
         call = call

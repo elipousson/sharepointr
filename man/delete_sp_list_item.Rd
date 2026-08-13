@@ -29,7 +29,7 @@ delete_sp_list_items(
 }
 \arguments{
 \item{item_id}{ID value for list item or items to delete. \code{item_id} can also
-be a data frame with a column named id.}
+be a data frame with a column named "id".}
 
 \item{sp_list_item}{Optional. A SharePoint list item object to delete.}
 

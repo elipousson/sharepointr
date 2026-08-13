@@ -34,11 +34,11 @@ outputs.}
 or \code{target} for \code{print()} (when working with \code{{officer}} class objects).}
 
 \item{dest}{Destination on SharePoint for file to upload. Must be a
-\code{ms_drive_item} for a folder, a SharePoint folder URL, or a drive path. If
-a \code{ms_drive_item} is provided and \code{drive_name} is NULL, the item URL is used
-to determine the drive. If \code{NULL}, the top level of the provided drive is
-used as the destination. If file is a directory, \code{dest} must be an \emph{existing}
-directory.}
+\code{ms_drive_item} for a folder, a SharePoint folder URL, or a drive path. If a
+\code{ms_drive_item} is provided and \code{drive_name} is \code{NULL}, the item URL is
+used to determine the drive. If \code{NULL}, the top level of the provided drive
+is used as the destination. If file is a directory, \code{dest} must be an
+\emph{existing} directory.}
 
 \item{...}{Additional parameters passed to write function.}
 

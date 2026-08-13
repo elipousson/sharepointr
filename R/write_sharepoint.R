@@ -108,11 +108,11 @@ write_sharepoint <- function(
 #' @param file Path for file or directory to upload. Optional if `src` is
 #'   supplied.
 #' @param dest Destination on SharePoint for file to upload. Must be a
-#'  `ms_drive_item` for a folder, a SharePoint folder URL, or a drive path. If
-#'  a `ms_drive_item` is provided and `drive_name` is NULL, the item URL is used
-#'  to determine the drive. If `NULL`, the top level of the provided drive is
-#'  used as the destination. If file is a directory, `dest` must be an *existing*
-#'  directory.
+#'  `ms_drive_item` for a folder, a SharePoint folder URL, or a drive path. If a
+#'  `ms_drive_item` is provided and `drive_name` is `NULL`, the item URL is
+#'  used to determine the drive. If `NULL`, the top level of the provided drive
+#'  is used as the destination. If file is a directory, `dest` must be an
+#'  *existing* directory.
 #' @param src Data source path passed to `upload_folder` or `upload_file`
 #'   method. Defaults to `NULL` and set to use file value by default.
 #' @param overwrite If `FALSE` (default), error if an item with the name
@@ -197,10 +197,16 @@ upload_sp_item <- function(
   check_ms_drive(drive, call = call)
 
   if (!overwrite) {
+    dir_path <- file_path
+    if (fs::path_ext(file_path) != "") {
+      dir_path <- fs::path_dir(file_path)
+    }
+
     file_names <- sp_dir_info(
       drive = drive,
-      path = file_path,
+      path = dir_path,
       info = "name",
+      full_names = FALSE,
       call = call
     )
 
@@ -322,6 +328,8 @@ upload_sp_src <- function(
 
     if (dest == "") {
       dest <- fs::path_file(src)
+    } else if (fs::path_ext(dest) == "") {
+      dest <- fs::path(dest, fs::path_file(src))
     }
 
     drive$upload_file(

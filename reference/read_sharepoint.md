@@ -10,7 +10,7 @@ file parameter.
   (xlsx or xls),
   [`readr::read_delim()`](https://readr.tidyverse.org/reference/read_delim.html)
   or
-  [`readxl::read_excel()`](https://readxl.tidyverse.org/reference/read_excel.html)
+  [`readxl::read_excel()`](https://rdrr.io/pkg/readxl/man/read_excel.html)
   is used to return a data frame.
 
 - If the file is a rds file,

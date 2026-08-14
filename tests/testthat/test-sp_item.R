@@ -1,5 +1,5 @@
 test_that("get_sp_item and get_sp_item_properties works", {
-  test_item_url <- "https://bmore.sharepoint.com/:b:/r/sites/DOP-ALL/Shared%20Documents/General/Benton-Building-Directory_By-Agency.pdf?csf=1&web=1&e=m8M5KO"
+  test_item_url <- "https://bmore.sharepoint.com/:x:/r/sites/DOP-CPR/Shared%20Documents/INSPIRE%20Program%20%F0%9F%8F%AB%F0%9F%9A%B8%F0%9F%8C%B3/INSPIRE%20Program%20Calendar.xlsx?d=w371f5202107241378dd79ad5d09c40f9&csf=1&web=1&e=87t30L"
 
   skip_if_no_ms_site(test_item_url)
 
@@ -21,11 +21,11 @@ test_that("get_sp_item and get_sp_item_properties works", {
     {
       download_sp_item(
         item = sp_item,
-        new_path = "Benton-Building-Directory_By-Agency.pdf"
+        new_path = "INSPIRE Program Calendar.xlsx"
       )
 
       expect_true(
-        fs::file_exists("Benton-Building-Directory_By-Agency.pdf")
+        fs::file_exists("INSPIRE Program Calendar.xlsx")
       )
     }
   )

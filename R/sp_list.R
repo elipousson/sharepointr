@@ -921,6 +921,8 @@ update_sp_list_lookup_items <- function(
   .progress = TRUE,
   call = caller_env()
 ) {
+  check_installed(c("dplyr", "tidyselect"), call = call)
+
   check_string(join_column)
   check_string(column_name)
 

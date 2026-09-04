@@ -41,11 +41,13 @@ get_sp_site <- function(
   cache_file = NULL,
   call = caller_env()
 ) {
-  cache_exists <- file.exists(sp_cache_path(
-    cache_file,
-    what = "ms_site",
-    call = call
-  ))
+  if (cache) {
+    cache_exists <- file.exists(sp_cache_path(
+      cache_file,
+      what = "ms_site",
+      call = call
+    ))
+  }
 
   if (cache && cache_exists && !refresh) {
     site <- get_cached_ms_obj(

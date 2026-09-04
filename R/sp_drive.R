@@ -48,11 +48,13 @@ get_sp_drive <- function(
   cache_file = NULL,
   call = caller_env()
 ) {
-  cache_exists <- file.exists(sp_cache_path(
-    cache_file,
-    what = "ms_drive",
-    call = call
-  ))
+  if (cache) {
+    cache_exists <- file.exists(sp_cache_path(
+      cache_file,
+      what = "ms_drive",
+      call = call
+    ))
+  }
 
   if (cache && cache_exists && !refresh) {
     drive <- get_cached_ms_obj(

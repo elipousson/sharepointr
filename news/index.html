@@ -56,11 +56,17 @@
 <li>Add <code><a href="../reference/create_sp_list_lookup_column.html">update_sp_list_lookup_items()</a></code>. (2026-05-28)</li>
 <li>Add the <code>order_by</code> and <code>order_dir</code> arguments to <code><a href="../reference/sp_list_item.html">list_sp_list_items()</a></code>. (2026-06-05)</li>
 <li>Add support for <code>ms_drive_item</code> inputs for <code>dest</code> argument of <code><a href="../reference/upload_sp_item.html">upload_sp_item()</a></code> and <code><a href="../reference/upload_sp_item.html">upload_sp_items()</a></code>. (2026-06-12)</li>
+<li>Add support for updating list fields with multi-choice (checkbox) values — <code><a href="../reference/create_sp_list_items.html">update_sp_list_item()</a></code>/<code><a href="../reference/create_sp_list_item.html">create_sp_list_item()</a></code> now append <a href="https://github.com/odata" class="external-link">@odata</a>.type Collection hints so the Graph API accepts multi-value fields.</li>
+<li>Allow <code><a href="../reference/delete_sp_list_item.html">delete_sp_list_item()</a></code>/<code><a href="../reference/delete_sp_list_item.html">delete_sp_list_items()</a></code> to accept a data frame for <code>item_id</code> (uses its id column).</li>
 </ul></div>
 <div class="section level3">
 <h3 id="fixes-development-version">Fixes<a class="anchor" aria-label="anchor" href="#fixes-development-version"></a></h3>
 <ul><li>Fix bug where <code><a href="../reference/sp_list_item.html">get_sp_list_item()</a></code> only returned item ID, not the <code><a href="https://rdrr.io/pkg/Microsoft365R/man/ms_list_item.html" class="external-link">Microsoft365R::ms_list_item</a></code> object (2024-08-10)</li>
 <li>Fix bug where <code><a href="../reference/read_sharepoint.html">read_sharepoint()</a></code> used <code><a href="https://readr.tidyverse.org/reference/read_lines.html" class="external-link">readr::read_lines()</a></code> for PowerPoint files. (2024-10-10)</li>
+<li>Fix <code><a href="../reference/upload_sp_item.html">upload_sp_item()</a></code> overwrite check validating against the source filename instead of the actual destination filename when dest renames the file.</li>
+<li>Fix <code><a href="../reference/sp_dir_info.html">sp_dir_info()</a></code> erroring (instead of warning) when <code>recurse = TRUE</code> and <code>type = "file"</code> are both supplied.</li>
+<li>Fix <code><a href="../reference/sp_url_parse.html">sp_url_parse_path()</a></code> erroring on drive names containing regex metacharacters (e.g. parentheses) by matching the drive name as a fixed string instead of interpolating it unescaped into a regex.</li>
+<li>Fix <code><a href="../reference/sp_tasks.html">list_sp_tasks()</a></code>/<code><a href="../reference/sp_tasks.html">get_sp_task()</a></code> erroring when combining Planner tasks whose properties (e.g. <code>dueDateTime</code>, <code>appliedCategories</code>) are missing for some tasks but present for others, by no longer forcing a placeholder type for missing properties and by keeping dictionary-typed properties (<code>assignments</code>, <code>appliedCategories</code>) as consistent list columns. Also fixes a related crash in <code><a href="../reference/get_sp_group.html">list_sp_group_members()</a></code> for group members entirely missing an expected property.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="changes-development-version">Changes<a class="anchor" aria-label="anchor" href="#changes-development-version"></a></h3>
@@ -69,6 +75,7 @@
 <li>Alert users if input <code>data</code> is empty for <code><a href="../reference/create_sp_list_items.html">create_sp_list_items()</a></code>, <code><a href="../reference/create_sp_list_items.html">update_sp_list_items()</a></code> and error if input <code>item_id</code> is length 0 for <code><a href="../reference/delete_sp_list_item.html">delete_sp_list_items()</a></code>. (2026-01-06)</li>
 <li>Improve handling of <code>sf</code> data inputs for <code><a href="../reference/create_sp_list_items.html">create_sp_list_items()</a></code> (2026-05-27).</li>
 <li>Add <a href="https://httr.r-lib.org/" class="external-link">httr</a> and <a href="https://github.com/Azure/AzureGraph" class="external-link">AzureGraph</a> to Imports to re-implement an internal version of the <code>list_items</code> method for <code><a href="https://rdrr.io/pkg/Microsoft365R/man/ms_list.html" class="external-link">Microsoft365R::ms_list</a></code> objects. (2026-06-05)</li>
+<li>Add <a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a> and <a href="https://tidyselect.r-lib.org" class="external-link">tidyselect</a> to Suggests in support of the <code><a href="../reference/create_sp_list_lookup_column.html">update_sp_list_lookup_items()</a></code> function. (2026-09-04)</li>
 </ul></div>
 </div>
     <div class="section level2">

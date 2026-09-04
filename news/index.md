@@ -60,6 +60,14 @@
   and
   [`upload_sp_items()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md).
   (2026-06-12)
+- Add support for updating list fields with multi-choice (checkbox)
+  values —
+  [`update_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)/[`create_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_item.md)
+  now append [@odata](https://github.com/odata).type Collection hints so
+  the Graph API accepts multi-value fields.
+- Allow
+  [`delete_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)/[`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
+  to accept a data frame for `item_id` (uses its id column).
 
 ### Fixes
 
@@ -73,6 +81,29 @@
   used
   [`readr::read_lines()`](https://readr.tidyverse.org/reference/read_lines.html)
   for PowerPoint files. (2024-10-10)
+- Fix
+  [`upload_sp_item()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)
+  overwrite check validating against the source filename instead of the
+  actual destination filename when dest renames the file.
+- Fix
+  [`sp_dir_info()`](https://elipousson.github.io/sharepointr/reference/sp_dir_info.md)
+  erroring (instead of warning) when `recurse = TRUE` and
+  `type = "file"` are both supplied.
+- Fix
+  [`sp_url_parse_path()`](https://elipousson.github.io/sharepointr/reference/sp_url_parse.md)
+  erroring on drive names containing regex metacharacters
+  (e.g. parentheses) by matching the drive name as a fixed string
+  instead of interpolating it unescaped into a regex.
+- Fix
+  [`list_sp_tasks()`](https://elipousson.github.io/sharepointr/reference/sp_tasks.md)/[`get_sp_task()`](https://elipousson.github.io/sharepointr/reference/sp_tasks.md)
+  erroring when combining Planner tasks whose properties
+  (e.g. `dueDateTime`, `appliedCategories`) are missing for some tasks
+  but present for others, by no longer forcing a placeholder type for
+  missing properties and by keeping dictionary-typed properties
+  (`assignments`, `appliedCategories`) as consistent list columns. Also
+  fixes a related crash in
+  [`list_sp_group_members()`](https://elipousson.github.io/sharepointr/reference/get_sp_group.md)
+  for group members entirely missing an expected property.
 
 ### Changes
 
@@ -96,6 +127,11 @@
   re-implement an internal version of the `list_items` method for
   [`Microsoft365R::ms_list`](https://rdrr.io/pkg/Microsoft365R/man/ms_list.html)
   objects. (2026-06-05)
+- Add [dplyr](https://dplyr.tidyverse.org) and
+  [tidyselect](https://tidyselect.r-lib.org) to Suggests in support of
+  the
+  [`update_sp_list_lookup_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
+  function. (2026-09-04)
 
 ## sharepointr 0.1.0
 

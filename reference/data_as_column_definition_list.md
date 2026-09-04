@@ -73,9 +73,9 @@ and mapped to corresponding SharePoint list column definitions:
 - logical values are specified as boolean columns if they include no NA
   values or text columns if they do
 
-All other vectors are specified as text columns. If the values of any
-input factor column contain the same character specified with `split`
-the choices will not be configured correctly.
+All other vectors are specified as text columns. If the levels of any
+input factor column contain the character specified with `split`, this
+function errors.
 
 ## Examples
 

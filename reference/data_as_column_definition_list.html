@@ -105,7 +105,7 @@ definitions:</p><ul><li><p>factors are specified as choice columns</p></li>
 <li><p>dttm values are specified as datetime columns</p></li>
 <li><p>logical values are specified as boolean columns if they include no NA values or text columns if they do</p></li>
 </ul><p>All other vectors are specified as text columns.
-If the values of any input factor column contain the same character specified with <code>split</code> the choices will not be configured correctly.</p>
+If the levels of any input factor column contain the character specified with <code>split</code>, this function errors.</p>
     </div>
 
     <div class="section level2">

@@ -26,6 +26,7 @@
 * Fix `upload_sp_item()` overwrite check validating against the source filename instead of the actual destination filename when dest renames the file.
 * Fix `sp_dir_info()` erroring (instead of warning) when `recurse = TRUE` and `type = "file"` are both supplied.
 * Fix `sp_url_parse_path()` erroring on drive names containing regex metacharacters (e.g. parentheses) by matching the drive name as a fixed string instead of interpolating it unescaped into a regex.
+* Fix `list_sp_tasks()`/`get_sp_task()` erroring when combining Planner tasks whose properties (e.g. `dueDateTime`, `appliedCategories`) are missing for some tasks but present for others, by no longer forcing a placeholder type for missing properties and by keeping dictionary-typed properties (`assignments`, `appliedCategories`) as consistent list columns. Also fixes a related crash in `list_sp_group_members()` for group members entirely missing an expected property.
 
 ## Changes
 

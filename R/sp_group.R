@@ -97,6 +97,10 @@ list_sp_group_members <- function(
       fn <- as.logical
     }
 
+    if (!has_name(members, nm)) {
+      members[[nm]] <- NA
+    }
+
     members[[nm]] <- fn(members[[nm]])
   }
 

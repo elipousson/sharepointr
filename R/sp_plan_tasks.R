@@ -44,6 +44,7 @@ get_sp_task <- function(
   ms_obj_list_as_data_frame(
     task,
     obj_col = "ms_plan_task",
+    keep_list_cols = c("assignments", "appliedCategories"),
     .error_call = call
   )
 }
@@ -84,6 +85,7 @@ list_sp_tasks <- function(
   ms_obj_list_as_data_frame(
     plan_tasks,
     obj_col = "ms_plan_task",
+    keep_list_cols = c("assignments", "appliedCategories"),
     .error_call = call
   )
 }

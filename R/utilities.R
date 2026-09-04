@@ -237,7 +237,6 @@ ms_obj_list_as_data_frame <- function(
 ms_obj_as_data_frame <- function(
   ms_obj,
   obj_col = "ms_plan",
-  recursive = FALSE,
   keep_list_cols = NULL,
   unlist_cols = TRUE,
   .name_repair = "universal_quiet",
@@ -252,19 +251,27 @@ ms_obj_as_data_frame <- function(
   sizes <- vctrs::list_sizes(properties)
   len1_props <- properties[sizes == 1]
   list_props <- properties[sizes > 1]
-  len0_props <- properties[sizes == 0]
+  # Properties with size 0 (missing or NULL) are dropped instead of kept as
+  # a placeholder column. This lets vctrs::vec_rbind() infer the correct
+  # type for that property (atomic NA or list(NULL)) from the other objects
+  # being combined in ms_obj_list_as_data_frame(), instead of forcing a
+  # type here that may not match how the property appears elsewhere (e.g. a
+  # scalar column here vs. a multi-value list column for another object)
 
+  # Combine as a plain list (instead of unlisting len1_props first) so each
+  # property keeps its own type instead of being coerced to a type shared
+  # with sibling properties in the same object (e.g. a single-item list
+  # property like "assignments" previously caused unlist() to leave
+  # scalar properties like "isArchived" un-coerced for that object only,
+  # producing inconsistent column types across objects when combined by
+  # ms_obj_list_as_data_frame())
   df <- vctrs::vec_rbind(
-    c(
-      unlist(len1_props, recursive = recursive, use.names = FALSE),
-      len0_props,
-      list_props
-    ),
+    c(len1_props, list_props),
     .name_repair = .name_repair,
     .error_call = .error_call
   )
 
-  df <- set_names(df, nm = names(c(len1_props, len0_props, list_props)))
+  df <- set_names(df, nm = names(c(len1_props, list_props)))
 
   # Keep any supplied columns that need to stay as list columns
   # FIXME: This is only need for the "createdBy" and "lastModifiedBy" columns

@@ -65,3 +65,13 @@ test_that("sp_url_parse works", {
 
   expect_identical(parsed_drive_url[["file_path"]], "/")
 })
+
+test_that("sp_url_parse_path works with regex metacharacters in drive_name", {
+  test_path <- "/:f:/r/sites/DOP-CPR/Shared%20Documents%20(1)/Data/file.csv"
+
+  parsed_path <- sp_url_parse_path(test_path)
+
+  expect_identical(parsed_path[["drive_name"]], "Documents (1)")
+
+  expect_identical(parsed_path[["file_path"]], "Data/file.csv")
+})

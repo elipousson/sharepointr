@@ -155,7 +155,7 @@ sp_url_parse_path <- function(
   parts[["drive_name"]] <- utils::URLdecode(parts[["drive_name"]])
 
   parts[["file_path"]] <- parts[["file_path"]] |>
-    str_remove(paste0("^", parts[["drive_name"]], "/")) |>
+    str_remove(stringr::fixed(paste0(parts[["drive_name"]], "/"))) |>
     str_remove_slash(after = TRUE)
 
   if (is_string(drive_name_prefix)) {

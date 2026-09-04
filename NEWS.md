@@ -16,11 +16,16 @@
 * Add `update_sp_list_lookup_items()`. (2026-05-28)
 * Add the `order_by` and `order_dir` arguments to `list_sp_list_items()`. (2026-06-05)
 * Add support for `ms_drive_item` inputs for `dest` argument of `upload_sp_item()` and `upload_sp_items()`. (2026-06-12)
+* Add support for updating list fields with multi-choice (checkbox) values — `update_sp_list_item()`/`create_sp_list_item()` now append @odata.type Collection hints so the Graph API accepts multi-value fields.
+* Allow `delete_sp_list_item()`/`delete_sp_list_items()` to accept a data frame for `item_id` (uses its id column).
 
 ## Fixes
 
 * Fix bug where `get_sp_list_item()` only returned item ID, not the `Microsoft365R::ms_list_item` object (2024-08-10)
 * Fix bug where `read_sharepoint()` used `readr::read_lines()` for PowerPoint files. (2024-10-10)
+* Fix `upload_sp_item()` overwrite check validating against the source filename instead of the actual destination filename when dest renames the file.
+* Fix `sp_dir_info()` erroring (instead of warning) when `recurse = TRUE` and `type = "file"` are both supplied.
+* Fix `sp_url_parse_path()` erroring on drive names containing regex metacharacters (e.g. parentheses) by matching the drive name as a fixed string instead of interpolating it unescaped into a regex.
 
 ## Changes
 
@@ -29,6 +34,7 @@
 * Alert users if input `data` is empty for `create_sp_list_items()`, `update_sp_list_items()` and error if input `item_id` is length 0 for `delete_sp_list_items()`. (2026-01-06)
 * Improve handling of `sf` data inputs for `create_sp_list_items()` (2026-05-27).
 * Add `{httr}` and `{AzureGraph}` to Imports to re-implement an internal version of the `list_items` method for `Microsoft365R::ms_list` objects. (2026-06-05)
+* Add `{dplyr}` and `{tidyselect}` to Suggests in support of the `update_sp_list_lookup_items()` function. (2026-09-04)
 
 # sharepointr 0.1.0
 

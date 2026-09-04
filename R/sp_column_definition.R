@@ -709,7 +709,7 @@ get_column_default <- function(
 #' - logical values are specified as boolean columns if they include no NA values or text columns if they do
 #'
 #' All other vectors are specified as text columns.
-#' If the values of any input factor column contain the same character specified with `split` the choices will not be configured correctly.
+#' If the levels of any input factor column contain the character specified with `split`, this function errors.
 #'
 #' @inheritParams create_column_definition_list
 #' @inheritParams create_choice_column
@@ -779,8 +779,16 @@ data_as_column_definition_list <- function(
       if (def[["type"]] == "choice") {
         # type is only "choices" if column value is factor
         # TODO: Explore passing choices as a list column
-        # FIXME: Add warning if `split` in levels/choices
-        def[["choices"]] <- paste0(levels(data[[x]]), collapse = split)
+        lvls <- levels(data[[x]])
+
+        if (any(grepl(split, lvls, fixed = TRUE))) {
+          cli_abort(
+            "{.arg split} ({.val {split}}) can't appear in the levels of
+            factor column {.field {names(data)[[x]]}}."
+          )
+        }
+
+        def[["choices"]] <- paste0(lvls, collapse = split)
         def[["split"]] <- split
       }
 
@@ -812,9 +820,12 @@ fmt_sp_list_metadata_df <- function(x, key) {
   missing_values <- purrr::map_lgl(
     values,
     \(i) {
-      is.na(i) |
-        # NOTE: This is supposed to handle choice col definitions but it may
-        # not be working as expected
+      # NOTE: `is.na(i)` is only safe to call when `i` has length 1. A
+      # populated nested field (e.g. a "choice" or "number" column
+      # definition) has multiple named elements, and `is.na()` on a
+      # multi-element list returns one value per element instead of a
+      # single TRUE/FALSE.
+      (length(i) == 1 && is.na(i)) |
         (length(i) == 1 & length(i[[1]]) == 0)
     }
   )

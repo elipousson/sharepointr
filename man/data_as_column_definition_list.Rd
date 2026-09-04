@@ -55,7 +55,7 @@ definitions:
 }
 
 All other vectors are specified as text columns.
-If the values of any input factor column contain the same character specified with \code{split} the choices will not be configured correctly.
+If the levels of any input factor column contain the character specified with \code{split}, this function errors.
 }
 \examples{
 data_as_column_definition_list(mtcars)

@@ -745,3 +745,13 @@
       5  fct_col  choice     <NA>     x|y     |
       6 date_col    date     <NA>    <NA>  <NA>
 
+# data_as_column_definition_list errors if split is in factor levels
+
+    Code
+      data_as_column_definition_list(split_df)
+    Condition
+      Error in `purrr::map()`:
+      i In index: 1.
+      Caused by error in `.f()`:
+      ! `split` ("|") can't appear in the levels of factor column fct_col.
+

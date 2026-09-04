@@ -252,3 +252,69 @@ test_that("data_as_column_definition_list works", {
     data_as_column_definition_list(simple_df, definitions_as = "table")
   )
 })
+
+test_that("data_as_column_definition_list errors if split is in factor levels", {
+  split_df <- data.frame(
+    fct_col = factor(c("a|b", "c"))
+  )
+
+  expect_snapshot(
+    data_as_column_definition_list(split_df),
+    error = TRUE
+  )
+})
+
+test_that("copy_column_definition_list works", {
+  # Mimics the shape of a get_sp_list_metadata() data frame closely enough
+  # to exercise copy_column_definition_list()'s data frame input branch
+  sp_list_meta <- data.frame(
+    name = c("Title", "TextColumn", "ChoiceColumn", "ID"),
+    id = c("t1", "t2", "t3", "t4"),
+    columnGroup = c("g", "g", "g", "g"),
+    definition = c(NA, NA, NA, NA),
+    description = c(NA_character_, "", "A choice column", NA_character_),
+    readOnly = c(FALSE, FALSE, TRUE, TRUE)
+  )
+  sp_list_meta[["choice"]] <- I(list(
+    NULL,
+    NULL,
+    list(choices = c("A", "B"), displayAs = "dropDownMenu"),
+    NULL
+  ))
+
+  col_definition <- copy_column_definition_list(sp_list_meta)
+
+  # "Title" and internal columns (e.g. "ID") are excluded
+  expect_equal(
+    purrr::map_chr(col_definition, "name"),
+    c("TextColumn", "ChoiceColumn")
+  )
+
+  # readOnly = FALSE and a blank description are dropped
+  expect_false(has_name(col_definition[[1]], "readOnly"))
+  expect_false(has_name(col_definition[[1]], "description"))
+
+  # readOnly = TRUE and a populated description are retained
+  expect_true(col_definition[[2]][["readOnly"]])
+  expect_equal(col_definition[[2]][["description"]], "A choice column")
+})
+
+test_that("copy_column_definition_list does not error on populated column-type fields", {
+  # Regression test: a real "choice"/"number"/etc. field has multiple named
+  # elements (e.g. choices + displayAs). fmt_sp_list_metadata_df() used to
+  # call is.na() directly on that multi-element list, which errored with
+  # "Result must be length 1, not 2."
+  sp_list_meta <- data.frame(
+    name = "ChoiceColumn",
+    id = "c1",
+    columnGroup = "g",
+    definition = NA,
+    description = "",
+    readOnly = FALSE
+  )
+  sp_list_meta[["choice"]] <- I(list(
+    list(choices = c("A", "B", "C"), displayAs = "dropDownMenu")
+  ))
+
+  expect_no_error(copy_column_definition_list(sp_list_meta))
+})

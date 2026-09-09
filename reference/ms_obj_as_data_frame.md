@@ -18,6 +18,10 @@ ms_obj_as_data_frame(
 
 ## Arguments
 
+- ms_obj:
+
+  A object with a 'ms_object" class.
+
 - obj_col:
 
   Column name for list column with `ms_` objects. Defaults to
@@ -27,3 +31,30 @@ ms_obj_as_data_frame(
 
   Column names for those columns to maintain in a list format instead of
   attempting to convert to a character vector.
+
+- unlist_cols:
+
+  If `TRUE` (default), convert list columns to vectors.
+
+- .name_repair:
+
+  One of `"unique"`, `"universal"`, `"check_unique"`, `"unique_quiet"`,
+  or `"universal_quiet"`. See
+  [`vec_as_names()`](https://vctrs.r-lib.org/reference/vec_as_names.html)
+  for the meaning of these options.
+
+  With `vec_rbind()`, the repair function is applied to all inputs
+  separately. This is because `vec_rbind()` needs to align their columns
+  before binding the rows, and thus needs all inputs to have unique
+  names. On the other hand, `vec_cbind()` applies the repair function
+  after all inputs have been concatenated together in a final data
+  frame. Hence `vec_cbind()` allows the more permissive minimal names
+  repair.
+
+- .error_call:
+
+  The execution environment of a currently running function, e.g.
+  `caller_env()`. The function will be mentioned in error messages as
+  the source of the error. See the `call` argument of
+  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
+  information.

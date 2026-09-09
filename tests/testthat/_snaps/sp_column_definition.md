@@ -737,13 +737,13 @@
     Code
       data_as_column_definition_list(simple_df, definitions_as = "table")
     Output
-            name    type decimals choices split
-      1 text_col    text     <NA>    <NA>  <NA>
-      2  num_col  number     <NA>    <NA>  <NA>
-      3  int_col  number     none    <NA>  <NA>
-      4  lgl_col boolean     <NA>    <NA>  <NA>
-      5  fct_col  choice     <NA>     x|y     |
-      6 date_col    date     <NA>    <NA>  <NA>
+            name    type decimals choices split   format
+      1 text_col    text     <NA>    <NA>  <NA>     <NA>
+      2  num_col  number     <NA>    <NA>  <NA>     <NA>
+      3  int_col  number     none    <NA>  <NA>     <NA>
+      4  lgl_col boolean     <NA>    <NA>  <NA>     <NA>
+      5  fct_col  choice     <NA>     x|y     |     <NA>
+      6 date_col    date     <NA>    <NA>  <NA> dateOnly
 
 # data_as_column_definition_list errors if split is in factor levels
 

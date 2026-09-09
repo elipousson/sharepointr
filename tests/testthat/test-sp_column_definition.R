@@ -253,6 +253,22 @@ test_that("data_as_column_definition_list works", {
   )
 })
 
+test_that("data_as_column_definition_list infers dateTime vs dateOnly format", {
+  dttm_df <- data.frame(
+    date_col = as.Date("2024-01-01"),
+    dttm_col = as.POSIXct("2024-01-01 12:00:00", tz = "UTC")
+  )
+
+  tbl <- data_as_column_definition_list(dttm_df, definitions_as = "table")
+
+  expect_equal(tbl[["format"]], c("dateOnly", "dateTime"))
+
+  defs <- data_as_column_definition_list(dttm_df)
+
+  expect_equal(defs[[1]][["dateTime"]][["format"]], "dateOnly")
+  expect_equal(defs[[2]][["dateTime"]][["format"]], "dateTime")
+})
+
 test_that("data_as_column_definition_list errors if split is in factor levels", {
   split_df <- data.frame(
     fct_col = factor(c("a|b", "c"))

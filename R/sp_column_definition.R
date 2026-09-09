@@ -796,6 +796,12 @@ data_as_column_definition_list <- function(
         def[["decimals"]] <- "none"
       }
 
+      if (def[["type"]] == "date") {
+        def[["format"]] <- "dateOnly"
+      } else if (def[["type"]] == "datetime") {
+        def[["format"]] <- "dateTime"
+      }
+
       as.data.frame(def)
     }
   )

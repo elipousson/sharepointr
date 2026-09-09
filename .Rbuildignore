@@ -8,4 +8,4 @@
 ^pkgdown$
 ^\.github$
 ^vignettes/articles$
-/dev
+^dev$

@@ -8,7 +8,6 @@ objects}
 ms_obj_as_data_frame(
   ms_obj,
   obj_col = "ms_plan",
-  recursive = FALSE,
   keep_list_cols = NULL,
   unlist_cols = TRUE,
   .name_repair = "universal_quiet",

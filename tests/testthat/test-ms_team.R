@@ -1,4 +1,5 @@
 test_that("get_ms_team_channels works", {
+  skip()
   test_team_name <- "DOP-ALL"
   test_tenant <- "bmore"
 

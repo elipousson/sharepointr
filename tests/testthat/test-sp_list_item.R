@@ -31,6 +31,7 @@ test_that(".sp_dttm_to_graph() formats POSIXct/Date as unambiguous UTC strings",
 list_url <- "https://bmore.sharepoint.com/:l:/r/sites/DOP-CIP/Lists/TestList_20260805?e=uZdGwe"
 
 test_that("create_sp_list_item, update_sp_list_item, and delete_sp_list_item work", {
+  skip("list needs to be recreated.")
   skip_if_no_ms_site(list_url)
 
   sp_list <- get_sp_list(list_url)
@@ -92,6 +93,7 @@ test_that("create_sp_list_item, update_sp_list_item, and delete_sp_list_item wor
 })
 
 test_that("create_sp_list_items and delete_sp_list_items work with multiple items", {
+  skip("list needs to be recreated.")
   skip_if_no_ms_site(list_url)
 
   sp_list <- get_sp_list(list_url)
@@ -143,6 +145,7 @@ test_that("create_sp_list_items and delete_sp_list_items work with multiple item
 })
 
 test_that("update_sp_list_items updates multiple items from a data frame", {
+  skip("list needs to be recreated.")
   skip_if_no_ms_site(list_url)
 
   sp_list <- get_sp_list(list_url)

@@ -282,6 +282,26 @@ get_sp_list_items <- function(
   x
 }
 
+#' Format a POSIXct or Date value as an unambiguous UTC string for the Graph
+#' API
+#'
+#' The Graph API body is ultimately serialized with `jsonlite::toJSON()`,
+#' whose default handling of POSIXct values (`format()`/`as.character()`)
+#' respects the object's `tzone` attribute but appends no offset or "Z"
+#' suffix. That ambiguous, offset-less string is then resolved by the Graph
+#' API using something other than UTC (apparently the SharePoint site's
+#' regional settings), silently shifting the stored instant. Converting to an
+#' explicit `"%Y-%m-%dT%H:%M:%SZ"` UTC string before serialization avoids the
+#' ambiguity entirely. This is the write-side mirror of `.ms365_dttm()`.
+#' @noRd
+.sp_dttm_to_graph <- function(x) {
+  if (!inherits(x, c("POSIXt", "Date"))) {
+    return(x)
+  }
+
+  strftime(x, format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+}
+
 #' Adapted from the list_items method for `Microsoft365R::ms_list` objects
 #' <https://github.com/Azure/Microsoft365R/blob/master/R/ms_list.R>
 #' @noRd
@@ -1002,6 +1022,10 @@ update_sp_list_item <- function(
     # TODO: Implement check_fields if `sp_list_item` is supplied
   }
 
+  # Convert POSIXct/Date fields to unambiguous UTC strings before the Graph
+  # API body is serialized
+  update_data <- purrr::map(update_data, .sp_dttm_to_graph)
+
   # Append "@odata.type" fields so multi-value (Collection) columns are
   # recognized by the Graph API
   update_data <- append_field_odata_types(update_data)
@@ -1125,6 +1149,10 @@ create_sp_list_item <- function(
     # FIXME: Add warning if .fields has no valid input
     return(invisible(.fields))
   }
+
+  # Convert POSIXct/Date fields to unambiguous UTC strings before the Graph
+  # API body is serialized
+  .fields <- purrr::map(.fields, .sp_dttm_to_graph)
 
   .fields <- append_field_odata_types(.fields)
 

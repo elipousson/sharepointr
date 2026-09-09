@@ -1,3 +1,33 @@
+test_that(".sp_dttm_to_graph() formats POSIXct/Date as unambiguous UTC strings", {
+  x <- as.POSIXct(1659276319, origin = "1970-01-01", tz = "UTC")
+
+  withr::with_envvar(
+    c(TZ = "America/New_York"),
+    {
+      expect_equal(.sp_dttm_to_graph(x), "2022-07-31T14:05:19Z")
+      expect_equal(
+        .sp_dttm_to_graph(as.Date("2026-08-05")),
+        "2026-08-05T00:00:00Z"
+      )
+    }
+  )
+
+  withr::with_envvar(
+    c(TZ = "UTC"),
+    {
+      expect_equal(.sp_dttm_to_graph(x), "2022-07-31T14:05:19Z")
+      expect_equal(
+        .sp_dttm_to_graph(as.Date("2026-08-05")),
+        "2026-08-05T00:00:00Z"
+      )
+    }
+  )
+
+  # Non-date values are returned unmodified
+  expect_equal(.sp_dttm_to_graph("Choice 1"), "Choice 1")
+  expect_equal(.sp_dttm_to_graph(42), 42)
+})
+
 list_url <- "https://bmore.sharepoint.com/:l:/r/sites/DOP-CIP/Lists/TestList_20260805?e=uZdGwe"
 
 test_that("create_sp_list_item, update_sp_list_item, and delete_sp_list_item work", {
@@ -33,7 +63,7 @@ test_that("create_sp_list_item, update_sp_list_item, and delete_sp_list_item wor
     unlist(created[["MultipleChoice"]]),
     c("Choice 1", "Choice 2")
   )
-  expect_equal("2026-08-05T04:00:00Z", created[["Date"]])
+  expect_equal("2026-08-05T00:00:00Z", created[["Date"]])
 
   update_sp_list_item(
     item_id = item_id,

@@ -228,10 +228,13 @@ ms_obj_list_as_data_frame <- function(
 #' Convert a ms_obj object to a data frame of properties with a list column of
 #' objects
 #'
+#' @param ms_obj A object with a 'ms_object" class.
 #' @param obj_col Column name for list column with `ms_` objects. Defaults to
 #'   `"ms_plan"`.
 #' @param keep_list_cols Column names for those columns to maintain in a list
 #'   format instead of attempting to convert to a character vector.
+#' @param unlist_cols If `TRUE` (default), convert list columns to vectors.
+#' @inheritParams vctrs::vec_rbind
 #' @keywords internal
 #' @importFrom vctrs list_sizes
 ms_obj_as_data_frame <- function(

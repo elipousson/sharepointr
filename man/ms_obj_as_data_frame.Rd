@@ -15,11 +15,32 @@ ms_obj_as_data_frame(
 )
 }
 \arguments{
+\item{ms_obj}{A object with a 'ms_object" class.}
+
 \item{obj_col}{Column name for list column with \code{ms_} objects. Defaults to
 \code{"ms_plan"}.}
 
 \item{keep_list_cols}{Column names for those columns to maintain in a list
 format instead of attempting to convert to a character vector.}
+
+\item{unlist_cols}{If \code{TRUE} (default), convert list columns to vectors.}
+
+\item{.name_repair}{One of \code{"unique"}, \code{"universal"}, \code{"check_unique"},
+\code{"unique_quiet"}, or  \code{"universal_quiet"}. See \code{\link[vctrs:vec_as_names]{vec_as_names()}} for the
+meaning of these options.
+
+With \code{vec_rbind()}, the repair function is applied to all inputs
+separately. This is because \code{vec_rbind()} needs to align their
+columns before binding the rows, and thus needs all inputs to
+have unique names. On the other hand, \code{vec_cbind()} applies the
+repair function after all inputs have been concatenated together
+in a final data frame. Hence \code{vec_cbind()} allows the more
+permissive minimal names repair.}
+
+\item{.error_call}{The execution environment of a currently
+running function, e.g. \code{caller_env()}. The function will be
+mentioned in error messages as the source of the error. See the
+\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \description{
 Convert a ms_obj object to a data frame of properties with a list column of

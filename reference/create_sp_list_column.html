@@ -264,6 +264,14 @@ column_name must be unique if <code>column_name_type = "displayName"</code>.</p>
 
 </dl></div>
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>For <code>create_sp_list_column()</code>, a named list with the newly
+created columnDefinition resource. For <code>update_sp_list_column()</code>,
+invisibly returns the input <code>sp_list</code>. For <code>delete_sp_list_column()</code>, an
+empty list with a <code>"status"</code> attribute giving the HTTP response status
+code.</p>
+    </div>
+    <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>See documentation:
 <a href="https://learn.microsoft.com/en-us/graph/api/list-post-columns?view=graph-rest-1.0&amp;tabs=http" class="external-link">https://learn.microsoft.com/en-us/graph/api/list-post-columns?view=graph-rest-1.0&amp;tabs=http</a></p>

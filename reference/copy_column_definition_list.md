@@ -100,6 +100,14 @@ copy_column_definition_list(sp_list = NULL, ...)
   :   Maximum number of lists, plans, tasks, or other items to return.
       Defaults to `NULL` which sets n to `Inf`.
 
+## Value
+
+A list of named lists, each formatted as a columnDefinition (as created
+by
+[`create_column_definition()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md))
+for use as the `fields` argument to
+[`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md).
+
 ## Details
 
 `copy_column_definition_list()` takes an existing SharePoint list and

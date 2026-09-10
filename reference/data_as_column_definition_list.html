@@ -93,6 +93,14 @@ dataframe with the column names and types.</p></dd>
 
 </dl></div>
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>If <code>definitions_as = "definition_list"</code> (default), a list of
+named lists formatted as columnDefinitions for use as the <code>fields</code>
+argument to <code><a href="create_sp_list.html">create_sp_list()</a></code>. If <code>definitions_as = "table"</code>, a data
+frame with one row per column of <code>data</code> describing the inferred name,
+type, and other definition properties.</p>
+    </div>
+    <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Converting R data types to SharePoint column definitions</p>
 <p>The type for each vector in the input data frame is checked with

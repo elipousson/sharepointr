@@ -162,3 +162,9 @@ delete_sp_list(
 - confirm:
 
   If `TRUE`, confirm deletion of list before proceeding.
+
+## Value
+
+For `create_sp_list()`, invisibly returns a `ms_list` object for the
+newly created list. For `update_sp_list()`, the updated `ms_list`
+object. For `delete_sp_list()`, invisibly returns `NULL`.

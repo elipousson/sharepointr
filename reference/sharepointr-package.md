@@ -1,6 +1,6 @@
 # sharepointr: Read and Write from SharePoint Sites
 
-A R package extending Microsoft365R to make it easier to read, write,
+A R package extending 'Microsoft365R' to make it easier to read, write,
 and work with SharePoint items, lists, and plans.
 
 ## See also

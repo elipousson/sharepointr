@@ -132,6 +132,11 @@ cache_sp_site(
   "sharepointr.cache_dir". If "sharepointr.cache_dir" is not set, the
   cache directory is set to `rappdirs::user_cache_dir("sharepointr")`.
 
+## Value
+
+For `get_sp_site()`, a `ms_site` object. For `cache_sp_site()`,
+invisibly returns `NULL`.
+
 ## See also
 
 [Microsoft365R::ms_site](https://rdrr.io/pkg/Microsoft365R/man/ms_site.html)

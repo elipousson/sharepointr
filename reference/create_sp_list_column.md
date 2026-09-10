@@ -259,6 +259,13 @@ delete_sp_list_column(
   "name" or "displayName". Used to match column ID so column_name must
   be unique if `column_name_type = "displayName"`.
 
+## Value
+
+For `create_sp_list_column()`, a named list with the newly created
+columnDefinition resource. For `update_sp_list_column()`, invisibly
+returns the input `sp_list`. For `delete_sp_list_column()`, an empty
+list with a `"status"` attribute giving the HTTP response status code.
+
 ## Details
 
 See documentation:

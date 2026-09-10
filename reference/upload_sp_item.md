@@ -79,3 +79,8 @@ upload_sp_items(file = NULL, dest, ..., src = NULL, call = caller_env())
   the source of the error. See the `call` argument of
   [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
   information.
+
+## Value
+
+Invisibly returns the destination path (`dest`) for the uploaded file or
+directory.

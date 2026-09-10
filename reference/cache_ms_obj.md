@@ -33,3 +33,8 @@ cache_ms_obj(
   If `TRUE`, replace the existing cached object named by `cache_file`
   with the new object. If `FALSE`, error if a cached file with the same
   `cache_file` name already exists.
+
+## Value
+
+Invisibly returns `NULL`. Called for the side effect of writing `x` to
+the cache file with [`saveRDS()`](https://rdrr.io/r/base/readRDS.html).

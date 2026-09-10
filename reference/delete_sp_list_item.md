@@ -98,3 +98,10 @@ delete_sp_list_items(
   bar, use a string to give it a name, or see
   [progress_bars](https://purrr.tidyverse.org/reference/progress_bars.html)
   for more details.
+
+## Value
+
+For `delete_sp_list_item()`, invisibly returns an empty list with a
+`"status"` attribute giving the HTTP response status code. For
+`delete_sp_list_items()`, invisibly returns a list of these responses,
+one per deleted item.

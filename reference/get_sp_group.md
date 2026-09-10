@@ -75,3 +75,10 @@ list_sp_group_members(
   If `TRUE` (default), converted list of members into a data frame with
   a list column named `az_user` that contains the member list and
   properties converted into columns.
+
+## Value
+
+For `get_sp_group()`, an `az_group` object for the site. For
+`list_sp_group_members()`, a data frame of group members if
+`as_data_frame = TRUE` (default), or a list of `az_user` objects if
+`FALSE`.

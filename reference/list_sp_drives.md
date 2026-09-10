@@ -90,6 +90,12 @@ list_sp_drives(
   [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
   information.
 
+## Value
+
+A data frame with a list column of `ms_drive` objects if
+`as_data_frame = TRUE` (default), or a list of `ms_drive` objects if
+`FALSE`.
+
 ## See also
 
 [Microsoft365R::ms_site](https://rdrr.io/pkg/Microsoft365R/man/ms_site.html)

@@ -58,3 +58,8 @@ ms_obj_as_data_frame(
   the source of the error. See the `call` argument of
   [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
   information.
+
+## Value
+
+A 1 row data frame with one column per scalar property of `ms_obj`, plus
+a list column named `obj_col` containing `ms_obj` itself.

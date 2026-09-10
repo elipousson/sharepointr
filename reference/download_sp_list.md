@@ -121,3 +121,7 @@ download_sp_list(
   the source of the error. See the `call` argument of
   [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
   information.
+
+## Value
+
+Invisibly returns the path to the downloaded file.

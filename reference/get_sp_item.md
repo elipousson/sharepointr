@@ -145,6 +145,13 @@ get_sp_item_properties(
   [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
   information.
 
+## Value
+
+For `get_sp_item()`, a `ms_drive_item` object (or a `ms_item_properties`
+object if `properties = TRUE`), or a 1 row data frame if
+`as_data_frame = TRUE`. `get_sp_item_properties()` always uses
+`properties = TRUE`.
+
 ## See also
 
 [Microsoft365R::ms_drive_item](https://rdrr.io/pkg/Microsoft365R/man/ms_drive_item.html)

@@ -35,3 +35,10 @@ AzureR_config_delete(path = NULL, filename = "graph_logins.json")
 
   Filename to delete from configuration directory. Defaults to
   "graph_logins.json". Set to `NULL` if path contains a file name.
+
+## Value
+
+For `AzureR_config_ls()`, a character vector of file paths matching
+`glob` in the AzureR configuration directory. For
+`AzureR_config_delete()`, invisibly returns the path to the deleted
+file.

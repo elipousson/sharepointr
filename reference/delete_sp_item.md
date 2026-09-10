@@ -101,6 +101,10 @@ delete_sp_item(
   [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
   information.
 
+## Value
+
+Invisibly returns `NULL`.
+
 ## Details
 
 Trouble-shooting errors

@@ -29,6 +29,14 @@ create_column_definition_list(definitions, col_type = "text", ignore_na = TRUE)
 
   If `TRUE`, drop any parameters with a `NA` value.
 
+## Value
+
+A list of named lists, one per row of `definitions`, each formatted as a
+columnDefinition (as created by
+[`create_column_definition()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md))
+for use as the `fields` argument to
+[`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md).
+
 ## Examples
 
 ``` r

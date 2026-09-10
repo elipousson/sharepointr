@@ -88,14 +88,14 @@ URL and drive name is not part of the URL. Defaults to
 cached as a local option. If <code>FALSE</code>, use the cached <code>ms_drive</code> object if
 it exists.</p></dd>
 
-    <dt><code>cache_file</code></dt>
-<dd><p>File name for cached drive or site. Default <code>NULL</code>.</p></dd>
-
     <dt><code>site_url</code></dt>
 <dd><p>A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL can also be parsed to build a site URL using the tenant and site name
 included in the URL.</p></dd>
+
+    <dt><code>cache_file</code></dt>
+<dd><p>File name for cached drive or site. Default <code>NULL</code>.</p></dd>
 
     <dt><code>site</code></dt>
 <dd><p>A <code>ms_site</code> object. If <code>site</code> is supplied, <code>site_url</code>,
@@ -135,6 +135,11 @@ mentioned in error messages as the source of the error. See the
 <code>call</code> argument of <code><a href="https://rlang.r-lib.org/reference/abort.html" class="external-link">abort()</a></code> for more information.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>Invisibly returns the input <code>path</code> (or <code>path</code> combined with
+<code>relative</code> if supplied).</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

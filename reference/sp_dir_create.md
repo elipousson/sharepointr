@@ -52,16 +52,16 @@ sp_dir_create(
       a local option. If `FALSE`, use the cached `ms_drive` object if it
       exists.
 
-  `cache_file`
-
-  :   File name for cached drive or site. Default `NULL`.
-
   `site_url`
 
   :   A SharePoint site URL in the format "https://\[tenant
       name\].sharepoint.com/sites/\[site name\]". Any SharePoint item or
       document URL can also be parsed to build a site URL using the
       tenant and site name included in the URL.
+
+  `cache_file`
+
+  :   File name for cached drive or site. Default `NULL`.
 
   `site`
 
@@ -99,6 +99,11 @@ sp_dir_create(
   the source of the error. See the `call` argument of
   [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
   information.
+
+## Value
+
+Invisibly returns the input `path` (or `path` combined with `relative`
+if supplied).
 
 ## Examples
 

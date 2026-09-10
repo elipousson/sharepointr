@@ -289,6 +289,14 @@ create_term_column(name, ..., allow_multiple = TRUE, show_full_name = NULL)
   default for `create_hyperlink_column()`) or image (`TRUE`, default for
   `create_picture_column()`).
 
+## Value
+
+A named list of columnDefinition properties formatted for use as the
+`fields` argument to
+[`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md)
+or as an element of the list returned by
+[`create_column_definition_list()`](https://elipousson.github.io/sharepointr/reference/create_column_definition_list.md).
+
 ## Details
 
 Display as options

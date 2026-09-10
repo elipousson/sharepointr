@@ -121,6 +121,12 @@ cache_sp_drive(
   A `ms_drive` object. If `drive` is supplied, `drive_name` and
   `drive_id` are ignored.
 
+## Value
+
+For `get_sp_drive()`, a `ms_drive` object, or the drive properties as a
+named list if `properties = TRUE`. For `cache_sp_drive()`, invisibly
+returns `NULL`.
+
 ## See also
 
 [Microsoft365R::ms_drive](https://rdrr.io/pkg/Microsoft365R/man/ms_drive.html)

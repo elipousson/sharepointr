@@ -237,3 +237,9 @@ get_sp_list_item(
 
   Required. A SharePoint list item ID typically an integer for the
   record number starting from 1 with the first record.
+
+## Value
+
+For `list_sp_list_items()` and `get_sp_list_items()`, a data frame of
+list items if `as_data_frame = TRUE` (default), or a list of item fields
+otherwise. For `get_sp_list_item()`, a `ms_list_item` object.

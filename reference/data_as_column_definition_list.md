@@ -48,6 +48,15 @@ data_as_column_definition_list(
   [`create_column_definition_list()`](https://elipousson.github.io/sharepointr/reference/create_column_definition_list.md).
   If `"table"` return a dataframe with the column names and types.
 
+## Value
+
+If `definitions_as = "definition_list"` (default), a list of named lists
+formatted as columnDefinitions for use as the `fields` argument to
+[`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md).
+If `definitions_as = "table"`, a data frame with one row per column of
+`data` describing the inferred name, type, and other definition
+properties.
+
 ## Details
 
 Converting R data types to SharePoint column definitions

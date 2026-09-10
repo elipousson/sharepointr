@@ -116,3 +116,10 @@ read_sharepoint(
 
   A `ms_site` object. If `site` is supplied, `site_url`, `site_name`,
   and `site_id` are ignored.
+
+## Value
+
+A data frame of list items if `file` is a SharePoint list URL or
+`ms_list` object. Otherwise, the object returned by `.f` (if supplied),
+or by whichever reader function is selected based on the downloaded
+file's extension (see Description).

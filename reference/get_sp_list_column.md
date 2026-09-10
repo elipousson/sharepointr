@@ -105,6 +105,10 @@ get_sp_list_column(
   [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
   information.
 
+## Value
+
+A named list with the columnDefinition resource for the matched column.
+
 ## Details
 
 See the [Get columnDefinition Graph API

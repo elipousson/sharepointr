@@ -188,6 +188,10 @@ update_sp_list_item(
 
   Optional. A SharePoint list item object to update.
 
+## Value
+
+Invisibly returns the input `data`, unmodified.
+
 ## Details
 
 Validation of data with with `create_sp_list_items()`

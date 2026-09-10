@@ -91,3 +91,10 @@ get_sp_page(page_url = NULL, page_id = NULL, ..., site = NULL)
 - page_url, page_id:
 
   SharePoint page URL or ID.
+
+## Value
+
+For `list_sp_pages()`, a data frame with a list column of `ms_page`
+objects if `as_data_frame = TRUE` (default), or a list of page
+properties if `FALSE`. For `get_sp_page()`, a named list with the
+properties of the matched sitePage.

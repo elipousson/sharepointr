@@ -4,8 +4,8 @@ test_that(".sp_dttm_to_graph() formats POSIXct/Date as unambiguous UTC strings",
   withr::with_envvar(
     c(TZ = "America/New_York"),
     {
-      expect_equal(.sp_dttm_to_graph(x), "2022-07-31T14:05:19Z")
-      expect_equal(
+      expect_identical(.sp_dttm_to_graph(x), "2022-07-31T14:05:19Z")
+      expect_identical(
         .sp_dttm_to_graph(as.Date("2026-08-05")),
         "2026-08-05T00:00:00Z"
       )
@@ -15,8 +15,8 @@ test_that(".sp_dttm_to_graph() formats POSIXct/Date as unambiguous UTC strings",
   withr::with_envvar(
     c(TZ = "UTC"),
     {
-      expect_equal(.sp_dttm_to_graph(x), "2022-07-31T14:05:19Z")
-      expect_equal(
+      expect_identical(.sp_dttm_to_graph(x), "2022-07-31T14:05:19Z")
+      expect_identical(
         .sp_dttm_to_graph(as.Date("2026-08-05")),
         "2026-08-05T00:00:00Z"
       )
@@ -24,8 +24,8 @@ test_that(".sp_dttm_to_graph() formats POSIXct/Date as unambiguous UTC strings",
   )
 
   # Non-date values are returned unmodified
-  expect_equal(.sp_dttm_to_graph("Choice 1"), "Choice 1")
-  expect_equal(.sp_dttm_to_graph(42), 42)
+  expect_identical(.sp_dttm_to_graph("Choice 1"), "Choice 1")
+  expect_identical(.sp_dttm_to_graph(42), 42)
 })
 
 list_url <- "https://bmore.sharepoint.com/:l:/r/sites/DOP-CIP/Lists/TestList_20260805?e=uZdGwe"
@@ -54,17 +54,17 @@ test_that("create_sp_list_item, update_sp_list_item, and delete_sp_list_item wor
   )
 
   expect_s3_class(created, "data.frame")
-  expect_equal(nrow(created), 1)
+  expect_identical(nrow(created), 1)
 
   item_id <- created[["id"]]
 
-  expect_equal(created[["Number"]], 42)
-  expect_equal(created[["SingleChoice"]], "Choice 1")
+  expect_identical(created[["Number"]], 42)
+  expect_identical(created[["SingleChoice"]], "Choice 1")
   expect_setequal(
     unlist(created[["MultipleChoice"]]),
     c("Choice 1", "Choice 2")
   )
-  expect_equal("2026-08-05T00:00:00Z", created[["Date"]])
+  expect_identical("2026-08-05T00:00:00Z", created[["Date"]])
 
   update_sp_list_item(
     item_id = item_id,
@@ -78,8 +78,8 @@ test_that("create_sp_list_item, update_sp_list_item, and delete_sp_list_item wor
   updated_item <- get_sp_list_item(item_id, sp_list = sp_list)
 
   expect_s3_class(updated_item, "ms_list_item")
-  expect_equal(updated_item$properties$fields$Number, 99)
-  expect_equal(updated_item$properties$fields$SingleChoice, "Choice 2")
+  expect_identical(updated_item$properties$fields$Number, 99)
+  expect_identical(updated_item$properties$fields$SingleChoice, "Choice 2")
 
   delete_sp_list_item(
     item_id = item_id,
@@ -121,7 +121,7 @@ test_that("create_sp_list_items and delete_sp_list_items work with multiple item
   )
 
   expect_s3_class(created, "data.frame")
-  expect_equal(nrow(created), 2)
+  expect_identical(nrow(created), 2)
 
   item_ids <- created[["id"]]
 
@@ -141,7 +141,7 @@ test_that("create_sp_list_items and delete_sp_list_items work with multiple item
   #   filter = paste0("startswith(fields/Text,'", marker, "')")
   # )
 
-  # expect_equal(nrow(remaining), 0)
+  # expect_identical(nrow(remaining), 0)
 })
 
 test_that("update_sp_list_items updates multiple items from a data frame", {
@@ -170,7 +170,7 @@ test_that("update_sp_list_items updates multiple items from a data frame", {
     filter = paste0("startswith(fields/Text,'", marker, "')")
   )
 
-  expect_equal(nrow(created), 2)
+  expect_identical(nrow(created), 2)
 
   item_ids <- created[["id"]]
 

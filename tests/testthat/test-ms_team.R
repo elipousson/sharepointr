@@ -27,7 +27,7 @@ test_that("get_ms_team_channels works", {
 
   expect_type(channels_list, "list")
 
-  expect_equal(nrow(channels_df), length(channels_list))
+  expect_identical(nrow(channels_df), length(channels_list))
 
   channels_n <- get_ms_team_channels(
     team_name = test_team_name,
@@ -35,5 +35,5 @@ test_that("get_ms_team_channels works", {
     n = 1
   )
 
-  expect_equal(nrow(channels_n), 1)
+  expect_identical(nrow(channels_n), 1)
 })

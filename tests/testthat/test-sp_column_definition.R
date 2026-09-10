@@ -261,12 +261,12 @@ test_that("data_as_column_definition_list infers dateTime vs dateOnly format", {
 
   tbl <- data_as_column_definition_list(dttm_df, definitions_as = "table")
 
-  expect_equal(tbl[["format"]], c("dateOnly", "dateTime"))
+  expect_identical(tbl[["format"]], c("dateOnly", "dateTime"))
 
   defs <- data_as_column_definition_list(dttm_df)
 
-  expect_equal(defs[[1]][["dateTime"]][["format"]], "dateOnly")
-  expect_equal(defs[[2]][["dateTime"]][["format"]], "dateTime")
+  expect_identical(defs[[1]][["dateTime"]][["format"]], "dateOnly")
+  expect_identical(defs[[2]][["dateTime"]][["format"]], "dateTime")
 })
 
 test_that("data_as_column_definition_list errors if split is in factor levels", {
@@ -301,7 +301,7 @@ test_that("copy_column_definition_list works", {
   col_definition <- copy_column_definition_list(sp_list_meta)
 
   # "Title" and internal columns (e.g. "ID") are excluded
-  expect_equal(
+  expect_identical(
     purrr::map_chr(col_definition, "name"),
     c("TextColumn", "ChoiceColumn")
   )
@@ -312,7 +312,7 @@ test_that("copy_column_definition_list works", {
 
   # readOnly = TRUE and a populated description are retained
   expect_true(col_definition[[2]][["readOnly"]])
-  expect_equal(col_definition[[2]][["description"]], "A choice column")
+  expect_identical(col_definition[[2]][["description"]], "A choice column")
 })
 
 test_that("copy_column_definition_list does not error on populated column-type fields", {

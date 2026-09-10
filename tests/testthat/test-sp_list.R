@@ -110,7 +110,7 @@ test_that("create_sp_list, update_sp_list, and delete_sp_list work", {
     )
   )
 
-  expect_equal(sp_list[["properties"]][["displayName"]], list_name)
+  expect_identical(sp_list[["properties"]][["displayName"]], list_name)
 
   update_sp_list(
     sp_list = sp_list,
@@ -122,7 +122,7 @@ test_that("create_sp_list, update_sp_list, and delete_sp_list work", {
     site_url = test_site_url
   )
 
-  expect_equal(
+  expect_identical(
     updated_list[["properties"]][["description"]],
     "Updated description"
   )
@@ -173,7 +173,7 @@ test_that("create_sp_list_column, update_sp_list_column, and delete_sp_list_colu
     column_name = "TextColumn"
   )
 
-  expect_equal(created_column[["name"]], "TextColumn")
+  expect_identical(created_column[["name"]], "TextColumn")
   expect_true(has_name(created_column, "text"))
 
   update_sp_list_column(
@@ -187,7 +187,10 @@ test_that("create_sp_list_column, update_sp_list_column, and delete_sp_list_colu
     column_name = "TextColumn"
   )
 
-  expect_equal(updated_column[["description"]], "Updated column description")
+  expect_identical(
+    updated_column[["description"]],
+    "Updated column description"
+  )
 
   delete_sp_list_column(
     sp_list = sp_list,

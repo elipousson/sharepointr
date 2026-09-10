@@ -7,6 +7,8 @@
 #' @param cache_dir Cache directory. By default, uses an option
 #'   named "sharepointr.cache_dir". If "sharepointr.cache_dir" is not set, the
 #'   cache directory is set to `rappdirs::user_cache_dir("sharepointr")`.
+#' @returns Invisibly returns `NULL`. Called for the side effect of writing
+#'   `x` to the cache file with [saveRDS()].
 #' @keywords internal
 cache_ms_obj <- function(
   x,
@@ -31,7 +33,9 @@ cache_ms_obj <- function(
 
   if (file.exists(path)) {
     # TODO: Consider if checking for an overwrite is helpful or not
-    if (!overwrite) {
+    if (overwrite) {
+      file.remove(path)
+    } else {
       cli_warn(
         "{.arg overwrite} must be `TRUE` to replace existing cached
         {.cls {what}} object at {.file {path}}",
@@ -39,8 +43,6 @@ cache_ms_obj <- function(
       )
 
       return(invisible(NULL))
-    } else {
-      file.remove(path)
     }
   }
 
@@ -49,6 +51,9 @@ cache_ms_obj <- function(
 
 #' Get a object from the cache
 #'
+#' @returns The cached `what` object read with [readRDS()], or `NULL` if no
+#'   cached file exists and `allow_missing = TRUE`. Errors if a cached file
+#'   exists but is not a `what` object.
 #' @noRd
 get_cached_ms_obj <- function(
   cache_file = NULL,
@@ -95,6 +100,8 @@ get_cached_ms_obj <- function(
 
 #' Get path to cached file
 #'
+#' @returns A string with the path to the cached file (whether or not it
+#'   exists). Errors if the file doesn't exist and `allow_missing = FALSE`.
 #' @noRd
 sp_cache_path <- function(
   cache_file = NULL,
@@ -131,6 +138,7 @@ sp_cache_path <- function(
 
 #' Get cache directory and create directory if it does not exist
 #'
+#' @returns A string with the path to the (now existing) cache directory.
 #' @noRd
 sp_cache_dir <- function(cache_dir = NULL, call = caller_env()) {
   cache_dir <- cache_dir %||% getOption("sharepointr.cache_dir")

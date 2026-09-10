@@ -227,6 +227,11 @@ column, the primary lookup column ID must be supplied.}
 (\code{FALSE}, default for \code{\link[=create_hyperlink_column]{create_hyperlink_column()}}) or image (\code{TRUE}, default
 for \code{\link[=create_picture_column]{create_picture_column()}}).}
 }
+\value{
+A named list of columnDefinition properties formatted for use as
+the \code{fields} argument to \code{\link[=create_sp_list]{create_sp_list()}} or as an element of the list
+returned by \code{\link[=create_column_definition_list]{create_column_definition_list()}}.
+}
 \description{
 \code{\link[=create_column_definition]{create_column_definition()}} builds a named list with the properties of the
 columnDefinition resource type.
@@ -237,7 +242,8 @@ More information:
 \details{
 Display as options
 
-Display as options vary by columnDefinition type. See documentation for more details:
+Display as options vary by columnDefinition type. See documentation for more
+details:
 \itemize{
 \item personOrGroupColumn: \url{https://learn.microsoft.com/en-us/graph/api/resources/personorgroupcolumn?view=graph-rest-1.0#displayas-options}
 \item choiceColumn: \url{https://learn.microsoft.com/en-us/graph/api/resources/choicecolumn?view=graph-rest-1.0#properties}

@@ -1,3 +1,5 @@
+#' @returns A string combining the file path parsed from `url` with the
+#'   basename of `src`.
 #' @noRd
 sp_url_as_src_dest <- function(url, src, call = caller_env()) {
   sp_url_parts <- sp_url_parse(url, call = call)
@@ -123,6 +125,8 @@ write_sharepoint <- function(
 #' @inheritParams get_sp_drive
 #' @param blocksize,recursive,parallel Additional parameters passed to
 #'   `upload_folder` or `upload_file` method for `ms_drive` objects.
+#' @returns Invisibly returns the destination path (`dest`) for the uploaded
+#'   file or directory.
 #' @export
 upload_sp_item <- function(
   file = NULL,
@@ -294,6 +298,8 @@ upload_sp_items <- function(
   invisible(dest_list)
 }
 
+#' @returns Invisibly returns `dest`. Errors if `src` is not an existing file
+#'   or directory.
 #' @noRd
 upload_sp_src <- function(
   src,

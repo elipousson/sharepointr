@@ -1,5 +1,6 @@
 #' Build a SharePoint site URL from a tenant and site name
 #'
+#' @returns A string with a SharePoint site URL built from `pattern`.
 #' @noRd
 sp_site_url_build <- function(
   tenant = NULL,

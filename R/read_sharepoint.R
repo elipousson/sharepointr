@@ -36,6 +36,10 @@
 #' @inheritParams download_sp_item
 #' @inheritParams get_sp_drive
 #' @inheritParams get_sp_site
+#' @returns A data frame of list items if `file` is a SharePoint list URL or
+#'   `ms_list` object. Otherwise, the object returned by `.f` (if supplied),
+#'   or by whichever reader function is selected based on the downloaded
+#'   file's extension (see Description).
 #' @export
 read_sharepoint <- function(
   file,

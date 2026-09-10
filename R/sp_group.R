@@ -9,6 +9,10 @@
 #' @inheritParams ms_graph_obj_terms
 #' @inheritParams get_sp_site
 #' @aliases get_sp_site_group
+#' @returns For [get_sp_group()], an `az_group` object for the site. For
+#'   [list_sp_group_members()], a data frame of group members if
+#'   `as_data_frame = TRUE` (default), or a list of `az_user` objects if
+#'   `FALSE`.
 #' @keywords groups
 #' @export
 get_sp_group <- function(

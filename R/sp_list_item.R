@@ -4,6 +4,10 @@
 #' version of the `list_items` method for `Microsoft365R::ms_list` objects that
 #' adds the `order_by` and `order_dir` arguments.
 #' @name sp_list_item
+#' @returns For [list_sp_list_items()] and [get_sp_list_items()], a data
+#'   frame of list items if `as_data_frame = TRUE` (default), or a list of
+#'   item fields otherwise. For [get_sp_list_item()], a `ms_list_item`
+#'   object.
 #' @keywords lists
 NULL
 
@@ -271,6 +275,8 @@ get_sp_list_items <- function(
 }
 
 #' Format date time values
+#' @returns A `POSIXct` vector parsed from `x` as UTC, with `tzone` set to
+#'   `tz`.
 #' @noRd
 .ms365_dttm <- function(
   x,
@@ -293,6 +299,8 @@ get_sp_list_items <- function(
 #' regional settings), silently shifting the stored instant. Converting to an
 #' explicit `"%Y-%m-%dT%H:%M:%SZ"` UTC string before serialization avoids the
 #' ambiguity entirely. This is the write-side mirror of `.ms365_dttm()`.
+#' @returns If `x` is a `POSIXt` or `Date`, a string formatted as
+#'   `"%Y-%m-%dT%H:%M:%SZ"` in UTC. Otherwise, `x` unmodified.
 #' @noRd
 .sp_dttm_to_graph <- function(x) {
   if (!inherits(x, c("POSIXt", "Date"))) {
@@ -304,6 +312,9 @@ get_sp_list_items <- function(
 
 #' Adapted from the list_items method for `Microsoft365R::ms_list` objects
 #' <https://github.com/Azure/Microsoft365R/blob/master/R/ms_list.R>
+#' @returns If `n` is `NULL`, `simplify = FALSE`, or `all_metadata = TRUE`,
+#'   the raw paged list of item values. Otherwise, a data frame of item
+#'   fields with every list column present (even if empty for all items).
 #' @noRd
 .ms365_list_items <- function(
   sp_list,
@@ -404,6 +415,7 @@ get_sp_list_items <- function(
 }
 
 #' Add orderby to options
+#' @returns `opt` with a `"$orderby"` element appended.
 #' @noRd
 opt_order_by <- function(
   opt,
@@ -424,12 +436,16 @@ opt_order_by <- function(
 }
 
 #' Pull a vector of display names named with corresponding column names
+#' @returns A named character vector of column display names, named with the
+#'   corresponding column names.
 #' @noRd
 pull_sp_list_display_names <- function(sp_list) {
   sp_list_cols <- sp_list$get_column_info()
   set_names(sp_list_cols$displayName, sp_list_cols$name)
 }
 
+#' @returns A named vector of item id values, named with the values of
+#'   `column`.
 #' @noRd
 pull_sp_list_item_id <- function(
   sp_list = NULL,
@@ -444,6 +460,8 @@ pull_sp_list_item_id <- function(
   )
 }
 
+#' @returns A named vector with the values of `var`, named with the
+#'   corresponding values of `name`.
 #' @noRd
 pull_sp_list_items_index <- function(
   sp_list_items = NULL,
@@ -558,6 +576,7 @@ get_sp_list_item <- function(
 #'     list_name = sp_list_url
 #'   )
 #' }
+#' @returns Invisibly returns the input `data`, unmodified.
 #' @keywords lists
 #' @export
 create_sp_list_items <- function(
@@ -680,6 +699,10 @@ create_sp_list_items <- function(
   invisible(data)
 }
 
+#' @returns `data` unmodified if every column name matches a list field name.
+#'   If only some names match, `data` with unmatched columns dropped (with a
+#'   message), unless `strict = TRUE`, in which case it errors. Errors if no
+#'   column names match.
 #' @noRd
 validate_sp_list_data_fields <- function(
   data,
@@ -720,7 +743,6 @@ validate_sp_list_data_fields <- function(
   allowed_nm_msg <- "Field name{?s} from list are {.val {values}}"
 
   if (all(nm_match)) {
-    return(data)
     # FIXME: If strict is `TRUE` should this required that all allowed_nm values
     # are also present in nm? The following code does this but I'm unsure if it
     # is a good approach.
@@ -733,6 +755,7 @@ validate_sp_list_data_fields <- function(
     #       call = call
     #     )
     #   }
+    return(data)
   }
 
   # FIXME: Use element instead of column for messages if function supports lists
@@ -871,6 +894,8 @@ update_sp_list_items <- function(
 }
 
 #' Replace names for a data frame or list with display names
+#' @returns `data` with any names matching a display name in `values`
+#'   replaced by the corresponding column name.
 #' @noRd
 replace_with_sp_list_display_names <- function(
   data,
@@ -1073,6 +1098,9 @@ update_sp_list_item <- function(
 #' length greater than 1 so the Graph API recognizes the field as a
 #' Collection instead of a scalar.
 #' <https://learn.microsoft.com/en-us/rest/api/searchservice/supported-data-types#edm-data-types-for-nonvector-fields>
+#' @returns `fields` unmodified if no element has length greater than 1.
+#'   Otherwise, `fields` with a `"{name}@odata.type"` element appended for
+#'   each multi-value field.
 #' @noRd
 append_field_odata_types <- function(fields) {
   multi_fields <- purrr::discard(
@@ -1182,6 +1210,10 @@ create_sp_list_item <- function(
 #' @inheritParams get_sp_list_item
 #' @param confirm If `TRUE` (default), user confirmation is required to delete
 #' items.
+#' @returns For [delete_sp_list_item()], invisibly returns an empty list with
+#'   a `"status"` attribute giving the HTTP response status code. For
+#'   [delete_sp_list_items()], invisibly returns a list of these responses,
+#'   one per deleted item.
 #' @keywords lists
 #' @export
 delete_sp_list_item <- function(
@@ -1309,6 +1341,8 @@ delete_sp_list_items <- function(
 
 #' Get list column metadata renamed and ordered to match the data frame
 #' returned for list items (ID -> id, lookup/personOrGroup columns -> "{name}LookupId")
+#' @returns `col_metadata` (or list metadata fetched for `sp_list`) with
+#'   names renamed to match the item data frame naming convention.
 #' @noRd
 sp_list_ptype_col_metadata <- function(
   sp_list = NULL,
@@ -1367,6 +1401,8 @@ sp_list_ptype_col_metadata <- function(
 #' by lookup, personOrGroup, and term columns. Choice columns don't
 #' consistently return `allowMultipleValues`, so `displayAs = "checkBoxes"`
 #' (the only multi-select display option) is also treated as multi-valued.
+#' @returns `TRUE` if the column definition `x` allows multiple values,
+#'   `FALSE` otherwise.
 #' @noRd
 sp_list_col_is_multi <- function(x) {
   if (
@@ -1393,6 +1429,9 @@ sp_list_col_is_multi <- function(x) {
 
 #' "Friendly" ptype for a single list column (used to format columns as Date,
 #' POSIXct, or factor)
+#' @returns A zero-length ptype vector (`double()`, a `factor()`, `Date()`,
+#'   `POSIXct()`, `character()`, or `vctrs::unspecified()`) matching the
+#'   "friendly" formatted type for column definition `x`.
 #' @noRd
 sp_list_col_ptype <- function(x) {
   # Column types that can return complex/nested values (hyperlinkOrPicture,
@@ -1456,6 +1495,9 @@ sp_list_col_ptype <- function(x) {
 #' "Raw" (asis) ptype for a single list column, matching the type the Graph
 #' API returns before any `col_formatting` is applied. Multi-value (Collection)
 #' columns are represented as list-columns.
+#' @returns A zero-length ptype vector (`double()`, `logical()`,
+#'   `character()`, a `vctrs::list_of()` for multi-value columns, or
+#'   `vctrs::unspecified()`) matching the raw type for column definition `x`.
 #' @noRd
 sp_list_col_raw_ptype <- function(x) {
   # TODO: Improve handling for the internal integer columns
@@ -1507,6 +1549,8 @@ sp_list_col_raw_ptype <- function(x) {
 #' Graph API).
 #' @param raw If `TRUE`, use the raw (asis) type the Graph API returns instead
 #' of the "friendly" formatted type (`Date`, `POSIXct`, `factor`).
+#' @returns A 0 row data frame with one column per SharePoint list field
+#'   (plus `"@odata.etag"`), each with the ptype for that column.
 #' @noRd
 sp_list_as_ptype_data_frame <- function(
   ...,

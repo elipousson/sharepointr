@@ -168,6 +168,12 @@ mentioned in error messages as the source of the error. See the
 \item{id}{Required. A SharePoint list item ID typically an integer for the
 record number starting from 1 with the first record.}
 }
+\value{
+For \code{\link[=list_sp_list_items]{list_sp_list_items()}} and \code{\link[=get_sp_list_items]{get_sp_list_items()}}, a data
+frame of list items if \code{as_data_frame = TRUE} (default), or a list of
+item fields otherwise. For \code{\link[=get_sp_list_item]{get_sp_list_item()}}, a \code{ms_list_item}
+object.
+}
 \description{
 \code{\link[=list_sp_list_items]{list_sp_list_items()}} lists \code{sp_list} items. This function uses a modified
 version of the \code{list_items} method for \code{Microsoft365R::ms_list} objects that

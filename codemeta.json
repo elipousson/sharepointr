@@ -2,19 +2,19 @@
   "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
   "@type": "SoftwareSourceCode",
   "identifier": "sharepointr",
-  "description": "A R package extending Microsoft365R to make it easier to read, write, and work with SharePoint items, lists, and plans.",
+  "description": "A R package extending 'Microsoft365R' to make it easier to read, write, and work with SharePoint items, lists, and plans.",
   "name": "sharepointr: Read and Write from SharePoint Sites",
   "relatedLink": "https://elipousson.github.io/sharepointr/",
   "codeRepository": "https://github.com/elipousson/sharepointr",
   "issueTracker": "https://github.com/elipousson/sharepointr/issues",
   "license": "https://spdx.org/licenses/MIT",
-  "version": "0.1.0",
+  "version": "0.1.0.9000",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.3.2 (2023-10-31)",
+  "runtimePlatform": "R version 4.6.1 (2026-06-24)",
   "author": [
     {
       "@type": "Person",
@@ -43,6 +43,18 @@
     }
   ],
   "softwareSuggestions": [
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "dplyr",
+      "name": "dplyr",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=dplyr"
+    },
     {
       "@type": "SoftwareApplication",
       "identifier": "fs",
@@ -166,6 +178,18 @@
     },
     {
       "@type": "SoftwareApplication",
+      "identifier": "tidyselect",
+      "name": "tidyselect",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=tidyselect"
+    },
+    {
+      "@type": "SoftwareApplication",
       "identifier": "withr",
       "name": "withr",
       "provider": {
@@ -180,6 +204,24 @@
   "softwareRequirements": {
     "1": {
       "@type": "SoftwareApplication",
+      "identifier": "R",
+      "name": "R",
+      "version": ">= 4.1.0"
+    },
+    "2": {
+      "@type": "SoftwareApplication",
+      "identifier": "AzureGraph",
+      "name": "AzureGraph",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=AzureGraph"
+    },
+    "3": {
+      "@type": "SoftwareApplication",
       "identifier": "cli",
       "name": "cli",
       "provider": {
@@ -190,7 +232,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=cli"
     },
-    "2": {
+    "4": {
       "@type": "SoftwareApplication",
       "identifier": "glue",
       "name": "glue",
@@ -202,7 +244,19 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=glue"
     },
-    "3": {
+    "5": {
+      "@type": "SoftwareApplication",
+      "identifier": "httr",
+      "name": "httr",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=httr"
+    },
+    "6": {
       "@type": "SoftwareApplication",
       "identifier": "httr2",
       "name": "httr2",
@@ -214,7 +268,19 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=httr2"
     },
-    "4": {
+    "7": {
+      "@type": "SoftwareApplication",
+      "identifier": "lifecycle",
+      "name": "lifecycle",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=lifecycle"
+    },
+    "8": {
       "@type": "SoftwareApplication",
       "identifier": "Microsoft365R",
       "name": "Microsoft365R",
@@ -226,11 +292,23 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=Microsoft365R"
     },
-    "5": {
+    "9": {
+      "@type": "SoftwareApplication",
+      "identifier": "purrr",
+      "name": "purrr",
+      "version": ">= 1.1.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=purrr"
+    },
+    "10": {
       "@type": "SoftwareApplication",
       "identifier": "rlang",
       "name": "rlang",
-      "version": ">= 1.1.0",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
@@ -239,7 +317,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=rlang"
     },
-    "6": {
+    "11": {
       "@type": "SoftwareApplication",
       "identifier": "stringr",
       "name": "stringr",
@@ -251,12 +329,12 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=stringr"
     },
-    "7": {
+    "12": {
       "@type": "SoftwareApplication",
       "identifier": "utils",
       "name": "utils"
     },
-    "8": {
+    "13": {
       "@type": "SoftwareApplication",
       "identifier": "vctrs",
       "name": "vctrs",
@@ -270,7 +348,8 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "202.49KB",
+  "fileSize": "558.005KB",
+  "releaseNotes": "https://github.com/elipousson/sharepointr/blob/main/NEWS.md",
   "readme": "https://github.com/elipousson/sharepointr/blob/main/README.md",
   "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html#experimental",
   "keywords": ["microsoft-365", "r-package", "sharepoint-online"]

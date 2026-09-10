@@ -1,4 +1,5 @@
 #' Wrapper for `Microsoft365R::get_team`
+#' @returns A `ms_team` object.
 #' @noRd
 get_ms_team <- function(
   ...
@@ -9,6 +10,9 @@ get_ms_team <- function(
 }
 
 #' Wrapper for list_channels method for `ms_team` object
+#' @returns A data frame with a list column of `ms_team` channel objects if
+#'   `as_data_frame = TRUE` (default), or a list of channel objects if
+#'   `FALSE`.
 #' @noRd
 get_ms_team_channels <- function(
   ...,

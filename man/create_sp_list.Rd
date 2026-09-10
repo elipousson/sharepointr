@@ -100,6 +100,11 @@ method for SharePoint site object.}
 
 \item{confirm}{If \code{TRUE}, confirm deletion of list before proceeding.}
 }
+\value{
+For \code{\link[=create_sp_list]{create_sp_list()}}, invisibly returns a \code{ms_list} object for
+the newly created list. For \code{\link[=update_sp_list]{update_sp_list()}}, the updated \code{ms_list}
+object. For \code{\link[=delete_sp_list]{delete_sp_list()}}, invisibly returns \code{NULL}.
+}
 \description{
 \code{\link[=create_sp_list]{create_sp_list()}} allows the creation of a SharePoint list for a site. See:
 \url{https://learn.microsoft.com/en-us/graph/api/list-create?view=graph-rest-1.0&tabs=http}

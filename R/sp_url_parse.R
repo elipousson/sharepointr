@@ -86,6 +86,8 @@ sp_url_parse <- function(url, call = caller_env()) {
   sp_url_parts
 }
 
+#' @returns A string with the site URL built from `x[["base_url"]]` and
+#'   `x[["site_name"]]`.
 #' @noRd
 sp_site_url_build <- function(x) {
   paste0(x[["base_url"]], "/sites/", x[["site_name"]])
@@ -196,6 +198,8 @@ sp_url_parse_query <- function(query) {
 }
 
 #' Helper to get matches from the path of a SharePoint URL
+#' @returns A named list of matched path components (`nm`), with unmatched
+#'   groups as `NULL`.
 #' @noRd
 #' @importFrom utils URLdecode
 str_match_sp_url_path <- function(
@@ -224,6 +228,8 @@ str_match_sp_url_path <- function(
 }
 
 #' Helper for parsing a SharePoint List webview URL
+#' @returns A named list with hostname, `site_name`, `list_name`, and
+#'   `site_url` elements parsed from `url`.
 #' @noRd
 #' @importFrom stringr str_extract
 #' @importFrom utils URLdecode
@@ -250,6 +256,8 @@ sp_webview_list_url_parse <- function(url) {
 }
 
 #' Helper for parsing a SharePoint site page URL
+#' @returns A named list with hostname, `site_url`, and `page_name` elements
+#'   parsed from `url`.
 #' @noRd
 #' @importFrom stringr str_remove
 sp_site_page_url_parse <- function(url) {
@@ -264,6 +272,8 @@ sp_site_page_url_parse <- function(url) {
 
 
 #' Helper for parsing a SharePoint site URL
+#' @returns A named list with hostname elements parsed from `url`, plus
+#'   `site_url` set to `url`.
 #' @noRd
 sp_site_url_parse <- function(url) {
   c(
@@ -273,6 +283,8 @@ sp_site_url_parse <- function(url) {
 }
 
 # stringr::str_extract(url, pattern = "([^/]+)/([^/])/Forms/AllItems.aspx")
+#' @returns A named list with hostname, `site_name`, `drive_name`,
+#'   `file_path`, `drive_url`, and `site_url` elements parsed from `url`.
 #' @noRd
 sp_drive_url_parse <- function(
   url,

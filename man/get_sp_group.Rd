@@ -52,6 +52,12 @@ mentioned in error messages as the source of the error. See the
 data frame with a list column named \code{az_user} that contains the member
 list and properties converted into columns.}
 }
+\value{
+For \code{\link[=get_sp_group]{get_sp_group()}}, an \code{az_group} object for the site. For
+\code{\link[=list_sp_group_members]{list_sp_group_members()}}, a data frame of group members if
+\code{as_data_frame = TRUE} (default), or a list of \code{az_user} objects if
+\code{FALSE}.
+}
 \description{
 \code{\link[=get_sp_group]{get_sp_group()}} gets the group associated with an individual site using the
 \code{get_group} method. \code{\link[=list_sp_group_members]{list_sp_group_members()}} lists members in the group.

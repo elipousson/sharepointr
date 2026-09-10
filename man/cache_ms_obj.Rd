@@ -25,6 +25,10 @@ cache directory is set to \code{rappdirs::user_cache_dir("sharepointr")}.}
 \code{cache_file} with the new object. If \code{FALSE}, error if a cached file with
 the same \code{cache_file} name already exists.}
 }
+\value{
+Invisibly returns \code{NULL}. Called for the side effect of writing
+\code{x} to the cache file with \code{\link[=saveRDS]{saveRDS()}}.
+}
 \description{
 Cache a \code{ms_object} class object to a file
 }

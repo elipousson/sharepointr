@@ -21,6 +21,12 @@ folder for \code{rappdirs::user_cache_dir("AzureR")} (for Windows) or
 \item{filename}{Filename to delete from configuration directory. Defaults to
 "graph_logins.json". Set to \code{NULL} if path contains a file name.}
 }
+\value{
+For \code{\link[=AzureR_config_ls]{AzureR_config_ls()}}, a character vector of file paths
+matching \code{glob} in the AzureR configuration directory. For
+\code{\link[=AzureR_config_delete]{AzureR_config_delete()}}, invisibly returns the path to the deleted
+file.
+}
 \description{
 \code{\link[=AzureR_config_ls]{AzureR_config_ls()}} uses \code{\link[rappdirs:user_config_dir]{rappdirs::user_config_dir()}} and \code{\link[fs:dir_ls]{fs::dir_ls()}} to
 list files from the AzureR configuration directory. \code{\link[=AzureR_config_delete]{AzureR_config_delete()}}

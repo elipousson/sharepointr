@@ -27,6 +27,8 @@ NULL
 
 #' Does x match the pattern of a URL?
 #'
+#' @returns A logical vector the same length as `x`, or `FALSE` if `x` is not
+#'   a vector or is empty.
 #' @noRd
 is_url <- function(x) {
   if (!is_vector(x) || is_empty(x)) {
@@ -41,6 +43,8 @@ is_url <- function(x) {
 
 #' Check if a URL is valid
 #'
+#' @returns Invisibly returns `NULL` if `x` is a valid URL (or `NULL` and
+#'   `allow_null = TRUE`). Otherwise, errors.
 #' @noRd
 check_url <- function(
   x,
@@ -74,6 +78,8 @@ check_url <- function(
 
 #' Check if x matches the pattern of a SharePoint List URL
 #'
+#' @returns Invisibly returns `NULL` if `x` is a valid SharePoint list URL
+#'   (or `NULL` and `allow_null = TRUE`). Otherwise, errors.
 #' @noRd
 check_sp_list_url <- function(
   x,
@@ -111,6 +117,7 @@ check_sp_list_url <- function(
 
 #' Does x use the supplied file extension?
 #'
+#' @returns A logical vector the same length as `x`.
 #' @noRd
 is_fileext_path <- function(x, fileext, ignore.case = TRUE) {
   grepl(
@@ -125,6 +132,8 @@ is_fileext_path <- function(x, fileext, ignore.case = TRUE) {
   )
 }
 
+#' @returns A character vector the same length as `string`, with leading
+#'   and/or trailing `"/"` removed.
 #' @noRd
 str_remove_slash <- function(string, before = TRUE, after = FALSE) {
   pattern <- NULL
@@ -140,11 +149,15 @@ str_remove_slash <- function(string, before = TRUE, after = FALSE) {
   stringr::str_remove_all(string, pattern = paste0(pattern, collapse = "|"))
 }
 
+#' @returns A character vector with the elements of `...` concatenated using
+#'   `sep`.
 #' @noRd
 str_c_url <- function(..., sep = "/") {
   stringr::str_c(..., sep = sep)
 }
 
+#' @returns A character vector with the elements of `...` concatenated using
+#'   `fsep`.
 #' @noRd
 str_c_fsep <- function(..., fsep = .Platform$file.sep) {
   stringr::str_c(..., sep = fsep)
@@ -153,6 +166,8 @@ str_c_fsep <- function(..., fsep = .Platform$file.sep) {
 #' Variant of [stringr::str_match()] that returns a list where any `NA` values
 #' are replaced with `NULL`
 #'
+#' @returns A named (if `nm` is supplied) or unnamed list of matched groups,
+#'   with `NA` values replaced by `NULL`.
 #' @noRd
 str_match_list <- function(string, pattern, i = 1, nm = NULL) {
   matches <- str_match(string, pattern)
@@ -172,6 +187,8 @@ str_match_list <- function(string, pattern, i = 1, nm = NULL) {
 
 #' Replace NA elements in a list
 #'
+#' @returns A list the same length as `x`, with any `NA` elements replaced by
+#'   `replace`.
 #' @noRd
 list_replace_na <- function(x, replace = NULL) {
   purrr::map(x, function(i) {
@@ -184,6 +201,8 @@ list_replace_na <- function(x, replace = NULL) {
 
 #' Replace empty elements in a list
 #'
+#' @returns A list the same length as `x`, with any empty elements replaced
+#'   by `replace`.
 #' @noRd
 list_replace_empty <- function(x, replace = NULL) {
   purrr::map(x, function(i) {
@@ -197,6 +216,8 @@ list_replace_empty <- function(x, replace = NULL) {
 #' Convert a list of ms_obj elements to a data frame of properties with a list
 #' column of objects
 #'
+#' @returns A data frame with one row per element of `ms_obj_list`, combining
+#'   the columns produced by [ms_obj_as_data_frame()] for each element.
 #' @noRd
 #' @importFrom vctrs vec_rbind
 ms_obj_list_as_data_frame <- function(
@@ -235,6 +256,8 @@ ms_obj_list_as_data_frame <- function(
 #'   format instead of attempting to convert to a character vector.
 #' @param unlist_cols If `TRUE` (default), convert list columns to vectors.
 #' @inheritParams vctrs::vec_rbind
+#' @returns A 1 row data frame with one column per scalar property of
+#'   `ms_obj`, plus a list column named `obj_col` containing `ms_obj` itself.
 #' @keywords internal
 #' @importFrom vctrs list_sizes
 ms_obj_as_data_frame <- function(
@@ -304,6 +327,8 @@ ms_obj_as_data_frame <- function(
 #' Check if x or y is not `NULL` and is a string and error if neither or both
 #' are supplied or if the supplied argument is not a string
 #'
+#' @returns Invisibly returns `NULL` if exactly one of `x`/`y` is a valid
+#'   string (or neither, if `require = FALSE`). Otherwise, errors.
 #' @noRd
 check_exclusive_strings <- function(
   x = NULL,
@@ -342,6 +367,8 @@ check_exclusive_strings <- function(
 
 #' Check if x or y is not `NULL` and error if neither or both are supplied
 #'
+#' @returns Invisibly returns `NULL` if exactly one of `x`/`y` is supplied
+#'   (or neither, if `require = FALSE`). Otherwise, errors.
 #' @noRd
 check_exclusive_args <- function(
   x = NULL,
@@ -375,6 +402,7 @@ check_exclusive_args <- function(
 }
 
 #' Repair column names using `vctrs::vec_as_names` and `rlang::set_names`
+#' @returns `data` with names set to (optionally repaired) `nm`.
 #' @noRd
 .set_as_names <- function(
   data,
@@ -399,6 +427,7 @@ check_exclusive_args <- function(
 
 
 #' Apply a label attribute value to each column of a data frame
+#' @returns `data` with a `"label"` attribute set on each matched column.
 #' @noRd
 label_cols <- function(
   data,
@@ -416,6 +445,7 @@ label_cols <- function(
 #' Set label attribute
 #' @seealso [labelled::set_label_attribute()]
 #' @source <https://github.com/cran/labelled/blob/master/R/var_label.R>
+#' @returns `x` with a `"label"` attribute set to `value`.
 #' @noRd
 `label_attr<-` <- function(x, value) {
   attr(x, "label") <- value
@@ -433,6 +463,8 @@ utils::globalVariables(
 )
 
 # https://github.com/elipousson/cliExtras/blob/main/R/cli_yesno.R
+#' @returns Invisibly returns `NULL` if the user responds with a value in
+#'   `yes`. Otherwise, errors.
 #' @noRd
 check_yes <- function(
   prompt = NULL,
@@ -455,6 +487,8 @@ check_yes <- function(
 }
 
 # https://github.com/elipousson/cliExtras/blob/main/R/cli_ask.R
+#' @returns A string with the user's response from [readline()]. Errors if
+#'   the session is not interactive.
 #' @noRd
 cli_ask <- function(
   prompt = "?",
@@ -470,6 +504,8 @@ cli_ask <- function(
 }
 
 # https://github.com/elipousson/cliExtras/blob/main/R/utils-check.R
+#' @returns Invisibly returns `NULL` if the session is interactive.
+#'   Otherwise, errors.
 #' @noRd
 check_interactive <- function(
   ...,

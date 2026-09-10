@@ -16,6 +16,12 @@ person, group, and personorgroup. Not case sensitive.}
 
 \item{ignore_na}{If \code{TRUE}, drop any parameters with a \code{NA} value.}
 }
+\value{
+A list of named lists, one per row of \code{definitions}, each
+formatted as a columnDefinition (as created by
+\code{\link[=create_column_definition]{create_column_definition()}}) for use as the \code{fields} argument to
+\code{\link[=create_sp_list]{create_sp_list()}}.
+}
 \description{
 \code{\link[=create_column_definition_list]{create_column_definition_list()}} is a vectorized version of
 \code{\link[=create_column_definition]{create_column_definition()}} that uses a list or data frame input to create

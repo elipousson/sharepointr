@@ -41,6 +41,9 @@ list_sp_item_versions <- function(..., sp_item = NULL, as_data_frame = TRUE) {
   sp_item_versions_data
 }
 
+#' @returns `data` with list column `col` flattened and column-bound in
+#'   place, or `data` unmodified (with a warning) if `col` can't be
+#'   flattened to the same number of rows.
 #' @noRd
 fmt_sp_list_col <- function(data, col = "lastModifiedBy") {
   check_data_frame(data)

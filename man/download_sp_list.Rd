@@ -67,6 +67,9 @@ running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
+\value{
+Invisibly returns the path to the downloaded file.
+}
 \description{
 \code{\link[=download_sp_list]{download_sp_list()}} downloads a SharePoint list to a CSV or XLSX file.
 \code{keep_list_cols} is intended to allow the preservation of list columns but it

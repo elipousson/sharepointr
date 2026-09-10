@@ -33,6 +33,13 @@ appropriate Microsoft Lists column definition.}
 output from \code{create_column_definition_list()}. If \code{"table"} return a
 dataframe with the column names and types.}
 }
+\value{
+If \code{definitions_as = "definition_list"} (default), a list of
+named lists formatted as columnDefinitions for use as the \code{fields}
+argument to \code{\link[=create_sp_list]{create_sp_list()}}. If \code{definitions_as = "table"}, a data
+frame with one row per column of \code{data} describing the inferred name,
+type, and other definition properties.
+}
 \description{
 \code{\link[=data_as_column_definition_list]{data_as_column_definition_list()}} is used to create a column definition list
 based on an existing data frame. This function is used internally by

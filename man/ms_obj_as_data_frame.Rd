@@ -42,6 +42,10 @@ running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
+\value{
+A 1 row data frame with one column per scalar property of
+\code{ms_obj}, plus a list column named \code{obj_col} containing \code{ms_obj} itself.
+}
 \description{
 Convert a ms_obj object to a data frame of properties with a list column of
 objects

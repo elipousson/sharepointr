@@ -67,6 +67,9 @@ running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
+\value{
+Invisibly returns \code{NULL}.
+}
 \description{
 \code{\link[=delete_sp_item]{delete_sp_item()}} deletes items including files and directories using the
 \code{delete} method for . By default \code{confirm = TRUE}, which requires the user to

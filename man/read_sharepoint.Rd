@@ -59,6 +59,12 @@ alternative to the SharePoint site URL. Exactly one of  \code{site_url},
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
 }
+\value{
+A data frame of list items if \code{file} is a SharePoint list URL or
+\code{ms_list} object. Otherwise, the object returned by \code{.f} (if supplied),
+or by whichever reader function is selected based on the downloaded
+file's extension (see Description).
+}
 \description{
 \code{\link[=read_sharepoint]{read_sharepoint()}} is designed to download a SharePoint item to a temporary
 folder and read the file based on the file extension. If a function is

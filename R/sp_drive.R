@@ -9,6 +9,9 @@
 #'
 #' @name sp_drive
 #' @seealso [Microsoft365R::ms_drive]
+#' @returns For [get_sp_drive()], a `ms_drive` object, or the drive
+#'   properties as a named list if `properties = TRUE`. For
+#'   [cache_sp_drive()], invisibly returns `NULL`.
 #' @keywords drives
 NULL
 
@@ -140,8 +143,7 @@ get_sp_drive <- function(
 #' @name cache_sp_drive
 #' @param drive A `ms_drive` object. If `drive` is supplied, `drive_name` and
 #'   `drive_id` are ignored.
-#' @param cache_file File name for cached drive or site. Default `NULL`.
-#' @inheritParams cache_ms_obj
+#' @inheritParams cache_sp_site
 #' @export
 cache_sp_drive <- function(
   ...,
@@ -179,6 +181,9 @@ cache_sp_drive <- function(
 #' @param n Max number of drives to return
 #' @param as_data_frame If `TRUE` (default), return list as a data frame.
 #' @inheritParams get_sp_site
+#' @returns A data frame with a list column of `ms_drive` objects if
+#'   `as_data_frame = TRUE` (default), or a list of `ms_drive` objects if
+#'   `FALSE`.
 #' @export
 list_sp_drives <- function(
   ...,

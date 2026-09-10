@@ -53,6 +53,12 @@ mentioned in error messages as the source of the error. See the
 
 \item{page_url, page_id}{SharePoint page URL or ID.}
 }
+\value{
+For \code{\link[=list_sp_pages]{list_sp_pages()}}, a data frame with a list column of
+\code{ms_page} objects if \code{as_data_frame = TRUE} (default), or a list of page
+properties if \code{FALSE}. For \code{\link[=get_sp_page]{get_sp_page()}}, a named list with the
+properties of the matched sitePage.
+}
 \description{
 \code{\link[=list_sp_pages]{list_sp_pages()}} returns a list of SharePoint pages associated with a
 specified SharePoint site. \code{\link[=get_sp_page]{get_sp_page()}} returns a single SharePoint page.

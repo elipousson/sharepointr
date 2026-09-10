@@ -9,6 +9,8 @@
 #'
 #' @name sp_site
 #' @seealso [Microsoft365R::ms_site]
+#' @returns For [get_sp_site()], a `ms_site` object. For [cache_sp_site()],
+#'   invisibly returns `NULL`.
 NULL
 
 #' @rdname sp_site

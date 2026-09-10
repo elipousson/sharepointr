@@ -51,6 +51,11 @@ on using filter query parameters.}
 Defaults to \code{NULL} which sets n to \code{Inf}.}
   }}
 }
+\value{
+A list of named lists, each formatted as a columnDefinition (as
+created by \code{\link[=create_column_definition]{create_column_definition()}}) for use as the \code{fields}
+argument to \code{\link[=create_sp_list]{create_sp_list()}}.
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }

@@ -50,6 +50,11 @@ running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
+\value{
+A data frame with a list column of \code{ms_drive} objects if
+\code{as_data_frame = TRUE} (default), or a list of \code{ms_drive} objects if
+\code{FALSE}.
+}
 \description{
 \code{\link[=list_sp_drives]{list_sp_drives()}} loads a SharePoint site uses the \code{list_drives} method to
 returns a data frame with a list column or \code{ms_drive} objects or, if

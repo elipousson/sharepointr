@@ -72,6 +72,10 @@ mentioned in error messages as the source of the error. See the
 named "sharepointr.cache_dir". If "sharepointr.cache_dir" is not set, the
 cache directory is set to \code{rappdirs::user_cache_dir("sharepointr")}.}
 }
+\value{
+For \code{\link[=get_sp_site]{get_sp_site()}}, a \code{ms_site} object. For \code{\link[=cache_sp_site]{cache_sp_site()}},
+invisibly returns \code{NULL}.
+}
 \description{
 \code{\link[=get_sp_site]{get_sp_site()}} is a wrapper for \code{\link[Microsoft365R:get_sharepoint_site]{Microsoft365R::get_sharepoint_site()}} and
 returns a \code{ms_site} object. \code{\link[=cache_sp_site]{cache_sp_site()}} allows you to cache a default

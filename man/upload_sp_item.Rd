@@ -57,6 +57,10 @@ running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
+\value{
+Invisibly returns the destination path (\code{dest}) for the uploaded
+file or directory.
+}
 \description{
 \code{\link[=upload_sp_item]{upload_sp_item()}} wraps the \code{upload_folder} and \code{upload_file} method for
 \code{ms_drive} objects.

@@ -83,6 +83,11 @@ mentioned in error messages as the source of the error. See the
 \item{drive}{A \code{ms_drive} object. If \code{drive} is supplied, \code{drive_name} and
 \code{drive_id} are ignored.}
 }
+\value{
+For \code{\link[=get_sp_drive]{get_sp_drive()}}, a \code{ms_drive} object, or the drive
+properties as a named list if \code{properties = TRUE}. For
+\code{\link[=cache_sp_drive]{cache_sp_drive()}}, invisibly returns \code{NULL}.
+}
 \description{
 \code{\link[=get_sp_drive]{get_sp_drive()}} wraps the \code{get_drive} method returns a \code{ms_drive} object.
 

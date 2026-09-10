@@ -32,6 +32,8 @@ is_sp_site_page_url <- function(x) {
   is_sp_url(x) & grepl("/SitePages/", x)
 }
 
+#' @returns A logical vector the same length as `x`, `TRUE` for elements that
+#'   are SharePoint "Forms" URLs.
 #' @noRd
 is_sp_site_form_url <- function(x) {
   is_sp_url(x) & grepl("/Forms/", x)
@@ -60,6 +62,9 @@ is_sp_folder_url <- function(x) {
   is_sp_type_url(x, type = "f")
 }
 
+#' @returns A logical vector the same length as `x`, `TRUE` for elements that
+#'   are SharePoint list "webview" URLs (a list URL that isn't already
+#'   matched by [is_sp_type_url()]).
 #' @noRd
 is_sp_webview_list_url <- function(x) {
   is_webview_list <- !is_sp_type_url(x, type = "l") &

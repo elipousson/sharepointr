@@ -141,6 +141,9 @@ must be provided but not both.}
 
 \item{sp_list_item}{Optional. A SharePoint list item object to update.}
 }
+\value{
+Invisibly returns the input \code{data}, unmodified.
+}
 \description{
 Create or update list items
 }

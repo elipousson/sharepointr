@@ -31,6 +31,10 @@
 #' @inheritParams base::grep
 #' @inheritParams get_sp_drive
 #' @inheritParams get_sp_item
+#' @returns For [sp_dir_info()], a data frame with one row per file or folder
+#'   at `path`, with columns determined by `info` (`"partial"`, `"name"`, or
+#'   `"all"`). For [sp_dir_ls()], a character vector of file and folder
+#'   names or paths.
 #' @examples
 #' dir_url <- "<link to SharePoint directory or drive>"
 #'
@@ -240,11 +244,13 @@ sp_dir_info <- function(
   vctrs::vec_rbind(!!!dir_item_list, .error_call = call)
 }
 
+#' @returns An `fs_bytes` vector.
 #' @noRd
 vec_fmt_sp_item_size <- function(x) {
   fs::as_fs_bytes(as.double(x))
 }
 
+#' @returns `data` with `size_col` converted to an `fs_bytes` vector.
 #' @noRd
 fmt_sp_item_size <- function(data, size_col = "size") {
   data[[size_col]] <- vec_fmt_sp_item_size(data[[size_col]])
@@ -339,6 +345,8 @@ sp_dir_ls <- function(
 #'   )
 #' }
 #'
+#' @returns Invisibly returns the input `path` (or `path` combined with
+#'   `relative` if supplied).
 #' @keywords files
 #' @export
 #' @importFrom vctrs vec_recycle

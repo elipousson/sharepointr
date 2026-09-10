@@ -37,13 +37,17 @@
 #'
 #' @details Display as options
 #'
-#' Display as options vary by columnDefinition type. See documentation for more details:
+#' Display as options vary by columnDefinition type. See documentation for more
+#' details:
 #'
 #' - personOrGroupColumn: <https://learn.microsoft.com/en-us/graph/api/resources/personorgroupcolumn?view=graph-rest-1.0#displayas-options>
 #' - choiceColumn: <https://learn.microsoft.com/en-us/graph/api/resources/choicecolumn?view=graph-rest-1.0#properties>
 #' - numberColumn: <https://learn.microsoft.com/en-us/graph/api/resources/numbercolumn?view=graph-rest-1.0#properties>
 #' - dateTimeColumn: <https://learn.microsoft.com/en-us/graph/api/resources/datetimecolumn?view=graph-rest-1.0>
 #'
+#' @returns A named list of columnDefinition properties formatted for use as
+#'   the `fields` argument to [create_sp_list()] or as an element of the list
+#'   returned by [create_column_definition_list()].
 #' @export
 create_column_definition <- function(
   name,
@@ -393,6 +397,8 @@ create_calculated_column <- function(
 }
 
 #' Validate and format formula string
+#' @returns A string with a leading `"="` (added if missing), processed with
+#'   [glue::glue()].
 #' @noRd
 as_sp_formula <- function(
   formula,
@@ -587,6 +593,10 @@ create_term_column <- function(
 #'
 #' create_column_definition_list(definition_df)
 #'
+#' @returns A list of named lists, one per row of `definitions`, each
+#'   formatted as a columnDefinition (as created by
+#'   [create_column_definition()]) for use as the `fields` argument to
+#'   [create_sp_list()].
 #' @export
 create_column_definition_list <- function(
   definitions,
@@ -716,6 +726,11 @@ get_column_default <- function(
 #' @examples
 #' data_as_column_definition_list(mtcars)
 #'
+#' @returns If `definitions_as = "definition_list"` (default), a list of
+#'   named lists formatted as columnDefinitions for use as the `fields`
+#'   argument to [create_sp_list()]. If `definitions_as = "table"`, a data
+#'   frame with one row per column of `data` describing the inferred name,
+#'   type, and other definition properties.
 #' @keywords lists
 #' @export
 data_as_column_definition_list <- function(
@@ -820,6 +835,8 @@ data_as_column_definition_list <- function(
 
 
 #' Format the nested data frame list included in the SharePoint list metadata
+#' @returns `x` with element `key` dropped if empty for every row, otherwise
+#'   set to its non-missing values.
 #' @noRd
 fmt_sp_list_metadata_df <- function(x, key) {
   values <- vctrs::list_drop_empty(as.list(x[[key]]))
@@ -860,6 +877,9 @@ fmt_sp_list_metadata_df <- function(x, key) {
 #' `...` that can be used to get a SharePoint list to copy column definitions
 #' from.
 #' @inheritDotParams get_sp_list_metadata
+#' @returns A list of named lists, each formatted as a columnDefinition (as
+#'   created by [create_column_definition()]) for use as the `fields`
+#'   argument to [create_sp_list()].
 #' @keywords lists
 #' @export
 copy_column_definition_list <- function(sp_list = NULL, ...) {

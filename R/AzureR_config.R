@@ -14,6 +14,10 @@
 #' @inheritParams fs::dir_ls
 #' @param filename Filename to delete from configuration directory. Defaults to
 #'   "graph_logins.json". Set to `NULL` if path contains a file name.
+#' @returns For [AzureR_config_ls()], a character vector of file paths
+#'   matching `glob` in the AzureR configuration directory. For
+#'   [AzureR_config_delete()], invisibly returns the path to the deleted
+#'   file.
 NULL
 
 #' @rdname AzureR_config
@@ -32,6 +36,8 @@ AzureR_config_delete <- function(path = NULL, filename = "graph_logins.json") {
   fs::file_delete(path = str_c_fsep(AzureR_set_path(path), filename))
 }
 
+#' @returns If `path` is supplied, returns it unmodified. Otherwise, the
+#'   platform-specific default AzureR configuration directory as a string.
 #' @noRd
 AzureR_set_path <- function(path = NULL) {
   if (identical(.Platform$OS.type, "windows")) {

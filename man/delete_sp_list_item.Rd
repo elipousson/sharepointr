@@ -67,6 +67,12 @@ on using filter query parameters.}
 a basic progress bar, use a string to give it a name, or see
 \link[purrr]{progress_bars} for more details.}
 }
+\value{
+For \code{\link[=delete_sp_list_item]{delete_sp_list_item()}}, invisibly returns an empty list with
+a \code{"status"} attribute giving the HTTP response status code. For
+\code{\link[=delete_sp_list_items]{delete_sp_list_items()}}, invisibly returns a list of these responses,
+one per deleted item.
+}
 \description{
 \code{\link[=delete_sp_list_item]{delete_sp_list_item()}} deletes a single SharePoint list item and
 \code{\link[=delete_sp_list_items]{delete_sp_list_items()}} deletes multiple SharePoint list items. Set

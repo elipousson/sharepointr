@@ -131,6 +131,13 @@ included in the URL.}
 \item{column_name_type}{"name" or "displayName". Used to match column ID so
 column_name must be unique if \code{column_name_type = "displayName"}.}
 }
+\value{
+For \code{\link[=create_sp_list_column]{create_sp_list_column()}}, a named list with the newly
+created columnDefinition resource. For \code{\link[=update_sp_list_column]{update_sp_list_column()}},
+invisibly returns the input \code{sp_list}. For \code{\link[=delete_sp_list_column]{delete_sp_list_column()}}, an
+empty list with a \code{"status"} attribute giving the HTTP response status
+code.
+}
 \description{
 \code{\link[=create_sp_list_column]{create_sp_list_column()}} adds a column to a SharePoint list and
 \code{\link[=delete_sp_list_column]{delete_sp_list_column()}} removes a column to a SharePoint list.

@@ -30,6 +30,10 @@
 #' @param as_data_frame If `TRUE`, return a data frame. If `FALSE` (default),
 #'   return a `ms_item` or `ms_item_properties` object.
 #' @seealso [Microsoft365R::ms_drive_item]
+#' @returns For [get_sp_item()], a `ms_drive_item` object (or a `ms_item_properties`
+#'   object if `properties = TRUE`), or a 1 row data frame if
+#'   `as_data_frame = TRUE`. [get_sp_item_properties()] always uses
+#'   `properties = TRUE`.
 #' @examples
 #' sp_item_url <- "<SharePoint item url>"
 #'
@@ -180,6 +184,7 @@ get_sp_item_properties <- function(
 #'   Note, that this method can be slow for large folders.
 #' @inheritDotParams get_sp_item -properties
 #' @inheritParams download_sp_item
+#' @returns Invisibly returns `NULL`.
 #' @keywords items
 #' @export
 delete_sp_item <- function(
@@ -469,6 +474,8 @@ download_sp_file <- function(file, new_path = "", ..., call = caller_env()) {
 
 #' Set a file destination for a SharePoint file before downloading
 #'
+#' @returns A string combining `path` with the basename of `file` (parsed
+#'   from a SharePoint URL if needed).
 #' @noRd
 sp_file_dest <- function(file = NULL, path = tempdir()) {
   if (is_sp_url(file)) {
@@ -485,6 +492,8 @@ sp_file_dest <- function(file = NULL, path = tempdir()) {
   str_c_fsep(path, file)
 }
 
+#' @returns Invisibly returns a character vector of destination paths, one
+#'   per downloaded item.
 #' @noRd
 batch_download_sp_item <- function(
   path = NULL,
@@ -606,6 +615,7 @@ batch_download_sp_item <- function(
 #' @inheritDotParams get_sp_list
 #' @inheritParams rlang::args_error_context
 #' @inheritParams ms_obj_as_data_frame
+#' @returns Invisibly returns the path to the downloaded file.
 #' @export
 download_sp_list <- function(
   ...,

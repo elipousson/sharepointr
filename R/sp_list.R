@@ -1,5 +1,7 @@
 #' Get drive or site for list
 #'
+#' @returns A `ms_drive` object if a drive is identified by `drive`,
+#'   `drive_name`, or `drive_id`. Otherwise, a `ms_site` object.
 #' @noRd
 get_ms_list_obj <- function(
   list_name = NULL,
@@ -131,7 +133,7 @@ get_sp_list <- function(
 
   check_exclusive_strings(list_name, list_id, call = call)
 
-  hidden_lists <- c("User Information List")
+  hidden_lists <- "User Information List"
 
   if (!is.null(list_name) && !(list_name %in% hidden_lists)) {
     # FIXME: This is a work around to handle lists that have been renamed
@@ -385,6 +387,9 @@ get_sp_list_metadata <- function(
 #' the default `"Title"` column created when using the `"genericList"` template.
 #' By default, makes Title column optional.
 #' @inheritParams get_sp_site
+#' @returns For [create_sp_list()], invisibly returns a `ms_list` object for
+#'   the newly created list. For [update_sp_list()], the updated `ms_list`
+#'   object. For [delete_sp_list()], invisibly returns `NULL`.
 #' @keywords lists
 #' @export
 create_sp_list <- function(
@@ -629,6 +634,8 @@ create_list_info <- function(
 #' @param column_name,column_id Column name or ID to get a definition for.
 #' @param column_name_type "name" or "displayName". Used to match column ID so
 #' column_name must be unique if `column_name_type = "displayName"`.
+#' @returns A named list with the columnDefinition resource for the matched
+#'   column.
 #' @export
 get_sp_list_column <- function(
   sp_list = NULL,
@@ -690,6 +697,11 @@ get_sp_list_column <- function(
 #' [create_column_definition()] or a related function. Optional if `column_name`
 #' and any required additional parameters are provided.
 #' @param list_name List name. Required if `sp_list` is `NULL`.
+#' @returns For [create_sp_list_column()], a named list with the newly
+#'   created columnDefinition resource. For [update_sp_list_column()],
+#'   invisibly returns the input `sp_list`. For [delete_sp_list_column()], an
+#'   empty list with a `"status"` attribute giving the HTTP response status
+#'   code.
 #' @export
 create_sp_list_column <- function(
   sp_list = NULL,
@@ -833,6 +845,8 @@ delete_sp_list_column <- function(
   )
 }
 
+#' @returns A string with the column ID matched to `column_name`, or `NA` if
+#'   no column matches.
 #' @noRd
 sp_list_column_as_id <- function(
   column_name,

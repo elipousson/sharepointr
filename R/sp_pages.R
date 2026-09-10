@@ -10,6 +10,10 @@
 #' @param as_data_frame If `TRUE`, return a data frame with details on the
 #'   SharePoint site pages. If `FALSE`, return a list.
 #' @inheritParams rlang::args_error_context
+#' @returns For [list_sp_pages()], a data frame with a list column of
+#'   `ms_page` objects if `as_data_frame = TRUE` (default), or a list of page
+#'   properties if `FALSE`. For [get_sp_page()], a named list with the
+#'   properties of the matched sitePage.
 #' @keywords pages
 #' @export
 list_sp_pages <- function(
@@ -88,6 +92,8 @@ get_sp_page <- function(page_url = NULL, page_id = NULL, ..., site = NULL) {
 }
 
 
+#' @returns A data frame with a list column of page part objects if
+#'   `as_data_frame = TRUE` (default), or the raw list response otherwise.
 #' @noRd
 list_sp_page_parts <- function(
   page_url = NULL,

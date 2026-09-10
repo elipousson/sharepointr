@@ -29,11 +29,11 @@ URL and drive name is not part of the URL. Defaults to
     \item{\code{refresh}}{If \code{TRUE}, get a new drive even if the existing drive is
 cached as a local option. If \code{FALSE}, use the cached \code{ms_drive} object if
 it exists.}
-    \item{\code{cache_file}}{File name for cached drive or site. Default \code{NULL}.}
     \item{\code{site_url}}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL can also be parsed to build a site URL using the tenant and site name
 included in the URL.}
+    \item{\code{cache_file}}{File name for cached drive or site. Default \code{NULL}.}
     \item{\code{site}}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
     \item{\code{overwrite}}{If \code{TRUE}, replace the existing cached object named by
@@ -57,6 +57,10 @@ precedence over any file path parsed from the url.}
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
+}
+\value{
+Invisibly returns the input \code{path} (or \code{path} combined with
+\code{relative} if supplied).
 }
 \description{
 \code{\link[=sp_dir_create]{sp_dir_create()}} is a wrapper for the \code{create_folder} method that handles

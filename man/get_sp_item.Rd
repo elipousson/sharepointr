@@ -89,6 +89,12 @@ running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
+\value{
+For \code{\link[=get_sp_item]{get_sp_item()}}, a \code{ms_drive_item} object (or a \code{ms_item_properties}
+object if \code{properties = TRUE}), or a 1 row data frame if
+\code{as_data_frame = TRUE}. \code{\link[=get_sp_item_properties]{get_sp_item_properties()}} always uses
+\code{properties = TRUE}.
+}
 \description{
 \code{\link[=get_sp_item]{get_sp_item()}} wraps the \code{get_item} method for \code{ms_drive} objects and
 returns a \code{ms_drive_item} object by default. \code{\link[=get_sp_item_properties]{get_sp_item_properties()}} uses

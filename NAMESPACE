@@ -88,24 +88,30 @@ export(upload_sp_items)
 export(write_sharepoint)
 import(rlang)
 importFrom(Microsoft365R,get_sharepoint_site)
-importFrom(cli,cli_abort)
-importFrom(cli,cli_progress_along)
-importFrom(cli,cli_progress_done)
-importFrom(cli,cli_progress_message)
-importFrom(cli,cli_progress_step)
-importFrom(cli,cli_warn)
+importFrom(cli,
+  cli_abort,
+  cli_progress_along,
+  cli_progress_done,
+  cli_progress_message,
+  cli_progress_step,
+  cli_warn
+)
 importFrom(glue,glue)
 importFrom(httr2,url_parse)
 importFrom(lifecycle,deprecated)
-importFrom(stringr,str_c)
-importFrom(stringr,str_detect)
-importFrom(stringr,str_extract)
-importFrom(stringr,str_match)
-importFrom(stringr,str_remove)
-importFrom(stringr,str_remove_all)
-importFrom(stringr,str_split_i)
+importFrom(stringr,
+  str_c,
+  str_detect,
+  str_extract,
+  str_match,
+  str_remove,
+  str_remove_all,
+  str_split_i
+)
 importFrom(utils,URLdecode)
-importFrom(vctrs,list_sizes)
-importFrom(vctrs,vec_rbind)
-importFrom(vctrs,vec_recycle)
-importFrom(vctrs,vec_slice)
+importFrom(vctrs,
+  list_sizes,
+  vec_rbind,
+  vec_recycle,
+  vec_slice
+)

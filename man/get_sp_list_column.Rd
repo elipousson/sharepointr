@@ -62,6 +62,10 @@ running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
+\value{
+A named list with the columnDefinition resource for the matched
+column.
+}
 \description{
 \code{\link[=get_sp_list_column]{get_sp_list_column()}} gets a list column definition for a single column
 specified by column name or ID.

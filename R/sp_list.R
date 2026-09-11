@@ -428,6 +428,8 @@ create_sp_list <- function(
     )
   )
 
+  check_ms_site(site, call = call)
+
   cli_progress_step(
     "Creating list {.str {list_name}} with {length(columns)} column{?s}."
   )
@@ -520,6 +522,8 @@ update_sp_list <- function(
       drive = drive,
       call = call
     )
+
+  check_ms_obj(sp_list, "ms_list", call = call)
 
   list_properties <- purrr::compact(
     list(
@@ -659,15 +663,19 @@ get_sp_list_column <- function(
       call = call
     )
 
+  check_ms_obj(sp_list, "ms_list", call = call)
+
   if (!is.null(column_name) && is.null(column_id)) {
     column_id <- sp_list_column_as_id(
       column_name = column_name,
       sp_list = sp_list,
-      column_name_type = column_name_type
+      column_name_type = column_name_type,
+      call = call
     )
   } else if (!is_string(column_id)) {
     cli::cli_abort(
-      "{.arg column_id} or {.arg column_name} must be provided."
+      "{.arg column_id} or {.arg column_name} must be provided.",
+      call = call
     )
   }
 
@@ -720,6 +728,7 @@ create_sp_list_column <- function(
       as_data_frame = FALSE
     )
 
+  check_ms_obj(sp_list, "ms_list", call = call)
   # TODO: Add check for mismatch between `column_name` and
   # column_definition[["column_name"]]
 
@@ -750,15 +759,19 @@ update_sp_list_column <- function(
   site_url = NULL,
   site = NULL,
   column_definition = NULL,
-  column_name_type = "name"
+  column_name_type = "name",
+  call = caller_env()
 ) {
   sp_list <- sp_list %||%
     get_sp_list(
       list_name = list_name,
       site_url = site_url,
       site = site,
-      as_data_frame = FALSE
+      as_data_frame = FALSE,
+      call = call
     )
+
+  check_ms_obj(sp_list, "ms_list", call = call)
 
   if (is.null(column_name) && !is.null(column_definition[[column_name_type]])) {
     column_name <- column_definition[[column_name_type]]
@@ -768,11 +781,13 @@ update_sp_list_column <- function(
     column_id <- sp_list_column_as_id(
       column_name = column_name,
       sp_list = sp_list,
-      column_name_type = column_name_type
+      column_name_type = column_name_type,
+      call = call
     )
   } else if (!is_string(column_id)) {
     cli::cli_abort(
-      "{.arg column_id} or {.arg column_name} must be provided."
+      "{.arg column_id} or {.arg column_name} must be provided.",
+      call = call
     )
   }
 
@@ -813,25 +828,31 @@ delete_sp_list_column <- function(
   list_name = NULL,
   site_url = NULL,
   site = NULL,
-  column_name_type = "name"
+  column_name_type = "name",
+  call = caller_env()
 ) {
   sp_list <- sp_list %||%
     get_sp_list(
       list_name = list_name,
       site_url = site_url,
       site = site,
-      as_data_frame = FALSE
+      as_data_frame = FALSE,
+      call = call
     )
+
+  check_ms_obj(sp_list, "ms_list", call = call)
 
   if (!is.null(column_name) && is.null(column_id)) {
     column_id <- sp_list_column_as_id(
       column_name = column_name,
       sp_list = sp_list,
-      column_name_type = column_name_type
+      column_name_type = column_name_type,
+      call = call
     )
   } else if (!is_string(column_id)) {
     cli::cli_abort(
-      "{.arg column_id} or {.arg column_name} must be provided."
+      "{.arg column_id} or {.arg column_name} must be provided.",
+      call = call
     )
   }
 
@@ -860,8 +881,10 @@ sp_list_column_as_id <- function(
     error_call = call
   )
   column_info <- sp_list$get_column_info()
+  values <- column_info[[column_name_type]]
+  column_name <- arg_match(column_name, values, error_call = call)
   column_info[["id"]][
-    match(column_name, column_info[[column_name_type]])
+    match(column_name, values)
   ]
 }
 
@@ -937,24 +960,26 @@ update_sp_list_lookup_items <- function(
 ) {
   check_installed(c("dplyr", "tidyselect"), call = call)
 
-  check_string(join_column)
-  check_string(column_name)
+  check_string(join_column, call = call)
+  check_string(column_name, call = call)
 
   data <- data %||%
     get_sp_list_items(
       sp_list = sp_list,
       ...,
-      select = c(.id, join_column)
+      select = c(.id, join_column),
+      call = call
     )
 
   lookup_list_data <- lookup_list_data %||%
     get_sp_list_items(
       sp_list = lookup_list,
-      select = c(.id, join_column)
+      select = c(.id, join_column),
+      call = call
     )
 
-  check_data_frame(data)
-  check_data_frame(lookup_list_data)
+  check_data_frame(data, call = call)
+  check_data_frame(lookup_list_data, call = call)
 
   lookup_column_name <- paste0(
     column_name,
@@ -1002,7 +1027,7 @@ update_sp_list_lookup_items <- function(
 
 #' Internal SharePoint list column names
 #'
-#' Vector of internal field or column names for SharePoint lists.
+#' Length 27 of internal field or column names for SharePoint lists.
 #' Note: Not all internal columns are read-only, _ColorTag
 #' ComplianceAssetId, ContentType, and Attachments are all editable.
 #'
@@ -1015,7 +1040,9 @@ sp_list_internal_colnames <- c(
   "ContentType",
   "Created",
   "Author",
+  "AuthorLookupId",
   "Editor",
+  "EditorLookupId",
   "_UIVersionString",
   "Attachments",
   "Edit",
@@ -1030,7 +1057,9 @@ sp_list_internal_colnames <- c(
   "_ComplianceTagUserId",
   "_IsRecord",
   "AppAuthor",
-  "AppEditor"
+  "AppAuthorLookupId",
+  "AppEditor",
+  "AppEditorLookupId"
 )
 
 

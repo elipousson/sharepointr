@@ -25,7 +25,8 @@ update_sp_list_column(
   site_url = NULL,
   site = NULL,
   column_definition = NULL,
-  column_name_type = "name"
+  column_name_type = "name",
+  call = caller_env()
 )
 
 delete_sp_list_column(
@@ -35,7 +36,8 @@ delete_sp_list_column(
   list_name = NULL,
   site_url = NULL,
   site = NULL,
-  column_name_type = "name"
+  column_name_type = "name",
+  call = caller_env()
 )
 }
 \arguments{
@@ -130,6 +132,11 @@ included in the URL.}
 
 \item{column_name_type}{"name" or "displayName". Used to match column ID so
 column_name must be unique if \code{column_name_type = "displayName"}.}
+
+\item{call}{The execution environment of a currently
+running function, e.g. \code{caller_env()}. The function will be
+mentioned in error messages as the source of the error. See the
+\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \value{
 For \code{\link[=create_sp_list_column]{create_sp_list_column()}}, a named list with the newly

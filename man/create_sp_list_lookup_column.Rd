@@ -111,6 +111,11 @@ for \code{\link[=create_picture_column]{create_picture_column()}}).}
     \code{x}.
   }
   }}
+
+\item{call}{The execution environment of a currently
+running function, e.g. \code{caller_env()}. The function will be
+mentioned in error messages as the source of the error. See the
+\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \description{
 \code{\link[=create_sp_list_lookup_column]{create_sp_list_lookup_column()}} is a wrapper for \code{\link[=create_lookup_column]{create_lookup_column()}}

@@ -27,7 +27,8 @@ update_sp_list_column(
   site_url = NULL,
   site = NULL,
   column_definition = NULL,
-  column_name_type = "name"
+  column_name_type = "name",
+  call = caller_env()
 )
 
 delete_sp_list_column(
@@ -37,7 +38,8 @@ delete_sp_list_column(
   list_name = NULL,
   site_url = NULL,
   site = NULL,
-  column_name_type = "name"
+  column_name_type = "name",
+  call = caller_env()
 )
 ```
 
@@ -258,6 +260,14 @@ delete_sp_list_column(
 
   "name" or "displayName". Used to match column ID so column_name must
   be unique if `column_name_type = "displayName"`.
+
+- call:
+
+  The execution environment of a currently running function, e.g.
+  `caller_env()`. The function will be mentioned in error messages as
+  the source of the error. See the `call` argument of
+  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
+  information.
 
 ## Value
 

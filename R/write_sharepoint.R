@@ -264,7 +264,9 @@ upload_sp_items <- function(
 
   check_character(src, call = call)
 
-  if (is_url(dest) && has_length(dest, 1) || is_ms_drive_item(dest, TRUE)) {
+  if (
+    all(is_url(dest)) && has_length(dest, 1) || is_ms_drive_item(dest, TRUE)
+  ) {
     dest <- purrr::map_chr(
       src,
       \(x) {

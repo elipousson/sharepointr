@@ -323,33 +323,14 @@ get_sp_list_metadata <- function(
 
   keep <- arg_match(keep, error_call = call)
 
-  if (!as_data_frame) {
-    if (keep == "editable") {
-      sp_list_meta <- purrr::discard(
-        sp_list_meta,
-        \(x) {
-          x[["readOnly"]]
-        }
-      )
-    } else if (keep == "external") {
-      sp_list_meta <- purrr::discard(
-        sp_list_meta,
-        \(x) {
-          x[["name"]] %in% sp_list_internal_colnames
-        }
-      )
-    }
-  } else if (as_data_frame) {
-    if (keep == "editable") {
-      sp_list_meta <- sp_list_meta[!sp_list_meta[["readOnly"]], ]
-    } else if (keep == "external") {
-      sp_list_meta <- sp_list_meta[
-        !(sp_list_meta[["name"]] %in% sp_list_internal_colnames),
-      ]
-    }
+  if (keep == "all") {
+    return(sp_list_meta)
   }
 
-  sp_list_meta
+  vctrs::vec_slice(
+    sp_list_meta,
+    pull_sp_list_cols(sp_list_meta, col_type = keep, call = call)
+  )
 }
 
 #' Create, update, or delete a SharePoint List
@@ -1022,6 +1003,196 @@ update_sp_list_lookup_items <- function(
     na_fields = na_fields,
     .progress = .progress,
     call = call
+  )
+}
+
+#' Pull a named index of list columns matching a column type
+#'
+#' Find the columns described by list metadata from [get_sp_list_metadata()]
+#' that match a single type or property, e.g. all lookup columns or all
+#' required columns. Pass the result to [vctrs::vec_slice()] to subset
+#' `sp_list_meta`.
+#'
+#' @param sp_list_meta List column metadata returned by
+#'   [get_sp_list_metadata()]: either a data frame (`as_data_frame = TRUE`) or
+#'   a list with one element per column (`as_data_frame = FALSE`).
+#' @param col_type Column type or property to match:
+#'   - "hidden", "indexed", "readOnly", or "required" match columns where the
+#'     logical property of the same name is `TRUE` (`NA` is treated as
+#'     `FALSE`).
+#'   - A column type from `sp_list_col_types`, e.g. "text", "number", or
+#'     "lookup", matches columns with the column type property (facet) of the
+#'     same name. For data frame input, a column matches if the
+#'     nested facet data frame has any non-missing value for that column.
+#'     "boolean", "contentApprovalStatus", "geolocation", and "thumbnail"
+#'     columns can only be identified from list input because these facets are
+#'     empty objects (`{}`) that are dropped when the API response is
+#'     simplified to a data frame.
+#'   - "all" matches every column.
+#'   - "editable" matches columns where `readOnly` is not `TRUE`.
+#'   - "external" matches columns with a name not in
+#'     `sp_list_internal_colnames`.
+#' @param names_from Property to use for names of the returned vector. One of
+#'   "name" (default) or "displayName".
+#' @returns A named integer vector of positions in `sp_list_meta` for the
+#'   matching columns, named with the corresponding values of `names_from`.
+#'   Returns a zero-length named integer vector if no columns match or if
+#'   `sp_list_meta` lacks the metadata needed to identify `col_type`.
+#' @keywords internal
+#' @export
+pull_sp_list_cols <- function(
+  sp_list_meta,
+  col_type = c(
+    "required",
+    "hidden",
+    "indexed",
+    "readOnly",
+    "boolean",
+    "calculated",
+    "choice",
+    "contentApprovalStatus",
+    "currency",
+    "dateTime",
+    "geolocation",
+    "hyperlinkOrPicture",
+    "lookup",
+    "number",
+    "personOrGroup",
+    "term",
+    "text",
+    "thumbnail",
+    "all",
+    "editable",
+    "external"
+  ),
+  names_from = c("name", "displayName"),
+  call = caller_env()
+) {
+  if (!is.data.frame(sp_list_meta) && !is_bare_list(sp_list_meta)) {
+    stop_input_type(
+      sp_list_meta,
+      "a data frame or list",
+      arg = "sp_list_meta",
+      call = call
+    )
+  }
+
+  col_type <- arg_match(col_type, error_call = call)
+  names_from <- arg_match(names_from, error_call = call)
+
+  if (col_type %in% sp_list_col_types) {
+    col_match <- has_sp_list_col_facet(sp_list_meta, col_type, call = call)
+  } else {
+    col_match <- switch(
+      col_type,
+      all = rep_len(TRUE, vctrs::vec_size(sp_list_meta)),
+      editable = !(pluck_sp_list_meta(sp_list_meta, "readOnly") %in% TRUE),
+      external = !(pluck_sp_list_meta(sp_list_meta, "name") %in%
+        sp_list_internal_colnames),
+      pluck_sp_list_meta(sp_list_meta, col_type) %in% TRUE
+    )
+  }
+
+  col_i <- which(col_match)
+
+  set_names(
+    col_i,
+    as.character(pluck_sp_list_meta(sp_list_meta, names_from)[col_i])
+  )
+}
+
+#' Column type properties (facets) supported by `pull_sp_list_cols()`
+#'
+#' The columnDefinition type properties are mutually exclusive so each column
+#' has at most one. See:
+#' <https://learn.microsoft.com/en-us/graph/api/resources/columndefinition?view=graph-rest-1.0>
+#' @noRd
+sp_list_col_types <- c(
+  "boolean",
+  "calculated",
+  "choice",
+  "contentApprovalStatus",
+  "currency",
+  "dateTime",
+  "geolocation",
+  "hyperlinkOrPicture",
+  "lookup",
+  "number",
+  "personOrGroup",
+  "term",
+  "text",
+  "thumbnail"
+)
+
+#' Does each column in list metadata have a column type property (facet)?
+#'
+#' @param sp_list_meta A data frame or list of list column metadata.
+#' @param facet A column type property name, e.g. "lookup" or "number".
+#' @returns A logical vector with one value per column.
+#' @noRd
+has_sp_list_col_facet <- function(sp_list_meta, facet, call = caller_env()) {
+  if (!is.data.frame(sp_list_meta)) {
+    # Present facets may be empty lists, e.g. `boolean = list()`
+    return(purrr::map_lgl(sp_list_meta, \(x) !is.null(x[[facet]])))
+  }
+
+  facet_values <- sp_list_meta[[facet]]
+
+  if (is.null(facet_values)) {
+    return(rep_len(FALSE, nrow(sp_list_meta)))
+  }
+
+  if (is.data.frame(facet_values) && ncol(facet_values) == 0) {
+    cli::cli_abort(
+      c(
+        "Can't identify {.val {facet}} columns from a data frame of list \\
+        metadata.",
+        "i" = "The {.field {facet}} property has no values so it is dropped \\
+        when the API response is simplified to a data frame.",
+        "i" = "Use {.code as_data_frame = FALSE} with \\
+        {.fn get_sp_list_metadata} instead."
+      ),
+      call = call
+    )
+  }
+
+  has_facet_values(facet_values)
+}
+
+#' Does each row of a nested facet data frame (or element of a list column)
+#' have any non-missing value?
+#' @noRd
+has_facet_values <- function(x) {
+  if (is.data.frame(x)) {
+    return(
+      purrr::reduce(
+        purrr::map(x, has_facet_values),
+        `|`,
+        .init = rep_len(FALSE, nrow(x))
+      )
+    )
+  }
+
+  !purrr::map_lgl(x, \(value) is.null(value) || all(is.na(value)))
+}
+
+#' Pull a property from each column in list metadata
+#'
+#' @param sp_list_meta A data frame or list of list column metadata.
+#' @param ... Property names passed to [purrr::pluck()], e.g. `"lookup",
+#'   "columnName"` for a nested property.
+#' @returns A vector with one value per column. List inputs use `NA` for
+#'   columns missing the property. Data frame inputs return `NULL` if the
+#'   property is missing.
+#' @noRd
+pluck_sp_list_meta <- function(sp_list_meta, ...) {
+  if (is.data.frame(sp_list_meta)) {
+    return(purrr::pluck(sp_list_meta, ...))
+  }
+
+  purrr::map_vec(
+    sp_list_meta,
+    \(x) purrr::pluck(x, ..., .default = NA)
   )
 }
 

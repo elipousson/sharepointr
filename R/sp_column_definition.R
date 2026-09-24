@@ -101,24 +101,9 @@ create_column_definition <- function(
   if (!is.null(.col_type)) {
     # The type-related properties are mutually exclusive;
     # a column can only have one of them specified.
-    .col_type <- arg_match0(
+    .col_type <- arg_match(
       .col_type,
-      values = c(
-        "boolean",
-        "calculated",
-        "choice",
-        "currency",
-        "dateTime",
-        "lookup",
-        "number",
-        "personOrGroup",
-        "text",
-        "term",
-        "hyperlinkOrPicture",
-        "thumbnail",
-        "contentApprovalStatus",
-        "geolocation"
-      )
+      values = sp_list_col_types
     )
 
     params <- purrr::compact(list2(...))

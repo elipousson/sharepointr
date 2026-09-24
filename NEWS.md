@@ -16,6 +16,7 @@
 * Add `update_sp_list_lookup_items()`. (2026-05-28)
 * Add the `order_by` and `order_dir` arguments to `list_sp_list_items()`. (2026-06-05)
 * Add support for `ms_drive_item` inputs for `dest` argument of `upload_sp_item()` and `upload_sp_items()`. (2026-06-12)
+* Add `pull_sp_list_cols()` (internal) to get a named index of list columns from `get_sp_list_metadata()` output matching a column type (e.g. "lookup" or "choice"), a column property (e.g. "required" or "hidden"), or a `keep` value ("all", "editable", or "external"). Supports both data frame and list metadata; `get_sp_list_metadata()` now uses it to filter columns. (2026-09-24)
 * Add support for updating list fields with multi-choice (checkbox) values — `update_sp_list_item()`/`create_sp_list_item()` now append @odata.type Collection hints so the Graph API accepts multi-value fields.
 * Allow `delete_sp_list_item()`/`delete_sp_list_items()` to accept a data frame for `item_id` (uses its id column).
 

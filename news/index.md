@@ -60,6 +60,16 @@
   and
   [`upload_sp_items()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md).
   (2026-06-12)
+- Add
+  [`pull_sp_list_cols()`](https://elipousson.github.io/sharepointr/reference/pull_sp_list_cols.md)
+  (internal) to get a named index of list columns from
+  [`get_sp_list_metadata()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
+  output matching a column type (e.g. “lookup” or “choice”), a column
+  property (e.g. “required” or “hidden”), or a `keep` value (“all”,
+  “editable”, or “external”). Supports both data frame and list
+  metadata;
+  [`get_sp_list_metadata()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
+  now uses it to filter columns. (2026-09-24)
 - Add support for updating list fields with multi-choice (checkbox)
   values —
   [`update_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)/[`create_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_item.md)

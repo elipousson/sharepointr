@@ -4,7 +4,13 @@
 \alias{create_sp_list_item}
 \title{Alternate syntax for create list item}
 \usage{
-create_sp_list_item(..., .sp_list = NULL, .fields = NULL, .keep_na = FALSE)
+create_sp_list_item(
+  ...,
+  .sp_list = NULL,
+  .fields = NULL,
+  .keep_na = FALSE,
+  .multi_fields = NULL
+)
 }
 \arguments{
 \item{...}{Ignored if .fields is supplied.}
@@ -12,6 +18,11 @@ create_sp_list_item(..., .sp_list = NULL, .fields = NULL, .keep_na = FALSE)
 \item{.sp_list}{A \code{ms_list} object.}
 
 \item{.fields}{A named list or single row data frame.}
+
+\item{.multi_fields}{Optional. Names of multi-value (Collection) fields, such
+as multi-select choice columns, that should always be sent as an array with
+an \code{"@odata.type"} annotation. If \code{NULL}, only fields with a length other
+than 1 are treated as multi-value fields.}
 }
 \description{
 \code{\link[=create_sp_list_item]{create_sp_list_item()}} is an alternative to the \code{create_item} method for

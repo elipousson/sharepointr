@@ -60,6 +60,7 @@ update_sp_list_item(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
+  .multi_fields = NULL,
   call = caller_env()
 )
 }
@@ -127,9 +128,10 @@ mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{na_fields}{How to handle \code{NA} fields in input data. One of \code{"drop"}
-(remove \code{NA} fields before updating list items, leaving existing values in
+(remove \code{NA} and empty fields, e.g. a multi-select value of
+\code{character(0)}, before updating list items, leaving existing values in
 place) or \code{"replace"} (overwrite existing list values with new replacement
-NA values).}
+NA values or, for multi-value fields, an empty selection).}
 
 \item{drop_fields}{Column names to drop from \code{data} even if they are listed
 as editable fields. Defaults to \code{c("ContentType", "Attachments")}}
@@ -140,6 +142,12 @@ as editable fields. Defaults to \code{c("ContentType", "Attachments")}}
 must be provided but not both.}
 
 \item{sp_list_item}{Optional. A SharePoint list item object to update.}
+
+\item{.multi_fields}{Optional. Names of multi-value (Collection) fields, such
+as multi-select choice columns, that should always be sent as an array with
+an \code{"@odata.type"} annotation. If \code{NULL} and \code{sp_list} is available, field
+names are found from the list column definitions. Otherwise, only fields
+with a length other than 1 are treated as multi-value fields.}
 }
 \value{
 Invisibly returns the input \code{data}, unmodified.

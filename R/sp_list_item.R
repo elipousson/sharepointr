@@ -636,13 +636,7 @@ create_sp_list_items <- function(
     )
 
   # Coerce sf column to WKT
-  if (inherits(data, "sf")) {
-    check_installed("sf")
-    sf_column <- attributes(data)[["sf_column"]]
-    wkt <- sf::st_as_text(data[[sf_column]])
-    data <- sf::st_drop_geometry(data)
-    data[[sf_column]] <- wkt
-  }
+  data <- sfc_cols_as_wkt(data)
 
   if (allow_display_nm) {
     # FIXME: Figure out why this errors for some input data
@@ -674,6 +668,10 @@ create_sp_list_items <- function(
     return(data)
   }
 
+  # Multi-value (Collection) columns need an "@odata.type" annotation even when
+  # a single value is selected
+  multi_fields <- pull_sp_list_multi_cols(sp_list = sp_list)
+
   cli_progress_step(
     "Importing {.arg data} into list"
   )
@@ -685,12 +683,14 @@ create_sp_list_items <- function(
         fn(
           .sp_list = .sp_list,
           .fields = .fields[i, , drop = FALSE],
+          .multi_fields = .multi_fields,
           call = call
         )
       },
       fn = create_sp_list_item,
       .sp_list = sp_list,
       .fields = data,
+      .multi_fields = multi_fields,
       call = call
     ),
     .progress = .progress
@@ -853,6 +853,9 @@ update_sp_list_items <- function(
     )
   }
 
+  # Coerce sf column to WKT (consistent with create_sp_list_items())
+  data <- sfc_cols_as_wkt(data)
+
   update_data <- data
   item_ids <- data[[.id]]
   update_data[[.id]] <- NULL
@@ -864,6 +867,10 @@ update_sp_list_items <- function(
       drop_fields = drop_fields
     )
   }
+
+  # Multi-value (Collection) columns need an "@odata.type" annotation even when
+  # a single value is selected
+  multi_fields <- pull_sp_list_multi_cols(sp_list = sp_list)
 
   purrr::map(
     seq_along(item_ids),
@@ -877,6 +884,7 @@ update_sp_list_items <- function(
           na_fields = na_fields,
           item_id = item_id[[i]],
           sp_list = sp_list,
+          .multi_fields = .multi_fields,
           call = call
         )
       },
@@ -885,6 +893,7 @@ update_sp_list_items <- function(
       na_fields = na_fields,
       x = update_data,
       sp_list = sp_list,
+      .multi_fields = multi_fields,
       call = call
     ),
     .progress = .progress
@@ -921,12 +930,18 @@ replace_with_sp_list_display_names <- function(
 #' must be provided but not both.
 #' @param .data A list or data frame with fields to update.
 #' @param na_fields How to handle `NA` fields in input data. One of `"drop"`
-#'   (remove `NA` fields before updating list items, leaving existing values in
+#'   (remove `NA` and empty fields, e.g. a multi-select value of
+#'   `character(0)`, before updating list items, leaving existing values in
 #'   place) or `"replace"` (overwrite existing list values with new replacement
-#'   NA values).
+#'   NA values or, for multi-value fields, an empty selection).
 #' @param .id Column or element name with `item_item` value in `data`. Allows
 #' users to pass a modified version of the list item data with the id column and
 #'  any updated columns.
+#' @param .multi_fields Optional. Names of multi-value (Collection) fields, such
+#'   as multi-select choice columns, that should always be sent as an array with
+#'   an `"@odata.type"` annotation. If `NULL` and `sp_list` is available, field
+#'   names are found from the list column definitions. Otherwise, only fields
+#'   with a length other than 1 are treated as multi-value fields.
 #' @keywords lists
 #' @export
 update_sp_list_item <- function(
@@ -946,6 +961,7 @@ update_sp_list_item <- function(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
+  .multi_fields = NULL,
   call = caller_env()
 ) {
   # TODO: Allow option to get id from .data
@@ -958,6 +974,9 @@ update_sp_list_item <- function(
       call = call
     )
   }
+
+  # Coerce sf column to WKT (consistent with create_sp_list_items())
+  .data <- sfc_cols_as_wkt(.data)
 
   # NOTE: This is not type stable since the output will be converted to a list
   # and drop or replace NA values
@@ -982,19 +1001,20 @@ update_sp_list_item <- function(
     .data <- as.list(.data)
   }
 
+  # Unwrap list-column values (e.g. multi-select choice values) so each field
+  # is a vector instead of a length 1 list
+  .data <- unwrap_list_fields(.data)
+
   # Drop or replace NA fields
   na_fields <- arg_match(na_fields, error_call = call)
 
   if (na_fields == "drop") {
-    .data <- vctrs::vec_slice(
-      .data,
-      i = !is.na(.data)
-    )
+    .data <- drop_na_fields(.data)
 
     if (has_length(.data, 1) && has_name(.data, "id") || is_empty(.data)) {
       cli::cli_bullets(
         c(
-          "!" = "{.arg .data} is empty after dropping `NA` values.",
+          "!" = "{.arg .data} is empty after dropping `NA` and empty values.",
           "Item can't be updated."
         )
       )
@@ -1034,6 +1054,9 @@ update_sp_list_item <- function(
 
     check_ms_obj(sp_list, "ms_list", call = call)
 
+    .multi_fields <- .multi_fields %||%
+      pull_sp_list_multi_cols(sp_list = sp_list)
+
     if (check_fields) {
       update_data <- suppressMessages(
         validate_sp_list_data_fields(
@@ -1053,7 +1076,10 @@ update_sp_list_item <- function(
 
   # Append "@odata.type" fields so multi-value (Collection) columns are
   # recognized by the Graph API
-  update_data <- append_field_odata_types(update_data)
+  update_data <- append_field_odata_types(
+    update_data,
+    multi_fields = .multi_fields
+  )
 
   if (!is.null(sp_list)) {
     cli_progress_step(
@@ -1094,48 +1120,159 @@ update_sp_list_item <- function(
 
 #' Append "@odata.type" fields for multi-value (Collection) fields
 #'
-#' Adds a sibling `"{name}@odata.type"` entry for any field with a value of
-#' length greater than 1 so the Graph API recognizes the field as a
-#' Collection instead of a scalar.
+#' Adds a sibling `"{name}@odata.type"` entry for any field named in
+#' `multi_fields` or with a value of length other than 1 so the Graph API
+#' recognizes the field as a Collection instead of a scalar. Multi-value field
+#' values are converted to lists so they are serialized as JSON arrays (even
+#' with a single value) when the request body is created with `auto_unbox =
+#' TRUE`.
 #' <https://learn.microsoft.com/en-us/rest/api/searchservice/supported-data-types#edm-data-types-for-nonvector-fields>
-#' @returns `fields` unmodified if no element has length greater than 1.
-#'   Otherwise, `fields` with a `"{name}@odata.type"` element appended for
-#'   each multi-value field.
+#' @param multi_fields Optional. Names of fields to always treat as multi-value
+#'   fields.
+#' @returns `fields` unmodified if no element is a multi-value field.
+#'   Otherwise, `fields` with multi-value field values converted to lists and a
+#'   `"{name}@odata.type"` element appended for each multi-value field.
 #' @noRd
-append_field_odata_types <- function(fields) {
-  multi_fields <- purrr::discard(
-    fields,
+append_field_odata_types <- function(fields, multi_fields = NULL) {
+  is_multi <- (names(fields) %in% multi_fields) |
+    purrr::map_lgl(
+      fields,
+      \(x) {
+        !is.null(x) && !has_length(x, 1)
+      }
+    )
+
+  if (!any(is_multi)) {
+    return(fields)
+  }
+
+  # NA values can't be included in a Collection so all NA values (e.g. from
+  # `na_fields = "replace"`) are replaced with an empty Collection
+  multi_values <- purrr::map(
+    fields[is_multi],
     \(x) {
-      has_length(x, 1)
+      if (is.null(x) || all(is.na(x))) {
+        return(character(0))
+      }
+
+      x[!is.na(x)]
     }
   )
 
-  if (!has_length(multi_fields)) {
-    return(fields)
-  }
+  odata_types <- purrr::map(
+    multi_values,
+    \(x) {
+      # TODO: Add support for additional Collection types
+      if (is.character(x) || is.factor(x)) {
+        "Collection(Edm.String)"
+      } else if (is.numeric(x)) {
+        "Collection(Edm.Int32)"
+      } else if (is.logical(x)) {
+        "Collection(Edm.Boolean)"
+      }
+    }
+  )
+
+  fields[is_multi] <- purrr::map(multi_values, as.list)
 
   c(
     fields,
     set_names(
-      purrr::map(
-        multi_fields,
-        \(x) {
-          # TODO: Add support for additional Collection types
-          if (is.character(x)) {
-            "Collection(Edm.String)"
-          } else if (is.numeric(x)) {
-            "Collection(Edm.Int32)"
-          } else if (is.logical(x)) {
-            "Collection(Edm.Boolean)"
-          }
-        }
-      ),
+      odata_types,
       paste0(
-        names(multi_fields),
+        names(multi_values),
         "@odata.type"
       )
     )
   )
+}
+
+#' Drop `NA` and empty fields
+#'
+#' Used by [update_sp_list_item()] when `na_fields = "drop"` so existing list
+#' values are left in place for fields that are `NULL`, `NA`, all `NA` (for
+#' multi-value fields), or empty (e.g. a multi-select value of `character(0)`).
+#' @returns `fields` with any `NULL`, empty, or all `NA` elements removed.
+#' @noRd
+drop_na_fields <- function(fields) {
+  purrr::discard(
+    fields,
+    \(x) {
+      is.null(x) || all(is.na(x))
+    }
+  )
+}
+
+#' Unwrap list-column values from a single row data frame
+#'
+#' Converting a single row of a data frame with a list-column to a list returns
+#' each list-column value as a length 1 list (e.g. `list(c("A", "B"))`). This
+#' unwraps those values (e.g. to `c("A", "B")`) so they can be recognized as
+#' multi-value fields and serialized as a JSON array instead of a nested array.
+#' `sfc` columns are not unwrapped and should be converted with
+#' `sfc_cols_as_wkt()` first.
+#' @returns `fields` with any length 1 list values replaced by their contents.
+#' @noRd
+unwrap_list_fields <- function(fields) {
+  is_wrapped <- purrr::map_lgl(
+    fields,
+    \(x) {
+      is.list(x) &&
+        !is.data.frame(x) &&
+        !inherits(x, "sfc") &&
+        has_length(x, 1)
+    }
+  )
+
+  if (!any(is_wrapped)) {
+    return(fields)
+  }
+
+  fields[is_wrapped] <- purrr::map(fields[is_wrapped], \(x) x[[1]])
+  fields
+}
+
+#' Convert sfc columns to well-known text
+#'
+#' Converts any `sfc` column (including the active geometry column of an `sf`
+#' object) in a data frame or list to a character vector of well-known text
+#' (WKT) so geometry can be written to a SharePoint text column.
+#' @returns `data` with any `sfc` columns converted to character vectors and
+#'   the `sf` class dropped.
+#' @noRd
+sfc_cols_as_wkt <- function(data) {
+  is_sfc <- purrr::map_lgl(data, \(x) inherits(x, "sfc"))
+
+  if (!any(is_sfc)) {
+    return(data)
+  }
+
+  check_installed("sf")
+
+  wkt <- purrr::map(data[is_sfc], sf::st_as_text)
+
+  if (inherits(data, "sf")) {
+    data <- sf::st_drop_geometry(data)
+  }
+
+  data[names(wkt)] <- wkt
+  data
+}
+
+#' Get the names of multi-value (Collection) columns for a SharePoint list
+#'
+#' Names use the same convention as list item data (e.g. "{name}LookupId" for
+#' lookup and personOrGroup columns).
+#' @returns A character vector of column names for columns that allow multiple
+#'   values.
+#' @noRd
+pull_sp_list_multi_cols <- function(sp_list = NULL, col_metadata = NULL) {
+  col_metadata <- sp_list_ptype_col_metadata(
+    sp_list = sp_list,
+    col_metadata = col_metadata
+  )
+
+  names(purrr::keep(col_metadata, sp_list_col_is_multi)) %||% character(0)
 }
 
 #' Alternate syntax for create list item
@@ -1148,13 +1285,18 @@ append_field_odata_types <- function(fields) {
 #' @param .sp_list A `ms_list` object.
 #' @param .fields A named list or single row data frame.
 #' @param ... Ignored if .fields is supplied.
+#' @param .multi_fields Optional. Names of multi-value (Collection) fields, such
+#'   as multi-select choice columns, that should always be sent as an array with
+#'   an `"@odata.type"` annotation. If `NULL`, only fields with a length other
+#'   than 1 are treated as multi-value fields.
 #' @keywords internal
 #' @export
 create_sp_list_item <- function(
   ...,
   .sp_list = NULL,
   .fields = NULL,
-  .keep_na = FALSE
+  .keep_na = FALSE,
+  .multi_fields = NULL
 ) {
   if (!is.null(.fields) && is.data.frame(.fields)) {
     stopifnot(nrow(.fields) == 1)
@@ -1162,6 +1304,13 @@ create_sp_list_item <- function(
   }
 
   .fields <- .fields %||% rlang::list2(...)
+
+  # Coerce sf column to WKT (consistent with create_sp_list_items())
+  .fields <- sfc_cols_as_wkt(.fields)
+
+  # Unwrap list-column values (e.g. multi-select choice values) so each field
+  # is a vector instead of a length 1 list
+  .fields <- unwrap_list_fields(.fields)
 
   if (!.keep_na) {
     # Required for numeric fields
@@ -1182,7 +1331,7 @@ create_sp_list_item <- function(
   # API body is serialized
   .fields <- purrr::map(.fields, .sp_dttm_to_graph)
 
-  .fields <- append_field_odata_types(.fields)
+  .fields <- append_field_odata_types(.fields, multi_fields = .multi_fields)
 
   # TODO: Add check if data in .fields matches schema from list
 

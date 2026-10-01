@@ -28,6 +28,140 @@ test_that(".sp_dttm_to_graph() formats POSIXct/Date as unambiguous UTC strings",
   expect_identical(.sp_dttm_to_graph(42), 42)
 })
 
+test_that("append_field_odata_types() annotates multi-value fields from list-column rows", {
+  data <- tibble::tibble(
+    id = c("1", "2", "3"),
+    Title = c("A", "B", "C"),
+    Choices = list(c("Choice 1", "Choice 2"), "Choice 3", character(0))
+  )
+
+  # Build the request body the same way as update_sp_list_item() and
+  # AzureGraph::call_graph_url()
+  as_body_json <- function(i, multi_fields = NULL) {
+    fields <- as.list(vctrs::vec_slice(data, i))
+    fields[["id"]] <- NULL
+    fields <- unwrap_list_fields(fields)
+    fields <- append_field_odata_types(fields, multi_fields = multi_fields)
+    as.character(jsonlite::toJSON(list(fields = fields), auto_unbox = TRUE))
+  }
+
+  # List-column values are unwrapped so they aren't sent as nested arrays
+  expect_identical(
+    as_body_json(1),
+    '{"fields":{"Title":"A","Choices":["Choice 1","Choice 2"],"Choices@odata.type":"Collection(Edm.String)"}}'
+  )
+
+  # Single values are only sent as a Collection for known multi-value fields
+  expect_identical(
+    as_body_json(2),
+    '{"fields":{"Title":"B","Choices":"Choice 3"}}'
+  )
+  expect_identical(
+    as_body_json(2, multi_fields = "Choices"),
+    '{"fields":{"Title":"B","Choices":["Choice 3"],"Choices@odata.type":"Collection(Edm.String)"}}'
+  )
+
+  # Empty selections are sent as an empty Collection
+  expect_identical(
+    as_body_json(3, multi_fields = "Choices"),
+    '{"fields":{"Title":"C","Choices":[],"Choices@odata.type":"Collection(Edm.String)"}}'
+  )
+
+  # NA values for a multi-value field are replaced with an empty Collection
+  expect_identical(
+    append_field_odata_types(list(Choices = NA), multi_fields = "Choices"),
+    list(Choices = list(), `Choices@odata.type` = "Collection(Edm.String)")
+  )
+
+  # Fields without multiple values are returned unmodified
+  expect_identical(
+    append_field_odata_types(list(Title = "A", Number = 1)),
+    list(Title = "A", Number = 1)
+  )
+
+  # Numeric multi-value (e.g. lookup) fields use Int32 Collections
+  expect_identical(
+    append_field_odata_types(list(LookupLookupId = c(1, 2))),
+    list(
+      LookupLookupId = list(1, 2),
+      `LookupLookupId@odata.type` = "Collection(Edm.Int32)"
+    )
+  )
+})
+
+test_that("unwrap_list_fields() and sfc_cols_as_wkt() prepare list item fields", {
+  expect_identical(
+    unwrap_list_fields(list(Title = "A", Choices = list(c("B", "C")))),
+    list(Title = "A", Choices = c("B", "C"))
+  )
+
+  skip_if_not_installed("sf")
+
+  data <- sf::st_sf(
+    id = "1",
+    Choices = I(list(c("B", "C"))),
+    geometry = sf::st_sfc(sf::st_point(c(1, 2)))
+  )
+
+  # sf data frames have the geometry column converted to WKT
+  wkt_data <- sfc_cols_as_wkt(data)
+  expect_false(inherits(wkt_data, "sf"))
+  expect_identical(wkt_data[["geometry"]], "POINT (1 2)")
+
+  # sfc list elements are converted to WKT instead of being unwrapped
+  fields <- as.list(sf::st_drop_geometry(data))
+  fields[["geometry"]] <- data[["geometry"]]
+  fields <- unwrap_list_fields(sfc_cols_as_wkt(fields))
+
+  expect_identical(fields[["geometry"]], "POINT (1 2)")
+  expect_identical(fields[["Choices"]], c("B", "C"))
+})
+
+test_that("drop_na_fields() drops NA and empty fields", {
+  expect_identical(
+    drop_na_fields(
+      list(
+        id = "1",
+        Title = NA,
+        Empty = character(0),
+        AllNA = c(NA, NA),
+        Null = NULL,
+        Choices = c("A", NA)
+      )
+    ),
+    list(id = "1", Choices = c("A", NA))
+  )
+
+  # Items with no fields left after dropping NA and empty values aren't updated
+  expect_message(
+    update_sp_list_item(
+      .data = tibble::tibble(id = "1", Choices = list(character(0))),
+      list_name = "unused"
+    ),
+    "empty after dropping"
+  )
+})
+
+test_that("pull_sp_list_multi_cols() finds multi-value columns", {
+  col_metadata <- list(
+    list(name = "Title", text = list(allowMultipleLines = FALSE)),
+    list(name = "Choice", choice = list(displayAs = "dropDownMenu")),
+    list(name = "MultiChoice", choice = list(displayAs = "checkBoxes")),
+    list(name = "Lookup", lookup = list(allowMultipleValues = TRUE)),
+    list(name = "Person", personOrGroup = list(allowMultipleSelection = FALSE))
+  )
+
+  expect_identical(
+    pull_sp_list_multi_cols(col_metadata = col_metadata),
+    c("MultiChoice", "LookupLookupId")
+  )
+
+  expect_identical(
+    pull_sp_list_multi_cols(col_metadata = col_metadata[1:2]),
+    character(0)
+  )
+})
+
 list_url <- "https://bmore.sharepoint.com/:l:/r/sites/DOP-CIP/Lists/TestList_20260805?e=uZdGwe"
 
 test_that("create_sp_list_item, update_sp_list_item, and delete_sp_list_item work", {

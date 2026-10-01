@@ -22,6 +22,7 @@
 
 ## Fixes
 
+* Fix multi-select (multi-value) fields when creating or updating list items from a data frame with list-columns: `create_sp_list_items()`/`update_sp_list_items()` now unwrap list-column values, use list column definitions to send single or empty selections for multi-value columns as a Collection, and convert `sfc` columns to WKT for updates as well as creates. `na_fields = "drop"` now also drops empty values (e.g. `character(0)`) so existing values are left in place. (2026-10-01)
 * Fix bug where `get_sp_list_item()` only returned item ID, not the `Microsoft365R::ms_list_item` object (2024-08-10)
 * Fix bug where `read_sharepoint()` used `readr::read_lines()` for PowerPoint files. (2024-10-10)
 * Fix `upload_sp_item()` overwrite check validating against the source filename instead of the actual destination filename when dest renames the file.

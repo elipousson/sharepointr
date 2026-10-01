@@ -54,7 +54,13 @@ for number columns.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">create_sp_list_item</span><span class="op">(</span><span class="va">...</span>, .sp_list <span class="op">=</span> <span class="cn">NULL</span>, .fields <span class="op">=</span> <span class="cn">NULL</span>, .keep_na <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">create_sp_list_item</span><span class="op">(</span></span>
+<span>  <span class="va">...</span>,</span>
+<span>  .sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  .fields <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  .keep_na <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  .multi_fields <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -71,6 +77,13 @@ for number columns.</p>
 
 <dt id="arg--fields">.fields<a class="anchor" aria-label="anchor" href="#arg--fields"></a></dt>
 <dd><p>A named list or single row data frame.</p></dd>
+
+
+<dt id="arg--multi-fields">.multi_fields<a class="anchor" aria-label="anchor" href="#arg--multi-fields"></a></dt>
+<dd><p>Optional. Names of multi-value (Collection) fields, such
+as multi-select choice columns, that should always be sent as an array with
+an <code>"@odata.type"</code> annotation. If <code>NULL</code>, only fields with a length other
+than 1 are treated as multi-value fields.</p></dd>
 
 </dl></div>
 

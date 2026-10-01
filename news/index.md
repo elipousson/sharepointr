@@ -78,9 +78,44 @@
 - Allow
   [`delete_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)/[`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
   to accept a data frame for `item_id` (uses its id column).
+- Allow
+  [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  to accept an unnamed list of named lists (one record per item, each
+  with an `.id` element) as well as a data frame. Fields missing from a
+  record are left unchanged. (2026-10-01)
+- Allow
+  [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
+  to accept an unnamed list of named lists (one record per item) for
+  `item_id`. Add a `.id` argument to
+  [`delete_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
+  and
+  [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
+  to set the id column or element name. (2026-10-01)
 
 ### Fixes
 
+- Fix
+  [`delete_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
+  erroring with a data frame `item_id` (the id value is now pulled from
+  the data frame before checking arguments and getting the list item).
+  (2026-10-01)
+- Fix
+  [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  validating fields again for every item: fields are now validated once
+  per call, so `check_fields = FALSE` is respected, and list column
+  metadata is requested once per call (and shared for field validation
+  and identifying multi-value fields) instead of for each item.
+  [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  also shares a single list column metadata request for field validation
+  and identifying multi-value fields. (2026-10-01)
+- Fix multi-select (multi-value) fields when creating or updating list
+  items from a data frame with list-columns:
+  [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)/[`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  now unwrap list-column values, use list column definitions to send
+  single or empty selections for multi-value columns as a Collection,
+  and convert `sfc` columns to WKT for updates as well as creates.
+  `na_fields = "drop"` now also drops empty values (e.g. `character(0)`)
+  so existing values are left in place. (2026-10-01)
 - Fix bug where
   [`get_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md)
   only returned item ID, not the

@@ -11,7 +11,13 @@ broken for number columns.
 ## Usage
 
 ``` r
-create_sp_list_item(..., .sp_list = NULL, .fields = NULL, .keep_na = FALSE)
+create_sp_list_item(
+  ...,
+  .sp_list = NULL,
+  .fields = NULL,
+  .keep_na = FALSE,
+  .multi_fields = NULL
+)
 ```
 
 ## Arguments
@@ -27,3 +33,10 @@ create_sp_list_item(..., .sp_list = NULL, .fields = NULL, .keep_na = FALSE)
 - .fields:
 
   A named list or single row data frame.
+
+- .multi_fields:
+
+  Optional. Names of multi-value (Collection) fields, such as
+  multi-select choice columns, that should always be sent as an array
+  with an `"@odata.type"` annotation. If `NULL`, only fields with a
+  length other than 1 are treated as multi-value fields.

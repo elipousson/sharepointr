@@ -11,6 +11,7 @@ delete_sp_list_item(
   item_id = NULL,
   sp_list_item = NULL,
   ...,
+  .id = "id",
   list_name = NULL,
   list_id = NULL,
   sp_list = NULL,
@@ -23,6 +24,7 @@ delete_sp_list_item(
 delete_sp_list_items(
   item_id = NULL,
   ...,
+  .id = "id",
   sp_list = NULL,
   filter = NULL,
   confirm = TRUE,
@@ -36,7 +38,10 @@ delete_sp_list_items(
 - item_id:
 
   ID value for list item or items to delete. `item_id` can also be a
-  data frame with a column named "id".
+  data frame with a column named with the `.id` value. For
+  `delete_sp_list_items()`, `item_id` can also be an unnamed list of
+  named lists (one per item) where each record includes an element named
+  with the `.id` value.
 
 - sp_list_item:
 
@@ -48,6 +53,11 @@ delete_sp_list_items(
   [`get_sp_site()`](https://elipousson.github.io/sharepointr/reference/sp_site.md)
   or
   [`Microsoft365R::get_sharepoint_site()`](https://rdrr.io/pkg/Microsoft365R/man/client.html).
+
+- .id:
+
+  Name of column (if `item_id` is a data frame) or element (if `item_id`
+  is a list of records) to use for item ID values. Defaults to "id".
 
 - list_name, list_id:
 

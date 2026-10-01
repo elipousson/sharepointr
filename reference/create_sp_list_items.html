@@ -98,6 +98,7 @@
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  .multi_fields <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -109,7 +110,10 @@
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>Required. A data frame to import as items to the supplied or
 identified SharePoint list. If data is an sf object, the geometry column is
-coerced to text using <code><a href="https://r-spatial.github.io/sf/reference/st_as_text.html" class="external-link">sf::st_as_text()</a></code>.</p></dd>
+coerced to text using <code><a href="https://r-spatial.github.io/sf/reference/st_as_text.html" class="external-link">sf::st_as_text()</a></code>. For <code>update_sp_list_items()</code>,
+<code>data</code> can also be an unnamed list of named lists (one per item) where each
+record includes an <code>.id</code> element. Unlike a data frame, any field missing
+from a record is left unchanged, even when <code>na_fields = "replace"</code>.</p></dd>
 
 
 <dt id="arg-list-name-list-id">list_name, list_id<a class="anchor" aria-label="anchor" href="#arg-list-name-list-id"></a></dt>
@@ -202,9 +206,10 @@ mentioned in error messages as the source of the error. See the
 
 <dt id="arg-na-fields">na_fields<a class="anchor" aria-label="anchor" href="#arg-na-fields"></a></dt>
 <dd><p>How to handle <code>NA</code> fields in input data. One of <code>"drop"</code>
-(remove <code>NA</code> fields before updating list items, leaving existing values in
+(remove <code>NA</code> and empty fields, e.g. a multi-select value of
+<code>character(0)</code>, before updating list items, leaving existing values in
 place) or <code>"replace"</code> (overwrite existing list values with new replacement
-NA values).</p></dd>
+NA values or, for multi-value fields, an empty selection).</p></dd>
 
 
 <dt id="arg-drop-fields">drop_fields<a class="anchor" aria-label="anchor" href="#arg-drop-fields"></a></dt>
@@ -223,6 +228,14 @@ must be provided but not both.</p></dd>
 
 <dt id="arg-sp-list-item">sp_list_item<a class="anchor" aria-label="anchor" href="#arg-sp-list-item"></a></dt>
 <dd><p>Optional. A SharePoint list item object to update.</p></dd>
+
+
+<dt id="arg--multi-fields">.multi_fields<a class="anchor" aria-label="anchor" href="#arg--multi-fields"></a></dt>
+<dd><p>Optional. Names of multi-value (Collection) fields, such
+as multi-select choice columns, that should always be sent as an array with
+an <code>"@odata.type"</code> annotation. If <code>NULL</code> and <code>sp_list</code> is available, field
+names are found from the list column definitions. Otherwise, only fields
+with a length other than 1 are treated as multi-value fields.</p></dd>
 
 </dl></div>
     <div class="section level2">

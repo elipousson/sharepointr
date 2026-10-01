@@ -58,6 +58,7 @@ update_sp_list_item(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
+  .multi_fields = NULL,
   call = caller_env()
 )
 ```
@@ -70,6 +71,10 @@ update_sp_list_item(
   identified SharePoint list. If data is an sf object, the geometry
   column is coerced to text using
   [`sf::st_as_text()`](https://r-spatial.github.io/sf/reference/st_as_text.html).
+  For `update_sp_list_items()`, `data` can also be an unnamed list of
+  named lists (one per item) where each record includes an `.id`
+  element. Unlike a data frame, any field missing from a record is left
+  unchanged, even when `na_fields = "replace"`.
 
 - list_name, list_id:
 
@@ -166,9 +171,10 @@ update_sp_list_item(
 - na_fields:
 
   How to handle `NA` fields in input data. One of `"drop"` (remove `NA`
-  fields before updating list items, leaving existing values in place)
-  or `"replace"` (overwrite existing list values with new replacement NA
-  values).
+  and empty fields, e.g. a multi-select value of `character(0)`, before
+  updating list items, leaving existing values in place) or `"replace"`
+  (overwrite existing list values with new replacement NA values or, for
+  multi-value fields, an empty selection).
 
 - drop_fields:
 
@@ -187,6 +193,15 @@ update_sp_list_item(
 - sp_list_item:
 
   Optional. A SharePoint list item object to update.
+
+- .multi_fields:
+
+  Optional. Names of multi-value (Collection) fields, such as
+  multi-select choice columns, that should always be sent as an array
+  with an `"@odata.type"` annotation. If `NULL` and `sp_list` is
+  available, field names are found from the list column definitions.
+  Otherwise, only fields with a length other than 1 are treated as
+  multi-value fields.
 
 ## Value
 

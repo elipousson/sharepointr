@@ -28,7 +28,6 @@ Imports:
     utils,
     vctrs
 Suggests:
-    dplyr,
     fs,
     knitr,
     officer,
@@ -39,7 +38,6 @@ Suggests:
     rmarkdown,
     sf,
     testthat (>= 3.0.0),
-    tidyselect,
     withr
 VignetteBuilder:
     knitr

@@ -79,13 +79,38 @@ test_that("append_field_odata_types() annotates multi-value fields from list-col
     list(Title = "A", Number = 1)
   )
 
-  # Numeric multi-value (e.g. lookup) fields use Int32 Collections
+  # Multi-value lookup ID fields use Int32 Collections even if the ID values
+  # are strings
   expect_identical(
     append_field_odata_types(list(LookupLookupId = c(1, 2))),
     list(
-      LookupLookupId = list(1, 2),
+      LookupLookupId = list(1L, 2L),
       `LookupLookupId@odata.type` = "Collection(Edm.Int32)"
     )
+  )
+  expect_identical(
+    append_field_odata_types(
+      list(PersonLookupId = "7"),
+      multi_fields = "PersonLookupId"
+    ),
+    list(
+      PersonLookupId = list(7L),
+      `PersonLookupId@odata.type` = "Collection(Edm.Int32)"
+    )
+  )
+  expect_identical(
+    append_field_odata_types(
+      list(PersonLookupId = NA),
+      multi_fields = "PersonLookupId"
+    ),
+    list(
+      PersonLookupId = list(),
+      `PersonLookupId@odata.type` = "Collection(Edm.Int32)"
+    )
+  )
+  expect_error(
+    append_field_odata_types(list(PersonLookupId = c("7", "a@example.com"))),
+    "must be whole numbers"
   )
 })
 

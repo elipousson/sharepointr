@@ -21,9 +21,14 @@
 * Allow `delete_sp_list_item()`/`delete_sp_list_items()` to accept a data frame for `item_id` (uses its id column).
 * Allow `update_sp_list_items()` to accept an unnamed list of named lists (one record per item, each with an `.id` element) as well as a data frame. Fields missing from a record are left unchanged. (2026-10-01)
 * Allow `delete_sp_list_items()` to accept an unnamed list of named lists (one record per item) for `item_id`. Add a `.id` argument to `delete_sp_list_item()` and `delete_sp_list_items()` to set the id column or element name. (2026-10-01)
+* Add `update_sp_list_person_items()` for updating person or group columns (matched by email address using the site "User Information List") and `fmt_sp_list_lookup_items()` for formatting lookup or person columns as "{column_name}LookupId" values. These replace `sp_user_id_as_lookup_id()` and `fmt_person_lookup_id_values()`. (2026-10-01)
+* Add `create_sp_list_person_column()` (experimental) for creating person or group columns. (2026-10-01)
+* Export `create_sp_list_lookup_column()`, `update_sp_list_lookup_items()`, `update_sp_list_person_items()`, `fmt_sp_list_lookup_items()`, and `list_sp_site_user_info()` as experimental functions (no longer internal). `create_sp_list_lookup_column()` and the update functions now use a consistent argument order (`data` first for update functions and `sp_list` first for create functions), `lookup_list` can be a `ms_list` object, list name, or list URL (and must be in the same site as `sp_list`), and the `sp_lookup_list` argument is removed. `update_sp_list_lookup_items()` and `fmt_sp_list_lookup_items()` accept a data frame or list of records, support a different join column name for the lookup list (`lookup_join_column`) and case-insensitive matching (`ignore_case`), and list any values that can't be matched. (2026-10-01)
+* Add `user_type` and `filter` arguments to `list_sp_site_user_info()`. Use `user_type = "visible"` to exclude hidden users. (2026-10-01)
 
 ## Fixes
 
+* Fix updates to multi-value lookup and person or group columns: `"{name}LookupId"` values are now sent as a `Collection(Edm.Int32)` (lookup ID values are often returned as strings). (2026-10-01)
 * Fix `delete_sp_list_item()` erroring with a data frame `item_id` (the id value is now pulled from the data frame before checking arguments and getting the list item). (2026-10-01)
 * Fix `update_sp_list_items()` validating fields again for every item: fields are now validated once per call, so `check_fields = FALSE` is respected, and list column metadata is requested once per call (and shared for field validation and identifying multi-value fields) instead of for each item. `create_sp_list_items()` also shares a single list column metadata request for field validation and identifying multi-value fields. (2026-10-01)
 * Fix multi-select (multi-value) fields when creating or updating list items from a data frame with list-columns: `create_sp_list_items()`/`update_sp_list_items()` now unwrap list-column values, use list column definitions to send single or empty selections for multi-value columns as a Collection, and convert `sfc` columns to WKT for updates as well as creates. `na_fields = "drop"` now also drops empty values (e.g. `character(0)`) so existing values are left in place. (2026-10-01)
@@ -42,6 +47,7 @@
 * Improve handling of `sf` data inputs for `create_sp_list_items()` (2026-05-27).
 * Add `{httr}` and `{AzureGraph}` to Imports to re-implement an internal version of the `list_items` method for `Microsoft365R::ms_list` objects. (2026-06-05)
 * Add `{dplyr}` and `{tidyselect}` to Suggests in support of the `update_sp_list_lookup_items()` function. (2026-09-04)
+* Remove `{dplyr}` and `{tidyselect}` from Suggests by using `{vctrs}` to match items in `update_sp_list_lookup_items()`. (2026-10-01)
 
 # sharepointr 0.1.0
 

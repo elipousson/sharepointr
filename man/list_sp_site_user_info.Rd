@@ -4,12 +4,46 @@
 \alias{list_sp_site_user_info}
 \title{List items from the hidden SharePoint "User Information List"}
 \usage{
-list_sp_site_user_info(..., sp_site = NULL, as_data_frame = TRUE)
+list_sp_site_user_info(
+  ...,
+  sp_site = NULL,
+  user_type = c("all", "visible"),
+  filter = NULL,
+  as_data_frame = TRUE,
+  call = caller_env()
+)
 }
 \arguments{
+\item{...}{Additional parameters passed to \code{\link[=get_sp_site]{get_sp_site()}} if \code{sp_site} is
+not supplied.}
+
 \item{sp_site}{A \code{ms_site} object.}
+
+\item{user_type}{Type of users to return. "all" (default) returns all users
+and "visible" excludes users where \code{UserInfoHidden} is \code{TRUE}.}
+
+\item{filter}{Optional. A filter query string passed to
+\code{\link[=list_sp_list_items]{list_sp_list_items()}}. If \code{user_type = "visible"}, \code{filter} is combined
+with a filter for visible users.}
+
+\item{as_data_frame}{If \code{TRUE}, return a data frame with a "ms_list" column.
+\code{\link[=get_sp_list]{get_sp_list()}} returns a 1 row data frame and \code{\link[=list_sp_lists]{list_sp_lists()}} returns a
+data frame with n rows or all lists available for the SharePoint site or
+drive. Defaults to \code{FALSE}. Ignored is \code{metadata = TRUE} as list metadata
+is always returned as a data frame.}
+
+\item{call}{The execution environment of a currently
+running function, e.g. \code{caller_env()}. The function will be
+mentioned in error messages as the source of the error. See the
+\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \description{
-List items from the hidden SharePoint "User Information List"
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }
-\keyword{internal}
+\details{
+\code{\link[=list_sp_site_user_info]{list_sp_site_user_info()}} lists users from the hidden "User Information
+List" for a site. Use the results to match users to lookup ID values for
+person or group columns with \code{\link[=fmt_sp_list_lookup_items]{fmt_sp_list_lookup_items()}} or
+\code{\link[=update_sp_list_person_items]{update_sp_list_person_items()}}.
+}
+\keyword{lists}

@@ -1277,14 +1277,22 @@ append_field_odata_types <- function(fields, multi_fields = NULL) {
 
   # NA values can't be included in a Collection so all NA values (e.g. from
   # `na_fields = "replace"`) are replaced with an empty Collection
-  multi_values <- purrr::map(
+  multi_values <- purrr::imap(
     fields[is_multi],
-    \(x) {
+    \(x, name) {
       if (is.null(x) || all(is.na(x))) {
-        return(character(0))
+        x <- character(0)
       }
 
-      x[!is.na(x)]
+      x <- x[!is.na(x)]
+
+      # Lookup ID values (often returned as strings) must be sent as a
+      # Collection of integers
+      if (endsWith(name, "LookupId")) {
+        x <- as_lookup_id_integer(x, name)
+      }
+
+      x
     }
   )
 
@@ -1330,6 +1338,27 @@ drop_na_fields <- function(fields) {
       is.null(x) || all(is.na(x))
     }
   )
+}
+
+#' Convert lookup ID values to integers
+#' @returns `x` as an integer vector. Errors if any value can't be converted to
+#'   a whole number.
+#' @noRd
+as_lookup_id_integer <- function(x, name, call = caller_env()) {
+  if (is.integer(x)) {
+    return(x)
+  }
+
+  int_x <- suppressWarnings(as.integer(x))
+
+  if (any(is.na(int_x)) || any(int_x != as.numeric(x))) {
+    cli_abort(
+      "{.field {name}} values must be whole numbers.",
+      call = call
+    )
+  }
+
+  int_x
 }
 
 #' Unwrap list-column values from a single row data frame

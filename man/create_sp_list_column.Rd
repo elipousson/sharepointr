@@ -13,7 +13,8 @@ create_sp_list_column(
   column_definition = NULL,
   list_name = NULL,
   site_url = NULL,
-  site = NULL
+  site = NULL,
+  call = caller_env()
 )
 
 update_sp_list_column(
@@ -130,13 +131,13 @@ included in the URL.}
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
 
-\item{column_name_type}{"name" or "displayName". Used to match column ID so
-column_name must be unique if \code{column_name_type = "displayName"}.}
-
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
+
+\item{column_name_type}{"name" or "displayName". Used to match column ID so
+column_name must be unique if \code{column_name_type = "displayName"}.}
 }
 \value{
 For \code{\link[=create_sp_list_column]{create_sp_list_column()}}, a named list with the newly

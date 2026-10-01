@@ -699,14 +699,16 @@ create_sp_list_column <- function(
   column_definition = NULL,
   list_name = NULL,
   site_url = NULL,
-  site = NULL
+  site = NULL,
+  call = caller_env()
 ) {
   sp_list <- sp_list %||%
     get_sp_list(
       list_name = list_name,
       site_url = site_url,
       site = site,
-      as_data_frame = FALSE
+      as_data_frame = FALSE,
+      call = call
     )
 
   check_ms_obj(sp_list, "ms_list", call = call)
@@ -871,78 +873,263 @@ sp_list_column_as_id <- function(
 
 #' Create SharePoint list lookup column and update lookup column items
 #'
+#' `r lifecycle::badge("experimental")`
+#'
 #' [create_sp_list_lookup_column()] is a wrapper for [create_lookup_column()]
-#' and [create_sp_list_column()] that allows for the creation of a column in one
-#' list (the "lookup" list) and then create a lookup column in a second list.
+#' and [create_sp_list_column()] that creates a lookup column in a list
+#' (`sp_list`) using a column from a second list in the same site (the "lookup"
+#' list). [create_sp_list_person_column()] is a wrapper for
+#' [create_person_column()] and [create_sp_list_column()] that creates a person
+#' or group column.
 #'
 #' @param sp_list A `ms_list` object. If supplied, `list_name`, `site`, and
 #' `site_url` are all ignored.
-#' @param ... For [create_sp_list_lookup_column()], additional parameters are
-#' passed to [create_lookup_column()]. For [update_sp_list_lookup_items()],
-#' additional parameters are passed to [get_sp_list_items()] (if `data = NULL`)
-#' and to [update_sp_list_items()].
+#' @param column_name Name of the lookup (or person or group) column. For
+#'   [create_sp_list_lookup_column()], the name of the new column. For
+#'   [update_sp_list_lookup_items()] and [update_sp_list_person_items()],
+#'   lookup ID values are written to the `"{column_name}LookupId"` field. For
+#'   [fmt_sp_list_lookup_items()], one or more column (or record element) names
+#'   in `data` to format.
+#' @param lookup_list The lookup list as a `ms_list` object, list name, or list
+#'   URL. The lookup list must be in the same site as `sp_list` and a list name
+#'   is retrieved from the same site as `sp_list`. For
+#'   [update_sp_list_lookup_items()] and [fmt_sp_list_lookup_items()],
+#'   `lookup_list` is only used to retrieve `lookup_list_data` if not supplied.
+#'   For [fmt_sp_list_lookup_items()], a list name requires site information
+#'   (e.g. `site_url`) passed with `...`.
+#' @param ... For [create_sp_list_lookup_column()] and
+#'   [create_sp_list_person_column()], additional parameters are passed to
+#'   [create_lookup_column()] or [create_person_column()]. For
+#'   [update_sp_list_lookup_items()] and [update_sp_list_person_items()],
+#'   additional parameters are passed to [get_sp_list()] (if `sp_list = NULL`),
+#'   [get_sp_list_items()] (if `data = NULL`), and [update_sp_list_items()].
+#'   For [fmt_sp_list_lookup_items()], additional parameters are passed to
+#'   [get_sp_list()] if `lookup_list` is a list name.
 #' @inheritParams create_sp_list_column
 #' @inheritParams create_lookup_column
+#' @inheritParams update_sp_list_items
+#' @inheritParams update_sp_list_item
+#' @inheritParams purrr::map
 #' @inheritDotParams create_lookup_column -name -lookup_list_id
-#' @keywords internal
+#' @keywords lists
 #' @export
 create_sp_list_lookup_column <- function(
-  column_name,
   sp_list = NULL,
-  lookup_list = NULL,
+  column_name,
+  lookup_list,
   lookup_list_column = column_name,
-  sp_lookup_list = NULL,
+  ...,
   list_name = NULL,
   site = NULL,
   site_url = NULL,
-  ...
+  call = caller_env()
 ) {
+  check_string(column_name, call = call)
+
+  sp_list <- sp_list %||%
+    get_sp_list(
+      list_name = list_name,
+      site = site,
+      site_url = site_url,
+      as_data_frame = FALSE,
+      call = call
+    )
+
+  check_ms_obj(sp_list, "ms_list", call = call)
+
+  lookup_list <- get_sp_lookup_list(
+    lookup_list,
+    sp_list = sp_list,
+    call = call
+  )
+
   lookup_column_definition <- create_lookup_column(
     name = column_name,
     lookup_list_column = lookup_list_column,
-    lookup_list = sp_lookup_list %||% lookup_list,
+    lookup_list = lookup_list,
     ...
   )
 
   create_sp_list_column(
     sp_list = sp_list,
     column_definition = lookup_column_definition,
-    list_name = list_name,
-    site = site,
-    site_url = site_url
+    call = call
   )
 }
 
-#' [update_sp_list_lookup_items()] provides an easy way to update item lookup
-#' column values. The function requires a shared join column between the target
-#' SharePoint list (`sp_list`) and the list specified in the lookup column
-#' (`lookup_list`). The function joins the data from the target list and the
-#' data from the lookup list (either user provided or retrieved based on the
-#' provided lists), renames the column to match the required pattern of
-#' "{column_name}LookupId", and calls [update_sp_list_items()] with
-#' `check_fields = FALSE`. As of May 2026, the function does not support
-#' multiple values for lookup columns.
-#'
 #' @rdname create_sp_list_lookup_column
-#' @keywords internal
+#' @inheritParams create_person_column
+#' @keywords lists
+#' @export
+create_sp_list_person_column <- function(
+  sp_list = NULL,
+  column_name,
+  ...,
+  allow_multiple = NULL,
+  display_as = NULL,
+  from_type = "peopleOnly",
+  list_name = NULL,
+  site = NULL,
+  site_url = NULL,
+  call = caller_env()
+) {
+  check_string(column_name, call = call)
+
+  create_sp_list_column(
+    sp_list = sp_list,
+    column_definition = create_person_column(
+      name = column_name,
+      ...,
+      allow_multiple = allow_multiple,
+      display_as = display_as,
+      from_type = from_type
+    ),
+    list_name = list_name,
+    site = site,
+    site_url = site_url,
+    call = call
+  )
+}
+
+#' Get a lookup list from a `ms_list` object, list name, or list URL
+#'
+#' If `lookup_list` is a list name (not a URL) and `sp_list` is supplied, the
+#' lookup list is retrieved from the same site as `sp_list`. Otherwise, a list
+#' name requires site information passed with `...`.
+#' @param sp_list Optional. A `ms_list` object for the list with the lookup
+#'   column. If supplied, `lookup_list` must be in the same site as `sp_list`.
+#' @returns A `ms_list` object. Errors if the lookup list can't be found or is
+#'   not in the same site as `sp_list`.
+#' @noRd
+get_sp_lookup_list <- function(
+  lookup_list,
+  sp_list = NULL,
+  ...,
+  arg = caller_arg(lookup_list),
+  call = caller_env()
+) {
+  if (!is_ms_obj(lookup_list, "ms_list")) {
+    check_string(lookup_list, allow_empty = FALSE, arg = arg, call = call)
+
+    if (!is.null(sp_list) && !is_url(lookup_list)) {
+      lookup_list <- get_sp_list(
+        list_name = lookup_list,
+        site = get_sp_site(
+          site_id = sp_list_site_id(sp_list),
+          call = call
+        ),
+        as_data_frame = FALSE,
+        call = call
+      )
+    } else {
+      lookup_list <- get_sp_list(
+        list_name = lookup_list,
+        ...,
+        as_data_frame = FALSE,
+        call = call
+      )
+    }
+  }
+
+  check_ms_obj(lookup_list, "ms_list", arg = arg, call = call)
+
+  # Lookup columns can only use a list from the same site
+  if (
+    !is.null(sp_list) &&
+      !identical(sp_list_site_id(lookup_list), sp_list_site_id(sp_list))
+  ) {
+    cli_abort(
+      "{.arg {arg}} must be a list in the same site as {.arg sp_list}.",
+      call = call
+    )
+  }
+
+  lookup_list
+}
+
+#' @returns The site ID string for a `ms_list` object.
+#' @noRd
+sp_list_site_id <- function(sp_list) {
+  sp_list[["properties"]][["parentReference"]][["siteId"]]
+}
+
+#' [update_sp_list_lookup_items()] provides an easy way to update item lookup
+#' column values. The function requires a join column in the target SharePoint
+#' list (`sp_list`) with values that match a column in the list specified in
+#' the lookup column (`lookup_list`). The function matches the data from the
+#' target list to the data from the lookup list (either user provided or
+#' retrieved based on the provided lists), renames the column to match the
+#' required pattern of `"{column_name}LookupId"`, and calls
+#' [update_sp_list_items()] with `check_fields = FALSE`. As of May 2026, the
+#' function does not support multiple values for lookup columns.
+#'
+#' [update_sp_list_person_items()] is a variant of
+#' [update_sp_list_lookup_items()] for person or group columns. Person or group
+#' columns are a type of lookup column where the lookup list is the hidden
+#' "User Information List" for the site. By default, users are matched by email
+#' address (ignoring case). Users that have never accessed the site are not
+#' included in the "User Information List" and can't be matched.
+#'
+#' [fmt_sp_list_lookup_items()] formats one or more lookup (or person or group)
+#' columns in `data` by replacing the values with matching lookup list item ID
+#' values and renaming the columns to `"{column_name}LookupId"`. Use the output
+#' with [create_sp_list_items()] or [update_sp_list_items()].
+#'
+#' Values in `data` that can't be matched to a lookup list item are listed in a
+#' message and replaced with `NA` values. Missing values are never matched.
+#'
+#' @param data Optional. A data frame or an unnamed list of named lists (one
+#'   record per item) with item ID values (`.id`) and join values
+#'   (`join_column`) for the items to update. If `NULL`, items are retrieved
+#'   from `sp_list`. Required for [fmt_sp_list_lookup_items()] where `data`
+#'   must include all `column_name` values as column (or record element) names.
+#' @param lookup_list_data Optional. A data frame or an unnamed list of named
+#'   lists with item ID values (`.id`) and unique join values
+#'   (`lookup_join_column`) for the lookup list items. If `NULL`, items are
+#'   retrieved from `lookup_list`.
+#' @param join_column Name of column (or record element) in `data` to match
+#'   items to lookup list items. Defaults to `column_name`. Items without a
+#'   matching lookup list item are not updated when `na_fields = "drop"`.
+#' @param lookup_join_column Name of column (or record element) in
+#'   `lookup_list_data` with values to match to `join_column` values. Defaults
+#'   to `join_column`. For [fmt_sp_list_lookup_items()], `lookup_join_column`
+#'   must be length 1 or the same length as `column_name` and defaults to
+#'   `column_name`.
+#' @param .id Name of column (or record element) with item ID values in `data`
+#'   and `lookup_list_data`. Defaults to "id".
+#' @param ignore_case If `TRUE`, ignore case when matching join values.
+#'   Defaults to `FALSE`.
+#' @rdname create_sp_list_lookup_column
+#' @keywords lists
 #' @export
 update_sp_list_lookup_items <- function(
-  sp_list = NULL,
   data = NULL,
+  sp_list = NULL,
   column_name,
   lookup_list_data = NULL,
   lookup_list = NULL,
   join_column = column_name,
+  lookup_join_column = join_column,
   ...,
   .id = "id",
+  ignore_case = FALSE,
   na_fields = c("drop", "replace"),
   .progress = TRUE,
   call = caller_env()
 ) {
-  check_installed(c("dplyr", "tidyselect"), call = call)
-
-  check_string(join_column, call = call)
   check_string(column_name, call = call)
+  check_string(join_column, call = call)
+  check_string(lookup_join_column, call = call)
+  check_bool(ignore_case, call = call)
+
+  sp_list <- sp_list %||%
+    get_sp_list(
+      ...,
+      as_data_frame = FALSE,
+      call = call
+    )
+
+  check_ms_obj(sp_list, "ms_list", call = call)
 
   data <- data %||%
     get_sp_list_items(
@@ -952,42 +1139,48 @@ update_sp_list_lookup_items <- function(
       call = call
     )
 
-  lookup_list_data <- lookup_list_data %||%
-    get_sp_list_items(
-      sp_list = lookup_list,
-      select = c(.id, join_column),
+  if (is.null(lookup_list_data)) {
+    lookup_list_data <- get_sp_list_items(
+      sp_list = get_sp_lookup_list(
+        lookup_list,
+        sp_list = sp_list,
+        call = call
+      ),
+      select = c(.id, lookup_join_column),
       call = call
     )
+  }
 
-  check_data_frame(data, call = call)
-  check_data_frame(lookup_list_data, call = call)
-
-  lookup_column_name <- paste0(
-    column_name,
-    "LookupId"
+  data_keys <- pull_lookup_keys(
+    data,
+    .id = .id,
+    join_column = join_column,
+    call = call
   )
 
-  lookup_list_data <- lookup_list_data |>
-    dplyr::select(
-      tidyselect::all_of(
-        set_names(
-          c(.id, join_column),
-          c(lookup_column_name, join_column)
-        )
-      )
-    )
-
-  items <- dplyr::left_join(
-    dplyr::select(
-      data,
-      tidyselect::all_of(c(.id, join_column))
-    ),
+  lookup_keys <- pull_lookup_keys(
     lookup_list_data,
-    by = join_column
-  ) |>
-    dplyr::select(
-      tidyselect::all_of(c(.id, lookup_column_name))
+    .id = .id,
+    join_column = lookup_join_column,
+    call = call
+  )
+
+  items <- vctrs::new_data_frame(
+    set_names(
+      list(
+        data_keys[["ids"]],
+        match_lookup_ids(
+          data_keys[["keys"]],
+          lookup_keys = lookup_keys,
+          join_column = join_column,
+          lookup_join_column = lookup_join_column,
+          ignore_case = ignore_case,
+          call = call
+        )
+      ),
+      c(.id, paste0(column_name, "LookupId"))
     )
+  )
 
   # TODO: Add support for multiple values w/ odata.type component of API call
   # This could be implemented here or in update_sp_list_items
@@ -1004,6 +1197,261 @@ update_sp_list_lookup_items <- function(
     .progress = .progress,
     call = call
   )
+}
+
+#' @rdname create_sp_list_lookup_column
+#' @keywords lists
+#' @export
+fmt_sp_list_lookup_items <- function(
+  data,
+  column_name,
+  lookup_list_data = NULL,
+  lookup_list = NULL,
+  lookup_join_column = column_name,
+  ...,
+  .id = "id",
+  ignore_case = FALSE,
+  call = caller_env()
+) {
+  check_character(column_name, call = call)
+  check_character(lookup_join_column, call = call)
+  check_bool(ignore_case, call = call)
+
+  lookup_join_column <- vctrs::vec_recycle(
+    lookup_join_column,
+    size = length(column_name),
+    x_arg = "lookup_join_column",
+    call = call
+  )
+
+  is_records <- !is.data.frame(data) && is_list_of_records(data)
+
+  if (!is.data.frame(data) && !is_records) {
+    cli_abort(
+      "{.arg data} must be a data frame or an unnamed list of named lists,
+      not {.obj_type_friendly {data}}.",
+      call = call
+    )
+  }
+
+  if (is.null(lookup_list_data)) {
+    lookup_list_data <- get_sp_list_items(
+      sp_list = get_sp_lookup_list(lookup_list, ..., call = call),
+      select = unique(c(.id, lookup_join_column)),
+      call = call
+    )
+  }
+
+  for (j in seq_along(column_name)) {
+    col <- column_name[[j]]
+    lookup_col <- paste0(col, "LookupId")
+
+    lookup_keys <- pull_lookup_keys(
+      lookup_list_data,
+      .id = .id,
+      join_column = lookup_join_column[[j]],
+      call = call
+    )
+
+    if (is_records) {
+      # Records without a value for the column are left as is
+      has_col <- purrr::map_lgl(data, \(x) has_name(x, col))
+
+      if (!any(has_col)) {
+        cli_abort(
+          "At least one record in {.arg data} must have a {.val {col}} element.",
+          call = call
+        )
+      }
+
+      lookup_ids <- match_lookup_ids(
+        pull_record_values(data[has_col], col, arg = "data", call = call),
+        lookup_keys = lookup_keys,
+        join_column = col,
+        lookup_join_column = lookup_join_column[[j]],
+        ignore_case = ignore_case,
+        call = call
+      )
+
+      data[has_col] <- purrr::map2(
+        data[has_col],
+        vctrs::vec_chop(lookup_ids),
+        \(x, id) {
+          x[[col]] <- id
+          names(x)[names(x) == col] <- lookup_col
+          x
+        }
+      )
+    } else {
+      if (!has_name(data, col)) {
+        cli_abort(
+          "{.arg data} must have a column named {.val {col}}.",
+          call = call
+        )
+      }
+
+      data[[col]] <- match_lookup_ids(
+        data[[col]],
+        lookup_keys = lookup_keys,
+        join_column = col,
+        lookup_join_column = lookup_join_column[[j]],
+        ignore_case = ignore_case,
+        call = call
+      )
+
+      names(data)[names(data) == col] <- lookup_col
+    }
+  }
+
+  data
+}
+
+#' Match join values to lookup list item ID values
+#'
+#' Missing join values are never matched. Errors if any join value matches a
+#' duplicated lookup join value. Values that can't be matched are listed in a message.
+#' @param values Join values to match.
+#' @param lookup_keys A list with `ids` and `keys` from `pull_lookup_keys()`.
+#' @returns A vector of lookup list item ID values the same size as `values`
+#'   with `NA` values for any unmatched values.
+#' @noRd
+match_lookup_ids <- function(
+  values,
+  lookup_keys,
+  join_column = NULL,
+  lookup_join_column = join_column,
+  ignore_case = FALSE,
+  call = caller_env()
+) {
+  lookup_values <- lookup_keys[["keys"]]
+  match_values <- values
+
+  if (ignore_case) {
+    match_values <- tolower(match_values)
+    lookup_values <- tolower(lookup_values)
+  }
+
+  # Each join value must match a single lookup list item. Duplicated lookup
+  # values (e.g. a group account listed twice in the "User Information List")
+  # are only an error if they match a join value. Missing values are ignored.
+  is_dup <- vctrs::vec_duplicate_detect(lookup_values) &
+    !vctrs::vec_detect_missing(lookup_values)
+
+  if (any(is_dup)) {
+    dup_values <- vctrs::vec_unique(vctrs::vec_slice(lookup_values, is_dup))
+    dup_values <- vctrs::vec_slice(
+      dup_values,
+      vctrs::vec_in(dup_values, match_values)
+    )
+
+    if (has_length(dup_values)) {
+      cli_abort(
+        "Lookup list data must have unique {.field {lookup_join_column}}
+        values to match. Duplicated value{?s}: {.val {dup_values}}",
+        call = call
+      )
+    }
+  }
+
+  lookup_i <- vctrs::vec_match(
+    match_values,
+    lookup_values,
+    na_equal = FALSE
+  )
+
+  unmatched <- vctrs::vec_unique(
+    vctrs::vec_slice(
+      values,
+      is.na(lookup_i) & !vctrs::vec_detect_missing(values)
+    )
+  )
+
+  if (has_length(unmatched)) {
+    n_unmatched <- length(unmatched)
+
+    cli::cli_bullets(
+      c(
+        "!" = "{n_unmatched} {.field {join_column}} {cli::qty(n_unmatched)}
+        value{?s} can't be matched to a lookup list item: {.val {unmatched}}"
+      )
+    )
+  }
+
+  vctrs::vec_slice(lookup_keys[["ids"]], lookup_i)
+}
+
+#' Get item ID and join values from a data frame or list of records
+#'
+#' Used by [update_sp_list_lookup_items()] and [fmt_sp_list_lookup_items()] to
+#' match items to lookup list items. A record without a join value has a
+#' missing join value.
+#' @returns A list with `ids` (item ID values) and `keys` (join values) vectors
+#'   with one value per item in `data`.
+#' @noRd
+pull_lookup_keys <- function(
+  data,
+  .id = "id",
+  join_column = NULL,
+  arg = caller_arg(data),
+  call = caller_env()
+) {
+  if (is.data.frame(data)) {
+    missing_cols <- setdiff(c(.id, join_column), names(data))
+
+    if (has_length(missing_cols)) {
+      cli_abort(
+        "{.arg {arg}} must have {cli::qty(missing_cols)}column{?s}
+        {.val {missing_cols}}.",
+        call = call
+      )
+    }
+
+    return(list(ids = data[[.id]], keys = data[[join_column]]))
+  }
+
+  if (!is_list_of_records(data)) {
+    cli_abort(
+      "{.arg {arg}} must be a data frame or an unnamed list of named lists,
+      not {.obj_type_friendly {data}}.",
+      call = call
+    )
+  }
+
+  ids <- pull_record_ids(data, .id = .id, call = call)
+
+  list(
+    ids = vctrs::list_unchop(ids),
+    keys = pull_record_values(data, join_column, arg = arg, call = call)
+  )
+}
+
+#' Get a single value for each record in a list of records
+#' @returns A vector with one value per record in `records` with `NA` values
+#'   for records without an element named `name`. Errors if any record has a
+#'   value that is not length 1.
+#' @noRd
+pull_record_values <- function(
+  records,
+  name,
+  arg = caller_arg(records),
+  call = caller_env()
+) {
+  values <- purrr::map(records, \(x) x[[name]] %||% NA)
+
+  is_invalid <- !purrr::map_lgl(values, \(x) has_length(x, 1))
+
+  if (any(is_invalid)) {
+    invalid_i <- which(is_invalid)
+
+    cli_abort(
+      "Each record in {.arg {arg}} must have a single {.val {name}}
+      value. {cli::qty(length(invalid_i))}Record{?s} with an invalid value:
+      {invalid_i}.",
+      call = call
+    )
+  }
+
+  vctrs::list_unchop(values)
 }
 
 #' Pull a named index of list columns matching a column type

@@ -91,9 +91,47 @@
   and
   [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
   to set the id column or element name. (2026-10-01)
+- Add
+  [`update_sp_list_person_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
+  for updating person or group columns (matched by email address using
+  the site “User Information List”) and
+  [`fmt_sp_list_lookup_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
+  for formatting lookup or person columns as “{column_name}LookupId”
+  values. These replace `sp_user_id_as_lookup_id()` and
+  `fmt_person_lookup_id_values()`. (2026-10-01)
+- Add
+  [`create_sp_list_person_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
+  (experimental) for creating person or group columns. (2026-10-01)
+- Export
+  [`create_sp_list_lookup_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md),
+  [`update_sp_list_lookup_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md),
+  [`update_sp_list_person_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md),
+  [`fmt_sp_list_lookup_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md),
+  and
+  [`list_sp_site_user_info()`](https://elipousson.github.io/sharepointr/reference/list_sp_site_user_info.md)
+  as experimental functions (no longer internal).
+  [`create_sp_list_lookup_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
+  and the update functions now use a consistent argument order (`data`
+  first for update functions and `sp_list` first for create functions),
+  `lookup_list` can be a `ms_list` object, list name, or list URL (and
+  must be in the same site as `sp_list`), and the `sp_lookup_list`
+  argument is removed.
+  [`update_sp_list_lookup_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
+  and
+  [`fmt_sp_list_lookup_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
+  accept a data frame or list of records, support a different join
+  column name for the lookup list (`lookup_join_column`) and
+  case-insensitive matching (`ignore_case`), and list any values that
+  can’t be matched. (2026-10-01)
+- Add `user_type` and `filter` arguments to
+  [`list_sp_site_user_info()`](https://elipousson.github.io/sharepointr/reference/list_sp_site_user_info.md).
+  Use `user_type = "visible"` to exclude hidden users. (2026-10-01)
 
 ### Fixes
 
+- Fix updates to multi-value lookup and person or group columns:
+  `"{name}LookupId"` values are now sent as a `Collection(Edm.Int32)`
+  (lookup ID values are often returned as strings). (2026-10-01)
 - Fix
   [`delete_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
   erroring with a data frame `item_id` (the id value is now pulled from
@@ -177,6 +215,11 @@
   the
   [`update_sp_list_lookup_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
   function. (2026-09-04)
+- Remove [dplyr](https://dplyr.tidyverse.org) and
+  [tidyselect](https://tidyselect.r-lib.org) from Suggests by using
+  [vctrs](https://vctrs.r-lib.org/) to match items in
+  [`update_sp_list_lookup_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md).
+  (2026-10-01)
 
 ## sharepointr 0.1.0
 

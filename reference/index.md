@@ -40,6 +40,13 @@
   [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
   [`update_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
   : Create or update list items
+- [`create_sp_list_lookup_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
+  [`create_sp_list_person_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
+  [`update_sp_list_lookup_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
+  [`fmt_sp_list_lookup_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
+  [`update_sp_list_person_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
+  **\[experimental\]** : Create SharePoint list lookup column and update
+  lookup column items
 - [`data_as_column_definition_list()`](https://elipousson.github.io/sharepointr/reference/data_as_column_definition_list.md)
   : Convert a data frame to a column definition list
 - [`delete_sp_item()`](https://elipousson.github.io/sharepointr/reference/delete_sp_item.md)
@@ -67,6 +74,9 @@
 - [`list_sp_pages()`](https://elipousson.github.io/sharepointr/reference/list_sp_pages.md)
   [`get_sp_page()`](https://elipousson.github.io/sharepointr/reference/list_sp_pages.md)
   : List SharePoint pages or get a single SharePoint page
+- [`list_sp_site_user_info()`](https://elipousson.github.io/sharepointr/reference/list_sp_site_user_info.md)
+  **\[experimental\]** : List items from the hidden SharePoint "User
+  Information List"
 - [`read_sharepoint()`](https://elipousson.github.io/sharepointr/reference/read_sharepoint.md)
   : Read a SharePoint item based on a file URL or file name and site
   details

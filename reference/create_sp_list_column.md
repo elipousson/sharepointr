@@ -15,7 +15,8 @@ create_sp_list_column(
   column_definition = NULL,
   list_name = NULL,
   site_url = NULL,
-  site = NULL
+  site = NULL,
+  call = caller_env()
 )
 
 update_sp_list_column(
@@ -256,11 +257,6 @@ delete_sp_list_column(
   A `ms_site` object. If `site` is supplied, `site_url`, `site_name`,
   and `site_id` are ignored.
 
-- column_name_type:
-
-  "name" or "displayName". Used to match column ID so column_name must
-  be unique if `column_name_type = "displayName"`.
-
 - call:
 
   The execution environment of a currently running function, e.g.
@@ -268,6 +264,11 @@ delete_sp_list_column(
   the source of the error. See the `call` argument of
   [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
   information.
+
+- column_name_type:
+
+  "name" or "displayName". Used to match column ID so column_name must
+  be unique if `column_name_type = "displayName"`.
 
 ## Value
 

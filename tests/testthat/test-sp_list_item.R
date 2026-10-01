@@ -142,6 +142,280 @@ test_that("drop_na_fields() drops NA and empty fields", {
   )
 })
 
+test_that("is_list_of_records() and pull_record_ids() handle list of records inputs", {
+  records <- list(
+    list(id = "1", Title = "A"),
+    list(id = "2", Choices = c("B", "C"))
+  )
+
+  expect_true(is_list_of_records(records))
+  expect_false(is_list_of_records(list(id = "1", Title = "A")))
+  expect_false(is_list_of_records(set_names(records, c("1", "2"))))
+  expect_false(is_list_of_records(data.frame(id = "1")))
+  expect_false(is_list_of_records(list(list("1", "A"))))
+
+  expect_identical(pull_record_ids(records), list("1", "2"))
+  expect_error(
+    pull_record_ids(list(list(id = "1"), list(Title = "B"), list(id = NA))),
+    "Records with a missing or invalid value: 2 and 3"
+  )
+})
+
+test_that("update_sp_list_items() updates items from a data frame or a list of records", {
+  col_metadata <- list(
+    list(name = "Title", text = list(allowMultipleLines = FALSE)),
+    list(name = "Choices", choice = list(displayAs = "checkBoxes")),
+    list(name = "Modified", readOnly = TRUE, dateTime = list())
+  )
+
+  n_metadata_calls <- 0
+
+  local_mocked_bindings(
+    get_sp_list_metadata = function(..., as_data_frame = TRUE) {
+      n_metadata_calls <<- n_metadata_calls + 1
+      col_metadata
+    }
+  )
+
+  # Minimal stand-in for a Microsoft365R::ms_list that records update calls
+  updates <- new.env()
+  updates$calls <- list()
+  sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
+  sp_list$update_item <- function(id, ...) {
+    updates$calls[[id]] <- list(...)
+  }
+
+  records <- list(
+    list(id = "1", Title = "A", Other = "dropped", Modified = "dropped"),
+    list(id = "2", Choices = c("B", "C")),
+    list(id = "3", Choices = "D")
+  )
+
+  expect_message(
+    update_sp_list_items(records, sp_list = sp_list, .progress = FALSE),
+    "Other"
+  )
+
+  # List metadata is only requested once (for both validation and multi-value
+  # fields), not for each item
+  expect_identical(n_metadata_calls, 1)
+
+  # Fields missing from a record are not sent
+  expect_identical(updates$calls[["1"]], list(Title = "A"))
+  expect_identical(
+    updates$calls[["2"]],
+    list(
+      Choices = list("B", "C"),
+      `Choices@odata.type` = "Collection(Edm.String)"
+    )
+  )
+  expect_identical(
+    updates$calls[["3"]],
+    list(
+      Choices = list("D"),
+      `Choices@odata.type` = "Collection(Edm.String)"
+    )
+  )
+
+  updates$calls <- list()
+
+  data <- tibble::tibble(
+    id = c("1", "2"),
+    Title = c("A", NA),
+    Choices = list(character(0), c("B", "C"))
+  )
+
+  update_sp_list_items(data, sp_list = sp_list, .progress = FALSE)
+
+  # NA and empty values are dropped with the default `na_fields = "drop"`
+  expect_identical(updates$calls[["1"]], list(Title = "A"))
+  expect_identical(
+    updates$calls[["2"]],
+    list(
+      Choices = list("B", "C"),
+      `Choices@odata.type` = "Collection(Edm.String)"
+    )
+  )
+
+  expect_error(
+    update_sp_list_items(list(Title = "A"), sp_list = sp_list),
+    "must be a data frame or an unnamed list of named lists"
+  )
+  expect_error(
+    update_sp_list_items(data.frame(Title = "A"), sp_list = sp_list),
+    "must have a column named"
+  )
+})
+
+test_that("create_sp_list_items() creates items with multi-value fields", {
+  col_metadata <- list(
+    list(name = "Title", text = list(allowMultipleLines = FALSE)),
+    list(name = "Choices", choice = list(displayAs = "checkBoxes")),
+    list(name = "Modified", readOnly = TRUE, dateTime = list())
+  )
+
+  n_metadata_calls <- 0
+
+  local_mocked_bindings(
+    get_sp_list_metadata = function(..., as_data_frame = TRUE) {
+      n_metadata_calls <<- n_metadata_calls + 1
+      col_metadata
+    }
+  )
+
+  # Minimal stand-in for a Microsoft365R::ms_list that records create calls
+  creates <- new.env()
+  creates$bodies <- list()
+  sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
+  sp_list$do_operation <- function(op, body, http_verb) {
+    creates$bodies <- c(creates$bodies, list(body))
+  }
+
+  data <- tibble::tibble(
+    Title = c("A", "B"),
+    Choices = list(c("C", "D"), "E"),
+    Modified = c("dropped", "dropped")
+  )
+
+  expect_message(
+    create_sp_list_items(data, sp_list = sp_list, .progress = FALSE),
+    "Modified"
+  )
+
+  # List metadata is only requested once (for both validation and multi-value
+  # fields)
+  expect_identical(n_metadata_calls, 1)
+
+  expect_identical(
+    creates$bodies,
+    list(
+      list(
+        fields = list(
+          Title = "A",
+          Choices = list("C", "D"),
+          `Choices@odata.type` = "Collection(Edm.String)"
+        )
+      ),
+      list(
+        fields = list(
+          Title = "B",
+          Choices = list("E"),
+          `Choices@odata.type` = "Collection(Edm.String)"
+        )
+      )
+    )
+  )
+})
+
+test_that("delete_sp_list_items() accepts ids, a data frame, or a list of records", {
+  # Minimal stand-in for a Microsoft365R::ms_list that records delete calls
+  deletes <- new.env()
+  deletes$ops <- character(0)
+  sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
+  sp_list$do_operation <- function(op, http_verb) {
+    deletes$ops <- c(deletes$ops, paste(http_verb, op))
+  }
+
+  expected_ops <- c("DELETE items/1", "DELETE items/2")
+
+  delete_ids <- function(item_id) {
+    deletes$ops <- character(0)
+    delete_sp_list_items(
+      item_id,
+      sp_list = sp_list,
+      confirm = FALSE,
+      .progress = FALSE
+    )
+    deletes$ops
+  }
+
+  expect_identical(delete_ids(c("1", "2")), expected_ops)
+  expect_identical(
+    delete_ids(data.frame(id = c("1", "2"), Title = c("A", "B"))),
+    expected_ops
+  )
+  expect_identical(
+    delete_ids(list(list(id = "1", Title = "A"), list(id = "2"))),
+    expected_ops
+  )
+
+  expect_error(
+    delete_ids(list(list(id = "1"), list(Title = "B"))),
+    "Record with a missing or invalid value: 2"
+  )
+
+  # Alternate id column or element names are supported with `.id`
+  delete_item_ids <- function(item_id) {
+    deletes$ops <- character(0)
+    delete_sp_list_items(
+      item_id,
+      .id = "item_id",
+      sp_list = sp_list,
+      confirm = FALSE,
+      .progress = FALSE
+    )
+    deletes$ops
+  }
+
+  expect_identical(
+    delete_item_ids(data.frame(item_id = c("1", "2"))),
+    expected_ops
+  )
+  expect_identical(
+    delete_item_ids(list(list(item_id = "1"), list(item_id = "2"))),
+    expected_ops
+  )
+  expect_error(
+    delete_item_ids(data.frame(id = c("1", "2"))),
+    "must have a column named"
+  )
+})
+
+test_that("delete_sp_list_item() gets the item id from a data frame first", {
+  local_mocked_bindings(
+    get_sp_list_item = function(id, ...) {
+      # Minimal stand-in for a Microsoft365R::ms_list_item
+      sp_list_item <- structure(
+        new.env(),
+        class = c("ms_list_item", "ms_object")
+      )
+      sp_list_item$id <- id
+      sp_list_item$do_operation <- function(http_verb) {
+        paste(http_verb, sp_list_item$id)
+      }
+      sp_list_item
+    }
+  )
+
+  expect_identical(
+    delete_sp_list_item(
+      data.frame(id = "1", Title = "A"),
+      sp_list = "unused",
+      confirm = FALSE
+    ),
+    "DELETE 1"
+  )
+
+  # Alternate id column names are supported with `.id`
+  expect_identical(
+    delete_sp_list_item(
+      data.frame(item_id = "2", Title = "B"),
+      .id = "item_id",
+      sp_list = "unused",
+      confirm = FALSE
+    ),
+    "DELETE 2"
+  )
+  expect_error(
+    delete_sp_list_item(
+      data.frame(Title = "B"),
+      sp_list = "unused",
+      confirm = FALSE
+    ),
+    "must have a column named"
+  )
+})
+
 test_that("pull_sp_list_multi_cols() finds multi-value columns", {
   col_metadata <- list(
     list(name = "Title", text = list(allowMultipleLines = FALSE)),

@@ -19,9 +19,13 @@
 * Add `pull_sp_list_cols()` (internal) to get a named index of list columns from `get_sp_list_metadata()` output matching a column type (e.g. "lookup" or "choice"), a column property (e.g. "required" or "hidden"), or a `keep` value ("all", "editable", or "external"). Supports both data frame and list metadata; `get_sp_list_metadata()` now uses it to filter columns. (2026-09-24)
 * Add support for updating list fields with multi-choice (checkbox) values — `update_sp_list_item()`/`create_sp_list_item()` now append @odata.type Collection hints so the Graph API accepts multi-value fields.
 * Allow `delete_sp_list_item()`/`delete_sp_list_items()` to accept a data frame for `item_id` (uses its id column).
+* Allow `update_sp_list_items()` to accept an unnamed list of named lists (one record per item, each with an `.id` element) as well as a data frame. Fields missing from a record are left unchanged. (2026-10-01)
+* Allow `delete_sp_list_items()` to accept an unnamed list of named lists (one record per item) for `item_id`. Add a `.id` argument to `delete_sp_list_item()` and `delete_sp_list_items()` to set the id column or element name. (2026-10-01)
 
 ## Fixes
 
+* Fix `delete_sp_list_item()` erroring with a data frame `item_id` (the id value is now pulled from the data frame before checking arguments and getting the list item). (2026-10-01)
+* Fix `update_sp_list_items()` validating fields again for every item: fields are now validated once per call, so `check_fields = FALSE` is respected, and list column metadata is requested once per call (and shared for field validation and identifying multi-value fields) instead of for each item. `create_sp_list_items()` also shares a single list column metadata request for field validation and identifying multi-value fields. (2026-10-01)
 * Fix multi-select (multi-value) fields when creating or updating list items from a data frame with list-columns: `create_sp_list_items()`/`update_sp_list_items()` now unwrap list-column values, use list column definitions to send single or empty selections for multi-value columns as a Collection, and convert `sfc` columns to WKT for updates as well as creates. `na_fields = "drop"` now also drops empty values (e.g. `character(0)`) so existing values are left in place. (2026-10-01)
 * Fix bug where `get_sp_list_item()` only returned item ID, not the `Microsoft365R::ms_list_item` object (2024-08-10)
 * Fix bug where `read_sharepoint()` used `readr::read_lines()` for PowerPoint files. (2024-10-10)

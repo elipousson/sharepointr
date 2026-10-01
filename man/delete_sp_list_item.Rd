@@ -9,6 +9,7 @@ delete_sp_list_item(
   item_id = NULL,
   sp_list_item = NULL,
   ...,
+  .id = "id",
   list_name = NULL,
   list_id = NULL,
   sp_list = NULL,
@@ -21,6 +22,7 @@ delete_sp_list_item(
 delete_sp_list_items(
   item_id = NULL,
   ...,
+  .id = "id",
   sp_list = NULL,
   filter = NULL,
   confirm = TRUE,
@@ -30,12 +32,19 @@ delete_sp_list_items(
 }
 \arguments{
 \item{item_id}{ID value for list item or items to delete. \code{item_id} can also
-be a data frame with a column named "id".}
+be a data frame with a column named with the \code{.id} value. For
+\code{\link[=delete_sp_list_items]{delete_sp_list_items()}}, \code{item_id} can also be an unnamed list of named
+lists (one per item) where each record includes an element named with the
+\code{.id} value.}
 
 \item{sp_list_item}{Optional. A SharePoint list item object to delete.}
 
 \item{...}{Additional parameters passed to \code{\link[=get_sp_site]{get_sp_site()}} or
 \code{\link[Microsoft365R:get_sharepoint_site]{Microsoft365R::get_sharepoint_site()}}.}
+
+\item{.id}{Name of column (if \code{item_id} is a data frame) or element (if
+\code{item_id} is a list of records) to use for item ID values. Defaults to
+"id".}
 
 \item{list_name, list_id}{SharePoint List name or ID string.}
 

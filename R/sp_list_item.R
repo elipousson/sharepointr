@@ -545,7 +545,10 @@ get_sp_list_item <- function(
 #' @aliases import_sp_list_items
 #' @param data Required. A data frame to import as items to the supplied or
 #'   identified SharePoint list. If data is an sf object, the geometry column is
-#'   coerced to text using [sf::st_as_text()].
+#'   coerced to text using [sf::st_as_text()]. For [update_sp_list_items()],
+#'   `data` can also be an unnamed list of named lists (one per item) where each
+#'   record includes an `.id` element. Unlike a data frame, any field missing
+#'   from a record is left unchanged, even when `na_fields = "replace"`.
 #' @param strict Not yet implemented as of 2024-08-12. If `TRUE`, all column
 #'   names in data must be matched to field names in the supplied SharePoint
 #'   list. If `FALSE` (default), unmatched columns will be dropped with a
@@ -648,11 +651,18 @@ create_sp_list_items <- function(
     )
   }
 
+  # Get column definitions once to validate fields and find multi-value fields
+  col_metadata <- get_sp_list_metadata(
+    sp_list = sp_list,
+    sync_fields = sync_fields,
+    as_data_frame = FALSE,
+    call = call
+  )
+
   if (check_fields) {
     data <- validate_sp_list_data_fields(
       data,
-      sp_list = sp_list,
-      sync_fields = sync_fields,
+      values = names(pull_sp_list_cols(col_metadata, col_type = "editable")),
       strict = strict,
       call = call
     )
@@ -670,7 +680,7 @@ create_sp_list_items <- function(
 
   # Multi-value (Collection) columns need an "@odata.type" annotation even when
   # a single value is selected
-  multi_fields <- pull_sp_list_multi_cols(sp_list = sp_list)
+  multi_fields <- pull_sp_list_multi_cols(col_metadata = col_metadata)
 
   cli_progress_step(
     "Importing {.arg data} into list"
@@ -804,8 +814,8 @@ validate_sp_list_data_fields <- function(
 
 #' @rdname create_sp_list_items
 #' @name update_sp_list_items
-#' @param .id Name of column in data to use for item ID values. Defaults to
-#'   "id".
+#' @param .id Name of column in data (or element in each record if `data` is a
+#'   list) to use for item ID values. Defaults to "id".
 #' @param drop_fields Column names to drop from `data` even if they are listed
 #' as editable fields. Defaults to `c("ContentType", "Attachments")`
 #' @export
@@ -842,48 +852,121 @@ update_sp_list_items <- function(
 
   check_ms_obj(sp_list, "ms_list", call = call)
 
-  stopifnot(has_name(data, .id))
+  # Get column definitions once to validate fields and find multi-value fields
+  col_metadata <- get_sp_list_metadata(sp_list = sp_list, as_data_frame = FALSE)
 
-  if (allow_display_nm) {
-    data <- replace_with_sp_list_display_names(
-      data,
-      .id = .id,
-      sp_list = sp_list,
-      call = call
-    )
-  }
-
-  # Coerce sf column to WKT (consistent with create_sp_list_items())
-  data <- sfc_cols_as_wkt(data)
-
-  update_data <- data
-  item_ids <- data[[.id]]
-  update_data[[.id]] <- NULL
+  field_nm <- NULL
 
   if (check_fields) {
-    update_data <- validate_sp_list_data_fields(
-      update_data,
-      sp_list = sp_list,
-      drop_fields = drop_fields
+    field_nm <- names(pull_sp_list_cols(col_metadata, col_type = "editable"))
+  }
+
+  display_nm <- NULL
+
+  if (allow_display_nm) {
+    display_nm <- pull_sp_list_display_names(sp_list)
+  }
+
+  if (is.data.frame(data)) {
+    if (!has_name(data, .id)) {
+      cli_abort(
+        "{.arg data} must have a column named {.val {(.id)}}.",
+        call = call
+      )
+    }
+
+    if (allow_display_nm) {
+      data <- replace_with_sp_list_display_names(
+        data,
+        .id = .id,
+        values = display_nm,
+        call = call
+      )
+    }
+
+    # Coerce sf column to WKT (consistent with create_sp_list_items())
+    update_data <- sfc_cols_as_wkt(data)
+    item_ids <- update_data[[.id]]
+    update_data[[.id]] <- NULL
+
+    if (check_fields) {
+      update_data <- validate_sp_list_data_fields(
+        update_data,
+        values = field_nm,
+        drop_fields = drop_fields
+      )
+    }
+
+    records <- vctrs::vec_chop(update_data)
+  } else if (is_list_of_records(data)) {
+    records <- purrr::map(
+      data,
+      \(x) {
+        if (allow_display_nm) {
+          x <- replace_with_sp_list_display_names(
+            x,
+            .id = .id,
+            values = display_nm,
+            call = call
+          )
+        }
+
+        sfc_cols_as_wkt(x)
+      }
+    )
+
+    item_ids <- pull_record_ids(records, .id = .id, call = call)
+
+    records <- purrr::map(
+      records,
+      \(x) {
+        x[[.id]] <- NULL
+        x
+      }
+    )
+
+    if (check_fields) {
+      # Validate the names from all records at once so any unmatched names are
+      # reported in a single message
+      record_nm <- unique(unlist(purrr::map(records, names)))
+
+      valid_nm <- names(
+        validate_sp_list_data_fields(
+          set_names(as.list(record_nm), record_nm),
+          values = field_nm,
+          drop_fields = drop_fields
+        )
+      )
+
+      records <- purrr::map(records, \(x) x[names(x) %in% valid_nm])
+    }
+  } else {
+    cli_abort(
+      c(
+        "{.arg data} must be a data frame or an unnamed list of named lists,
+        not {.obj_type_friendly {data}}.",
+        "i" = "Use {.fn update_sp_list_item} to update a single list item
+        with a named list."
+      ),
+      call = call
     )
   }
 
   # Multi-value (Collection) columns need an "@odata.type" annotation even when
   # a single value is selected
-  multi_fields <- pull_sp_list_multi_cols(sp_list = sp_list)
+  multi_fields <- pull_sp_list_multi_cols(col_metadata = col_metadata)
 
   purrr::map(
     seq_along(item_ids),
     purrr::in_parallel(
       \(i) {
         fn(
-          .data = vctrs::vec_slice(
-            x = x,
-            i = i
-          ),
+          .data = x[[i]],
           na_fields = na_fields,
           item_id = item_id[[i]],
           sp_list = sp_list,
+          # Fields are already validated (or skipped) for all items
+          check_fields = FALSE,
           .multi_fields = .multi_fields,
           call = call
         )
@@ -891,7 +974,7 @@ update_sp_list_items <- function(
       fn = update_sp_list_item,
       item_id = item_ids,
       na_fields = na_fields,
-      x = update_data,
+      x = records,
       sp_list = sp_list,
       .multi_fields = multi_fields,
       call = call
@@ -900,6 +983,52 @@ update_sp_list_items <- function(
   )
 
   invisible(data)
+}
+
+#' Is `x` a list of list item records?
+#' @returns `TRUE` if `x` is an unnamed list where every element is a named
+#'   list (and not a data frame), `FALSE` otherwise.
+#' @noRd
+is_list_of_records <- function(x) {
+  is.list(x) &&
+    !is.data.frame(x) &&
+    !is_named(x) &&
+    all(
+      purrr::map_lgl(
+        x,
+        \(record) {
+          is.list(record) && !is.data.frame(record) && is_named(record)
+        }
+      )
+    )
+}
+
+#' Get item id values from a list of list item records
+#' @returns A list of item id values, one per record. Errors if any record is
+#'   missing an id value or has an id value that is not a single non-`NA` value.
+#' @noRd
+pull_record_ids <- function(records, .id = "id", call = caller_env()) {
+  item_ids <- purrr::map(records, \(x) x[[.id]])
+
+  is_invalid <- purrr::map_lgl(
+    item_ids,
+    \(x) {
+      !has_length(x, 1) || is.na(x)
+    }
+  )
+
+  if (any(is_invalid)) {
+    invalid_i <- which(is_invalid)
+
+    cli_abort(
+      "Each record in {.arg data} must have a single {.val {(.id)}} value.
+      {cli::qty(length(invalid_i))}Record{?s} with a missing or invalid value:
+      {invalid_i}.",
+      call = call
+    )
+  }
+
+  item_ids
 }
 
 #' Replace names for a data frame or list with display names
@@ -1354,7 +1483,13 @@ create_sp_list_item <- function(
 #' `confirm = FALSE` to use without interactive confirmation.
 #'
 #' @param item_id ID value for list item or items to delete. `item_id` can also
-#' be a data frame with a column named "id".
+#' be a data frame with a column named with the `.id` value. For
+#' [delete_sp_list_items()], `item_id` can also be an unnamed list of named
+#' lists (one per item) where each record includes an element named with the
+#' `.id` value.
+#' @param .id Name of column (if `item_id` is a data frame) or element (if
+#'   `item_id` is a list of records) to use for item ID values. Defaults to
+#'   "id".
 #' @param sp_list_item Optional. A SharePoint list item object to delete.
 #' @inheritParams get_sp_list_item
 #' @param confirm If `TRUE` (default), user confirmation is required to delete
@@ -1369,6 +1504,7 @@ delete_sp_list_item <- function(
   item_id = NULL,
   sp_list_item = NULL,
   ...,
+  .id = "id",
   list_name = NULL,
   list_id = NULL,
   sp_list = NULL,
@@ -1377,6 +1513,18 @@ delete_sp_list_item <- function(
   confirm = TRUE,
   call = caller_env()
 ) {
+  # Get id from data frame before checking arguments
+  if (is.data.frame(item_id)) {
+    if (!has_name(item_id, .id)) {
+      cli_abort(
+        "{.arg item_id} must have a column named {.val {(.id)}}.",
+        call = call
+      )
+    }
+
+    item_id <- item_id[[.id]]
+  }
+
   check_exclusive_args(item_id, sp_list_item, call = call)
 
   sp_list_item <- sp_list_item %||%
@@ -1389,14 +1537,6 @@ delete_sp_list_item <- function(
       site = site,
       call = call
     )
-
-  if (is.data.frame(item_id)) {
-    stopifnot(
-      has_name(item_id, "id")
-    )
-
-    item_id <- item_id[["id"]]
-  }
 
   item_id <- item_id %||% sp_list_item[["properties"]][["id"]]
 
@@ -1428,6 +1568,7 @@ delete_sp_list_item <- function(
 delete_sp_list_items <- function(
   item_id = NULL,
   ...,
+  .id = "id",
   sp_list = NULL,
   filter = NULL,
   confirm = TRUE,
@@ -1446,11 +1587,16 @@ delete_sp_list_items <- function(
 
     item_id <- sp_list_items[["id"]]
   } else if (is.data.frame(item_id)) {
-    stopifnot(
-      has_name(item_id, "id")
-    )
+    if (!has_name(item_id, .id)) {
+      cli_abort(
+        "{.arg item_id} must have a column named {.val {(.id)}}.",
+        call = call
+      )
+    }
 
-    item_id <- item_id[["id"]]
+    item_id <- item_id[[.id]]
+  } else if (is_list_of_records(item_id)) {
+    item_id <- pull_record_ids(item_id, .id = .id, call = call)
   }
 
   if (rlang::has_length(item_id, 0)) {

@@ -129,6 +129,12 @@
 
 ### Fixes
 
+- Fix
+  [`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md)
+  returning no items for a filtered query on a list with more than 5,000
+  items when the first page of results is empty. The Graph API evaluates
+  these queries in batches, and an empty first page caused all later
+  items to be dropped. (2026-10-05)
 - Fix updates to multi-value lookup and person or group columns:
   `"{name}LookupId"` values are now sent as a `Collection(Edm.Int32)`
   (lookup ID values are often returned as strings). (2026-10-01)

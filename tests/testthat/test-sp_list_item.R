@@ -186,6 +186,47 @@ test_that("is_list_of_records() and pull_record_ids() handle list of records inp
   )
 })
 
+test_that(".sp_extract_list_values() keeps items after an empty first page", {
+  # Simplified pages of list items: an id column and a fields data frame column
+  item_page <- function(ids) {
+    page <- data.frame(id = ids)
+    page$fields <- data.frame(ProgramVersion = rep("v2", length(ids)))
+    page
+  }
+
+  pages <- list(
+    page2 = list(value = list(), `@odata.nextLink` = "page3"),
+    page3 = list(value = item_page(c("1", "2")), `@odata.nextLink` = "page4"),
+    page4 = list(value = item_page("3"))
+  )
+
+  local_mocked_bindings(
+    call_graph_url = function(token, url, ..., simplify = FALSE) {
+      pages[[url]]
+    },
+    .package = "AzureGraph"
+  )
+
+  # Filtered queries on a large list can return empty pages first, which
+  # AzureGraph parses as list() instead of a data frame
+  new_pager <- function() {
+    AzureGraph::ms_graph_pager$new(
+      token = NULL,
+      first_page = list(value = list(), `@odata.nextLink` = "page2")
+    )
+  }
+
+  values <- .sp_extract_list_values(new_pager(), n = Inf)
+  expect_s3_class(values, "data.frame")
+  expect_identical(values$id, c("1", "2", "3"))
+  expect_identical(values$fields$ProgramVersion, rep("v2", 3))
+
+  expect_identical(.sp_extract_list_values(new_pager(), n = 2)$id, c("1", "2"))
+
+  pages$page3 <- list(value = list())
+  expect_null(.sp_extract_list_values(new_pager(), n = Inf))
+})
+
 test_that("update_sp_list_items() updates items from a data frame or a list of records", {
   col_metadata <- list(
     list(name = "Title", text = list(allowMultipleLines = FALSE)),

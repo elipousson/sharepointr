@@ -312,9 +312,9 @@ get_sp_list_items <- function(
 
 #' Adapted from the list_items method for `Microsoft365R::ms_list` objects
 #' <https://github.com/Azure/Microsoft365R/blob/master/R/ms_list.R>
-#' @returns If `n` is `NULL`, `simplify = FALSE`, or `all_metadata = TRUE`,
-#'   the raw paged list of item values. Otherwise, a data frame of item
-#'   fields with every list column present (even if empty for all items).
+#' @returns If `simplify = FALSE` or `all_metadata = TRUE`, the raw paged list
+#'   of item values. Otherwise, a data frame of item fields with every list
+#'   column present (even if empty for all items).
 #' @noRd
 .ms365_list_items <- function(
   sp_list,
@@ -390,10 +390,10 @@ get_sp_list_items <- function(
   n <- n %||% Inf
 
   # get item list
-  list_values <- AzureGraph::extract_list_values(pager, n)
+  list_values <- .sp_extract_list_values(pager, n = n, simplify = simplify)
 
-  # return the iterator if n is NULL or simplify is FALSE
-  if (is.null(n) || !simplify || all_metadata) {
+  # return the raw values if simplify is FALSE or all_metadata is TRUE
+  if (!simplify || all_metadata) {
     return(list_values)
   }
 
@@ -412,6 +412,55 @@ get_sp_list_items <- function(
   )
 
   vctrs::vec_rbind(ptype_df, list_values$fields)
+}
+
+#' Extract list item values from a pager
+#'
+#' Wraps `AzureGraph::extract_list_values()`. `AzureGraph::ms_graph_pager`
+#' sets its output type from the first page only. A filtered query on a list
+#' with more items than the list view threshold (5,000) is evaluated in
+#' batches, so the first pages can be empty. An empty page is parsed as
+#' `list()` rather than a data frame, so the pager returns the remaining items
+#' as `ms_list_item` objects and the item fields are lost. When `simplify =
+#' TRUE`, this sets the pager output type to `"data.frame"` and skips empty
+#' pages.
+#' @param pager A `ms_graph_pager` object.
+#' @param n Maximum number of items to return.
+#' @param simplify If `TRUE`, return a data frame. If `FALSE`, return the
+#'   output of `AzureGraph::extract_list_values()`.
+#' @returns If `simplify = TRUE`, a data frame of item values or `NULL` if no
+#'   items are returned.
+#' @noRd
+.sp_extract_list_values <- function(pager, n = Inf, simplify = TRUE) {
+  if (!simplify) {
+    return(AzureGraph::extract_list_values(pager, n))
+  }
+
+  pager$output <- "data.frame"
+
+  pages <- list()
+  n_items <- 0
+
+  while (pager$has_data() && n_items < n) {
+    page <- pager$value
+
+    if (is.data.frame(page) && nrow(page) > 0) {
+      pages <- c(pages, list(page))
+      n_items <- n_items + nrow(page)
+    }
+  }
+
+  if (length(pages) == 0) {
+    return(NULL)
+  }
+
+  values <- vctrs::vec_rbind(!!!pages)
+
+  if (nrow(values) > n) {
+    values <- vctrs::vec_slice(values, seq_len(n))
+  }
+
+  values
 }
 
 #' Add orderby to options

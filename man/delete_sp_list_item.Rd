@@ -33,9 +33,9 @@ delete_sp_list_items(
 \arguments{
 \item{item_id}{ID value for list item or items to delete. \code{item_id} can also
 be a data frame with a column named with the \code{.id} value. For
-\code{\link[=delete_sp_list_items]{delete_sp_list_items()}}, \code{item_id} can also be an unnamed list of named
-lists (one per item) where each record includes an element named with the
-\code{.id} value.}
+\code{\link[=delete_sp_list_items]{delete_sp_list_items()}}, \code{item_id} can also be a list of named lists (one
+per item) or a single named list record where each record includes an
+element named with the \code{.id} value.}
 
 \item{sp_list_item}{Optional. A SharePoint list item object to delete.}
 

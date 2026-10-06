@@ -186,6 +186,25 @@ test_that("is_list_of_records() and pull_record_ids() handle list of records inp
   )
 })
 
+test_that("as_list_of_records() wraps a single record or unnames a list of records", {
+  record <- list(id = "1", Title = "A", Choices = c("B", "C"))
+  records <- list(list(id = "1"), list(id = "2", Title = "B"))
+
+  expect_identical(as_list_of_records(record), list(record))
+  expect_identical(as_list_of_records(set_names(records, c("a", "b"))), records)
+  expect_identical(as_list_of_records(records), records)
+  expect_identical(
+    as_list_of_records(list(item_id = "1"), .id = "item_id"),
+    list(list(item_id = "1"))
+  )
+
+  # Other named lists are returned unmodified
+  columns <- list(id = c("1", "2"), Title = c("A", "B"))
+  expect_identical(as_list_of_records(columns), columns)
+  expect_identical(as_list_of_records(list(Title = "A")), list(Title = "A"))
+  expect_identical(as_list_of_records(c("1", "2")), c("1", "2"))
+})
+
 test_that(".sp_extract_list_values() keeps items after an empty first page", {
   # Simplified pages of list items: an id column and a fields data frame column
   item_page <- function(ids) {
@@ -303,9 +322,42 @@ test_that("update_sp_list_items() updates items from a data frame or a list of r
     )
   )
 
+  updates$calls <- list()
+
+  # A single named list record updates one item with all of its fields
+  record <- list(id = "1", Title = "A", Choices = "B")
+  expect_identical(
+    update_sp_list_items(record, sp_list = sp_list, .progress = FALSE),
+    record
+  )
+  expect_identical(
+    updates$calls[["1"]],
+    list(
+      Title = "A",
+      Choices = list("B"),
+      `Choices@odata.type` = "Collection(Edm.String)"
+    )
+  )
+
+  updates$calls <- list()
+
+  update_sp_list_items(
+    list(a = list(id = "1", Title = "A"), b = list(id = "2", Title = "B")),
+    sp_list = sp_list,
+    .progress = FALSE
+  )
+  expect_identical(names(updates$calls), c("1", "2"))
+
   expect_error(
     update_sp_list_items(list(Title = "A"), sp_list = sp_list),
-    "must be a data frame or an unnamed list of named lists"
+    "must be a data frame, a named list for a single item"
+  )
+  expect_error(
+    update_sp_list_items(
+      list(id = c("1", "2"), Title = c("A", "B")),
+      sp_list = sp_list
+    ),
+    "must be a data frame, a named list for a single item"
   )
   expect_error(
     update_sp_list_items(data.frame(Title = "A"), sp_list = sp_list),
@@ -405,9 +457,29 @@ test_that("delete_sp_list_items() accepts ids, a data frame, or a list of record
     expected_ops
   )
 
+  expect_identical(
+    delete_ids(list(a = list(id = "1"), b = list(id = "2"))),
+    expected_ops
+  )
+  expect_identical(delete_ids(list("1", "2")), expected_ops)
+
+  # A single record deletes one item (not one item per element)
+  expect_identical(
+    delete_ids(list(id = "1", Title = "A")),
+    "DELETE items/1"
+  )
+
   expect_error(
     delete_ids(list(list(id = "1"), list(Title = "B"))),
     "Record with a missing or invalid value: 2"
+  )
+  expect_error(
+    delete_ids(list(Title = "A", Status = "B")),
+    "can't be a named list"
+  )
+  expect_error(
+    delete_ids(list(id = c("1", "2"))),
+    "can't be a named list"
   )
 
   # Alternate id column or element names are supported with `.id`

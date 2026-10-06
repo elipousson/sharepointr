@@ -68,9 +68,10 @@ update_sp_list_item(
 \item{data}{Required. A data frame to import as items to the supplied or
 identified SharePoint list. If data is an sf object, the geometry column is
 coerced to text using \code{\link[sf:st_as_text]{sf::st_as_text()}}. For \code{\link[=update_sp_list_items]{update_sp_list_items()}},
-\code{data} can also be an unnamed list of named lists (one per item) where each
-record includes an \code{.id} element. Unlike a data frame, any field missing
-from a record is left unchanged, even when \code{na_fields = "replace"}.}
+\code{data} can also be a list of named lists (one per item) where each record
+includes an \code{.id} element, or a single named list record for one item.
+Unlike a data frame, any field missing from a record is left unchanged,
+even when \code{na_fields = "replace"}.}
 
 \item{list_name, list_id}{SharePoint List name or ID string.}
 

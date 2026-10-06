@@ -28,6 +28,7 @@
 
 ## Fixes
 
+* Fix `update_sp_list_items()` and `delete_sp_list_items()` handling of named lists: a single named list record (with an `.id` element) or a named list of records is now supported. Previously, `update_sp_list_items()` only sent the first field from a named list, and `delete_sp_list_items()` used every element of a named list as an item id. Other named lists now error. (2026-10-06)
 * Fix `list_sp_list_items()` returning no items for a filtered query on a list with more than 5,000 items when the first page of results is empty. The Graph API evaluates these queries in batches, and an empty first page caused all later items to be dropped. (2026-10-05)
 * Fix updates to multi-value lookup and person or group columns: `"{name}LookupId"` values are now sent as a `Collection(Edm.Int32)` (lookup ID values are often returned as strings). (2026-10-01)
 * Fix `delete_sp_list_item()` erroring with a data frame `item_id` (the id value is now pulled from the data frame before checking arguments and getting the list item). (2026-10-01)

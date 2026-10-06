@@ -595,9 +595,10 @@ get_sp_list_item <- function(
 #' @param data Required. A data frame to import as items to the supplied or
 #'   identified SharePoint list. If data is an sf object, the geometry column is
 #'   coerced to text using [sf::st_as_text()]. For [update_sp_list_items()],
-#'   `data` can also be an unnamed list of named lists (one per item) where each
-#'   record includes an `.id` element. Unlike a data frame, any field missing
-#'   from a record is left unchanged, even when `na_fields = "replace"`.
+#'   `data` can also be a list of named lists (one per item) where each record
+#'   includes an `.id` element, or a single named list record for one item.
+#'   Unlike a data frame, any field missing from a record is left unchanged,
+#'   even when `na_fields = "replace"`.
 #' @param strict Not yet implemented as of 2024-08-12. If `TRUE`, all column
 #'   names in data must be matched to field names in the supplied SharePoint
 #'   list. If `FALSE` (default), unmatched columns will be dropped with a
@@ -916,6 +917,9 @@ update_sp_list_items <- function(
     display_nm <- pull_sp_list_display_names(sp_list)
   }
 
+  # Wrap a single record or drop names from a named list of records
+  data_records <- as_list_of_records(data, .id = .id)
+
   if (is.data.frame(data)) {
     if (!has_name(data, .id)) {
       cli_abort(
@@ -947,9 +951,9 @@ update_sp_list_items <- function(
     }
 
     records <- vctrs::vec_chop(update_data)
-  } else if (is_list_of_records(data)) {
+  } else if (is_list_of_records(data_records)) {
     records <- purrr::map(
-      data,
+      data_records,
       \(x) {
         if (allow_display_nm) {
           x <- replace_with_sp_list_display_names(
@@ -992,10 +996,10 @@ update_sp_list_items <- function(
   } else {
     cli_abort(
       c(
-        "{.arg data} must be a data frame or an unnamed list of named lists,
-        not {.obj_type_friendly {data}}.",
-        "i" = "Use {.fn update_sp_list_item} to update a single list item
-        with a named list."
+        "{.arg data} must be a data frame, a named list for a single item, or
+        a list of named lists, not {.obj_type_friendly {data}}.",
+        "i" = "Each named list must include a single {.val {(.id)}} value.
+        Use a data frame for column-wise values."
       ),
       call = call
     )
@@ -1050,6 +1054,29 @@ is_list_of_records <- function(x) {
         }
       )
     )
+}
+
+#' Convert a single record or a named list of records to a list of records
+#' @returns If `x` is a single record (a named list with a length 1, non-list
+#'   `.id` element), a list containing `x`. If `x` is a named list of records,
+#'   `x` with names removed. Otherwise, `x` unmodified.
+#' @noRd
+as_list_of_records <- function(x, .id = "id") {
+  if (!is.list(x) || is.data.frame(x) || !is_named(x)) {
+    return(x)
+  }
+
+  if (has_name(x, .id) && !is.list(x[[.id]]) && has_length(x[[.id]], 1)) {
+    return(list(x))
+  }
+
+  records <- unname(x)
+
+  if (is_list_of_records(records)) {
+    return(records)
+  }
+
+  x
 }
 
 #' Get item id values from a list of list item records
@@ -1562,9 +1589,9 @@ create_sp_list_item <- function(
 #'
 #' @param item_id ID value for list item or items to delete. `item_id` can also
 #' be a data frame with a column named with the `.id` value. For
-#' [delete_sp_list_items()], `item_id` can also be an unnamed list of named
-#' lists (one per item) where each record includes an element named with the
-#' `.id` value.
+#' [delete_sp_list_items()], `item_id` can also be a list of named lists (one
+#' per item) or a single named list record where each record includes an
+#' element named with the `.id` value.
 #' @param .id Name of column (if `item_id` is a data frame) or element (if
 #'   `item_id` is a list of records) to use for item ID values. Defaults to
 #'   "id".
@@ -1673,8 +1700,23 @@ delete_sp_list_items <- function(
     }
 
     item_id <- item_id[[.id]]
-  } else if (is_list_of_records(item_id)) {
-    item_id <- pull_record_ids(item_id, .id = .id, call = call)
+  } else if (is.list(item_id)) {
+    # Wrap a single record or drop names from a named list of records
+    records <- as_list_of_records(item_id, .id = .id)
+
+    if (is_list_of_records(records)) {
+      item_id <- pull_record_ids(records, .id = .id, call = call)
+    } else if (!is.null(names(item_id))) {
+      # Avoid deleting items using the values of other fields as ids
+      cli_abort(
+        c(
+          "{.arg item_id} can't be a named list unless it is a single record
+          or a list of records.",
+          "i" = "Each record must include a single {.val {(.id)}} value."
+        ),
+        call = call
+      )
+    }
   }
 
   if (rlang::has_length(item_id, 0)) {

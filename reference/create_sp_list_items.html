@@ -111,9 +111,10 @@
 <dd><p>Required. A data frame to import as items to the supplied or
 identified SharePoint list. If data is an sf object, the geometry column is
 coerced to text using <code><a href="https://r-spatial.github.io/sf/reference/st_as_text.html" class="external-link">sf::st_as_text()</a></code>. For <code>update_sp_list_items()</code>,
-<code>data</code> can also be an unnamed list of named lists (one per item) where each
-record includes an <code>.id</code> element. Unlike a data frame, any field missing
-from a record is left unchanged, even when <code>na_fields = "replace"</code>.</p></dd>
+<code>data</code> can also be a list of named lists (one per item) where each record
+includes an <code>.id</code> element, or a single named list record for one item.
+Unlike a data frame, any field missing from a record is left unchanged,
+even when <code>na_fields = "replace"</code>.</p></dd>
 
 
 <dt id="arg-list-name-list-id">list_name, list_id<a class="anchor" aria-label="anchor" href="#arg-list-name-list-id"></a></dt>

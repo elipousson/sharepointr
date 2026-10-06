@@ -39,9 +39,9 @@ delete_sp_list_items(
 
   ID value for list item or items to delete. `item_id` can also be a
   data frame with a column named with the `.id` value. For
-  `delete_sp_list_items()`, `item_id` can also be an unnamed list of
-  named lists (one per item) where each record includes an element named
-  with the `.id` value.
+  `delete_sp_list_items()`, `item_id` can also be a list of named lists
+  (one per item) or a single named list record where each record
+  includes an element named with the `.id` value.
 
 - sp_list_item:
 

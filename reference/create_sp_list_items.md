@@ -71,10 +71,11 @@ update_sp_list_item(
   identified SharePoint list. If data is an sf object, the geometry
   column is coerced to text using
   [`sf::st_as_text()`](https://r-spatial.github.io/sf/reference/st_as_text.html).
-  For `update_sp_list_items()`, `data` can also be an unnamed list of
-  named lists (one per item) where each record includes an `.id`
-  element. Unlike a data frame, any field missing from a record is left
-  unchanged, even when `na_fields = "replace"`.
+  For `update_sp_list_items()`, `data` can also be a list of named lists
+  (one per item) where each record includes an `.id` element, or a
+  single named list record for one item. Unlike a data frame, any field
+  missing from a record is left unchanged, even when
+  `na_fields = "replace"`.
 
 - list_name, list_id:
 

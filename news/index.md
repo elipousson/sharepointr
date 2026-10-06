@@ -130,6 +130,17 @@
 ### Fixes
 
 - Fix
+  [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  and
+  [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
+  handling of named lists: a single named list record (with an `.id`
+  element) or a named list of records is now supported. Previously,
+  [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  only sent the first field from a named list, and
+  [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
+  used every element of a named list as an item id. Other named lists
+  now error. (2026-10-06)
+- Fix
   [`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md)
   returning no items for a filtered query on a list with more than 5,000
   items when the first page of results is empty. The Graph API evaluates

@@ -137,6 +137,12 @@ sp_list_rest_request <- function(
     )
   }
 
+  # Action endpoints (e.g. `views(guid'...')/viewfields/addviewfield('X')`)
+  # return HTTP 411 (Length Required) for a POST without a body
+  if (is.null(body) && method == "POST") {
+    body <- set_names(list(), character(0))
+  }
+
   if (!is.null(body)) {
     req <- req |>
       httr2::req_body_json(body, auto_unbox = TRUE) |>
@@ -193,12 +199,20 @@ update_sp_list_field_rest <- function(
 
 #' @noRd
 sp_rest_field_path <- function(column_name) {
-  # Single quotes in OData string literals are escaped by doubling
   paste0(
     "fields/getbyinternalnameortitle('",
-    gsub("'", "''", column_name, fixed = TRUE),
+    sp_rest_string(column_name),
     "')"
   )
+}
+
+#' Format a string for use in a SharePoint REST API URL path
+#'
+#' Single quotes in OData string literals are escaped by doubling and the
+#' string is URL encoded (e.g. a space as `%20`).
+#' @noRd
+sp_rest_string <- function(x) {
+  utils::URLencode(gsub("'", "''", x, fixed = TRUE), reserved = TRUE)
 }
 
 #' Convert a columnValidation to SharePoint REST field properties

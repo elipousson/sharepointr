@@ -1,0 +1,731 @@
+# SharePoint list views
+#
+# The Graph API doesn't support list views so these functions use the
+# SharePoint REST API. View properties use the SP.View property names.
+# <https://learn.microsoft.com/en-us/previous-versions/office/sharepoint-csom/jj244979(v=office.15)>
+
+#' SP.View properties that can be set
+#' @noRd
+sp_view_props <- list(
+  Title = "string",
+  ViewFields = "character",
+  ViewQuery = "string",
+  RowLimit = "whole",
+  Paged = "bool",
+  DefaultView = "bool",
+  Hidden = "bool",
+  Scope = "scope",
+  CustomFormatter = "json",
+  MobileView = "bool",
+  MobileDefaultView = "bool"
+)
+
+#' SP.View properties that are returned as a reference to an existing view
+#' @noRd
+sp_view_read_only_props <- c(
+  "Id",
+  "ServerRelativeUrl",
+  "ViewType",
+  "PersonalView"
+)
+
+#' SP.View Scope values (SP.ViewScope)
+#' 0 = Default, 1 = Recursive, 2 = RecursiveAll, 3 = FilesOnly
+#' @noRd
+sp_view_scopes <- 0:3
+
+#' Argument names used in place of SP.View property names
+#' @noRd
+sp_view_prop_hints <- c(
+  title = "Title",
+  view_fields = "ViewFields",
+  fields = "ViewFields",
+  view_query = "ViewQuery",
+  query = "ViewQuery",
+  Query = "ViewQuery",
+  row_limit = "RowLimit",
+  paged = "Paged",
+  default_view = "DefaultView",
+  SetAsDefaultView = "DefaultView",
+  hidden = "Hidden",
+  scope = "Scope",
+  custom_formatter = "CustomFormatter",
+  id = "Id"
+)
+
+#' Validate a list view definition
+#'
+#' @param x A named list of SP.View properties.
+#' @param require_title If `TRUE`, require a `Title`.
+#' @returns `x` with `ViewFields` as a character vector and `CustomFormatter`
+#'   as a JSON string.
+#' @noRd
+validate_view_definition <- function(
+  x,
+  require_title = TRUE,
+  label = NULL,
+  call = caller_env()
+) {
+  if (!is.list(x) || (length(x) > 0 && !is_named(x))) {
+    cli_abort(
+      "{label %||% 'A view definition'} must be a named list.",
+      call = call
+    )
+  }
+
+  label <- label %||% x[["Title"]] %||% "view"
+  allowed <- c(names(sp_view_props), sp_view_read_only_props)
+  unknown <- setdiff(names(x), allowed)
+
+  if (length(unknown) > 0) {
+    hints <- sp_view_prop_hints[intersect(unknown, names(sp_view_prop_hints))]
+
+    cli_abort(
+      c(
+        "{.field {label}} has unknown view propert{?y/ies}: {.field {unknown}}.",
+        set_names(
+          purrr::imap_chr(hints, \(to, from) {
+            paste0("Use {.field ", to, "} in place of {.field ", from, "}.")
+          }),
+          rep("i", length(hints))
+        ),
+        "i" = "Allowed properties: {.field {names(sp_view_props)}}."
+      ),
+      call = call
+    )
+  }
+
+  if (require_title) {
+    check_string(x[["Title"]], arg = paste0(label, ".Title"), call = call)
+  }
+
+  for (prop in intersect(names(x), names(sp_view_props))) {
+    arg <- paste0(label, ".", prop)
+    rule <- sp_view_props[[prop]]
+    value <- x[[prop]]
+
+    x[[prop]] <- switch(
+      rule,
+      scope = {
+        check_number_whole(value, min = 0, max = 3, arg = arg, call = call)
+        as.integer(value)
+      },
+      json = as_view_json(value, arg = arg, call = call),
+      # SharePoint returns whole numbers as integers
+      whole = as.integer(check_sp_prop(value, rule = rule, arg = arg, call = call)),
+      check_sp_prop(value, rule = rule, arg = arg, call = call)
+    )
+  }
+
+  for (prop in intersect(names(x), sp_view_read_only_props)) {
+    if (prop == "PersonalView") {
+      check_bool(x[[prop]], arg = paste0(label, ".", prop), call = call)
+    } else {
+      check_string(x[[prop]], arg = paste0(label, ".", prop), call = call)
+    }
+  }
+
+  x
+}
+
+#' Convert a custom formatter to a JSON string
+#'
+#' @param x A JSON string or a list (converted with [jsonlite::toJSON()]).
+#' @noRd
+as_view_json <- function(x, arg = caller_arg(x), call = caller_env()) {
+  if (is.list(x)) {
+    return(as.character(jsonlite::toJSON(x, auto_unbox = TRUE, null = "null")))
+  }
+
+  check_string(x, arg = arg, call = call)
+
+  if (nzchar(x) && !jsonlite::validate(x)) {
+    cli_abort("{.arg {arg}} must be valid JSON.", call = call)
+  }
+
+  x
+}
+
+#' Clean a view returned by the SharePoint REST API
+#'
+#' Keeps the SP.View properties used by sharepointr and converts the expanded
+#' `ViewFields` to a character vector.
+#' @noRd
+clean_view <- function(view) {
+  fields <- view[["ViewFields"]][["Items"]]
+  view <- view[intersect(
+    names(view),
+    c(sp_view_read_only_props, names(sp_view_props))
+  )]
+  view[["ViewFields"]] <- as.character(unlist(fields))
+
+  if (identical(view[["CustomFormatter"]], "")) {
+    view[["CustomFormatter"]] <- NULL
+  }
+
+  purrr::discard(view, is.null)
+}
+
+#' Normalize a CAML view query for comparison
+#'
+#' SharePoint adds a space before the end of empty elements (`<FieldRef
+#' Name="X" />`) when a view query is saved.
+#' @noRd
+normalize_view_query <- function(x) {
+  x <- gsub(">\\s+<", "><", trimws(x %||% ""))
+  gsub("\\s*/>", "/>", x)
+}
+
+#' Are a proposed and current view property value the same?
+#' @noRd
+same_view_value <- function(proposed, current, prop) {
+  if (prop == "ViewQuery") {
+    return(identical(normalize_view_query(proposed), normalize_view_query(current)))
+  }
+
+  if (prop == "CustomFormatter") {
+    parse <- \(x) if (nzchar(x %||% "")) jsonlite::fromJSON(x, simplifyVector = FALSE)
+    return(identical(parse(proposed), parse(current)))
+  }
+
+  identical(proposed, current)
+}
+
+#' Get the REST API path for a view
+#' @noRd
+sp_view_path <- function(view_title = NULL, view_id = NULL) {
+  if (!is.null(view_id)) {
+    return(paste0("views(guid'", view_id, "')"))
+  }
+
+  if (!is.null(view_title)) {
+    return(paste0("views/getbytitle('", sp_rest_string(view_title), "')"))
+  }
+
+  "defaultview"
+}
+
+#' List, get, create, update, or delete SharePoint list views
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
+#' - [list_sp_list_views()] lists the views for a SharePoint list.
+#' - [get_sp_list_view()] gets a single view by title or ID (or the default
+#'   view).
+#' - [create_sp_list_view()] creates a view.
+#' - [update_sp_list_view()] updates a view. Only properties that differ from
+#'   the existing view are changed.
+#' - [delete_sp_list_view()] deletes a view. The default view can't be deleted.
+#'
+#' The Graph API doesn't support list views, so these functions use the
+#' SharePoint REST API and require a delegated (user) login with a refresh
+#' token, such as the default Microsoft365R login. View properties use the
+#' SharePoint REST API
+#' [SP.View](https://learn.microsoft.com/en-us/previous-versions/office/sharepoint-csom/jj244979(v=office.15))
+#' property names (e.g. `ViewFields` or `RowLimit`) and the arguments use the
+#' same names in snake case (e.g. `view_fields` or `row_limit`).
+#'
+#' @details View queries
+#'
+#' `view_query` is a [CAML](https://learn.microsoft.com/en-us/sharepoint/dev/schema/query-schema)
+#' query with optional `<Where>`, `<OrderBy>`, and `<GroupBy>` elements (but
+#' without an enclosing `<Query>` element). Reference columns by internal name.
+#' For example, to show active items sorted by amount:
+#'
+#' ```
+#' <Where><Eq><FieldRef Name="Status"/><Value Type="Choice">Active</Value></Eq></Where>
+#' <OrderBy><FieldRef Name="Amount" Ascending="FALSE"/></OrderBy>
+#' ```
+#'
+#' @details Limitations
+#'
+#' - Board, gallery, and calendar views can be listed but their layout
+#'   settings can't be changed.
+#' - Personal views can be listed but not created.
+#' - Hidden views include list form settings (e.g. a hidden "Untitled Form"
+#'   view holds custom form formatting) and are excluded by default.
+#' - Changing view fields removes and re-adds every field. If a request fails
+#'   partway through, call [update_sp_list_view()] again.
+#' - Renaming a view doesn't change the view URL.
+#'
+#' @inheritParams get_sp_list
+#' @param sp_list A `ms_list` object. If `NULL`, the list is retrieved with
+#'   [get_sp_list()] using `list_name` and any additional arguments passed to
+#'   `...`.
+#' @param ... Additional arguments passed to [get_sp_list()] if `sp_list` is
+#'   `NULL`.
+#' @param list_name List name or URL. Used to get the list if `sp_list` is
+#'   `NULL`.
+#' @param hidden For [list_sp_list_views()], if `TRUE`, include hidden views.
+#'   For [create_sp_list_view()] and [update_sp_list_view()], if `TRUE`, hide
+#'   the view. SP.View property: `Hidden`.
+#' @param as_data_frame If `TRUE` (default), return a data frame with one row
+#'   per view and a `ViewFields` list column. If `FALSE`, return a list of
+#'   views.
+#' @inheritParams rlang::args_error_context
+#' @returns [list_sp_list_views()] returns a data frame or a list of views.
+#'   [get_sp_list_view()], [create_sp_list_view()], and
+#'   [update_sp_list_view()] return a named list of SP.View properties
+#'   (`Id`, `Title`, `ViewFields`, `ViewQuery`, `RowLimit`, `DefaultView`,
+#'   and other properties). [delete_sp_list_view()] invisibly returns `NULL`.
+#' @keywords lists
+#' @examples
+#' \dontrun{
+#' list_sp_list_views(list_name = "Projects", site_url = "<SharePoint site url>")
+#'
+#' create_sp_list_view(
+#'   sp_list,
+#'   title = "Active Projects",
+#'   view_fields = c("LinkTitle", "Status", "Amount"),
+#'   view_query = '<Where><Eq><FieldRef Name="Status"/>
+#'     <Value Type="Choice">Active</Value></Eq></Where>',
+#'   row_limit = 50
+#' )
+#'
+#' update_sp_list_view(
+#'   sp_list,
+#'   view_title = "Active Projects",
+#'   default_view = TRUE
+#' )
+#' }
+#' @export
+list_sp_list_views <- function(
+  sp_list = NULL,
+  ...,
+  hidden = FALSE,
+  as_data_frame = TRUE,
+  list_name = NULL,
+  site_url = NULL,
+  site = NULL,
+  call = caller_env()
+) {
+  check_bool(hidden, call = call)
+  check_bool(as_data_frame, call = call)
+
+  sp_list <- get_view_sp_list(
+    sp_list,
+    ...,
+    list_name = list_name,
+    site_url = site_url,
+    site = site,
+    call = call
+  )
+
+  resp <- sp_list_rest_request(
+    sp_list,
+    "views?$expand=ViewFields",
+    call = call
+  )
+
+  views <- purrr::map(resp[["value"]], clean_view)
+
+  if (!hidden) {
+    views <- purrr::discard(views, \(view) isTRUE(view[["Hidden"]]))
+  }
+
+  if (!as_data_frame) {
+    return(views)
+  }
+
+  if (length(views) == 0) {
+    return(data.frame())
+  }
+
+  rows <- purrr::map(
+    views,
+    \(view) {
+      view[["ViewFields"]] <- list(view[["ViewFields"]])
+      vctrs::new_data_frame(purrr::map(view, \(x) if (is.list(x)) x else list(x)), n = 1L)
+    }
+  )
+
+  table <- vctrs::vec_rbind(!!!rows)
+  first <- c("Id", "Title", "DefaultView", "Hidden", "ViewFields")
+  table <- table[c(intersect(first, names(table)), setdiff(names(table), first))]
+  table[setdiff(names(table), "ViewFields")] <- purrr::map(
+    table[setdiff(names(table), "ViewFields")],
+    simplify_list_col
+  )
+
+  table
+}
+
+#' Get a `ms_list` for the view functions
+#' @noRd
+get_view_sp_list <- function(
+  sp_list = NULL,
+  ...,
+  list_name = NULL,
+  site_url = NULL,
+  site = NULL,
+  call = caller_env()
+) {
+  sp_list <- sp_list %||%
+    get_sp_list(
+      list_name = list_name,
+      ...,
+      site_url = site_url,
+      site = site,
+      metadata = FALSE,
+      as_data_frame = FALSE,
+      call = call
+    )
+
+  check_ms_obj(sp_list, "ms_list", call = call)
+  sp_list
+}
+
+#' @rdname list_sp_list_views
+#' @param view_title,view_id Title or ID of an existing view. If both are
+#'   `NULL`, [get_sp_list_view()] returns the default view.
+#' @export
+get_sp_list_view <- function(
+  sp_list = NULL,
+  view_title = NULL,
+  view_id = NULL,
+  ...,
+  list_name = NULL,
+  site_url = NULL,
+  site = NULL,
+  call = caller_env()
+) {
+  check_string(view_title, allow_null = TRUE, call = call)
+  check_string(view_id, allow_null = TRUE, call = call)
+
+  if (!is.null(view_title) && !is.null(view_id)) {
+    cli_abort(
+      "Supply {.arg view_title} or {.arg view_id}, not both.",
+      call = call
+    )
+  }
+
+  sp_list <- get_view_sp_list(
+    sp_list,
+    ...,
+    list_name = list_name,
+    site_url = site_url,
+    site = site,
+    call = call
+  )
+
+  view <- sp_list_rest_request(
+    sp_list,
+    paste0(sp_view_path(view_title, view_id), "?$expand=ViewFields"),
+    call = call
+  )
+
+  clean_view(view)
+}
+
+#' @rdname list_sp_list_views
+#' @param title View title. Required for [create_sp_list_view()] unless
+#'   supplied with `view_definition`. For [update_sp_list_view()], a new title
+#'   for the view. SP.View property: `Title`.
+#' @param view_fields Character vector of internal column names to show in
+#'   the view, in order. Use `"LinkTitle"` for the title column with a link to
+#'   the item. For [create_sp_list_view()], defaults to the fields of the
+#'   default view. SP.View property: `ViewFields`.
+#' @param view_query A CAML query used to filter, sort, or group items (see
+#'   details). SP.View property: `ViewQuery`.
+#' @param row_limit Number of items to show per page. SP.View property:
+#'   `RowLimit`.
+#' @param paged If `TRUE`, show items in pages of `row_limit` items. SP.View
+#'   property: `Paged`.
+#' @param default_view If `TRUE`, make the view the default view for the
+#'   list. The current default view is no longer the default. SP.View
+#'   property: `DefaultView`.
+#' @param scope For lists with folders, whether to show items in folders.
+#'   One of `0` (default), `1` (recursive), `2` (recursive all), or `3` (files
+#'   only). SP.View property: `Scope`.
+#' @param custom_formatter JSON view formatting as a JSON string or a list.
+#'   See [Use view formatting to customize SharePoint](https://learn.microsoft.com/en-us/sharepoint/dev/declarative-customization/view-formatting).
+#'   SP.View property: `CustomFormatter`.
+#' @param view_definition Optional. A named list of SP.View properties (e.g.
+#'   `list(Title = "Active", RowLimit = 50)`). Used in place of the other view
+#'   arguments.
+#' @export
+create_sp_list_view <- function(
+  sp_list = NULL,
+  title = NULL,
+  ...,
+  view_fields = NULL,
+  view_query = NULL,
+  row_limit = NULL,
+  paged = NULL,
+  default_view = NULL,
+  hidden = NULL,
+  scope = NULL,
+  custom_formatter = NULL,
+  view_definition = NULL,
+  list_name = NULL,
+  site_url = NULL,
+  site = NULL,
+  call = caller_env()
+) {
+  view <- view_definition %||%
+    purrr::compact(list(
+      Title = title,
+      ViewFields = view_fields,
+      ViewQuery = view_query,
+      RowLimit = row_limit,
+      Paged = paged,
+      DefaultView = default_view,
+      Hidden = hidden,
+      Scope = scope,
+      CustomFormatter = custom_formatter
+    ))
+
+  view <- validate_view_definition(view, call = call)
+  view <- view[setdiff(names(view), sp_view_read_only_props)]
+
+  sp_list <- get_view_sp_list(
+    sp_list,
+    ...,
+    list_name = list_name,
+    site_url = site_url,
+    site = site,
+    call = call
+  )
+
+  if (is.null(view[["ViewFields"]])) {
+    view[["ViewFields"]] <- get_sp_list_view(sp_list, call = call)[["ViewFields"]]
+  }
+
+  # SP.ViewCreationInformation properties
+  parameters <- purrr::compact(list(
+    Title = view[["Title"]],
+    ViewFields = as.list(view[["ViewFields"]]),
+    Query = view[["ViewQuery"]],
+    RowLimit = view[["RowLimit"]],
+    Paged = view[["Paged"]],
+    SetAsDefaultView = view[["DefaultView"]],
+    CustomFormatter = view[["CustomFormatter"]],
+    PersonalView = FALSE
+  ))
+
+  cli_progress_step("Creating view {.val {view[['Title']]}}")
+
+  resp <- sp_list_rest_request(
+    sp_list,
+    "views/add",
+    method = "POST",
+    body = list(parameters = parameters),
+    call = call
+  )
+
+  # Properties that can't be set when a view is created
+  other <- view[intersect(names(view), c("Hidden", "Scope", "MobileView", "MobileDefaultView"))]
+
+  if (length(other) > 0) {
+    sp_list_rest_request(
+      sp_list,
+      sp_view_path(view_id = resp[["Id"]]),
+      method = "POST",
+      body = other,
+      merge = TRUE,
+      call = call
+    )
+  }
+
+  get_sp_list_view(sp_list, view_id = resp[["Id"]], call = call)
+}
+
+#' @rdname list_sp_list_views
+#' @export
+update_sp_list_view <- function(
+  sp_list = NULL,
+  view_title = NULL,
+  view_id = NULL,
+  ...,
+  title = NULL,
+  view_fields = NULL,
+  view_query = NULL,
+  row_limit = NULL,
+  paged = NULL,
+  default_view = NULL,
+  hidden = NULL,
+  scope = NULL,
+  custom_formatter = NULL,
+  view_definition = NULL,
+  list_name = NULL,
+  site_url = NULL,
+  site = NULL,
+  call = caller_env()
+) {
+  proposed <- view_definition %||%
+    purrr::compact(list(
+      Title = title,
+      ViewFields = view_fields,
+      ViewQuery = view_query,
+      RowLimit = row_limit,
+      Paged = paged,
+      DefaultView = default_view,
+      Hidden = hidden,
+      Scope = scope,
+      CustomFormatter = custom_formatter
+    ))
+
+  proposed <- validate_view_definition(proposed, require_title = FALSE, call = call)
+
+  sp_list <- get_view_sp_list(
+    sp_list,
+    ...,
+    list_name = list_name,
+    site_url = site_url,
+    site = site,
+    call = call
+  )
+
+  current <- get_sp_list_view(
+    sp_list,
+    view_title = view_title,
+    view_id = view_id %||% proposed[["Id"]],
+    call = call
+  )
+
+  view_id <- current[["Id"]]
+
+  if (isTRUE(current[["DefaultView"]]) && isFALSE(proposed[["DefaultView"]])) {
+    cli_abort(
+      c(
+        "{.val {current[['Title']]}} is the default view.",
+        "i" = "Set another view as the default view instead."
+      ),
+      call = call
+    )
+  }
+
+  changed <- purrr::keep(
+    names(proposed[intersect(names(proposed), names(sp_view_props))]),
+    \(prop) !same_view_value(proposed[[prop]], current[[prop]], prop)
+  )
+
+  if (length(changed) == 0) {
+    cli_inform(c("i" = "View {.val {current[['Title']]}} is unchanged."))
+    return(invisible(current))
+  }
+
+  cli_progress_step("Updating view {.val {current[['Title']]}}")
+
+  props <- proposed[setdiff(changed, "ViewFields")]
+
+  if (length(props) > 0) {
+    sp_list_rest_request(
+      sp_list,
+      sp_view_path(view_id = view_id),
+      method = "POST",
+      body = props,
+      merge = TRUE,
+      call = call
+    )
+  }
+
+  if ("ViewFields" %in% changed) {
+    set_sp_list_view_fields(sp_list, view_id, proposed[["ViewFields"]], call = call)
+  }
+
+  invisible(get_sp_list_view(sp_list, view_id = view_id, call = call))
+}
+
+#' Replace the fields shown in a view
+#' @noRd
+set_sp_list_view_fields <- function(
+  sp_list,
+  view_id,
+  view_fields,
+  call = caller_env()
+) {
+  path <- paste0(sp_view_path(view_id = view_id), "/viewfields")
+
+  sp_list_rest_request(
+    sp_list,
+    paste0(path, "/removeallviewfields"),
+    method = "POST",
+    call = call
+  )
+
+  for (field in view_fields) {
+    sp_list_rest_request(
+      sp_list,
+      paste0(path, "/addviewfield('", sp_rest_string(field), "')"),
+      method = "POST",
+      call = call
+    )
+  }
+
+  invisible(sp_list)
+}
+
+#' @rdname list_sp_list_views
+#' @param confirm If `TRUE` (default), ask for confirmation before deleting a
+#'   view.
+#' @export
+delete_sp_list_view <- function(
+  sp_list = NULL,
+  view_title = NULL,
+  view_id = NULL,
+  ...,
+  confirm = TRUE,
+  list_name = NULL,
+  site_url = NULL,
+  site = NULL,
+  call = caller_env()
+) {
+  check_bool(confirm, call = call)
+
+  if (is.null(view_title) && is.null(view_id)) {
+    cli_abort(
+      "{.arg view_title} or {.arg view_id} must be supplied.",
+      call = call
+    )
+  }
+
+  sp_list <- get_view_sp_list(
+    sp_list,
+    ...,
+    list_name = list_name,
+    site_url = site_url,
+    site = site,
+    call = call
+  )
+
+  view <- get_sp_list_view(
+    sp_list,
+    view_title = view_title,
+    view_id = view_id,
+    call = call
+  )
+
+  # SharePoint allows deleting the default view, which leaves a list without
+  # a default view
+  if (isTRUE(view[["DefaultView"]])) {
+    cli_abort(
+      c(
+        "{.val {view[['Title']]}} is the default view and can't be deleted.",
+        "i" = "Set another view as the default view first."
+      ),
+      call = call
+    )
+  }
+
+  if (confirm) {
+    check_yes(
+      cli::format_inline(
+        "Do you want to delete the view {.val {view[['Title']]}}?"
+      ),
+      call = call
+    )
+  }
+
+  cli_progress_step("Deleting view {.val {view[['Title']]}}")
+
+  sp_list_rest_request(
+    sp_list,
+    sp_view_path(view_id = view[["Id"]]),
+    method = "DELETE",
+    call = call
+  )
+
+  invisible(NULL)
+}

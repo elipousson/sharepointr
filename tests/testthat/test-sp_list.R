@@ -766,7 +766,11 @@ test_that("create_sp_list_lookup_column and create_sp_list_person_column create 
     "must be a list in the same site"
   )
 
-  create_sp_list_person_column(sp_list, "Reviewers", allow_multiple = TRUE)
+  create_sp_list_person_column(
+    sp_list,
+    "Reviewers",
+    allow_multiple_selection = TRUE
+  )
 
   expect_identical(
     column_definitions[[2]][["personOrGroup"]],

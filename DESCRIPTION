@@ -38,7 +38,8 @@ Suggests:
     rmarkdown,
     sf,
     testthat (>= 3.0.0),
-    withr
+    withr,
+    yaml12
 VignetteBuilder:
     knitr
 Config/testthat/edition: 3

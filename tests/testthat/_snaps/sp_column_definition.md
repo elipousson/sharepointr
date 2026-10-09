@@ -6,13 +6,8 @@
       $name
       [1] "TextColumn"
       
-      $hidden
-      [1] FALSE
-      
       $text
-      $text$textType
-      [1] "plain"
-      
+      named list()
       
 
 ---
@@ -23,9 +18,6 @@
     Output
       $name
       [1] "TextColumn"
-      
-      $hidden
-      [1] FALSE
       
       $text
       $text$allowMultipleLines
@@ -63,9 +55,7 @@
       [1] "A text column"
       
       $text
-      $text$textType
-      [1] "plain"
-      
+      named list()
       
 
 # create_number_column works
@@ -76,25 +66,17 @@
       $name
       [1] "NumberColumn"
       
-      $hidden
-      [1] FALSE
-      
       $number
-      $number$decimalPlaces
-      [1] "automatic"
-      
+      named list()
       
 
 ---
 
     Code
-      create_number_column("NumberColumn", decimals = "two")
+      create_number_column("NumberColumn", decimal_places = "two")
     Output
       $name
       [1] "NumberColumn"
-      
-      $hidden
-      [1] FALSE
       
       $number
       $number$decimalPlaces
@@ -105,13 +87,10 @@
 ---
 
     Code
-      create_number_column("NumberColumn", decimals = 3)
+      create_number_column("NumberColumn", decimal_places = 3)
     Output
       $name
       [1] "NumberColumn"
-      
-      $hidden
-      [1] FALSE
       
       $number
       $number$decimalPlaces
@@ -127,13 +106,7 @@
       $name
       [1] "NumberColumn"
       
-      $hidden
-      [1] FALSE
-      
       $number
-      $number$decimalPlaces
-      [1] "automatic"
-      
       $number$displayAs
       [1] "percentage"
       
@@ -153,18 +126,9 @@
       $name
       [1] "ChoiceColumn"
       
-      $hidden
-      [1] FALSE
-      
       $choice
-      $choice$allowTextEntry
-      [1] TRUE
-      
       $choice$choices
       [1] "apple"     "banana"    "pear"      "pineapple"
-      
-      $choice$displayAs
-      [1] "dropDownMenu"
       
       
 
@@ -175,9 +139,6 @@
     Output
       $name
       [1] "ChoiceColumn"
-      
-      $hidden
-      [1] FALSE
       
       $choice
       $choice$allowTextEntry
@@ -199,18 +160,9 @@
       $name
       [1] "ChoiceColumn"
       
-      $hidden
-      [1] FALSE
-      
       $choice
-      $choice$allowTextEntry
-      [1] TRUE
-      
       $choice$choices
       [1] "apple"  "banana" "pear"  
-      
-      $choice$displayAs
-      [1] "dropDownMenu"
       
       
 
@@ -222,16 +174,8 @@
       $name
       [1] "DatetimeColumn"
       
-      $hidden
-      [1] FALSE
-      
       $dateTime
-      $dateTime$format
-      [1] "dateOnly"
-      
-      $dateTime$displayAs
-      [1] "default"
-      
+      named list()
       
 
 ---
@@ -241,9 +185,6 @@
     Output
       $name
       [1] "DatetimeColumn"
-      
-      $hidden
-      [1] FALSE
       
       $dateTime
       $dateTime$format
@@ -262,9 +203,6 @@
       $name
       [1] "BooleanColumn"
       
-      $hidden
-      [1] FALSE
-      
       $boolean
       named list()
       
@@ -277,13 +215,8 @@
       $name
       [1] "CurrencyColumn"
       
-      $hidden
-      [1] FALSE
-      
       $currency
-      $currency$locale
-      [1] "en-us"
-      
+      named list()
       
 
 ---
@@ -293,9 +226,6 @@
     Output
       $name
       [1] "CurrencyColumn"
-      
-      $hidden
-      [1] FALSE
       
       $currency
       $currency$locale
@@ -311,12 +241,9 @@
       $name
       [1] "FormulaColumn"
       
-      $hidden
-      [1] FALSE
-      
       $calculated
       $calculated$formula
-      =[Text Column]
+      [1] "=[Text Column]"
       
       $calculated$outputType
       [1] "text"
@@ -331,12 +258,9 @@
       $name
       [1] "FormulaColumn"
       
-      $hidden
-      [1] FALSE
-      
       $calculated
       $calculated$formula
-      =[Text Column]
+      [1] "=[Text Column]"
       
       $calculated$outputType
       [1] "text"
@@ -352,15 +276,12 @@
       $name
       [1] "DateFormulaColumn"
       
-      $hidden
-      [1] FALSE
-      
       $calculated
       $calculated$format
       [1] "dateOnly"
       
       $calculated$formula
-      =[StartDate]+7
+      [1] "=[StartDate]+7"
       
       $calculated$outputType
       [1] "dateTime"
@@ -376,9 +297,6 @@
       $name
       [1] "LookupColumn"
       
-      $hidden
-      [1] FALSE
-      
       $lookup
       $lookup$listId
       [1] "abc-123"
@@ -392,13 +310,11 @@
 
     Code
       create_lookup_column(name = "LookupColumn", lookup_list_column = "Title",
-        lookup_list_id = "abc-123", allow_multiple = TRUE, allow_unlimited_length = TRUE)
+        lookup_list_id = "abc-123", allow_multiple_values = TRUE,
+        allow_unlimited_length = TRUE)
     Output
       $name
       [1] "LookupColumn"
-      
-      $hidden
-      [1] FALSE
       
       $lookup
       $lookup$allowMultipleValues
@@ -423,9 +339,6 @@
       $name
       [1] "PersonColumn"
       
-      $hidden
-      [1] FALSE
-      
       $personOrGroup
       $personOrGroup$chooseFromType
       [1] "peopleOnly"
@@ -439,9 +352,6 @@
     Output
       $name
       [1] "GroupColumn"
-      
-      $hidden
-      [1] FALSE
       
       $personOrGroup
       $personOrGroup$chooseFromType
@@ -457,9 +367,6 @@
       $name
       [1] "HyperlinkColumn"
       
-      $hidden
-      [1] FALSE
-      
       $hyperlinkOrPicture
       $hyperlinkOrPicture$isPicture
       [1] FALSE
@@ -473,9 +380,6 @@
     Output
       $name
       [1] "PictureColumn"
-      
-      $hidden
-      [1] FALSE
       
       $hyperlinkOrPicture
       $hyperlinkOrPicture$isPicture
@@ -491,9 +395,6 @@
       $name
       [1] "ThumbnailColumn"
       
-      $hidden
-      [1] FALSE
-      
       $thumbnail
       named list()
       
@@ -505,9 +406,6 @@
     Output
       $name
       [1] "GeolocationColumn"
-      
-      $hidden
-      [1] FALSE
       
       $geolocation
       named list()
@@ -521,13 +419,8 @@
       $name
       [1] "TermColumn"
       
-      $hidden
-      [1] FALSE
-      
       $term
-      $term$allowMultipleValues
-      [1] TRUE
-      
+      named list()
       
 
 # create_column_definition works with shared options
@@ -535,7 +428,7 @@
     Code
       create_column_definition("MyColumn", .col_type = "text", required = TRUE,
         hidden = TRUE, enforce_unique = TRUE, indexed = TRUE, description = "A column",
-        displayname = "My Column")
+        display_name = "My Column")
     Output
       $name
       [1] "MyColumn"
@@ -570,9 +463,6 @@
     Output
       $name
       [1] "MyColumn"
-      
-      $hidden
-      [1] FALSE
       
       $defaultValue
       $defaultValue$value
@@ -615,24 +505,15 @@
       [[1]]$name
       [1] "FirstColumn"
       
-      [[1]]$hidden
-      [1] FALSE
-      
       [[1]]$text
       [[1]]$text$allowMultipleLines
       [1] TRUE
-      
-      [[1]]$text$textType
-      [1] "plain"
       
       
       
       [[2]]
       [[2]]$name
       [1] "SecondColumn"
-      
-      [[2]]$hidden
-      [1] FALSE
       
       [[2]]$number
       [[2]]$number$decimalPlaces
@@ -650,34 +531,21 @@
       [[1]]$name
       [1] "text_col"
       
-      [[1]]$hidden
-      [1] FALSE
-      
       [[1]]$text
-      [[1]]$text$textType
-      [1] "plain"
-      
+      named list()
       
       
       [[2]]
       [[2]]$name
       [1] "num_col"
       
-      [[2]]$hidden
-      [1] FALSE
-      
       [[2]]$number
-      [[2]]$number$decimalPlaces
-      [1] "automatic"
-      
+      named list()
       
       
       [[3]]
       [[3]]$name
       [1] "int_col"
-      
-      [[3]]$hidden
-      [1] FALSE
       
       [[3]]$number
       [[3]]$number$decimalPlaces
@@ -689,9 +557,6 @@
       [[4]]$name
       [1] "lgl_col"
       
-      [[4]]$hidden
-      [1] FALSE
-      
       [[4]]$boolean
       named list()
       
@@ -700,18 +565,9 @@
       [[5]]$name
       [1] "fct_col"
       
-      [[5]]$hidden
-      [1] FALSE
-      
       [[5]]$choice
-      [[5]]$choice$allowTextEntry
-      [1] TRUE
-      
       [[5]]$choice$choices
       [1] "x" "y"
-      
-      [[5]]$choice$displayAs
-      [1] "dropDownMenu"
       
       
       
@@ -719,15 +575,9 @@
       [[6]]$name
       [1] "date_col"
       
-      [[6]]$hidden
-      [1] FALSE
-      
       [[6]]$dateTime
       [[6]]$dateTime$format
       [1] "dateOnly"
-      
-      [[6]]$dateTime$displayAs
-      [1] "default"
       
       
       
@@ -737,13 +587,13 @@
     Code
       data_as_column_definition_list(simple_df, definitions_as = "table")
     Output
-            name    type decimals choices split   format
-      1 text_col    text     <NA>    <NA>  <NA>     <NA>
-      2  num_col  number     <NA>    <NA>  <NA>     <NA>
-      3  int_col  number     none    <NA>  <NA>     <NA>
-      4  lgl_col boolean     <NA>    <NA>  <NA>     <NA>
-      5  fct_col  choice     <NA>     x|y     |     <NA>
-      6 date_col    date     <NA>    <NA>  <NA> dateOnly
+            name    type decimal_places choices split   format
+      1 text_col    text           <NA>    <NA>  <NA>     <NA>
+      2  num_col  number           <NA>    <NA>  <NA>     <NA>
+      3  int_col  number           none    <NA>  <NA>     <NA>
+      4  lgl_col boolean           <NA>    <NA>  <NA>     <NA>
+      5  fct_col  choice           <NA>     x|y     |     <NA>
+      6 date_col    date           <NA>    <NA>  <NA> dateOnly
 
 # data_as_column_definition_list errors if split is in factor levels
 

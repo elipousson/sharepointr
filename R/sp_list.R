@@ -349,45 +349,117 @@ get_sp_list_metadata <- function(
 #'
 #' - Dashes (`"-"``) in list names are removed from the list name but retained
 #'   in the list display name.
-#' - If your definition includes calculated columns, these columns may need to
-#'   be added after the list is initially created using
-#'   [create_sp_list_column()].
+#' - Calculated columns are added after the list is created since formulas
+#'   may reference other columns.
+#' - Column validation is applied with the SharePoint REST API after the list
+#'   is created since the Graph API doesn't support it.
+#' - A `"Title"` column in `columns` or `definition` updates the default
+#'   `"Title"` column of a `"genericList"` list (combined with
+#'   `title_definition`) instead of adding a new column.
 #'
 #' Notes on updating a SharePoint list:
 #'
 #' - The `"Title"` column type is always a "text" type column and can't be
 #'   changed.
 #'
-#' @param list_name Required. List name used as `displayName` property.
+#' @param list_name List name used as `displayName` property. Required unless
+#'   `definition` is supplied.
 #' @param description Optional description.
 #' @param columns Optional. Use [create_column_definition()] to create a single
-#' column definition or use [create_column_definition_list()] to create a list
-#' of column definitions.
+#' column definition or [create_column_definition_list()] to create a list
+#' of column definitions. `custom` metadata is dropped. A `sp_list_definition`
+#' object is used as `definition`.
+#' @param template Optional list template (Graph listInfo property `template`).
+#'   Defaults to `"genericList"`.
 #' @inheritParams create_list_info
 #' @param title_definition Named list used to update the column definition of
 #' the default `"Title"` column created when using the `"genericList"` template.
 #' By default, makes Title column optional.
+#' @param definition Optional. A list definition from [read_sp_list_yaml()] or
+#'   a path to a YAML file. The definition `displayName`, `description`,
+#'   `columns`, and `list` settings (`template`, `hidden`, and
+#'   `contentTypesEnabled`) are used unless the matching argument is supplied.
+#'   Read-only list properties (e.g. `id`) and column ids are ignored.
+#'   `definition` can't be combined with `columns`.
 #' @inheritParams get_sp_site
 #' @returns For [create_sp_list()], invisibly returns a `ms_list` object for
 #'   the newly created list. For [update_sp_list()], the updated `ms_list`
 #'   object. For [delete_sp_list()], invisibly returns `NULL`.
 #' @keywords lists
+#' @examples
+#' \dontrun{
+#' create_sp_list(
+#'   definition = "list-fields/capital-project.yaml",
+#'   site_url = "<SharePoint site url>"
+#' )
+#' }
 #' @export
 create_sp_list <- function(
-  list_name,
+  list_name = NULL,
   ...,
   description = NULL,
   columns = NULL,
-  template = "genericList",
+  template = NULL,
   content_types = NULL,
   hidden = NULL,
   title_definition = list(
     required = FALSE
   ),
+  definition = NULL,
   site_url = NULL,
   site = NULL,
   call = caller_env()
 ) {
+  if (inherits(columns, "sp_list_definition")) {
+    if (!is.null(definition)) {
+      cli_abort(
+        "{.arg columns} can't be a list definition if {.arg definition} is
+        supplied.",
+        call = call
+      )
+    }
+    definition <- columns
+    columns <- NULL
+  }
+
+  if (!is.null(definition)) {
+    if (!is.null(columns)) {
+      cli_abort(
+        "{.arg columns} can't be supplied with {.arg definition}.",
+        call = call
+      )
+    }
+
+    if (is_string(definition)) {
+      definition <- read_sp_list_yaml(definition, call = call)
+    }
+
+    definition <- as_sp_list_definition(definition, call = call)
+    list_info <- definition[["list"]]
+
+    if (!is.null(definition[["id"]])) {
+      cli_warn(
+        c(
+          "{.arg definition} has the {.field id} of an existing list:
+          {.val {definition[['id']]}}.",
+          "i" = "Read-only list properties and column ids are ignored. The
+          new list has a new {.field id}."
+        ),
+        call = call
+      )
+    }
+
+    list_name <- list_name %||% definition[["displayName"]]
+    description <- description %||% definition[["description"]]
+    columns <- definition[["columns"]]
+    template <- template %||% list_info[["template"]]
+    hidden <- hidden %||% list_info[["hidden"]]
+    content_types <- content_types %||% list_info[["contentTypesEnabled"]]
+  }
+
+  check_string(list_name, call = call)
+  template <- template %||% "genericList"
+
   site <- site %||%
     get_sp_site(
       site_url = site_url,
@@ -395,11 +467,55 @@ create_sp_list <- function(
       call = call
     )
 
+  check_ms_site(site, call = call)
+
+  validations <- list()
+  calculated_columns <- list()
+  n_columns <- 0
+
+  if (!is.null(columns)) {
+    if (is_named(columns) && has_name(columns, "name")) {
+      columns <- list(columns)
+    }
+
+    n_columns <- length(columns)
+    col_names <- purrr::map_chr(columns, "name")
+
+    # A Title column updates the default Title column
+    if (template == "genericList" && "Title" %in% col_names) {
+      title_column <- columns[[match("Title", col_names)]]
+      title_definition <- utils::modifyList(
+        title_definition %||% list(),
+        title_column[setdiff(names(title_column), c("name", "id", "custom"))]
+      )
+      columns <- columns[col_names != "Title"]
+    }
+
+    # Calculated columns are added after the list is created
+    is_calculated <- purrr::map_lgl(
+      columns,
+      \(col) identical(column_type_key(col), "calculated")
+    )
+    calculated_columns <- columns[is_calculated]
+    columns <- columns[!is_calculated]
+
+    # Validation isn't supported by the Graph API so it is applied after the
+    # list is created
+    validations <- purrr::compact(
+      set_names(
+        purrr::map(columns, "validation"),
+        purrr::map_chr(columns, "name")
+      )
+    )
+
+    columns <- sp_list_definition_columns(columns, drop_validation = TRUE)
+  }
+
   body <- purrr::compact(
     list(
       displayName = list_name,
       description = description,
-      columns = columns,
+      columns = if (length(columns) > 0) columns,
       list = create_list_info(
         hidden = hidden,
         content_types = content_types,
@@ -409,10 +525,8 @@ create_sp_list <- function(
     )
   )
 
-  check_ms_site(site, call = call)
-
   cli_progress_step(
-    "Creating list {.str {list_name}} with {length(columns)} column{?s}."
+    "Creating list {.str {list_name}} with {n_columns} column{?s}."
   )
 
   resp <- site$do_operation(
@@ -433,38 +547,38 @@ create_sp_list <- function(
     )
   )
 
-  if (template != "genericList" || is.null(title_definition)) {
-    return(invisible(sp_list))
-  }
+  purrr::iwalk(
+    validations,
+    \(validation, column_name) {
+      update_sp_list_column_validation(
+        sp_list,
+        column_name = column_name,
+        validation = validation,
+        call = call
+      )
+    }
+  )
 
   # Update default Title column definition
   # Title is set up as required when using `"genericList"` template
-  title_col <- get_sp_list_column(
-    sp_list = sp_list,
-    column_name = "Title"
-  )
-
-  title_col_definition <- title_col[
-    intersect(
-      c(
-        # TODO: Expand list of supported title_definition parameters
-        "name",
-        "displayName",
-        "hidden",
-        "required",
-        "text"
-      ),
-      names(title_definition)
+  if (template == "genericList" && !is.null(title_definition)) {
+    suppressMessages(
+      update_sp_list_column(
+        sp_list = sp_list,
+        column_name = "Title",
+        column_definition = c(list(name = "Title"), title_definition),
+        call = call
+      )
     )
-  ]
+  }
 
-  title_col_definition[names(title_definition)] <- title_definition
-
-  update_sp_list_column(
-    sp_list = sp_list,
-    column_id = title_col[["id"]],
-    column_definition = title_col_definition
-  )
+  for (column in calculated_columns) {
+    create_sp_list_column(
+      sp_list = sp_list,
+      column_definition = column,
+      call = call
+    )
+  }
 
   invisible(sp_list)
 }
@@ -675,7 +789,9 @@ get_sp_list_column <- function(
 #' [create_sp_list_column()] adds a column to a SharePoint list and
 #' [delete_sp_list_column()] removes a column to a SharePoint list.
 #' [update_sp_list_column()] updates a column definition for an existing column
-#' in a SharePoint list.
+#' in a SharePoint list. Only properties that differ from the existing column
+#' are sent. Use [sync_sp_list_columns()] for changes the Graph API can't make,
+#' such as switching a text column to multiple lines.
 #'
 #' See documentation:
 #' <https://learn.microsoft.com/en-us/graph/api/list-post-columns?view=graph-rest-1.0&tabs=http>
@@ -684,7 +800,10 @@ get_sp_list_column <- function(
 #' @inheritDotParams create_column_definition
 #' @param column_definition List with column definition created with
 #' [create_column_definition()] or a related function. Optional if `column_name`
-#' and any required additional parameters are provided.
+#' and any required additional parameters are provided. A `custom` element
+#' (e.g. from [read_sp_list_yaml()]) is dropped. A `validation` element is
+#' applied with the SharePoint REST API since the Graph API doesn't support
+#' it.
 #' @param list_name List name. Required if `sp_list` is `NULL`.
 #' @returns For [create_sp_list_column()], a named list with the newly
 #'   created columnDefinition resource. For [update_sp_list_column()],
@@ -715,16 +834,59 @@ create_sp_list_column <- function(
   # TODO: Add check for mismatch between `column_name` and
   # column_definition[["column_name"]]
 
-  sp_list$do_operation(
-    op = "columns",
-    body = column_definition %||%
-      create_column_definition(
-        name = column_name,
-        ...
-      ),
-    encode = "json",
-    http_verb = "POST"
+  column_definition <- column_definition %||%
+    create_column_definition(
+      name = column_name,
+      ...
+    )
+
+  # Drop custom metadata and column ids (a reference to an existing column)
+  # from definitions read with `read_sp_list_yaml()`
+  column_definition[["custom"]] <- NULL
+  column_definition[["id"]] <- NULL
+
+  # The Graph API doesn't support validation so apply it with the SharePoint
+  # REST API after creating the column
+  validation <- column_definition[["validation"]]
+  column_definition[["validation"]] <- NULL
+
+  column_definition <- as_column_body(column_definition)
+  type <- column_type_key(column_definition)
+
+  resp <- try_fetch(
+    sp_list$do_operation(
+      op = "columns",
+      body = column_definition,
+      encode = "json",
+      http_verb = "POST"
+    ),
+    error = function(cnd) {
+      if (!type %in% sp_column_types_create_unsupported) {
+        cnd_signal(cnd)
+      }
+
+      cli_abort(
+        c(
+          "Can't create column {.field {column_definition[['name']]}}.",
+          "i" = "The Graph API doesn't support creating {.val {type}}
+          columns on a list."
+        ),
+        parent = cnd,
+        call = call
+      )
+    }
   )
+
+  if (!is.null(validation)) {
+    update_sp_list_column_validation(
+      sp_list,
+      column_name = resp[["name"]] %||% column_definition[["name"]],
+      validation = validation,
+      call = call
+    )
+  }
+
+  resp
 }
 
 # <https://learn.microsoft.com/en-us/graph/api/columndefinition-update?view=graph-rest-1.0&tabs=http>
@@ -785,18 +947,42 @@ update_sp_list_column <- function(
       ...
     )
 
-  # TODO: Compare existing definition and proposed definition to use only
-  # different elements
-
-  sp_list$do_operation(
-    op = paste0(
-      "columns/",
-      column_id
-    ),
-    body = column_definition,
-    encode = "json",
-    http_verb = "PATCH"
+  # Send only properties that differ from the existing column
+  column_definition <- diff_column_definition(
+    column_definition,
+    existing_column
   )
+
+  if (length(column_definition) == 0) {
+    cli_inform(
+      c("i" = "Column {.field {existing_column[['name']]}} is unchanged.")
+    )
+    return(invisible(sp_list))
+  }
+
+  # The Graph API doesn't support validation so apply it with the SharePoint
+  # REST API
+  if (!is.null(column_definition[["validation"]])) {
+    update_sp_list_column_validation(
+      sp_list,
+      column_name = existing_column[["name"]],
+      validation = column_definition[["validation"]],
+      call = call
+    )
+    column_definition[["validation"]] <- NULL
+  }
+
+  if (length(column_definition) > 0) {
+    sp_list$do_operation(
+      op = paste0(
+        "columns/",
+        column_id
+      ),
+      body = column_definition,
+      encode = "json",
+      http_verb = "PATCH"
+    )
+  }
 
   invisible(sp_list)
 }
@@ -965,22 +1151,32 @@ create_sp_list_person_column <- function(
   sp_list = NULL,
   column_name,
   ...,
-  allow_multiple = NULL,
+  allow_multiple_selection = NULL,
   display_as = NULL,
   from_type = "peopleOnly",
   list_name = NULL,
   site = NULL,
   site_url = NULL,
+  allow_multiple = deprecated(),
   call = caller_env()
 ) {
   check_string(column_name, call = call)
+
+  if (lifecycle::is_present(allow_multiple)) {
+    lifecycle::deprecate_soft(
+      "0.2.0",
+      "create_sp_list_person_column(allow_multiple)",
+      "create_sp_list_person_column(allow_multiple_selection)"
+    )
+    allow_multiple_selection <- allow_multiple_selection %||% allow_multiple
+  }
 
   create_sp_list_column(
     sp_list = sp_list,
     column_definition = create_person_column(
       name = column_name,
       ...,
-      allow_multiple = allow_multiple,
+      allow_multiple_selection = allow_multiple_selection,
       display_as = display_as,
       from_type = from_type
     ),

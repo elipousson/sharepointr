@@ -30,11 +30,11 @@ test_that("create_number_column works", {
   )
 
   expect_snapshot(
-    create_number_column("NumberColumn", decimals = "two")
+    create_number_column("NumberColumn", decimal_places = "two")
   )
 
   expect_snapshot(
-    create_number_column("NumberColumn", decimals = 3)
+    create_number_column("NumberColumn", decimal_places = 3)
   )
 
   expect_snapshot(
@@ -142,7 +142,7 @@ test_that("create_lookup_column works", {
       name = "LookupColumn",
       lookup_list_column = "Title",
       lookup_list_id = "abc-123",
-      allow_multiple = TRUE,
+      allow_multiple_values = TRUE,
       allow_unlimited_length = TRUE
     )
   )
@@ -200,7 +200,7 @@ test_that("create_column_definition works with shared options", {
       enforce_unique = TRUE,
       indexed = TRUE,
       description = "A column",
-      displayname = "My Column"
+      display_name = "My Column"
     )
   )
 
@@ -225,7 +225,7 @@ test_that("create_column_definition_list works", {
   definition_df <- data.frame(
     name = c("FirstColumn", "SecondColumn"),
     type = c("text", "number"),
-    decimals = c(NA, 0),
+    decimal_places = c(NA, 0),
     multiple_lines = c(TRUE, NA)
   )
 

@@ -49,62 +49,95 @@ parameters passed to \code{...} are all ignored.}
 \item{...}{
   Arguments passed on to \code{\link{create_column_definition}}
   \describe{
-    \item{\code{name}}{Column name.}
+    \item{\code{name}}{Column name. Graph property: \code{name}. The name can't be changed
+after a column is created.}
     \item{\code{display_as}}{Value displayed as option. For \code{create_choice_column} one
 of\code{c("checkBoxes", "dropDownMenu", "radioButtons")}. For
 \code{create_number_column}, one of \code{c("number", "percentage")}. For
-\code{create_datetime_column}, one of \code{c("default", "friendly", "standard")}.}
+\code{create_datetime_column}, one of \code{c("default", "friendly", "standard")}.
+Graph property: \code{displayAs}.}
     \item{\code{.col_type}}{Column type. Defaults to "text". Must be one of "boolean",
 "calculated", "choice", "currency", "dateTime", "lookup", "number",
 "personOrGroup", "text", "term", "hyperlinkOrPicture", "thumbnail",
 "contentApprovalStatus", or "geolocation".}
-    \item{\code{enforce_unique}}{Enforce unique values in column.}
-    \item{\code{hidden}}{If \code{TRUE}, column will be hidden by default.}
-    \item{\code{deletable}}{If \code{TRUE}, column can't be deleted separate from the list.}
-    \item{\code{required}}{If \code{TRUE}, column will be required.}
-    \item{\code{default}}{Default value set by helper \code{\link[=get_column_default]{get_column_default()}} function.}
-    \item{\code{description}}{Column description.}
-    \item{\code{displayname}}{Column display name.}
-    \item{\code{indexed,sealed,propagate_changes,read_only,validation,id,show_full_name}}{Additional arguments used by \code{\link[=create_column_definition]{create_column_definition()}}.}
-    \item{\code{multiple_lines}}{Logical. If \code{TRUE}, allow multiple lines of text.}
+    \item{\code{enforce_unique}}{Enforce unique values in column. Graph property:
+\code{enforceUniqueValues}.}
+    \item{\code{hidden}}{If \code{TRUE}, column will be hidden by default. Graph property:
+\code{hidden}.}
+    \item{\code{deletable}}{If \code{TRUE}, column can't be deleted separate from the list.
+Graph property: \code{isDeletable}.}
+    \item{\code{required}}{If \code{TRUE}, column will be required. Graph property:
+\code{required}.}
+    \item{\code{default}}{Default value set by helper \code{\link[=get_column_default]{get_column_default()}} function.
+Graph property: \code{defaultValue}.}
+    \item{\code{description}}{Column description. Graph property: \code{description}.}
+    \item{\code{display_name}}{Column display name. Graph property: \code{displayName}.}
+    \item{\code{displayname}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{display_name}.}
+    \item{\code{validation}}{Column validation created with \code{\link[=column_validation]{column_validation()}}.
+Graph property: \code{validation}.}
+    \item{\code{indexed,sealed,propagate_changes,read_only,id}}{Additional arguments
+used by \code{\link[=create_column_definition]{create_column_definition()}}. Graph properties: \code{indexed},
+\code{isSealed}, \code{propagateChanges}, \code{readOnly}, and \code{id}.}
+    \item{\code{multiple_lines}}{Logical. If \code{TRUE}, allow multiple lines of text.
+Graph property: \code{allowMultipleLines}.}
     \item{\code{append_changes}}{Logical. If \code{TRUE}, append changes to existing value
-for column.}
-    \item{\code{lines}}{Whole number.}
-    \item{\code{max_length}}{Whole number. Max length in number of characters.}
-    \item{\code{text_type}}{One of \code{c("plain", "richText")}}
-    \item{\code{choices}}{A character vector of choice options.}
+for column. Graph property: \code{appendChangesToExistingText}.}
+    \item{\code{lines}}{Whole number. Size of the text box. Graph property:
+\code{linesForEditing}.}
+    \item{\code{max_length}}{Whole number. Max length in number of characters. Graph
+property: \code{maxLength}.}
+    \item{\code{text_type}}{One of \code{c("plain", "richText")}. Graph property:
+\code{textType}.}
+    \item{\code{choices}}{A character vector of choice options. Graph property:
+\code{choices}.}
     \item{\code{allow_na}}{If \code{TRUE}, allow NA values in \code{choices}.}
     \item{\code{na_replacement}}{Used as \code{replacement} by \code{\link[stringr:str_replace_na]{stringr::str_replace_na()}} on
 \code{choices} if they contain NA values.}
-    \item{\code{allow_text}}{If \code{TRUE}, allow text entry in the choice column.}
-    \item{\code{decimals}}{One of \code{c("none", "one", "two", "three", "four", "five")} or
-a numeric value between 0 and 5.}
-    \item{\code{max,min}}{Minimum and maximum values allowed in number column.}
-    \item{\code{locale}}{Locale}
+    \item{\code{allow_text}}{If \code{TRUE}, allow text entry in the choice column. Graph
+property: \code{allowTextEntry}.}
+    \item{\code{decimal_places}}{One of \code{c("automatic", "none", "one", "two", "three", "four", "five")} or a whole number between 0 and 5. Graph property:
+\code{decimalPlaces}.}
+    \item{\code{max,min}}{Minimum and maximum values allowed in number column. Graph
+properties: \code{maximum} and \code{minimum}.}
+    \item{\code{decimals}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{decimal_places}.}
+    \item{\code{format}}{For \code{create_datetime_column()}, \code{"dateOnly"} or \code{"dateTime"}.
+Graph property: \code{format}.}
+    \item{\code{locale}}{Locale used to set the currency symbol, e.g. \code{"en-us"}.
+Graph property: \code{locale}.}
     \item{\code{formula}}{Required string with formula for calculated column definition.
 See \href{https://support.microsoft.com/en-us/office/examples-of-common-formulas-in-lists-d81f5f21-2b4e-45ce-b170-bf7ebf6988b3}{examples of common formulas in lists}.
 Reference existing columns using the display name enclosed in square
 brackets. The formula must start with an equals sign \code{"="} which this
-function appends to the formula text if it is missing.}
-    \item{\code{format}}{\code{"dateOnly"} or \code{"dateTime"}. Required by
-\code{create_calculated_column} if \code{output_type} is "dateTime" otherwise ignored.}
+function appends to the formula text if it is missing. The formula is
+processed with \code{\link[glue:glue]{glue::glue()}}. Graph property: \code{formula}.}
     \item{\code{output_type}}{Value type returned by calculated formula. One of
-\code{c("text", "boolean", "currency", "dateTime", "number")}}
-    \item{\code{lookup_list_column}}{Name of lookup column in the lookup list to use.}
+\code{c("text", "boolean", "currency", "dateTime", "number")}. Defaults to
+\code{"text"}. Graph property: \code{outputType}.}
+    \item{\code{lookup_list_column}}{Name of lookup column in the lookup list to use.
+Graph property: \code{columnName}.}
     \item{\code{lookup_list_id,lookup_list}}{Lookup list ID string or "ms_list" class
-object with id value in list properties.}
-    \item{\code{allow_multiple}}{If \code{TRUE}, allow lookup column to return multiple
-values.}
+object with id value in list properties. Graph property: \code{listId}.}
+    \item{\code{allow_multiple_values}}{If \code{TRUE}, allow a lookup or term column to
+store multiple values. Graph property: \code{allowMultipleValues}.}
     \item{\code{allow_unlimited_length}}{If \code{TRUE}, allow lookup column to
-return any length value.}
+return any length value. Graph property: \code{allowUnlimitedLength}.}
     \item{\code{primary_lookup_column_id}}{If column definition is for a secondary
-column, the primary lookup column ID must be supplied.}
+column, the primary lookup column ID must be supplied. Graph property:
+\code{primaryLookupColumnId}.}
+    \item{\code{allow_multiple}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
+\code{allow_multiple_values} for \code{\link[=create_lookup_column]{create_lookup_column()}} and
+\code{\link[=create_term_column]{create_term_column()}} or \code{allow_multiple_selection} for
+\code{\link[=create_person_column]{create_person_column()}} and \code{\link[=create_group_column]{create_group_column()}}.}
+    \item{\code{allow_multiple_selection}}{If \code{TRUE}, allow a person or group column
+to store multiple values. Graph property: \code{allowMultipleSelection}.}
     \item{\code{from_type}}{What type of resources to choose from. Defaults to
 "peopleOnly" for \code{\link[=create_person_column]{create_person_column()}} or "peopleAndGroups" for
-\code{\link[=create_group_column]{create_group_column()}}}
+\code{\link[=create_group_column]{create_group_column()}}. Graph property: \code{chooseFromType}.}
     \item{\code{is_picture}}{Logical indicator for display of hyperlink value as link
 (\code{FALSE}, default for \code{\link[=create_hyperlink_column]{create_hyperlink_column()}}) or image (\code{TRUE}, default
-for \code{\link[=create_picture_column]{create_picture_column()}}).}
+for \code{\link[=create_picture_column]{create_picture_column()}}). Graph property: \code{isPicture}.}
+    \item{\code{show_full_name}}{If \code{TRUE}, display the entire term path. Graph
+property: \code{showFullyQualifiedName}.}
     \item{\code{split}}{
     character vector (or object which can be coerced to such)
     containing \link[base]{regular expression}(s) (unless \code{fixed = TRUE})
@@ -119,7 +152,10 @@ for \code{\link[=create_picture_column]{create_picture_column()}}).}
 
 \item{column_definition}{List with column definition created with
 \code{\link[=create_column_definition]{create_column_definition()}} or a related function. Optional if \code{column_name}
-and any required additional parameters are provided.}
+and any required additional parameters are provided. A \code{custom} element
+(e.g. from \code{\link[=read_sp_list_yaml]{read_sp_list_yaml()}}) is dropped. A \code{validation} element is
+applied with the SharePoint REST API since the Graph API doesn't support
+it.}
 
 \item{list_name}{List name. Required if \code{sp_list} is \code{NULL}.}
 
@@ -150,7 +186,9 @@ code.
 \code{\link[=create_sp_list_column]{create_sp_list_column()}} adds a column to a SharePoint list and
 \code{\link[=delete_sp_list_column]{delete_sp_list_column()}} removes a column to a SharePoint list.
 \code{\link[=update_sp_list_column]{update_sp_list_column()}} updates a column definition for an existing column
-in a SharePoint list.
+in a SharePoint list. Only properties that differ from the existing column
+are sent. Use \code{\link[=sync_sp_list_columns]{sync_sp_list_columns()}} for changes the Graph API can't make,
+such as switching a text column to multiple lines.
 }
 \details{
 See documentation:

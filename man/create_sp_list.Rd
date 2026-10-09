@@ -7,14 +7,15 @@
 \title{Create, update, or delete a SharePoint List}
 \usage{
 create_sp_list(
-  list_name,
+  list_name = NULL,
   ...,
   description = NULL,
   columns = NULL,
-  template = "genericList",
+  template = NULL,
   content_types = NULL,
   hidden = NULL,
   title_definition = list(required = FALSE),
+  definition = NULL,
   site_url = NULL,
   site = NULL,
   call = caller_env()
@@ -50,7 +51,8 @@ delete_sp_list(
 )
 }
 \arguments{
-\item{list_name}{Required. List name used as \code{displayName} property.}
+\item{list_name}{List name used as \code{displayName} property. Required unless
+\code{definition} is supplied.}
 
 \item{...}{Additional parameters passed to \code{\link[=get_sp_site]{get_sp_site()}} or
 \code{\link[Microsoft365R:get_sharepoint_site]{Microsoft365R::get_sharepoint_site()}}.}
@@ -58,10 +60,12 @@ delete_sp_list(
 \item{description}{Optional description.}
 
 \item{columns}{Optional. Use \code{\link[=create_column_definition]{create_column_definition()}} to create a single
-column definition or use \code{\link[=create_column_definition_list]{create_column_definition_list()}} to create a list
-of column definitions.}
+column definition or \code{\link[=create_column_definition_list]{create_column_definition_list()}} to create a list
+of column definitions. \code{custom} metadata is dropped. A \code{sp_list_definition}
+object is used as \code{definition}.}
 
-\item{template}{Type of template to use in creating the list.}
+\item{template}{Optional list template (Graph listInfo property \code{template}).
+Defaults to \code{"genericList"}.}
 
 \item{content_types}{Optional. Set \code{TRUE} for \code{contentTypesEnabled} to be
 enabled.}
@@ -71,6 +75,13 @@ enabled.}
 \item{title_definition}{Named list used to update the column definition of
 the default \code{"Title"} column created when using the \code{"genericList"} template.
 By default, makes Title column optional.}
+
+\item{definition}{Optional. A list definition from \code{\link[=read_sp_list_yaml]{read_sp_list_yaml()}} or
+a path to a YAML file. The definition \code{displayName}, \code{description},
+\code{columns}, and \code{list} settings (\code{template}, \code{hidden}, and
+\code{contentTypesEnabled}) are used unless the matching argument is supplied.
+Read-only list properties (e.g. \code{id}) and column ids are ignored.
+\code{definition} can't be combined with \code{columns}.}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
@@ -119,15 +130,27 @@ Notes on creating a SharePoint list:
 \itemize{
 \item Dashes (`"-"``) in list names are removed from the list name but retained
 in the list display name.
-\item If your definition includes calculated columns, these columns may need to
-be added after the list is initially created using
-\code{\link[=create_sp_list_column]{create_sp_list_column()}}.
+\item Calculated columns are added after the list is created since formulas
+may reference other columns.
+\item Column validation is applied with the SharePoint REST API after the list
+is created since the Graph API doesn't support it.
+\item A \code{"Title"} column in \code{columns} or \code{definition} updates the default
+\code{"Title"} column of a \code{"genericList"} list (combined with
+\code{title_definition}) instead of adding a new column.
 }
 
 Notes on updating a SharePoint list:
 \itemize{
 \item The \code{"Title"} column type is always a "text" type column and can't be
 changed.
+}
+}
+\examples{
+\dontrun{
+create_sp_list(
+  definition = "list-fields/capital-project.yaml",
+  site_url = "<SharePoint site url>"
+)
 }
 }
 \keyword{lists}

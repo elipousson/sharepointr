@@ -25,7 +25,7 @@ create_column_definition(
   ...,
   .col_type = "text",
   enforce_unique = NULL,
-  hidden = FALSE,
+  hidden = NULL,
   deletable = NULL,
   indexed = NULL,
   sealed = NULL,
@@ -35,8 +35,10 @@ create_column_definition(
   validation = NULL,
   default = get_column_default(),
   description = NULL,
-  displayname = NULL,
-  id = NULL
+  display_name = NULL,
+  id = NULL,
+  displayname = deprecated(),
+  call = current_env()
 )
 
 create_text_column(
@@ -46,15 +48,15 @@ create_text_column(
   append_changes = NULL,
   lines = NULL,
   max_length = NULL,
-  text_type = c("plain", "richText")
+  text_type = NULL
 )
 
 create_choice_column(
   name,
   choices,
   ...,
-  allow_text = TRUE,
-  display_as = c("dropDownMenu", "checkBoxes", "radioButtons"),
+  allow_text = NULL,
+  display_as = NULL,
   allow_na = TRUE,
   na_replacement = "NA",
   split = NULL
@@ -63,56 +65,49 @@ create_choice_column(
 create_number_column(
   name,
   ...,
-  decimals = "automatic",
+  decimal_places = NULL,
   display_as = NULL,
   max = NULL,
-  min = NULL
+  min = NULL,
+  decimals = deprecated()
 )
 
-create_datetime_column(
-  name,
-  ...,
-  display_as = c("default", "friendly", "standard"),
-  format = c("dateOnly", "dateTime")
-)
+create_datetime_column(name, ..., display_as = NULL, format = NULL)
 
 create_boolean_column(name, ...)
 
-create_currency_column(name, ..., locale = "en-us")
+create_currency_column(name, ..., locale = NULL)
 
-create_calculated_column(
-  name,
-  ...,
-  formula,
-  format = c("dateOnly", "dateTime"),
-  output_type = c("text", "boolean", "currency", "dateTime", "number")
-)
+create_calculated_column(name, ..., formula, format = NULL, output_type = NULL)
 
 create_lookup_column(
   name,
-  lookup_list_column,
+  lookup_list_column = NULL,
   ...,
   lookup_list_id = NULL,
   lookup_list = NULL,
-  allow_multiple = NULL,
+  allow_multiple_values = NULL,
   allow_unlimited_length = NULL,
-  primary_lookup_column_id = NULL
+  primary_lookup_column_id = NULL,
+  allow_multiple = deprecated()
 )
 
 create_person_column(
   name,
   ...,
-  allow_multiple = NULL,
+  allow_multiple_selection = NULL,
   display_as = NULL,
-  from_type = "peopleOnly"
+  from_type = "peopleOnly",
+  allow_multiple = deprecated()
 )
 
 create_group_column(
   name,
   ...,
-  allow_multiple = NULL,
+  allow_multiple_selection = NULL,
   display_as = NULL,
-  from_type = "peopleAndGroups"
+  from_type = "peopleAndGroups",
+  allow_multiple = deprecated()
 )
 
 create_hyperlink_column(name, ..., is_picture = FALSE)
@@ -123,54 +118,83 @@ create_thumbnail_column(name, ...)
 
 create_geolocation_column(name, ...)
 
-create_term_column(name, ..., allow_multiple = TRUE, show_full_name = NULL)
+create_term_column(
+  name,
+  ...,
+  allow_multiple_values = NULL,
+  show_full_name = NULL,
+  allow_multiple = deprecated()
+)
 }
 \arguments{
-\item{name}{Column name.}
+\item{name}{Column name. Graph property: \code{name}. The name can't be changed
+after a column is created.}
 
 \item{...}{Additional arguments passed to \code{\link[=create_column_definition]{create_column_definition()}} or
-appended to the end of the column definition list.}
+columnDefinition properties using Graph property names.}
 
 \item{.col_type}{Column type. Defaults to "text". Must be one of "boolean",
 "calculated", "choice", "currency", "dateTime", "lookup", "number",
 "personOrGroup", "text", "term", "hyperlinkOrPicture", "thumbnail",
 "contentApprovalStatus", or "geolocation".}
 
-\item{enforce_unique}{Enforce unique values in column.}
+\item{enforce_unique}{Enforce unique values in column. Graph property:
+\code{enforceUniqueValues}.}
 
-\item{hidden}{If \code{TRUE}, column will be hidden by default.}
+\item{hidden}{If \code{TRUE}, column will be hidden by default. Graph property:
+\code{hidden}.}
 
-\item{deletable}{If \code{TRUE}, column can't be deleted separate from the list.}
+\item{deletable}{If \code{TRUE}, column can't be deleted separate from the list.
+Graph property: \code{isDeletable}.}
 
-\item{indexed, sealed, propagate_changes, read_only, validation, id, show_full_name}{Additional arguments used by \code{\link[=create_column_definition]{create_column_definition()}}.}
+\item{indexed, sealed, propagate_changes, read_only, id}{Additional arguments
+used by \code{\link[=create_column_definition]{create_column_definition()}}. Graph properties: \code{indexed},
+\code{isSealed}, \code{propagateChanges}, \code{readOnly}, and \code{id}.}
 
-\item{required}{If \code{TRUE}, column will be required.}
+\item{required}{If \code{TRUE}, column will be required. Graph property:
+\code{required}.}
 
-\item{default}{Default value set by helper \code{\link[=get_column_default]{get_column_default()}} function.}
+\item{validation}{Column validation created with \code{\link[=column_validation]{column_validation()}}.
+Graph property: \code{validation}.}
 
-\item{description}{Column description.}
+\item{default}{Default value set by helper \code{\link[=get_column_default]{get_column_default()}} function.
+Graph property: \code{defaultValue}.}
 
-\item{displayname}{Column display name.}
+\item{description}{Column description. Graph property: \code{description}.}
 
-\item{multiple_lines}{Logical. If \code{TRUE}, allow multiple lines of text.}
+\item{display_name}{Column display name. Graph property: \code{displayName}.}
+
+\item{displayname}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{display_name}.}
+
+\item{call}{The execution environment used in error messages. The
+\verb{create_*_column()} helpers pass their own environment.}
+
+\item{multiple_lines}{Logical. If \code{TRUE}, allow multiple lines of text.
+Graph property: \code{allowMultipleLines}.}
 
 \item{append_changes}{Logical. If \code{TRUE}, append changes to existing value
-for column.}
+for column. Graph property: \code{appendChangesToExistingText}.}
 
-\item{lines}{Whole number.}
+\item{lines}{Whole number. Size of the text box. Graph property:
+\code{linesForEditing}.}
 
-\item{max_length}{Whole number. Max length in number of characters.}
+\item{max_length}{Whole number. Max length in number of characters. Graph
+property: \code{maxLength}.}
 
-\item{text_type}{One of \code{c("plain", "richText")}}
+\item{text_type}{One of \code{c("plain", "richText")}. Graph property:
+\code{textType}.}
 
-\item{choices}{A character vector of choice options.}
+\item{choices}{A character vector of choice options. Graph property:
+\code{choices}.}
 
-\item{allow_text}{If \code{TRUE}, allow text entry in the choice column.}
+\item{allow_text}{If \code{TRUE}, allow text entry in the choice column. Graph
+property: \code{allowTextEntry}.}
 
 \item{display_as}{Value displayed as option. For \code{create_choice_column} one
 of\code{c("checkBoxes", "dropDownMenu", "radioButtons")}. For
 \code{create_number_column}, one of \code{c("number", "percentage")}. For
-\code{create_datetime_column}, one of \code{c("default", "friendly", "standard")}.}
+\code{create_datetime_column}, one of \code{c("default", "friendly", "standard")}.
+Graph property: \code{displayAs}.}
 
 \item{allow_na}{If \code{TRUE}, allow NA values in \code{choices}.}
 
@@ -186,55 +210,87 @@ of\code{c("checkBoxes", "dropDownMenu", "radioButtons")}. For
     \code{x}.
   }
 
-\item{decimals}{One of \code{c("none", "one", "two", "three", "four", "five")} or
-a numeric value between 0 and 5.}
+\item{decimal_places}{One of \code{c("automatic", "none", "one", "two", "three", "four", "five")} or a whole number between 0 and 5. Graph property:
+\code{decimalPlaces}.}
 
-\item{max, min}{Minimum and maximum values allowed in number column.}
+\item{max, min}{Minimum and maximum values allowed in number column. Graph
+properties: \code{maximum} and \code{minimum}.}
 
-\item{format}{\code{"dateOnly"} or \code{"dateTime"}. Required by
-\code{create_calculated_column} if \code{output_type} is "dateTime" otherwise ignored.}
+\item{decimals}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{decimal_places}.}
 
-\item{locale}{Locale}
+\item{format}{For \code{create_datetime_column()}, \code{"dateOnly"} or \code{"dateTime"}.
+Graph property: \code{format}.}
+
+\item{locale}{Locale used to set the currency symbol, e.g. \code{"en-us"}.
+Graph property: \code{locale}.}
 
 \item{formula}{Required string with formula for calculated column definition.
 See \href{https://support.microsoft.com/en-us/office/examples-of-common-formulas-in-lists-d81f5f21-2b4e-45ce-b170-bf7ebf6988b3}{examples of common formulas in lists}.
 Reference existing columns using the display name enclosed in square
 brackets. The formula must start with an equals sign \code{"="} which this
-function appends to the formula text if it is missing.}
+function appends to the formula text if it is missing. The formula is
+processed with \code{\link[glue:glue]{glue::glue()}}. Graph property: \code{formula}.}
 
 \item{output_type}{Value type returned by calculated formula. One of
-\code{c("text", "boolean", "currency", "dateTime", "number")}}
+\code{c("text", "boolean", "currency", "dateTime", "number")}. Defaults to
+\code{"text"}. Graph property: \code{outputType}.}
 
-\item{lookup_list_column}{Name of lookup column in the lookup list to use.}
+\item{lookup_list_column}{Name of lookup column in the lookup list to use.
+Graph property: \code{columnName}.}
 
 \item{lookup_list_id, lookup_list}{Lookup list ID string or "ms_list" class
-object with id value in list properties.}
+object with id value in list properties. Graph property: \code{listId}.}
 
-\item{allow_multiple}{If \code{TRUE}, allow lookup column to return multiple
-values.}
+\item{allow_multiple_values}{If \code{TRUE}, allow a lookup or term column to
+store multiple values. Graph property: \code{allowMultipleValues}.}
 
 \item{allow_unlimited_length}{If \code{TRUE}, allow lookup column to
-return any length value.}
+return any length value. Graph property: \code{allowUnlimitedLength}.}
 
 \item{primary_lookup_column_id}{If column definition is for a secondary
-column, the primary lookup column ID must be supplied.}
+column, the primary lookup column ID must be supplied. Graph property:
+\code{primaryLookupColumnId}.}
+
+\item{allow_multiple}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
+\code{allow_multiple_values} for \code{\link[=create_lookup_column]{create_lookup_column()}} and
+\code{\link[=create_term_column]{create_term_column()}} or \code{allow_multiple_selection} for
+\code{\link[=create_person_column]{create_person_column()}} and \code{\link[=create_group_column]{create_group_column()}}.}
+
+\item{allow_multiple_selection}{If \code{TRUE}, allow a person or group column
+to store multiple values. Graph property: \code{allowMultipleSelection}.}
 
 \item{from_type}{What type of resources to choose from. Defaults to
 "peopleOnly" for \code{\link[=create_person_column]{create_person_column()}} or "peopleAndGroups" for
-\code{\link[=create_group_column]{create_group_column()}}}
+\code{\link[=create_group_column]{create_group_column()}}. Graph property: \code{chooseFromType}.}
 
 \item{is_picture}{Logical indicator for display of hyperlink value as link
 (\code{FALSE}, default for \code{\link[=create_hyperlink_column]{create_hyperlink_column()}}) or image (\code{TRUE}, default
-for \code{\link[=create_picture_column]{create_picture_column()}}).}
+for \code{\link[=create_picture_column]{create_picture_column()}}). Graph property: \code{isPicture}.}
+
+\item{show_full_name}{If \code{TRUE}, display the entire term path. Graph
+property: \code{showFullyQualifiedName}.}
 }
 \value{
 A named list of columnDefinition properties formatted for use as
-the \code{fields} argument to \code{\link[=create_sp_list]{create_sp_list()}} or as an element of the list
+the \code{columns} argument to \code{\link[=create_sp_list]{create_sp_list()}} or as an element of the list
 returned by \code{\link[=create_column_definition_list]{create_column_definition_list()}}.
 }
 \description{
 \code{\link[=create_column_definition]{create_column_definition()}} builds a named list with the properties of the
-columnDefinition resource type.
+columnDefinition resource type. The \verb{create_*_column()} helpers create a
+definition for a single column type.
+
+Arguments that set a columnDefinition property note the matching Graph
+property name. Graph property names can also be passed to \code{...} (e.g.
+\code{create_text_column("Notes", allowMultipleLines = TRUE)} or
+\code{create_column_definition("Notes", displayName = "Project Notes")}).
+Column-level properties are added to the definition and any other values
+are added to the properties for the column type. Supplying the same
+property with both an argument and a Graph name is an error. Definitions
+are checked with the same rules as \code{\link[=as_column_definition]{as_column_definition()}}.
+
+Properties left as \code{NULL} aren't included in the definition so SharePoint
+uses the default value when a column is created.
 
 More information:
 \url{https://learn.microsoft.com/en-us/graph/api/resources/columndefinition?view=graph-rest-1.0}
@@ -250,16 +306,38 @@ details:
 \item numberColumn: \url{https://learn.microsoft.com/en-us/graph/api/resources/numbercolumn?view=graph-rest-1.0#properties}
 \item dateTimeColumn: \url{https://learn.microsoft.com/en-us/graph/api/resources/datetimecolumn?view=graph-rest-1.0}
 }
+
+Column types the Graph API can't create
+
+As of October 2026, the Graph API returns an "Invalid request" error when
+creating a list column with the hyperlinkOrPicture, thumbnail, geolocation,
+or term column types. \code{\link[=create_hyperlink_column]{create_hyperlink_column()}},
+\code{\link[=create_picture_column]{create_picture_column()}}, \code{\link[=create_thumbnail_column]{create_thumbnail_column()}},
+\code{\link[=create_geolocation_column]{create_geolocation_column()}}, and \code{\link[=create_term_column]{create_term_column()}} still create
+valid definitions, but \code{\link[=create_sp_list_column]{create_sp_list_column()}} can't use them. The Graph
+API also doesn't return the column type for hyperlinkOrPicture, thumbnail,
+or term columns when reading list columns.
+
+Term columns also need a term set, which isn't supported.
 }
 \examples{
 create_text_column("TextColumn")
+
+create_text_column("NotesColumn", multiple_lines = TRUE)
+
+# Graph property names are also supported
+create_text_column("NotesColumn", allowMultipleLines = TRUE)
 
 fruit <- c("apple", "banana", "pear", "pineapple")
 create_choice_column("ChoiceColumn", fruit)
 
 create_number_column("NumberColumn")
 
+create_number_column("PercentColumn", display_as = "percentage", max = 1)
+
 create_datetime_column("DatetimeColumn")
+
+create_datetime_column("DateColumn", format = "dateOnly")
 
 create_calculated_column(
    name = "FormulaColumn",

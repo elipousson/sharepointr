@@ -11,28 +11,35 @@ create_column_definition_list(definitions, col_type = "text", ignore_na = TRUE)
 column definitions.}
 
 \item{col_type}{Column type to use if not provided as a "type" column in the
-input definitions data frame. Allowed values include date and datetime,
-person, group, and personorgroup. Not case sensitive.}
+input definitions data frame. Allowed values include the Graph column type
+keys (e.g. "dateTime" or "personOrGroup") and the shorter names date,
+datetime, person, group, hyperlink, and picture. Not case sensitive. A
+"date" column uses \code{format = "dateOnly"} unless a format is supplied.}
 
 \item{ignore_na}{If \code{TRUE}, drop any parameters with a \code{NA} value.}
 }
 \value{
 A list of named lists, one per row of \code{definitions}, each
 formatted as a columnDefinition (as created by
-\code{\link[=create_column_definition]{create_column_definition()}}) for use as the \code{fields} argument to
+\code{\link[=create_column_definition]{create_column_definition()}}) for use as the \code{columns} argument to
 \code{\link[=create_sp_list]{create_sp_list()}}.
 }
 \description{
 \code{\link[=create_column_definition_list]{create_column_definition_list()}} is a vectorized version of
 \code{\link[=create_column_definition]{create_column_definition()}} that uses a list or data frame input to create
-a list of column definitions. This list can be used as the \code{fields} argument
+a list of column definitions. This list can be used as the \code{columns} argument
 for \code{\link[=create_sp_list]{create_sp_list()}}.
+}
+\details{
+Columns in \code{definitions} can use the argument names of the
+\verb{create_*_column()} helpers (e.g. \code{multiple_lines}) or Graph property names
+(e.g. \code{allowMultipleLines}). See \code{\link[=create_column_definition]{create_column_definition()}} for details.
 }
 \examples{
 definition_df <- data.frame(
   name = c("FirstColumn", "SecondColumn"),
   type = c("text", "number"),
-  decimals = c(NA, 0),
+  decimal_places = c(NA, 0),
   multiple_lines = c(TRUE, NA)
 )
 

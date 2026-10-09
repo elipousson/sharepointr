@@ -9,30 +9,57 @@
 #'
 #' @description
 #' [create_column_definition()] builds a named list with the properties of the
-#' columnDefinition resource type.
+#' columnDefinition resource type. The `create_*_column()` helpers create a
+#' definition for a single column type.
+#'
+#' Arguments that set a columnDefinition property note the matching Graph
+#' property name. Graph property names can also be passed to `...` (e.g.
+#' `create_text_column("Notes", allowMultipleLines = TRUE)` or
+#' `create_column_definition("Notes", displayName = "Project Notes")`).
+#' Column-level properties are added to the definition and any other values
+#' are added to the properties for the column type. Supplying the same
+#' property with both an argument and a Graph name is an error. Definitions
+#' are checked with the same rules as [as_column_definition()].
+#'
+#' Properties left as `NULL` aren't included in the definition so SharePoint
+#' uses the default value when a column is created.
 #'
 #' More information:
 #' <https://learn.microsoft.com/en-us/graph/api/resources/columndefinition?view=graph-rest-1.0>
 #'
-#' @param name Column name.
+#' @param name Column name. Graph property: `name`. The name can't be changed
+#'   after a column is created.
 #' @param display_as Value displayed as option. For `create_choice_column` one
 #' of`c("checkBoxes", "dropDownMenu", "radioButtons")`. For
 #' `create_number_column`, one of `c("number", "percentage")`. For
 #' `create_datetime_column`, one of `c("default", "friendly", "standard")`.
+#' Graph property: `displayAs`.
 #' @param ... Additional arguments passed to [create_column_definition()] or
-#' appended to the end of the column definition list.
+#' columnDefinition properties using Graph property names.
 #' @param .col_type Column type. Defaults to "text". Must be one of "boolean",
 #' "calculated", "choice", "currency", "dateTime", "lookup", "number",
 #' "personOrGroup", "text", "term", "hyperlinkOrPicture", "thumbnail",
 #' "contentApprovalStatus", or "geolocation".
-#' @param enforce_unique Enforce unique values in column.
-#' @param hidden If `TRUE`, column will be hidden by default.
+#' @param enforce_unique Enforce unique values in column. Graph property:
+#'   `enforceUniqueValues`.
+#' @param hidden If `TRUE`, column will be hidden by default. Graph property:
+#'   `hidden`.
 #' @param deletable If `TRUE`, column can't be deleted separate from the list.
-#' @param required If `TRUE`, column will be required.
+#'   Graph property: `isDeletable`.
+#' @param required If `TRUE`, column will be required. Graph property:
+#'   `required`.
 #' @param default Default value set by helper [get_column_default()] function.
-#' @param description Column description.
-#' @param displayname Column display name.
-#' @param indexed,sealed,propagate_changes,read_only,validation,id,show_full_name Additional arguments used by [create_column_definition()].
+#'   Graph property: `defaultValue`.
+#' @param description Column description. Graph property: `description`.
+#' @param display_name Column display name. Graph property: `displayName`.
+#' @param displayname `r lifecycle::badge("deprecated")` Use `display_name`.
+#' @param validation Column validation created with [column_validation()].
+#'   Graph property: `validation`.
+#' @param call The execution environment used in error messages. The
+#'   `create_*_column()` helpers pass their own environment.
+#' @param indexed,sealed,propagate_changes,read_only,id Additional arguments
+#'   used by [create_column_definition()]. Graph properties: `indexed`,
+#'   `isSealed`, `propagateChanges`, `readOnly`, and `id`.
 #' @keywords lists
 #'
 #' @details Display as options
@@ -45,8 +72,21 @@
 #' - numberColumn: <https://learn.microsoft.com/en-us/graph/api/resources/numbercolumn?view=graph-rest-1.0#properties>
 #' - dateTimeColumn: <https://learn.microsoft.com/en-us/graph/api/resources/datetimecolumn?view=graph-rest-1.0>
 #'
+#' @details Column types the Graph API can't create
+#'
+#' As of October 2026, the Graph API returns an "Invalid request" error when
+#' creating a list column with the hyperlinkOrPicture, thumbnail, geolocation,
+#' or term column types. [create_hyperlink_column()],
+#' [create_picture_column()], [create_thumbnail_column()],
+#' [create_geolocation_column()], and [create_term_column()] still create
+#' valid definitions, but [create_sp_list_column()] can't use them. The Graph
+#' API also doesn't return the column type for hyperlinkOrPicture, thumbnail,
+#' or term columns when reading list columns.
+#'
+#' Term columns also need a term set, which isn't supported.
+#'
 #' @returns A named list of columnDefinition properties formatted for use as
-#'   the `fields` argument to [create_sp_list()] or as an element of the list
+#'   the `columns` argument to [create_sp_list()] or as an element of the list
 #'   returned by [create_column_definition_list()].
 #' @export
 create_column_definition <- function(
@@ -54,7 +94,7 @@ create_column_definition <- function(
   ...,
   .col_type = "text",
   enforce_unique = NULL,
-  hidden = FALSE,
+  hidden = NULL,
   deletable = NULL,
   indexed = NULL,
   sealed = NULL,
@@ -64,74 +104,124 @@ create_column_definition <- function(
   validation = NULL,
   default = get_column_default(),
   description = NULL,
-  displayname = NULL,
-  id = NULL
+  display_name = NULL,
+  id = NULL,
+  displayname = deprecated(),
+  call = current_env()
 ) {
-  # Validate columnDefinition properties
-  check_bool(enforce_unique, allow_null = TRUE)
-  check_bool(hidden, allow_null = TRUE)
-  check_bool(deletable, allow_null = TRUE)
-  check_bool(indexed, allow_null = TRUE)
-  check_bool(sealed, allow_null = TRUE)
-  check_bool(propagate_changes, allow_null = TRUE)
-  check_bool(read_only, allow_null = TRUE)
-  check_bool(required, allow_null = TRUE)
-  check_string(displayname, allow_null = TRUE)
-  check_name(name)
+  if (lifecycle::is_present(displayname)) {
+    lifecycle::deprecate_soft(
+      "0.2.0",
+      "create_column_definition(displayname)",
+      "create_column_definition(display_name)"
+    )
+    display_name <- display_name %||% displayname
+  }
 
-  col_definition <- list(
-    name = name,
-    enforceUniqueValues = enforce_unique,
-    hidden = hidden,
-    isDeletable = deletable,
-    indexed = indexed,
-    isSealed = sealed,
-    propagateChanges = propagate_changes,
-    readOnly = read_only,
-    required = required,
-    validation = validation,
-    defaultValue = default,
-    description = description,
-    displayName = displayname,
-    id = id
+  col_definition <- purrr::compact(
+    list(
+      name = name,
+      enforceUniqueValues = enforce_unique,
+      hidden = hidden,
+      isDeletable = deletable,
+      indexed = indexed,
+      isSealed = sealed,
+      propagateChanges = propagate_changes,
+      readOnly = read_only,
+      required = required,
+      validation = validation,
+      defaultValue = default,
+      description = description,
+      displayName = display_name,
+      id = id
+    )
   )
 
-  col_definition <- purrr::compact(col_definition)
+  params <- purrr::compact(list2(...))
+
+  if (length(params) > 0 && !is_named(params)) {
+    cli_abort("All arguments passed to {.arg ...} must be named.", call = call)
+  }
+
+  dupes <- unique(names(params)[duplicated(names(params))])
+
+  if (length(dupes) > 0) {
+    cli_abort(
+      "{.field {dupes}} can't be supplied more than once. Use an argument or
+      the Graph property name, not both.",
+      call = call
+    )
+  }
+
+  # Graph column-level property names passed to `...`
+  col_params <- params[names(params) %in% names(sp_column_props)]
+  conflicts <- intersect(names(col_params), names(col_definition))
+
+  if (length(conflicts) > 0) {
+    cli_abort(
+      "{.field {conflicts}} can't be supplied as both an argument and a Graph
+      property name.",
+      call = call
+    )
+  }
+
+  col_definition <- c(col_definition, col_params)
+  params <- params[!names(params) %in% names(sp_column_props)]
 
   if (!is.null(.col_type)) {
     # The type-related properties are mutually exclusive;
     # a column can only have one of them specified.
     .col_type <- arg_match(
       .col_type,
-      values = sp_list_col_types
+      values = sp_list_col_types,
+      error_call = call
     )
 
-    params <- purrr::compact(list2(...))
-
     if (is_empty(params)) {
-      params <- structure(list(), names = character(0))
+      params <- set_names(list(), character(0))
     }
 
-    params <- list(params)
-
-    col_definition <- c(
-      col_definition,
-      set_names(params, .col_type)
+    col_definition[[.col_type]] <- params
+  } else if (length(params) > 0) {
+    cli_abort(
+      "{.arg .col_type} must be supplied to use {.field {names(params)}}.",
+      call = call
     )
   }
 
-  col_definition
+  validate_column_definition(
+    col_definition,
+    allow_read_only = TRUE,
+    allow_custom = FALSE,
+    require_type = FALSE,
+    call = call
+  )
+}
+
+#' Is a Graph property name supplied to `...`?
+#' @noRd
+dots_has_name <- function(name, ...) {
+  name %in% names(list2(...))
 }
 
 #' @rdname create_column_definition
 #' @param multiple_lines Logical. If `TRUE`, allow multiple lines of text.
+#'   Graph property: `allowMultipleLines`.
 #' @param append_changes Logical. If `TRUE`, append changes to existing value
-#' for column.
-#' @param lines Whole number.
-#' @param max_length Whole number. Max length in number of characters.
-#' @param text_type One of `c("plain", "richText")`
+#' for column. Graph property: `appendChangesToExistingText`.
+#' @param lines Whole number. Size of the text box. Graph property:
+#'   `linesForEditing`.
+#' @param max_length Whole number. Max length in number of characters. Graph
+#'   property: `maxLength`.
+#' @param text_type One of `c("plain", "richText")`. Graph property:
+#'   `textType`.
 #' @examples
 #' create_text_column("TextColumn")
+#'
+#' create_text_column("NotesColumn", multiple_lines = TRUE)
+#'
+#' # Graph property names are also supported
+#' create_text_column("NotesColumn", allowMultipleLines = TRUE)
 #'
 #' @export
 create_text_column <- function(
@@ -141,7 +231,7 @@ create_text_column <- function(
   append_changes = NULL,
   lines = NULL,
   max_length = NULL,
-  text_type = c("plain", "richText")
+  text_type = NULL
 ) {
   # Validate TextColumn resource properties
   # <https://learn.microsoft.com/en-us/graph/api/resources/textcolumn?view=graph-rest-1.0>
@@ -149,7 +239,10 @@ create_text_column <- function(
   check_bool(append_changes, allow_null = TRUE)
   check_number_whole(lines, allow_null = TRUE)
   check_number_whole(max_length, allow_null = TRUE)
-  text_type <- arg_match(text_type)
+
+  if (!is.null(text_type)) {
+    text_type <- arg_match0(text_type, c("plain", "richText"))
+  }
 
   create_column_definition(
     name = name,
@@ -159,16 +252,19 @@ create_text_column <- function(
     appendChangesToExistingText = append_changes,
     linesForEditing = lines,
     maxLength = max_length,
-    textType = text_type
+    textType = text_type,
+    call = current_env()
   )
 }
 
 #' @rdname create_column_definition
-#' @param choices A character vector of choice options.
+#' @param choices A character vector of choice options. Graph property:
+#'   `choices`.
 #' @param allow_na If `TRUE`, allow NA values in `choices`.
 #' @param na_replacement Used as `replacement` by [stringr::str_replace_na()] on
 #'  `choices` if they contain NA values.
-#' @param allow_text If `TRUE`, allow text entry in the choice column.
+#' @param allow_text If `TRUE`, allow text entry in the choice column. Graph
+#'   property: `allowTextEntry`.
 #' @inheritParams base::strsplit
 #' @examples
 #' fruit <- c("apple", "banana", "pear", "pineapple")
@@ -179,19 +275,18 @@ create_choice_column <- function(
   name,
   choices,
   ...,
-  allow_text = TRUE,
-  display_as = c(
-    "dropDownMenu",
-    "checkBoxes",
-    "radioButtons"
-  ),
+  allow_text = NULL,
+  display_as = NULL,
   allow_na = TRUE,
   na_replacement = "NA",
   split = NULL
 ) {
   # Optionally validate `display_as`
   if (!is.null(display_as)) {
-    display_as <- arg_match(display_as)
+    display_as <- arg_match0(
+      display_as,
+      c("dropDownMenu", "checkBoxes", "radioButtons")
+    )
   }
 
   check_bool(allow_text, allow_null = TRUE)
@@ -212,49 +307,44 @@ create_choice_column <- function(
     .col_type = "choice",
     allowTextEntry = allow_text,
     choices = choices,
-    displayAs = display_as
+    displayAs = display_as,
+    call = current_env()
   )
 }
 
 #' @rdname create_column_definition
-#' @param decimals One of `c("none", "one", "two", "three", "four", "five")` or
-#' a numeric value between 0 and 5.
-#' @param max,min Minimum and maximum values allowed in number column.
+#' @param decimal_places One of `c("automatic", "none", "one", "two", "three",
+#'   "four", "five")` or a whole number between 0 and 5. Graph property:
+#'   `decimalPlaces`.
+#' @param max,min Minimum and maximum values allowed in number column. Graph
+#'   properties: `maximum` and `minimum`.
+#' @param decimals `r lifecycle::badge("deprecated")` Use `decimal_places`.
 #'
 #' @examples
 #' create_number_column("NumberColumn")
+#'
+#' create_number_column("PercentColumn", display_as = "percentage", max = 1)
 #'
 #' @export
 create_number_column <- function(
   name,
   ...,
-  decimals = "automatic",
+  decimal_places = NULL,
   display_as = NULL,
   max = NULL,
-  min = NULL
+  min = NULL,
+  decimals = deprecated()
 ) {
-  # Convert character values to integers
-  if (decimals %in% c("0", "1", "2", "3", "4", "5")) {
-    decimals <- as.integer(decimals)
-  }
-
-  # Convert numeric decimalPlaces values
-  if (is.numeric(decimals)) {
-    check_number_whole(
-      decimals,
-      min = 0,
-      max = 5
+  if (lifecycle::is_present(decimals)) {
+    lifecycle::deprecate_soft(
+      "0.2.0",
+      "create_number_column(decimals)",
+      "create_number_column(decimal_places)"
     )
-
-    decimal_num <- c("none", "one", "two", "three", "four", "five")
-    decimals <- decimal_num[as.integer(decimals) + 1]
+    decimal_places <- decimal_places %||% decimals
   }
 
-  # Validate decimalPlaces value
-  arg_match0(
-    decimals,
-    c("automatic", "none", "one", "two", "three", "four", "five")
-  )
+  decimal_places <- as_decimal_places(decimal_places)
 
   # Validate displayAs value
   if (!is.null(display_as)) {
@@ -264,48 +354,89 @@ create_number_column <- function(
     )
   }
 
-  check_number_whole(max, allow_null = TRUE)
-  check_number_whole(min, allow_null = TRUE)
+  check_number_decimal(max, allow_null = TRUE)
+  check_number_decimal(min, allow_null = TRUE)
 
   create_column_definition(
     name = name,
     ...,
     .col_type = "number",
-    decimalPlaces = decimals,
+    decimalPlaces = decimal_places,
     displayAs = display_as,
     maximum = max,
-    minimum = min
+    minimum = min,
+    call = current_env()
+  )
+}
+
+#' Convert numeric decimal places to a numberColumn decimalPlaces value
+#' @noRd
+as_decimal_places <- function(
+  decimal_places,
+  arg = caller_arg(decimal_places),
+  call = caller_env()
+) {
+  if (is.null(decimal_places)) {
+    return(NULL)
+  }
+
+  # Convert character values to integers
+  if (is_string(decimal_places) && decimal_places %in% as.character(0:5)) {
+    decimal_places <- as.integer(decimal_places)
+  }
+
+  if (is.numeric(decimal_places)) {
+    check_number_whole(
+      decimal_places,
+      min = 0,
+      max = 5,
+      arg = arg,
+      call = call
+    )
+
+    decimal_num <- c("none", "one", "two", "three", "four", "five")
+    decimal_places <- decimal_num[as.integer(decimal_places) + 1]
+  }
+
+  arg_match0(
+    decimal_places,
+    sp_column_type_props[["number"]][["decimalPlaces"]],
+    arg_nm = arg,
+    error_call = call
   )
 }
 
 #' @rdname create_column_definition
+#' @param format For `create_datetime_column()`, `"dateOnly"` or `"dateTime"`.
+#'   Graph property: `format`.
 #' @examples
 #' create_datetime_column("DatetimeColumn")
+#'
+#' create_datetime_column("DateColumn", format = "dateOnly")
 #'
 #' @export
 create_datetime_column <- function(
   name,
   ...,
-  display_as = c(
-    "default",
-    "friendly",
-    "standard"
-  ),
-  format = c(
-    "dateOnly",
-    "dateTime"
-  )
+  display_as = NULL,
+  format = NULL
 ) {
   # Validate datetime column properties
-  display_as <- arg_match(display_as)
-  format <- arg_match(format)
+  if (!is.null(display_as)) {
+    display_as <- arg_match0(display_as, c("default", "friendly", "standard"))
+  }
+
+  if (!is.null(format)) {
+    format <- arg_match0(format, c("dateOnly", "dateTime"))
+  }
 
   create_column_definition(
     name = name,
     ...,
     .col_type = "dateTime",
     format = format,
-    displayAs = display_as
+    displayAs = display_as,
+    call = current_env()
   )
 }
 
@@ -315,20 +446,23 @@ create_boolean_column <- function(name, ...) {
   create_column_definition(
     name = name,
     ...,
-    .col_type = "boolean"
+    .col_type = "boolean",
+    call = current_env()
   )
 }
 
 #' @rdname create_column_definition
-#' @param locale Locale
+#' @param locale Locale used to set the currency symbol, e.g. `"en-us"`.
+#'   Graph property: `locale`.
 #' @export
-create_currency_column <- function(name, ..., locale = "en-us") {
-  check_string(locale)
+create_currency_column <- function(name, ..., locale = NULL) {
+  check_string(locale, allow_null = TRUE)
   create_column_definition(
     name = name,
     ...,
     locale = locale,
-    .col_type = "currency"
+    .col_type = "currency",
+    call = current_env()
   )
 }
 
@@ -338,11 +472,11 @@ create_currency_column <- function(name, ..., locale = "en-us") {
 #' lists](https://support.microsoft.com/en-us/office/examples-of-common-formulas-in-lists-d81f5f21-2b4e-45ce-b170-bf7ebf6988b3).
 #' Reference existing columns using the display name enclosed in square
 #' brackets. The formula must start with an equals sign `"="` which this
-#' function appends to the formula text if it is missing.
-#' @param format `"dateOnly"` or `"dateTime"`. Required by
-#' `create_calculated_column` if `output_type` is "dateTime" otherwise ignored.
+#' function appends to the formula text if it is missing. The formula is
+#' processed with [glue::glue()]. Graph property: `formula`.
 #' @param output_type Value type returned by calculated formula. One of
-#' `c("text", "boolean", "currency", "dateTime", "number")`
+#' `c("text", "boolean", "currency", "dateTime", "number")`. Defaults to
+#' `"text"`. Graph property: `outputType`.
 #' @export
 #' @examples
 #' create_calculated_column(
@@ -354,22 +488,26 @@ create_calculated_column <- function(
   name,
   ...,
   formula,
-  format = c("dateOnly", "dateTime"),
-  output_type = c("text", "boolean", "currency", "dateTime", "number")
+  format = NULL,
+  output_type = NULL
 ) {
-  # Validate output_type and format
-  output_type <- arg_match(output_type)
-
-  if (output_type == "dateTime") {
-    format <- arg_match0(
-      format,
-      c("dateOnly", "dateTime")
-    )
-  } else {
-    format <- NULL
+  if (is.null(output_type) && !dots_has_name("outputType", ...)) {
+    output_type <- "text"
   }
 
-  formula <- as_sp_formula(formula)
+  # Validate output_type and format
+  if (!is.null(output_type)) {
+    output_type <- arg_match0(
+      output_type,
+      sp_column_type_props[["calculated"]][["outputType"]]
+    )
+  }
+
+  if (!is.null(format)) {
+    format <- arg_match0(format, c("dateOnly", "dateTime"))
+  }
+
+  formula <- as.character(as_sp_formula(formula))
 
   create_column_definition(
     name = name,
@@ -377,7 +515,8 @@ create_calculated_column <- function(
     format = format,
     formula = formula,
     outputType = output_type,
-    .col_type = "calculated"
+    .col_type = "calculated",
+    call = current_env()
   )
 }
 
@@ -403,27 +542,43 @@ as_sp_formula <- function(
 
 #' @rdname create_column_definition
 #' @param lookup_list_column Name of lookup column in the lookup list to use.
+#'   Graph property: `columnName`.
 #' @param lookup_list_id,lookup_list Lookup list ID string or "ms_list" class
-#' object with id value in list properties.
-#' @param allow_multiple If `TRUE`, allow lookup column to return multiple
-#' values.
+#' object with id value in list properties. Graph property: `listId`.
+#' @param allow_multiple_values If `TRUE`, allow a lookup or term column to
+#'   store multiple values. Graph property: `allowMultipleValues`.
 #' @param allow_unlimited_length If `TRUE`, allow lookup column to
-#' return any length value.
+#' return any length value. Graph property: `allowUnlimitedLength`.
 #' @param primary_lookup_column_id If column definition is for a secondary
-#' column, the primary lookup column ID must be supplied.
+#' column, the primary lookup column ID must be supplied. Graph property:
+#' `primaryLookupColumnId`.
+#' @param allow_multiple `r lifecycle::badge("deprecated")` Use
+#'   `allow_multiple_values` for [create_lookup_column()] and
+#'   [create_term_column()] or `allow_multiple_selection` for
+#'   [create_person_column()] and [create_group_column()].
 #' @export
 create_lookup_column <- function(
   name,
-  lookup_list_column,
+  lookup_list_column = NULL,
   ...,
   lookup_list_id = NULL,
   lookup_list = NULL,
-  allow_multiple = NULL,
+  allow_multiple_values = NULL,
   allow_unlimited_length = NULL,
-  primary_lookup_column_id = NULL
+  primary_lookup_column_id = NULL,
+  allow_multiple = deprecated()
 ) {
-  check_string(lookup_list_column, allow_empty = FALSE)
-  check_bool(allow_multiple, allow_null = TRUE)
+  if (lifecycle::is_present(allow_multiple)) {
+    lifecycle::deprecate_soft(
+      "0.2.0",
+      "create_lookup_column(allow_multiple)",
+      "create_lookup_column(allow_multiple_values)"
+    )
+    allow_multiple_values <- allow_multiple_values %||% allow_multiple
+  }
+
+  check_string(lookup_list_column, allow_empty = FALSE, allow_null = TRUE)
+  check_bool(allow_multiple_values, allow_null = TRUE)
   check_bool(allow_unlimited_length, allow_null = TRUE)
   check_name(primary_lookup_column_id, allow_null = TRUE)
 
@@ -432,43 +587,63 @@ create_lookup_column <- function(
     lookup_list_id <- lookup_list[["properties"]][["id"]]
   }
 
-  check_string(lookup_list_id, allow_empty = FALSE)
+  check_string(lookup_list_id, allow_empty = FALSE, allow_null = TRUE)
 
   create_column_definition(
     name = name,
     ...,
-    allowMultipleValues = allow_multiple,
+    allowMultipleValues = allow_multiple_values,
     allowUnlimitedLength = allow_unlimited_length,
     listId = lookup_list_id,
     columnName = lookup_list_column,
     primaryLookupColumnId = primary_lookup_column_id,
-    .col_type = "lookup"
+    .col_type = "lookup",
+    call = current_env()
   )
 }
 
 #' @rdname create_column_definition
+#' @param allow_multiple_selection If `TRUE`, allow a person or group column
+#'   to store multiple values. Graph property: `allowMultipleSelection`.
 #' @param from_type What type of resources to choose from. Defaults to
 #' "peopleOnly" for [create_person_column()] or "peopleAndGroups" for
-#' [create_group_column()]
+#' [create_group_column()]. Graph property: `chooseFromType`.
 #' @export
 create_person_column <- function(
   name,
   ...,
-  allow_multiple = NULL,
+  allow_multiple_selection = NULL,
   display_as = NULL,
-  from_type = "peopleOnly"
+  from_type = "peopleOnly",
+  allow_multiple = deprecated()
 ) {
+  if (lifecycle::is_present(allow_multiple)) {
+    lifecycle::deprecate_soft(
+      "0.2.0",
+      "create_person_column(allow_multiple)",
+      "create_person_column(allow_multiple_selection)"
+    )
+    allow_multiple_selection <- allow_multiple_selection %||% allow_multiple
+  }
+
   check_string(display_as, allow_null = TRUE, allow_empty = FALSE)
-  check_bool(allow_multiple, allow_null = TRUE)
-  from_type <- arg_match0(from_type, c("peopleOnly", "peopleAndGroups"))
+  check_bool(allow_multiple_selection, allow_null = TRUE)
+
+  # A Graph property name supplied to `...` replaces the default
+  if (dots_has_name("chooseFromType", ...)) {
+    from_type <- NULL
+  } else {
+    from_type <- arg_match0(from_type, c("peopleOnly", "peopleAndGroups"))
+  }
 
   create_column_definition(
     name = name,
     ...,
     displayAs = display_as,
-    allowMultipleSelection = allow_multiple,
+    allowMultipleSelection = allow_multiple_selection,
     chooseFromType = from_type,
-    .col_type = "personOrGroup"
+    .col_type = "personOrGroup",
+    call = current_env()
   )
 }
 
@@ -477,15 +652,25 @@ create_person_column <- function(
 create_group_column <- function(
   name,
   ...,
-  allow_multiple = NULL,
+  allow_multiple_selection = NULL,
   display_as = NULL,
-  from_type = "peopleAndGroups"
+  from_type = "peopleAndGroups",
+  allow_multiple = deprecated()
 ) {
+  if (lifecycle::is_present(allow_multiple)) {
+    lifecycle::deprecate_soft(
+      "0.2.0",
+      "create_group_column(allow_multiple)",
+      "create_group_column(allow_multiple_selection)"
+    )
+    allow_multiple_selection <- allow_multiple_selection %||% allow_multiple
+  }
+
   create_person_column(
     name = name,
     ...,
     display_as = display_as,
-    allow_multiple = allow_multiple,
+    allow_multiple_selection = allow_multiple_selection,
     from_type = from_type
   )
 }
@@ -494,26 +679,22 @@ create_group_column <- function(
 #' @rdname create_column_definition
 #' @param is_picture Logical indicator for display of hyperlink value as link
 #' (`FALSE`, default for [create_hyperlink_column()]) or image (`TRUE`, default
-#' for [create_picture_column()]).
+#' for [create_picture_column()]). Graph property: `isPicture`.
 #' @export
 create_hyperlink_column <- function(name, ..., is_picture = FALSE) {
   create_column_definition(
     name = name,
     ...,
-    isPicture = is_picture,
-    .col_type = "hyperlinkOrPicture"
+    isPicture = if (!dots_has_name("isPicture", ...)) is_picture,
+    .col_type = "hyperlinkOrPicture",
+    call = current_env()
   )
 }
 
 #' @rdname create_column_definition
 #' @export
 create_picture_column <- function(name, ..., is_picture = TRUE) {
-  create_column_definition(
-    name = name,
-    ...,
-    isPicture = is_picture,
-    .col_type = "hyperlinkOrPicture"
-  )
+  create_hyperlink_column(name = name, ..., is_picture = is_picture)
 }
 
 #' @rdname create_column_definition
@@ -522,7 +703,8 @@ create_thumbnail_column <- function(name, ...) {
   create_column_definition(
     name = name,
     ...,
-    .col_type = "thumbnail"
+    .col_type = "thumbnail",
+    call = current_env()
   )
 }
 
@@ -532,25 +714,42 @@ create_geolocation_column <- function(name, ...) {
   create_column_definition(
     name = name,
     ...,
-    .col_type = "geolocation"
+    .col_type = "geolocation",
+    call = current_env()
   )
 }
 
 
 #' @rdname create_column_definition
+#' @param show_full_name If `TRUE`, display the entire term path. Graph
+#'   property: `showFullyQualifiedName`.
 #' @export
 create_term_column <- function(
   name,
   ...,
-  allow_multiple = TRUE,
-  show_full_name = NULL
+  allow_multiple_values = NULL,
+  show_full_name = NULL,
+  allow_multiple = deprecated()
 ) {
+  if (lifecycle::is_present(allow_multiple)) {
+    lifecycle::deprecate_soft(
+      "0.2.0",
+      "create_term_column(allow_multiple)",
+      "create_term_column(allow_multiple_values)"
+    )
+    allow_multiple_values <- allow_multiple_values %||% allow_multiple
+  }
+
+  check_bool(allow_multiple_values, allow_null = TRUE)
+  check_bool(show_full_name, allow_null = TRUE)
+
   create_column_definition(
     name = name,
     ...,
     showFullyQualifiedName = show_full_name,
-    allowMultipleValues = allow_multiple,
-    .col_type = "term"
+    allowMultipleValues = allow_multiple_values,
+    .col_type = "term",
+    call = current_env()
   )
 }
 
@@ -558,21 +757,27 @@ create_term_column <- function(
 #'
 #' [create_column_definition_list()] is a vectorized version of
 #' [create_column_definition()] that uses a list or data frame input to create
-#' a list of column definitions. This list can be used as the `fields` argument
+#' a list of column definitions. This list can be used as the `columns` argument
 #' for [create_sp_list()].
+#'
+#' Columns in `definitions` can use the argument names of the
+#' `create_*_column()` helpers (e.g. `multiple_lines`) or Graph property names
+#' (e.g. `allowMultipleLines`). See [create_column_definition()] for details.
 #'
 #' @param definitions A list or data frame with arguments to use in creation of
 #' column definitions.
 #' @param col_type Column type to use if not provided as a "type" column in the
-#' input definitions data frame. Allowed values include date and datetime,
-#' person, group, and personorgroup. Not case sensitive.
+#' input definitions data frame. Allowed values include the Graph column type
+#' keys (e.g. "dateTime" or "personOrGroup") and the shorter names date,
+#' datetime, person, group, hyperlink, and picture. Not case sensitive. A
+#' "date" column uses `format = "dateOnly"` unless a format is supplied.
 #' @param ignore_na If `TRUE`, drop any parameters with a `NA` value.
 #' @keywords lists
 #' @examples
 #' definition_df <- data.frame(
 #'   name = c("FirstColumn", "SecondColumn"),
 #'   type = c("text", "number"),
-#'   decimals = c(NA, 0),
+#'   decimal_places = c(NA, 0),
 #'   multiple_lines = c(TRUE, NA)
 #' )
 #'
@@ -580,7 +785,7 @@ create_term_column <- function(
 #'
 #' @returns A list of named lists, one per row of `definitions`, each
 #'   formatted as a columnDefinition (as created by
-#'   [create_column_definition()]) for use as the `fields` argument to
+#'   [create_column_definition()]) for use as the `columns` argument to
 #'   [create_sp_list()].
 #' @export
 create_column_definition_list <- function(
@@ -621,7 +826,10 @@ create_column_definition_list <- function(
         hyperlinkorpicture = create_hyperlink_column,
         thumbnail = create_thumbnail_column,
         geolocation = create_geolocation_column,
-        term = create_term_column
+        term = create_term_column,
+        cli_abort(
+          "Column {.field {name}} has an unknown column type: {.val {type}}."
+        )
       )
 
       if (ignore_na) {
@@ -630,6 +838,10 @@ create_column_definition_list <- function(
           params,
           i = !na_params
         )
+      }
+
+      if (tolower(type) == "date" && is.null(params[["format"]])) {
+        params[["format"]] <- "dateOnly"
       }
 
       params[["name"]] <- name
@@ -696,7 +908,7 @@ get_column_default <- function(
 #' definitions:
 #'
 #' - factors are specified as choice columns
-#' - integers are specified as number columns with `decimals` set to "none"
+#' - integers are specified as number columns with `decimal_places` set to "none"
 #' - characters with any value exceeding 255 characters have `multiple_lines` set to `TRUE`
 #' - characters composed entirely of URL values are specified as hyperlink columns
 #' - dates are specified as date columns
@@ -793,7 +1005,7 @@ data_as_column_definition_list <- function(
       }
 
       if ((def[["type"]] == "number") && is.integer(data[1, x])) {
-        def[["decimals"]] <- "none"
+        def[["decimal_places"]] <- "none"
       }
 
       if (def[["type"]] == "date") {

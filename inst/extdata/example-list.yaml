@@ -1,0 +1,66 @@
+# Example SharePoint list definition for sharepointr.
+# See ?read_sp_list_yaml for the format.
+
+format_version: 1
+displayName: Example Projects
+description: Example list of projects.
+list:
+  template: genericList
+custom:
+  owner: Planning
+columns:
+  - name: Title
+    displayName: Project Name
+    required: true
+    text: {}
+  - name: ProjectID
+    displayName: Project ID
+    description: Project reference ID
+    required: true
+    enforceUniqueValues: true
+    indexed: true
+    text:
+      maxLength: 20
+    custom:
+      form_order: 1
+      section: Summary
+  - name: ProjectNotes
+    displayName: Project Notes
+    text:
+      allowMultipleLines: true
+    custom:
+      form_order: 2
+      section: Summary
+  - name: ProjectStatus
+    displayName: Status
+    choice:
+      choices:
+        - Planning
+        - Active
+        - Closed
+      displayAs: radioButtons
+    custom:
+      form_order: 3
+  - name: StartDate
+    displayName: Start Date
+    dateTime:
+      format: dateOnly
+  - name: Budget
+    displayName: Budget
+    currency:
+      locale: en-us
+    custom:
+      decimals: none
+  - name: Phases
+    displayName: Number of Phases
+    number:
+      decimalPlaces: none
+      minimum: 0
+  - name: IsActive
+    displayName: Active
+    boolean: {}
+  - name: BudgetText
+    displayName: Budget ($)
+    calculated:
+      formula: "=IF(ISBLANK([Budget]),\"\",USDOLLAR([Budget],0))"
+      outputType: text

@@ -53,7 +53,7 @@ The type for each vector in the input data frame is checked with
 definitions:
 \itemize{
 \item factors are specified as choice columns
-\item integers are specified as number columns with \code{decimals} set to "none"
+\item integers are specified as number columns with \code{decimal_places} set to "none"
 \item characters with any value exceeding 255 characters have \code{multiple_lines} set to \code{TRUE}
 \item characters composed entirely of URL values are specified as hyperlink columns
 \item dates are specified as date columns

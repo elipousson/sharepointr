@@ -356,6 +356,9 @@ get_sp_list_metadata <- function(
 #' - A `"Title"` column in `columns` or `definition` updates the default
 #'   `"Title"` column of a `"genericList"` list (combined with
 #'   `title_definition`) instead of adding a new column.
+#' - Views in `definition` are created with the SharePoint REST API after the
+#'   columns are created. A view titled `"All Items"` updates the default view
+#'   of a `"genericList"` list.
 #'
 #' Notes on updating a SharePoint list:
 #'
@@ -380,7 +383,8 @@ get_sp_list_metadata <- function(
 #'   `columns`, and `list` settings (`template`, `hidden`, and
 #'   `contentTypesEnabled`) are used unless the matching argument is supplied.
 #'   Read-only list properties (e.g. `id`) and column ids are ignored.
-#'   `definition` can't be combined with `columns`.
+#'   `definition` can't be combined with `columns`. Views in the definition are
+#'   also created (see [list_sp_list_views()]).
 #' @inheritParams get_sp_site
 #' @returns For [create_sp_list()], invisibly returns a `ms_list` object for
 #'   the newly created list. For [update_sp_list()], the updated `ms_list`
@@ -459,6 +463,7 @@ create_sp_list <- function(
 
   check_string(list_name, call = call)
   template <- template %||% "genericList"
+  views <- if (!is.null(definition)) definition[["views"]]
 
   site <- site %||%
     get_sp_site(
@@ -576,6 +581,63 @@ create_sp_list <- function(
     create_sp_list_column(
       sp_list = sp_list,
       column_definition = column,
+      call = call
+    )
+  }
+
+  # Views are created after all columns since views reference columns
+  if (length(views) > 0) {
+    create_sp_list_definition_views(
+      sp_list,
+      views = views,
+      template = template,
+      call = call
+    )
+  }
+
+  invisible(sp_list)
+}
+
+#' Create the views from a list definition for a new list
+#'
+#' A view titled "All Items" updates the default view of a `"genericList"`
+#' list. The default view is set after all views are created.
+#' @noRd
+create_sp_list_definition_views <- function(
+  sp_list,
+  views,
+  template = "genericList",
+  call = caller_env()
+) {
+  default_title <- NULL
+
+  for (view in views) {
+    # Ids and URLs are references to the views of an existing list
+    view <- view[setdiff(names(view), sp_view_read_only_props)]
+
+    if (isTRUE(view[["DefaultView"]])) {
+      default_title <- view[["Title"]]
+    }
+
+    view[["DefaultView"]] <- NULL
+
+    if (template == "genericList" && identical(view[["Title"]], "All Items")) {
+      update_sp_list_view(
+        sp_list,
+        view_title = "All Items",
+        view_definition = view,
+        call = call
+      )
+    } else {
+      create_sp_list_view(sp_list, view_definition = view, call = call)
+    }
+  }
+
+  if (!is.null(default_title)) {
+    update_sp_list_view(
+      sp_list,
+      view_title = default_title,
+      default_view = TRUE,
       call = call
     )
   }

@@ -160,6 +160,128 @@ test_that("resolve_read_only_props resolves read_only values", {
   expect_snapshot(resolve_read_only_props("owner"), error = TRUE)
 })
 
+test_that("read_sp_list_yaml reads and validates views", {
+  lines <- c(
+    "displayName: Test",
+    "columns:",
+    "  - name: Status",
+    "    text: {}",
+    "views:",
+    "  - Title: Active",
+    "    DefaultView: true",
+    "    ViewFields: [LinkTitle, Status]",
+    "    ViewQuery: <Where><Eq><FieldRef Name=\"Status\"/><Value Type=\"Text\">Active</Value></Eq></Where>",
+    "    RowLimit: 50",
+    "    CustomFormatter:",
+    "      additionalRowClass: sp-field-severity--good",
+    "  - Title: All Items",
+    "    ViewFields: [LinkTitle]"
+  )
+
+  definition <- read_sp_list_yaml(local_yaml(lines))
+  views <- definition[["views"]]
+
+  expect_length(views, 2)
+  expect_identical(views[[1]][["ViewFields"]], c("LinkTitle", "Status"))
+  expect_identical(views[[1]][["RowLimit"]], 50L)
+  # View formatting is kept as a mapping
+  expect_identical(
+    views[[1]][["CustomFormatter"]],
+    list(additionalRowClass = "sp-field-severity--good")
+  )
+  expect_snapshot(print(definition))
+
+  # Views are written after columns, with fields as a sequence
+  out <- withr::local_tempfile(fileext = ".yaml")
+  suppressMessages(write_sp_list_yaml(definition, out))
+  expect_identical(read_sp_list_yaml(out), definition)
+  written <- readLines(out)
+  expect_true(match("views:", written) > match("columns:", written))
+  expect_true(any(grepl("^      - LinkTitle$", written)))
+})
+
+test_that("read_sp_list_yaml errors and warns for invalid views", {
+  base <- c("displayName: Test", "columns:", "  - name: Status", "    text: {}", "views:")
+
+  expect_snapshot(error = TRUE, {
+    read_sp_list_yaml(local_yaml(c(base, "  - Title: A", "  - Title: A")))
+    read_sp_list_yaml(local_yaml(c(
+      base,
+      "  - Title: A",
+      "    DefaultView: true",
+      "  - Title: B",
+      "    DefaultView: true"
+    )))
+    read_sp_list_yaml(local_yaml(c(base, "  - Title: A", "    row_limit: 10")))
+    read_sp_list_yaml(local_yaml(c(base, "  - RowLimit: 10")))
+  })
+
+  expect_snapshot(
+    definition <- read_sp_list_yaml(local_yaml(c(
+      base,
+      "  - Title: A",
+      "    ViewFields: [LinkTitle, Status, Missing, Modified]"
+    )))
+  )
+})
+
+test_that("write_sp_list_yaml keeps existing views if the definition has none", {
+  path <- local_yaml(c(
+    "displayName: Test",
+    "columns:",
+    "  - name: Status",
+    "    text: {}",
+    "views:",
+    "  - Title: Active",
+    "    ViewFields: [LinkTitle, Status]"
+  ))
+
+  live <- new_sp_list_definition(
+    display_name = "Test",
+    columns = list(list(name = "Status", text = list(maxLength = 100L)))
+  )
+
+  written <- suppressMessages(write_sp_list_yaml(live, path))
+
+  expect_identical(written[["views"]][[1]][["Title"]], "Active")
+  expect_identical(written[["columns"]][[1]][["text"]][["maxLength"]], 100L)
+})
+
+test_that("as_definition_view converts views from the REST API", {
+  view <- list(
+    Id = "v1",
+    Title = "Active",
+    DefaultView = FALSE,
+    Hidden = FALSE,
+    PersonalView = FALSE,
+    ViewType = "HTML",
+    RowLimit = 30L,
+    Paged = TRUE,
+    Scope = 0L,
+    ViewQuery = "<OrderBy><FieldRef Name=\"ID\" /></OrderBy>",
+    CustomFormatter = "{\"additionalRowClass\":\"x\"}",
+    MobileView = FALSE,
+    MobileDefaultView = FALSE,
+    ServerRelativeUrl = "/sites/Site/Lists/Test/Active.aspx",
+    ViewFields = c("LinkTitle", "Status")
+  )
+
+  expect_identical(
+    as_definition_view(view),
+    list(
+      Title = "Active",
+      ViewFields = c("LinkTitle", "Status"),
+      ViewQuery = "<OrderBy><FieldRef Name=\"ID\" /></OrderBy>",
+      CustomFormatter = list(additionalRowClass = "x")
+    )
+  )
+
+  with_id <- as_definition_view(view, keep_id = TRUE, keep_defaults = TRUE)
+  expect_identical(names(with_id)[1:3], c("Title", "Id", "ServerRelativeUrl"))
+  expect_identical(with_id[["RowLimit"]], 30L)
+  expect_false(has_name(with_id, "PersonalView"))
+})
+
 test_that("read_sp_list_yaml warns for duplicate display names", {
   path <- local_yaml(c(
     "displayName: Test",

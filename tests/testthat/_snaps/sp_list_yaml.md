@@ -20,7 +20,7 @@
     Condition
       Error:
       ! A list definition has unknown key: fields.
-      i Allowed keys: format_version, displayName, description, list, custom, and columns. Use custom for other metadata.
+      i Allowed keys: format_version, displayName, description, list, custom, columns, and views. Use custom for other metadata.
       i Read-only list properties (e.g. id or webUrl) are also allowed.
     Code
       read_sp_list_yaml(local_yaml(c("columns: []")))
@@ -87,6 +87,51 @@
       Error:
       ! `read_only` must be "stable", "all", "none", or read-only list property names.
       x Unknown property: "owner".
+
+# read_sp_list_yaml reads and validates views
+
+    Code
+      print(definition)
+    Message
+      <sp_list_definition> Test
+      1 column: text (1)
+      2 views: "Active" and "All Items"
+
+# read_sp_list_yaml errors and warns for invalid views
+
+    Code
+      read_sp_list_yaml(local_yaml(c(base, "  - Title: A", "  - Title: A")))
+    Condition
+      Error:
+      ! View titles must be unique. Duplicated: "A".
+    Code
+      read_sp_list_yaml(local_yaml(c(base, "  - Title: A", "    DefaultView: true",
+        "  - Title: B", "    DefaultView: true")))
+    Condition
+      Error:
+      ! Only one view can be the default view, not "A" and "B".
+    Code
+      read_sp_list_yaml(local_yaml(c(base, "  - Title: A", "    row_limit: 10")))
+    Condition
+      Error:
+      ! A has unknown view property: row_limit.
+      i Use RowLimit in place of row_limit.
+      i Allowed properties: Title, ViewFields, ViewQuery, RowLimit, Paged, DefaultView, Hidden, Scope, CustomFormatter, MobileView, and MobileDefaultView.
+    Code
+      read_sp_list_yaml(local_yaml(c(base, "  - RowLimit: 10")))
+    Condition
+      Error:
+      ! `views[[1]].Title` must be a single string, not `NULL`.
+
+---
+
+    Code
+      definition <- read_sp_list_yaml(local_yaml(c(base, "  - Title: A",
+        "    ViewFields: [LinkTitle, Status, Missing, Modified]")))
+    Condition
+      Warning:
+      Views show fields that aren't columns in the definition:
+      * "A": Missing
 
 # read_sp_list_yaml warns for duplicate display names
 

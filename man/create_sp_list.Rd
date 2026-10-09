@@ -81,7 +81,8 @@ a path to a YAML file. The definition \code{displayName}, \code{description},
 \code{columns}, and \code{list} settings (\code{template}, \code{hidden}, and
 \code{contentTypesEnabled}) are used unless the matching argument is supplied.
 Read-only list properties (e.g. \code{id}) and column ids are ignored.
-\code{definition} can't be combined with \code{columns}.}
+\code{definition} can't be combined with \code{columns}. Views in the definition are
+also created (see \code{\link[=list_sp_list_views]{list_sp_list_views()}}).}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
@@ -137,6 +138,9 @@ is created since the Graph API doesn't support it.
 \item A \code{"Title"} column in \code{columns} or \code{definition} updates the default
 \code{"Title"} column of a \code{"genericList"} list (combined with
 \code{title_definition}) instead of adding a new column.
+\item Views in \code{definition} are created with the SharePoint REST API after the
+columns are created. A view titled \code{"All Items"} updates the default view
+of a \code{"genericList"} list.
 }
 
 Notes on updating a SharePoint list:

@@ -17,6 +17,7 @@ get_sp_list_definition(
   ...,
   keep_defaults = FALSE,
   read_only = "stable",
+  include_views = FALSE,
   call = caller_env()
 )
 
@@ -27,6 +28,7 @@ write_sp_list_yaml(
   merge = TRUE,
   keep_defaults = FALSE,
   read_only = "stable",
+  include_views = FALSE,
   call = caller_env()
 )
 }
@@ -61,12 +63,19 @@ the existing list. One of \code{"stable"} (default) for properties that don't
 change after a list is created (\code{id}, \code{name}, \code{webUrl}, \code{createdDateTime},
 \code{parentReference}, \code{sharepointIds}, and \code{system}), \code{"all"}, \code{"none"}, or
 a character vector of property names (e.g. \code{c("id", "createdBy")}).
-Column ids are included if \code{"id"} is included. \code{createdBy} and
-\code{lastModifiedBy} include the name and email of a person.}
+Column ids (and view ids) are included if \code{"id"} is included.
+\code{createdBy} and \code{lastModifiedBy} include the name and email of a person.}
+
+\item{include_views}{If \code{TRUE}, include the list views (excluding hidden and
+personal views). Defaults to \code{FALSE}. Views are read with the SharePoint
+REST API, which requires a delegated (user) login. See
+\code{\link[=list_sp_list_views]{list_sp_list_views()}}.}
 
 \item{merge}{If \code{TRUE} (default) and \code{path} exists, keep the comment header,
 \code{custom} metadata, and column order from the existing file. Read-only
-list properties and column ids always come from \code{x}. Columns that
+list properties and column ids always come from \code{x}. Views come from \code{x}
+if it has views (e.g. with \code{include_views = TRUE}) and are otherwise kept
+from the existing file. Columns that
 are only in the existing file are dropped (unless the Graph API doesn't
 return their column type). Comments after the header are always lost.}
 }
@@ -218,6 +227,41 @@ applications (e.g. form order or app-enforced choices).
 Properties that aren't included in a column definition aren't compared or
 changed by \code{\link[=sync_sp_list_columns]{sync_sp_list_columns()}}. Removing a property from a file
 doesn't reset it to the default value.
+
+List views
+
+An optional \code{views} key holds a sequence of list views using the SharePoint
+REST API SP.View property names (see \code{\link[=list_sp_list_views]{list_sp_list_views()}}):
+
+\if{html}{\out{<div class="sourceCode yaml">}}\preformatted{views:
+  - Title: Active Projects
+    DefaultView: true
+    ViewFields:
+      - LinkTitle
+      - ProjectStatus
+      - Budget
+    ViewQuery: <Where><Eq><FieldRef Name="ProjectStatus"/><Value Type="Choice">Active</Value></Eq></Where>
+    RowLimit: 50
+    CustomFormatter:
+      additionalRowClass: sp-field-severity--good
+}\if{html}{\out{</div>}}
+\itemize{
+\item \code{Title} is required and must be unique. Only one view can set
+\code{DefaultView: true}.
+\item Other properties are \code{ViewFields} (internal column names), \code{ViewQuery}
+(a CAML query), \code{RowLimit}, \code{Paged}, \code{Scope}, \code{Hidden}, \code{MobileView},
+\code{MobileDefaultView}, and \code{CustomFormatter} (view formatting as a YAML
+mapping or a JSON string). \code{Id} and \code{ServerRelativeUrl} can be included
+as a reference to an existing view.
+\item A warning is given if a view shows fields that aren't columns in the
+definition or built-in fields (e.g. \code{LinkTitle}, \code{ID}, or \code{Modified}).
+}
+
+\code{create_sp_list(definition = )} creates views after creating the columns. A
+view titled \verb{All Items} updates the default view of a new \code{genericList}
+list. Views aren't compared or changed by \code{\link[=compare_sp_list_columns]{compare_sp_list_columns()}} or
+\code{\link[=sync_sp_list_columns]{sync_sp_list_columns()}}. Views are only written by \code{\link[=write_sp_list_yaml]{write_sp_list_yaml()}}
+if \code{include_views = TRUE}.
 }
 \examples{
 path <- system.file("extdata", "example-list.yaml", package = "sharepointr")

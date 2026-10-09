@@ -278,6 +278,42 @@ test_that("normalize_view_query matches queries saved by SharePoint", {
   expect_true(same_view_value("{\"a\": 1}", "{\"a\":1}", "CustomFormatter"))
 })
 
+test_that("create_sp_list_definition_views creates views and sets the default view last", {
+  calls <- list()
+
+  local_mocked_bindings(
+    update_sp_list_view = function(sp_list, view_title = NULL, ..., view_definition = NULL, default_view = NULL, call = NULL) {
+      calls[[length(calls) + 1]] <<- list(
+        fn = "update",
+        view_title = view_title,
+        view_definition = view_definition,
+        default_view = default_view
+      )
+    },
+    create_sp_list_view = function(sp_list, ..., view_definition = NULL, call = NULL) {
+      calls[[length(calls) + 1]] <<- list(fn = "create", view_definition = view_definition)
+    }
+  )
+
+  create_sp_list_definition_views(
+    new_fake_ms_list(),
+    views = list(
+      list(Title = "Active", Id = "old-id", DefaultView = TRUE, RowLimit = 50L),
+      list(Title = "All Items", ViewFields = c("LinkTitle", "Amount"))
+    )
+  )
+
+  expect_identical(purrr::map_chr(calls, "fn"), c("create", "update", "update"))
+
+  # Read-only properties and DefaultView aren't sent when creating views
+  expect_identical(calls[[1]][["view_definition"]], list(Title = "Active", RowLimit = 50L))
+  expect_identical(calls[[2]][["view_title"]], "All Items")
+
+  # The default view is set after all views are created
+  expect_identical(calls[[3]][["view_title"]], "Active")
+  expect_true(calls[[3]][["default_view"]])
+})
+
 test_that("list view functions work with a live list", {
   test_site_url <- "https://bmore.sharepoint.com/sites/DOP-CIP/"
   skip_if_no_ms_site(test_site_url)
@@ -355,4 +391,62 @@ test_that("list view functions work with a live list", {
     delete_sp_list_view(sp_list, view_title = "Active", confirm = FALSE),
     "default view"
   )
+})
+
+test_that("create_sp_list and write_sp_list_yaml support definition views", {
+  skip_if_not_installed("yaml12")
+  test_site_url <- "https://bmore.sharepoint.com/sites/DOP-CIP/"
+  skip_if_no_ms_site(test_site_url)
+
+  definition <- as_sp_list_definition(list(
+    displayName = sp_test_marker("definition-views"),
+    description = "Temporary list created by sharepointr tests",
+    columns = list(
+      list(name = "Status", choice = list(choices = c("Active", "Closed"))),
+      list(name = "Amount", number = list())
+    ),
+    views = list(
+      list(
+        Title = "Active",
+        DefaultView = TRUE,
+        ViewFields = c("LinkTitle", "Status", "Amount"),
+        ViewQuery = "<Where><Eq><FieldRef Name=\"Status\"/><Value Type=\"Choice\">Active</Value></Eq></Where>",
+        RowLimit = 50L,
+        CustomFormatter = list(additionalRowClass = "sp-field-severity--good")
+      ),
+      list(Title = "All Items", ViewFields = c("LinkTitle", "Amount"))
+    )
+  ))
+
+  sp_list <- suppressMessages(
+    create_sp_list(definition = definition, site_url = test_site_url)
+  )
+
+  withr::defer(
+    try(
+      suppressMessages(delete_sp_list(sp_list = sp_list, confirm = FALSE)),
+      silent = TRUE
+    )
+  )
+
+  views <- list_sp_list_views(sp_list)
+  expect_setequal(views[["Title"]], c("All Items", "Active"))
+  expect_identical(views[["Title"]][views[["DefaultView"]]], "Active")
+  expect_identical(
+    views[["ViewFields"]][[match("All Items", views[["Title"]])]],
+    c("LinkTitle", "Amount")
+  )
+
+  # Views are only written if include_views = TRUE
+  path <- withr::local_tempfile(fileext = ".yaml")
+  suppressMessages(write_sp_list_yaml(sp_list, path))
+  expect_null(read_sp_list_yaml(path)[["views"]])
+
+  written <- suppressMessages(write_sp_list_yaml(sp_list, path, include_views = TRUE))
+  active <- purrr::detect(written[["views"]], \(view) view[["Title"]] == "Active")
+  expect_true(active[["DefaultView"]])
+  expect_identical(active[["RowLimit"]], 50L)
+  expect_identical(active[["CustomFormatter"]], list(additionalRowClass = "sp-field-severity--good"))
+  expect_true(is_string(active[["Id"]]))
+  expect_identical(read_sp_list_yaml(path), written)
 })

@@ -37,6 +37,9 @@
 #' A column's internal name can't be changed. A renamed column is returned as
 #' a column to add and a column to delete.
 #'
+#' List views in a definition aren't compared or changed. Use
+#' [update_sp_list_view()] to change a view.
+#'
 #' If `sp_list` is a `ms_list` object and `definitions` is a list definition,
 #' the list `displayName`, `description`, and `list` settings (`hidden` and
 #' `contentTypesEnabled`) are also compared. These changes have a missing

@@ -139,6 +139,41 @@
 #' changed by [sync_sp_list_columns()]. Removing a property from a file
 #' doesn't reset it to the default value.
 #'
+#' @details List views
+#'
+#' An optional `views` key holds a sequence of list views using the SharePoint
+#' REST API SP.View property names (see [list_sp_list_views()]):
+#'
+#' ```yaml
+#' views:
+#'   - Title: Active Projects
+#'     DefaultView: true
+#'     ViewFields:
+#'       - LinkTitle
+#'       - ProjectStatus
+#'       - Budget
+#'     ViewQuery: <Where><Eq><FieldRef Name="ProjectStatus"/><Value Type="Choice">Active</Value></Eq></Where>
+#'     RowLimit: 50
+#'     CustomFormatter:
+#'       additionalRowClass: sp-field-severity--good
+#' ```
+#'
+#' - `Title` is required and must be unique. Only one view can set
+#'   `DefaultView: true`.
+#' - Other properties are `ViewFields` (internal column names), `ViewQuery`
+#'   (a CAML query), `RowLimit`, `Paged`, `Scope`, `Hidden`, `MobileView`,
+#'   `MobileDefaultView`, and `CustomFormatter` (view formatting as a YAML
+#'   mapping or a JSON string). `Id` and `ServerRelativeUrl` can be included
+#'   as a reference to an existing view.
+#' - A warning is given if a view shows fields that aren't columns in the
+#'   definition or built-in fields (e.g. `LinkTitle`, `ID`, or `Modified`).
+#'
+#' `create_sp_list(definition = )` creates views after creating the columns. A
+#' view titled `All Items` updates the default view of a new `genericList`
+#' list. Views aren't compared or changed by [compare_sp_list_columns()] or
+#' [sync_sp_list_columns()]. Views are only written by [write_sp_list_yaml()]
+#' if `include_views = TRUE`.
+#'
 #' @param path Path to a YAML file.
 #' @param x For [write_sp_list_yaml()], a `sp_list_definition` object or a
 #'   `ms_list` object. For [as_sp_list_definition()], a named list with the
@@ -211,7 +246,8 @@ as_sp_list_definition <- function(
     "list",
     names(sp_list_read_only_props),
     "custom",
-    "columns"
+    "columns",
+    "views"
   )
   unknown <- setdiff(names(x), allowed)
 
@@ -323,6 +359,12 @@ as_sp_list_definition <- function(
     )
   }
 
+  views <- check_sp_list_definition_views(
+    x[["views"]],
+    col_names = col_names,
+    call = call
+  )
+
   new_sp_list_definition(
     display_name = x[["displayName"]],
     columns = columns,
@@ -330,8 +372,100 @@ as_sp_list_definition <- function(
     list_info = list_info,
     read_only = read_only,
     custom = custom,
+    views = views,
     format_version = as.integer(format_version)
   )
+}
+
+#' Fields that can be shown in a view without being defined as columns
+#' @noRd
+sp_view_builtin_fields <- c(
+  "Title",
+  "LinkTitle",
+  "LinkTitleNoMenu",
+  "ID",
+  "Created",
+  "Modified",
+  "Author",
+  "Editor",
+  sp_list_internal_colnames
+)
+
+#' Check the `views` element of a list definition
+#'
+#' Validates each view, checks that view titles are unique and that only one
+#' view is the default view, and warns if a view shows fields that aren't
+#' columns in the definition.
+#' @noRd
+check_sp_list_definition_views <- function(
+  views,
+  col_names = character(0),
+  call = caller_env()
+) {
+  if (is.null(views)) {
+    return(NULL)
+  }
+
+  if (!is.list(views) || is_named(views)) {
+    cli_abort(
+      "{.field views} must be an unnamed list (a YAML sequence).",
+      call = call
+    )
+  }
+
+  for (i in seq_along(views)) {
+    label <- views[[i]][["Title"]] %||% paste0("views[[", i, "]]")
+
+    views[[i]] <- validate_view_definition(
+      views[[i]],
+      formatter_as_list = TRUE,
+      label = if (is_string(label)) label else paste0("views[[", i, "]]"),
+      call = call
+    )
+  }
+
+  titles <- purrr::map_chr(views, "Title")
+  dupes <- unique(titles[duplicated(titles)])
+
+  if (length(dupes) > 0) {
+    cli_abort(
+      "View titles must be unique. Duplicated: {.val {dupes}}.",
+      call = call
+    )
+  }
+
+  defaults <- titles[purrr::map_lgl(views, \(view) isTRUE(view[["DefaultView"]]))]
+
+  if (length(defaults) > 1) {
+    cli_abort(
+      "Only one view can be the default view, not {.val {defaults}}.",
+      call = call
+    )
+  }
+
+  unknown <- purrr::map(
+    views,
+    \(view) setdiff(view[["ViewFields"]], c(col_names, sp_view_builtin_fields))
+  )
+  unknown <- purrr::set_names(unknown, titles)
+  unknown <- purrr::discard(unknown, \(x) length(x) == 0)
+
+  if (length(unknown) > 0) {
+    cli_warn(
+      c(
+        "Views show fields that aren't columns in the definition:",
+        set_names(
+          purrr::imap_chr(unknown, \(fields, title) {
+            cli::format_inline("{.val {title}}: {.field {fields}}")
+          }),
+          rep("*", length(unknown))
+        )
+      ),
+      call = call
+    )
+  }
+
+  views
 }
 
 #' Read-only list properties
@@ -473,6 +607,7 @@ new_sp_list_definition <- function(
   list_info = NULL,
   read_only = NULL,
   custom = NULL,
+  views = NULL,
   format_version = 1L
 ) {
   read_only <- read_only[intersect(names(sp_list_read_only_props), names(read_only))]
@@ -488,7 +623,8 @@ new_sp_list_definition <- function(
       read_only,
       list(
         custom = custom,
-        columns = columns
+        columns = columns,
+        views = views
       )
     ),
     class = "sp_list_definition"
@@ -525,6 +661,12 @@ print.sp_list_definition <- function(x, ...) {
     "{paste(names(type_counts), type_counts, sep = ' (', collapse = '), ')}",
     if (length(type_counts) > 0) ")"
   )
+
+  if (length(x[["views"]]) > 0) {
+    cli::cli_text(
+      "{length(x[['views']])} view{?s}: {.val {purrr::map_chr(x[['views']], 'Title')}}"
+    )
+  }
 
   invisible(x)
 }
@@ -576,16 +718,22 @@ as_column_body <- function(col) {
 #'   change after a list is created (`id`, `name`, `webUrl`, `createdDateTime`,
 #'   `parentReference`, `sharepointIds`, and `system`), `"all"`, `"none"`, or
 #'   a character vector of property names (e.g. `c("id", "createdBy")`).
-#'   Column ids are included if `"id"` is included. `createdBy` and
-#'   `lastModifiedBy` include the name and email of a person.
+#'   Column ids (and view ids) are included if `"id"` is included.
+#'   `createdBy` and `lastModifiedBy` include the name and email of a person.
+#' @param include_views If `TRUE`, include the list views (excluding hidden and
+#'   personal views). Defaults to `FALSE`. Views are read with the SharePoint
+#'   REST API, which requires a delegated (user) login. See
+#'   [list_sp_list_views()].
 #' @export
 get_sp_list_definition <- function(
   sp_list = NULL,
   ...,
   keep_defaults = FALSE,
   read_only = "stable",
+  include_views = FALSE,
   call = caller_env()
 ) {
+  check_bool(include_views, call = call)
   read_only <- resolve_read_only_props(read_only, call = call)
 
   sp_list <- sp_list %||%
@@ -645,7 +793,32 @@ get_sp_list_definition <- function(
     columns = purrr::map(columns[!no_type], order_column_keys),
     description = description,
     list_info = if (length(list_info) > 0) list_info,
-    read_only = purrr::discard(sp_list[["properties"]][read_only], is.null)
+    read_only = purrr::discard(sp_list[["properties"]][read_only], is.null),
+    views = if (include_views) {
+      get_sp_list_definition_views(
+        sp_list,
+        keep_id = "id" %in% read_only,
+        keep_defaults = keep_defaults,
+        call = call
+      )
+    }
+  )
+}
+
+#' Get view definitions for an existing list
+#' @noRd
+get_sp_list_definition_views <- function(
+  sp_list,
+  keep_id = FALSE,
+  keep_defaults = FALSE,
+  call = caller_env()
+) {
+  views <- list_sp_list_views(sp_list, as_data_frame = FALSE, call = call)
+  views <- purrr::discard(views, \(view) isTRUE(view[["PersonalView"]]))
+
+  purrr::map(
+    views,
+    \(view) as_definition_view(view, keep_id = keep_id, keep_defaults = keep_defaults)
   )
 }
 
@@ -817,7 +990,9 @@ order_column_keys <- function(col) {
 #' @rdname sp_list_definition
 #' @param merge If `TRUE` (default) and `path` exists, keep the comment header,
 #'   `custom` metadata, and column order from the existing file. Read-only
-#'   list properties and column ids always come from `x`. Columns that
+#'   list properties and column ids always come from `x`. Views come from `x`
+#'   if it has views (e.g. with `include_views = TRUE`) and are otherwise kept
+#'   from the existing file. Columns that
 #'   are only in the existing file are dropped (unless the Graph API doesn't
 #'   return their column type). Comments after the header are always lost.
 #' @export
@@ -828,6 +1003,7 @@ write_sp_list_yaml <- function(
   merge = TRUE,
   keep_defaults = FALSE,
   read_only = "stable",
+  include_views = FALSE,
   call = caller_env()
 ) {
   check_dots_empty()
@@ -840,6 +1016,7 @@ write_sp_list_yaml <- function(
       sp_list = x,
       keep_defaults = keep_defaults,
       read_only = read_only,
+      include_views = include_views,
       call = call
     )
   } else {
@@ -932,6 +1109,7 @@ merge_sp_list_definition <- function(x, existing, call = caller_env()) {
     list_info = x[["list"]] %||% existing[["list"]],
     read_only = sp_list_definition_read_only(x),
     custom = x[["custom"]] %||% existing[["custom"]],
+    views = x[["views"]] %||% existing[["views"]],
     format_version = x[["format_version"]]
   )
 }
@@ -1012,10 +1190,93 @@ as_yaml_list <- function(x) {
       sp_list_definition_read_only(x),
       list(
         custom = x[["custom"]],
-        columns = columns
+        columns = columns,
+        views = purrr::map(x[["views"]], as_yaml_view)
       )
     )
   )
+}
+
+#' Convert a view definition to a list for writing YAML
+#' @noRd
+as_yaml_view <- function(view) {
+  view <- order_view_keys(view)
+
+  # Write fields as a sequence even if there is a single field
+  if (has_name(view, "ViewFields")) {
+    view[["ViewFields"]] <- as.list(view[["ViewFields"]])
+  }
+
+  view
+}
+
+#' Order view definition keys for writing
+#' @noRd
+order_view_keys <- function(view) {
+  keys <- c(
+    "Title",
+    "Id",
+    "ServerRelativeUrl",
+    "DefaultView",
+    "ViewFields",
+    "ViewQuery",
+    "RowLimit",
+    "Paged",
+    "Scope",
+    "Hidden",
+    "MobileView",
+    "MobileDefaultView",
+    "CustomFormatter"
+  )
+
+  view[c(intersect(keys, names(view)), setdiff(names(view), keys))]
+}
+
+#' Default SP.View property values
+#'
+#' Used to drop default values when writing view definitions.
+#' @noRd
+sp_view_default_values <- list(
+  DefaultView = FALSE,
+  RowLimit = 30L,
+  Paged = TRUE,
+  Scope = 0L,
+  Hidden = FALSE,
+  MobileView = FALSE,
+  MobileDefaultView = FALSE,
+  ViewQuery = ""
+)
+
+#' Convert a view from the SharePoint REST API to a view definition
+#'
+#' @param view A view from `list_sp_list_views(as_data_frame = FALSE)`.
+#' @param keep_id If `TRUE`, keep `Id` and `ServerRelativeUrl` as a reference.
+#' @noRd
+as_definition_view <- function(view, keep_id = FALSE, keep_defaults = FALSE) {
+  view <- view[intersect(
+    names(view),
+    c(names(sp_view_props), if (keep_id) c("Id", "ServerRelativeUrl"))
+  )]
+
+  # Write view formatting as a YAML mapping
+  formatter <- view[["CustomFormatter"]]
+
+  if (is_string(formatter) && nzchar(formatter)) {
+    view[["CustomFormatter"]] <- jsonlite::fromJSON(formatter, simplifyVector = FALSE)
+  }
+
+  if (!keep_defaults) {
+    is_default <- purrr::imap_lgl(
+      view,
+      \(value, prop) {
+        has_name(sp_view_default_values, prop) &&
+          identical(value, sp_view_default_values[[prop]])
+      }
+    )
+    view <- view[!is_default]
+  }
+
+  order_view_keys(purrr::discard(view, is.null))
 }
 
 #' Convert a list definition to a data frame

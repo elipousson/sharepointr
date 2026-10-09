@@ -57,12 +57,16 @@ sp_view_prop_hints <- c(
 #'
 #' @param x A named list of SP.View properties.
 #' @param require_title If `TRUE`, require a `Title`.
+#' @param formatter_as_list If `TRUE`, keep a `CustomFormatter` supplied as a
+#'   list (e.g. a YAML mapping) as a list. Otherwise, convert it to a JSON
+#'   string (the format used by the SharePoint REST API).
 #' @returns `x` with `ViewFields` as a character vector and `CustomFormatter`
-#'   as a JSON string.
+#'   as a JSON string (or a list if `formatter_as_list = TRUE`).
 #' @noRd
 validate_view_definition <- function(
   x,
   require_title = TRUE,
+  formatter_as_list = FALSE,
   label = NULL,
   call = caller_env()
 ) {
@@ -110,7 +114,14 @@ validate_view_definition <- function(
         check_number_whole(value, min = 0, max = 3, arg = arg, call = call)
         as.integer(value)
       },
-      json = as_view_json(value, arg = arg, call = call),
+      json = if (formatter_as_list && is.list(value)) {
+        if (!is_named2(value)) {
+          cli_abort("{.arg {arg}} must be a named list or a JSON string.", call = call)
+        }
+        value
+      } else {
+        as_view_json(value, arg = arg, call = call)
+      },
       # SharePoint returns whole numbers as integers
       whole = as.integer(check_sp_prop(value, rule = rule, arg = arg, call = call)),
       check_sp_prop(value, rule = rule, arg = arg, call = call)

@@ -109,6 +109,9 @@ and columns where the Graph API doesn't return the column type
 A column's internal name can't be changed. A renamed column is returned as
 a column to add and a column to delete.
 
+List views in a definition aren't compared or changed. Use
+\code{\link[=update_sp_list_view]{update_sp_list_view()}} to change a view.
+
 If \code{sp_list} is a \code{ms_list} object and \code{definitions} is a list definition,
 the list \code{displayName}, \code{description}, and \code{list} settings (\code{hidden} and
 \code{contentTypesEnabled}) are also compared. These changes have a missing

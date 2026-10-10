@@ -111,7 +111,8 @@ from the list.}
 \item{all_metadata}{If \code{TRUE}, the returned data frame will contain extended
 metadata as separate columns, while the data fields will be in a nested
 data frame named fields. This is always set to \code{FALSE} if \code{n = NULL} or
-\code{as_data_frame = FALSE}.}
+\code{as_data_frame = FALSE}. The \code{"@odata.etag"} value the Graph API returns
+with the fields of each item is only included if \code{all_metadata = TRUE}.}
 
 \item{as_data_frame}{If \code{TRUE}, return a data frame with a "ms_list" column.
 \code{\link[=get_sp_list]{get_sp_list()}} returns a 1 row data frame and \code{\link[=list_sp_lists]{list_sp_lists()}} returns a

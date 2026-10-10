@@ -1041,7 +1041,6 @@ test_that("sp_list_as_ptype_data_frame() builds a ptype for every list column", 
   expect_named(
     ptype,
     c(
-      "@odata.etag",
       "id",
       "Title",
       "Amount",
@@ -1096,7 +1095,7 @@ test_that("sp_list_as_ptype_data_frame() matches select by raw or LookupId name"
     select = c("id", "Person", "RelatedLookupId", "Unknown")
   )
 
-  expect_named(ptype, c("@odata.etag", "id", "PersonLookupId", "RelatedLookupId"))
+  expect_named(ptype, c("id", "PersonLookupId", "RelatedLookupId"))
 })
 
 test_that("list_sp_list_items() fetches column metadata once for select, formatting, and display names", {
@@ -1159,7 +1158,7 @@ test_that("list_sp_list_items() fetches column metadata once for select, formatt
 
   expect_identical(n_metadata_calls, 1)
   expect_identical(graph_expand, "fields(select=ID,Title,Due)")
-  expect_named(items, c("@odata.etag", "id", "Title", "Due"))
+  expect_named(items, c("id", "Title", "Due"))
   expect_equal(items[["Due"]], as.Date("2026-08-05"), ignore_attr = "label")
   expect_identical(attr(items[["Due"]], "label"), "Due Date")
   expect_identical(attr(items[["Title"]], "label"), "Item Title")

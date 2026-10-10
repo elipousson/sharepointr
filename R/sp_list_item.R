@@ -22,7 +22,8 @@ NULL
 #' @param all_metadata If `TRUE`, the returned data frame will contain extended
 #'   metadata as separate columns, while the data fields will be in a nested
 #'   data frame named fields. This is always set to `FALSE` if `n = NULL` or
-#'   `as_data_frame = FALSE`.
+#'   `as_data_frame = FALSE`. The `"@odata.etag"` value the Graph API returns
+#'   with the fields of each item is only included if `all_metadata = TRUE`.
 #' @param pagesize Number of list items to return. Reduce from default of 5000
 #'   is experiencing timeouts.
 #' @param order_by Optional. Field name to order by.
@@ -395,7 +396,7 @@ get_sp_list_items <- function(
   if (ptype == "select" && !is.null(select_ptype)) {
     # Untyped columns in select order, without requesting list metadata
     ptype_df <- vctrs::data_frame(
-      !!!rep_named(c("@odata.etag", select_ptype), list(vctrs::unspecified())),
+      !!!rep_named(select_ptype, list(vctrs::unspecified())),
       .name_repair = "minimal"
     )
   } else {
@@ -406,7 +407,11 @@ get_sp_list_items <- function(
     )
   }
 
-  vctrs::vec_rbind(ptype_df, list_values$fields)
+  list_items <- vctrs::vec_rbind(ptype_df, list_values$fields)
+
+  # Graph returns an "@odata.etag" annotation with the fields for each item.
+  # It isn't used, so it is only kept in the raw values (all_metadata = TRUE).
+  list_items[names(list_items) != "@odata.etag"]
 }
 
 #' Extract list item values from a pager
@@ -2272,8 +2277,8 @@ sp_list_col_ptype <- function(x) {
 #' @param select Optional. Column names passed to the Graph API. Lookup and
 #'   personOrGroup columns match by either "{name}" or "{name}LookupId". Names
 #'   that don't match a list column are ignored.
-#' @returns A 0 row data frame with an `"@odata.etag"` column and one column
-#'   per SharePoint list field, each with the ptype for that column.
+#' @returns A 0 row data frame with one column per SharePoint list field, each
+#'   with the ptype for that column.
 #' @noRd
 sp_list_as_ptype_data_frame <- function(
   ...,
@@ -2292,10 +2297,8 @@ sp_list_as_ptype_data_frame <- function(
     ]
   }
 
-  ptype_list <- c(
-    list(`@odata.etag` = character()),
-    purrr::map(col_metadata, sp_list_col_ptype)
+  vctrs::data_frame(
+    !!!purrr::map(col_metadata, sp_list_col_ptype),
+    .name_repair = "minimal"
   )
-
-  vctrs::data_frame(!!!ptype_list, .name_repair = "minimal")
 }

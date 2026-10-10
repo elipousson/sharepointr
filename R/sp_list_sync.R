@@ -810,6 +810,11 @@ same_column_value <- function(
     ))
   }
 
+  # SharePoint returns locales as e.g. "en-US" for "en-us"
+  if (prop == "locale" && is_string(proposed) && is_string(current)) {
+    return(identical(tolower(proposed), tolower(current)))
+  }
+
   if (prop == "defaultValue" && is_string(proposed[["formula"]])) {
     proposed[["formula"]] <- normalize_sp_formula(proposed[["formula"]])
     current[["formula"]] <- normalize_sp_formula(current[["formula"]] %||% "")

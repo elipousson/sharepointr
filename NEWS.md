@@ -41,6 +41,7 @@
 
 ## Fixes
 
+* Fix `compare_sp_list()` and `sync_sp_list()` reporting a `locale` change for a column that was just created from the same definition (SharePoint returns locales like `"en-US"` for `"en-us"`). Locales are now compared ignoring case. (2026-10-10)
 * Fix item id handling for `update_sp_list_items()`, `delete_sp_list_item()`, and `delete_sp_list_items()`: item ids from a data frame, list of records, or vector are now checked (as whole numbers or non-empty strings) before any items are changed, so a missing or invalid id no longer stops a batch partway through. Item ids are sent as strings. `delete_sp_list_item()` errors for more than one item id or for unused arguments, and `delete_sp_list_items()` errors if both `item_id` and `filter` are supplied. (2026-10-10)
 * Fix `update_sp_list_item()` sending an empty update when only the `.id` field is left after dropping `NA` values (with `.id` other than `"id"`) and erroring when no fields are supplied. (2026-10-10)
 * Fix `create_sp_list_items()` returning modified `data` (and both `create_sp_list_items()` and `update_sp_list_items()` returning empty `data` visibly): the input is now always returned invisibly and unmodified. `create_sp_list_items()` also checks `data` before any API calls or creating a list. (2026-10-10)
@@ -61,6 +62,7 @@
 
 ## Changes
 
+* `list_sp_list_items()` no longer includes the `"@odata.etag"` column, which the Graph API returns with the fields of each item, unless `all_metadata = TRUE`. (2026-10-10)
 * Revise `read_sharepoint()` to support zipped shapefiles. (2024-07-25)
 * Improve printing of custom `.f` argument in `read_sharepoint()`. (2024-10-10)
 * Alert users if input `data` is empty for `create_sp_list_items()`, `update_sp_list_items()` and error if input `item_id` is length 0 for `delete_sp_list_items()`. (2026-01-06)

@@ -286,6 +286,25 @@
 ### Fixes
 
 - Fix
+  [`sp_url_parse()`](https://elipousson.github.io/sharepointr/reference/sp_url_parse.md)
+  decoding URL paths twice with [httr2](https://httr2.r-lib.org) 1.1.0
+  or later, which changed file, folder, list, or library names that
+  include a `%` character (e.g. `"100%.xlsx"`).
+  [`sp_url_parse_path()`](https://elipousson.github.io/sharepointr/reference/sp_url_parse.md)
+  now expects a decoded path (as returned by
+  [`httr2::url_parse()`](https://httr2.r-lib.org/reference/url_parse.html)).
+  Requires [httr2](https://httr2.r-lib.org) 1.1.0 or later. (2026-10-10)
+- Fix
+  [`sp_url_parse()`](https://elipousson.github.io/sharepointr/reference/sp_url_parse.md)
+  (and functions that accept a SharePoint URL) for list URLs with no
+  view page
+  (e.g. `"https://contoso.sharepoint.com/sites/site-name/Lists/list-name"`).
+  (2026-10-10)
+- [`sp_url_parse()`](https://elipousson.github.io/sharepointr/reference/sp_url_parse.md)
+  now errors if a site name can’t be found in a URL, instead of
+  returning a site URL with no site name that caused a “not found” error
+  from the Graph API. (2026-10-10)
+- Fix
   [`compare_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
   and
   [`sync_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)

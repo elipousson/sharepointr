@@ -6,7 +6,10 @@
 base_url.
 
 `sp_url_parse_path()` parses the path into a URL type, permissions,
-drive name, file path, and file name.
+drive name, file path, and file name. `path` must already be decoded (as
+returned by
+[`httr2::url_parse()`](https://httr2.r-lib.org/reference/url_parse.html)),
+e.g. `"/:f:/r/sites/site-name/Shared Documents/Folder"`.
 
 `sp_url_parse_query()` parses the item ID from a query.
 
@@ -47,6 +50,9 @@ SharePoint List URL:
 
 https://\[tenant\].sharepoint.com/sites/\[site name\]/Lists/\[list
 name\]/AllItems.aspx?env=WebViewList
+
+https://\[tenant\].sharepoint.com/sites/\[site name\]/Lists/\[list
+name\]
 
 https://\[tenant\].sharepoint.com/:l:/r/sites/\[site name\]/Lists/\[list
 name\]

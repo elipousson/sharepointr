@@ -51,3 +51,13 @@
       Error:
       ! `A.CustomFormatter` must be valid JSON.
 
+# create_sp_list_view errors for view arguments with view_definition
+
+    Code
+      create_sp_list_view(list(), view_definition = list(Title = "A"), row_limit = 10,
+      paged = FALSE)
+    Condition
+      Error:
+      ! Supply `view_definition` or view arguments, not both.
+      x Also supplied: `row_limit` and `paged`.
+

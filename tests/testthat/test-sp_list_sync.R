@@ -161,7 +161,7 @@ test_that("compare_sp_list errors for data frame metadata", {
   )
 })
 
-test_that("print_column_changes summarizes planned changes", {
+test_that("print_changes summarizes planned changes", {
   changes <- compare_sp_list(
     list(
       create_text_column("Notes", multiple_lines = TRUE),
@@ -177,7 +177,7 @@ test_that("print_column_changes summarizes planned changes", {
     allow_data_loss = FALSE
   )
 
-  expect_snapshot(print_column_changes(changes, list_name = "Test"))
+  expect_snapshot(print_changes(changes, list_name = "Test"))
 })
 
 test_that("get_definition_sp_list uses and checks the definition id", {
@@ -295,6 +295,31 @@ test_that("view_change_rows protects the default view", {
     ),
     live_views
   ))
+})
+
+test_that("view_change_rows matches the new default view by Id or Title", {
+  # A new view set as the default replaces the current default view
+  rows <- view_change_rows(
+    list(
+      list(Title = "All Items", DefaultView = FALSE),
+      list(Title = "Brand New", DefaultView = TRUE)
+    ),
+    live_views
+  )
+  expect_false(any(rows[["name"]] == "All Items" & rows[["action"]] == "blocked"))
+  expect_identical(rows[["action"]][rows[["name"]] == "Brand New"], "add")
+
+  # A renamed default view (matched by Id) is still the default view
+  rows <- view_change_rows(
+    list(
+      list(Title = "Main", Id = "v1", DefaultView = TRUE),
+      list(Title = "Working"),
+      list(Title = "Old")
+    ),
+    live_views
+  )
+  expect_identical(rows[["property"]], "Title")
+  expect_identical(rows[["action"]], "update")
 })
 
 test_that("apply_view_changes applies views in order", {

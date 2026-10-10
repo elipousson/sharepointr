@@ -34,24 +34,62 @@ sp_view_read_only_props <- c(
 #' @noRd
 sp_view_scopes <- 0:3
 
-#' Argument names used in place of SP.View property names
+#' SP.View properties set by the view function arguments
 #' @noRd
-sp_view_prop_hints <- c(
+sp_view_arg_props <- c(
   title = "Title",
   view_fields = "ViewFields",
-  fields = "ViewFields",
   view_query = "ViewQuery",
-  query = "ViewQuery",
-  Query = "ViewQuery",
   row_limit = "RowLimit",
   paged = "Paged",
   default_view = "DefaultView",
-  SetAsDefaultView = "DefaultView",
   hidden = "Hidden",
   scope = "Scope",
-  custom_formatter = "CustomFormatter",
+  custom_formatter = "CustomFormatter"
+)
+
+#' Names used in place of SP.View property names
+#' @noRd
+sp_view_prop_hints <- c(
+  sp_view_arg_props,
+  fields = "ViewFields",
+  query = "ViewQuery",
+  Query = "ViewQuery",
+  SetAsDefaultView = "DefaultView",
   id = "Id"
 )
+
+#' Get a view definition from view function arguments
+#'
+#' Uses `view_definition` if supplied. Otherwise, collects the view arguments
+#' (named as in `sp_view_arg_props`) from `env` and names them with SP.View
+#' property names.
+#' @noRd
+view_args_as_definition <- function(
+  view_definition = NULL,
+  env = caller_env(),
+  call = caller_env()
+) {
+  args <- purrr::compact(
+    env_get_list(env, names(sp_view_arg_props), default = NULL)
+  )
+
+  if (is.null(view_definition)) {
+    return(set_names(args, sp_view_arg_props[names(args)]))
+  }
+
+  if (length(args) > 0) {
+    cli_abort(
+      c(
+        "Supply {.arg view_definition} or view arguments, not both.",
+        "x" = "Also supplied: {.arg {names(args)}}."
+      ),
+      call = call
+    )
+  }
+
+  view_definition
+}
 
 #' Validate a list view definition
 #'
@@ -82,19 +120,12 @@ validate_view_definition <- function(
   unknown <- setdiff(names(x), allowed)
 
   if (length(unknown) > 0) {
-    hints <- sp_view_prop_hints[intersect(unknown, names(sp_view_prop_hints))]
-
-    cli_abort(
-      c(
-        "{.field {label}} has unknown view propert{?y/ies}: {.field {unknown}}.",
-        set_names(
-          purrr::imap_chr(hints, \(to, from) {
-            paste0("Use {.field ", to, "} in place of {.field ", from, "}.")
-          }),
-          rep("i", length(hints))
-        ),
-        "i" = "Allowed properties: {.field {names(sp_view_props)}}."
-      ),
+    abort_unknown_props(
+      unknown,
+      label = label,
+      allowed = names(sp_view_props),
+      kind = "view",
+      hints = sp_view_prop_hints,
       call = call
     )
   }
@@ -137,6 +168,25 @@ validate_view_definition <- function(
   }
 
   x
+}
+
+#' Drop read-only properties from a view definition
+#'
+#' Read-only properties (e.g. `Id`) are references to an existing view.
+#' @noRd
+drop_view_read_only <- function(view) {
+  view[setdiff(names(view), sp_view_read_only_props)]
+}
+
+#' Prepare a view from a list definition to create
+#'
+#' Drops read-only properties and `DefaultView`, since the default view is set
+#' after all views are created.
+#' @noRd
+as_view_to_create <- function(view) {
+  view <- drop_view_read_only(view)
+  view[["DefaultView"]] <- NULL
+  view
 }
 
 #' Convert a custom formatter to a JSON string
@@ -454,7 +504,7 @@ get_sp_list_view <- function(
 #'   SP.View property: `CustomFormatter`.
 #' @param view_definition Optional. A named list of SP.View properties (e.g.
 #'   `list(Title = "Active", RowLimit = 50)`). Used in place of the other view
-#'   arguments.
+#'   arguments, which can't be supplied with `view_definition`.
 #' @export
 create_sp_list_view <- function(
   sp_list = NULL,
@@ -474,21 +524,10 @@ create_sp_list_view <- function(
   site = NULL,
   call = caller_env()
 ) {
-  view <- view_definition %||%
-    purrr::compact(list(
-      Title = title,
-      ViewFields = view_fields,
-      ViewQuery = view_query,
-      RowLimit = row_limit,
-      Paged = paged,
-      DefaultView = default_view,
-      Hidden = hidden,
-      Scope = scope,
-      CustomFormatter = custom_formatter
-    ))
+  view <- view_args_as_definition(view_definition, call = call)
 
   view <- validate_view_definition(view, call = call)
-  view <- view[setdiff(names(view), sp_view_read_only_props)]
+  view <- drop_view_read_only(view)
 
   sp_list <- get_view_sp_list(
     sp_list,
@@ -564,18 +603,7 @@ update_sp_list_view <- function(
   site = NULL,
   call = caller_env()
 ) {
-  proposed <- view_definition %||%
-    purrr::compact(list(
-      Title = title,
-      ViewFields = view_fields,
-      ViewQuery = view_query,
-      RowLimit = row_limit,
-      Paged = paged,
-      DefaultView = default_view,
-      Hidden = hidden,
-      Scope = scope,
-      CustomFormatter = custom_formatter
-    ))
+  proposed <- view_args_as_definition(view_definition, call = call)
 
   proposed <- validate_view_definition(proposed, require_title = FALSE, call = call)
 

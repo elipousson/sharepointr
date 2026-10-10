@@ -450,3 +450,24 @@ test_that("create_sp_list and write_sp_list_yaml support definition views", {
   expect_true(is_string(active[["Id"]]))
   expect_identical(read_sp_list_yaml(path), written)
 })
+
+test_that("create_sp_list_view errors for view arguments with view_definition", {
+  expect_snapshot(
+    create_sp_list_view(
+      list(),
+      view_definition = list(Title = "A"),
+      row_limit = 10,
+      paged = FALSE
+    ),
+    error = TRUE
+  )
+})
+
+test_that("view_args_as_definition names arguments with SP.View properties", {
+  f <- function(title = NULL, row_limit = NULL, view_definition = NULL) {
+    view_args_as_definition(view_definition)
+  }
+
+  expect_identical(f("A", 10), list(Title = "A", RowLimit = 10))
+  expect_identical(f(view_definition = list(Title = "B")), list(Title = "B"))
+})

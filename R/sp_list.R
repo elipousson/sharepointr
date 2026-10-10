@@ -634,14 +634,11 @@ create_sp_list_definition_views <- function(
   default_title <- NULL
 
   for (view in views) {
-    # Ids and URLs are references to the views of an existing list
-    view <- view[setdiff(names(view), sp_view_read_only_props)]
-
     if (isTRUE(view[["DefaultView"]])) {
       default_title <- view[["Title"]]
     }
 
-    view[["DefaultView"]] <- NULL
+    view <- as_view_to_create(view)
 
     if (template == "genericList" && identical(view[["Title"]], "All Items")) {
       update_sp_list_view(

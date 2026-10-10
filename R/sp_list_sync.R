@@ -245,13 +245,7 @@ compare_sp_list <- function(
     )
   }
 
-  rows <- purrr::compact(rows)
-
-  if (length(rows) == 0) {
-    return(new_change_row())
-  }
-
-  vctrs::vec_rbind(!!!rows)
+  bind_change_rows(rows) %||% new_change_row()
 }
 
 #' Get the list described by a definition
@@ -324,60 +318,59 @@ get_definition_sp_list <- function(
 #' a definition with the properties of a `ms_list` object.
 #' @noRd
 list_change_rows <- function(definitions, properties) {
-  rows <- list()
   list_name <- properties[["displayName"]] %||% NA_character_
+  info <- definitions[["list"]]
+  info_props <- paste0("list.", names(info))
 
-  add_row <- function(property, current, proposed, action = "update") {
-    rows[[length(rows) + 1]] <<- new_change_row(
-      object = "list",
-      name = list_name,
-      action = action,
-      property = property,
-      current = current,
-      proposed = proposed,
-      method = if (action == "update") "graph" else NA_character_,
-      note = if (action == "blocked") {
-        "A list's template can't be changed."
-      } else {
-        NA_character_
-      }
+  proposed <- c(
+    purrr::compact(list(
+      displayName = definitions[["displayName"]],
+      description = definitions[["description"]]
+    )),
+    set_names(as.list(info), info_props)
+  )
+
+  current <- c(
+    list(
+      displayName = properties[["displayName"]],
+      description = properties[["description"]] %||% ""
+    ),
+    set_names(
+      purrr::map(
+        names(info),
+        \(prop) properties[["list"]][[prop]] %||% if (prop != "template") FALSE
+      ),
+      info_props
     )
-  }
+  )
 
-  display_name <- definitions[["displayName"]]
+  rows <- purrr::imap(
+    proposed,
+    \(value, property) {
+      if (identical(value, current[[property]])) {
+        return(NULL)
+      }
 
-  if (!is.null(display_name) && !identical(display_name, properties[["displayName"]])) {
-    add_row("displayName", properties[["displayName"]], display_name)
-  }
+      blocked <- property == "list.template"
 
-  description <- definitions[["description"]]
-  current_description <- properties[["description"]] %||% ""
-
-  if (!is.null(description) && !identical(description, current_description)) {
-    add_row("description", current_description, description)
-  }
-
-  current_info <- properties[["list"]]
-
-  for (prop in names(definitions[["list"]])) {
-    proposed <- definitions[["list"]][[prop]]
-    current <- current_info[[prop]] %||% if (prop != "template") FALSE
-
-    if (!identical(proposed, current)) {
-      add_row(
-        paste0("list.", prop),
-        current,
-        proposed,
-        action = if (prop == "template") "blocked" else "update"
+      new_change_row(
+        object = "list",
+        name = list_name,
+        action = if (blocked) "blocked" else "update",
+        property = property,
+        current = current[[property]],
+        proposed = value,
+        method = if (blocked) NA_character_ else "graph",
+        note = if (blocked) {
+          "A list's template can't be changed."
+        } else {
+          NA_character_
+        }
       )
     }
-  }
+  )
 
-  if (length(rows) == 0) {
-    return(NULL)
-  }
-
-  vctrs::vec_rbind(!!!rows)
+  bind_change_rows(rows)
 }
 
 #' Convert definitions input for compare and sync
@@ -461,6 +454,19 @@ new_change_row <- function(
   )
 }
 
+#' Combine change rows, dropping `NULL` rows
+#' @returns A data frame or `NULL` if there are no rows.
+#' @noRd
+bind_change_rows <- function(rows) {
+  rows <- purrr::compact(rows)
+
+  if (length(rows) == 0) {
+    return(NULL)
+  }
+
+  vctrs::vec_rbind(!!!rows)
+}
+
 #' @noRd
 column_add_row <- function(col, template = NULL) {
   type <- column_type_key(col)
@@ -537,7 +543,7 @@ column_change_rows <- function(col, current, column_id = NA_character_) {
     }
   )
 
-  vctrs::vec_rbind(!!!rows)
+  bind_change_rows(rows)
 }
 
 #' Get the views of a list for compare and sync
@@ -565,52 +571,80 @@ get_sync_live_views <- function(sp_list, call = caller_env()) {
 
 #' Create change rows for views
 #'
+#' Views are matched by `Id` (if included in the definition) or `Title`.
+#'
 #' @param views View definitions from a list definition.
 #' @param live Views from `list_sp_list_views(as_data_frame = FALSE)`.
 #' @noRd
 view_change_rows <- function(views, live) {
   live_ids <- purrr::map_chr(live, \(view) view[["Id"]] %||% NA_character_)
   live_titles <- purrr::map_chr(live, "Title")
-  matched <- character(0)
-  rows <- list()
 
-  new_default <- purrr::detect(views, \(view) isTRUE(view[["DefaultView"]]))
-  current_default <- purrr::detect(live, \(view) isTRUE(view[["DefaultView"]]))
+  matches <- purrr::map_int(
+    views,
+    \(view) {
+      if (!is.null(view[["Id"]])) {
+        match(view[["Id"]], live_ids)
+      } else {
+        match(view[["Title"]], live_titles)
+      }
+    }
+  )
 
-  # The current default view is replaced if another view is set as the default
-  replaces_default <- !is.null(new_default) &&
-    !is.null(current_default) &&
-    !identical(new_default[["Id"]] %||% new_default[["Title"]], current_default[["Id"]]) &&
-    !identical(new_default[["Title"]], current_default[["Title"]])
+  # The current default view is replaced if another view (including a new
+  # view) is set as the default view
+  new_default <- purrr::detect_index(views, \(view) isTRUE(view[["DefaultView"]]))
+  current_default <- purrr::detect_index(live, \(view) isTRUE(view[["DefaultView"]]))
+  replaces_default <- new_default > 0 &&
+    current_default > 0 &&
+    !identical(matches[[new_default]], current_default)
 
-  for (view in views) {
-    idx <- if (!is.null(view[["Id"]])) {
-      match(view[["Id"]], live_ids)
+  rows <- purrr::map2(
+    views,
+    matches,
+    \(view, idx) {
+      if (is.na(idx)) {
+        return(view_add_row(view))
+      }
+
+      view_update_rows(view, live[[idx]], replaces_default = replaces_default)
+    }
+  )
+
+  unmatched <- live[setdiff(seq_along(live), matches)]
+
+  bind_change_rows(c(
+    rows,
+    purrr::map(unmatched, \(view) view_delete_row(view, replaces_default))
+  ))
+}
+
+#' @noRd
+view_add_row <- function(view) {
+  new_change_row(
+    object = "view",
+    name = view[["Title"]],
+    action = "add",
+    proposed = "view",
+    method = "rest",
+    note = if (!is.null(view[["Id"]])) {
+      "The view Id isn't in the list, so a new view is created."
     } else {
-      match(view[["Title"]], live_titles)
+      NA_character_
     }
+  )
+}
 
-    if (is.na(idx)) {
-      rows <- c(rows, list(new_change_row(
-        object = "view",
-        name = view[["Title"]],
-        action = "add",
-        proposed = "view",
-        method = "rest",
-        note = if (!is.null(view[["Id"]])) {
-          "The view Id isn't in the list, so a new view is created."
-        } else {
-          NA_character_
-        }
-      )))
-      next
-    }
+#' Create change rows for an existing view
+#'
+#' Only properties included in the view definition are compared.
+#' @noRd
+view_update_rows <- function(view, current, replaces_default = FALSE) {
+  props <- intersect(names(view), names(sp_view_props))
 
-    current <- live[[idx]]
-    matched <- c(matched, current[["Id"]])
-    props <- intersect(names(view), names(sp_view_props))
-
-    for (prop in props) {
+  rows <- purrr::map(
+    props,
+    \(prop) {
       proposed <- view[[prop]]
       value <- current[[prop]]
 
@@ -621,68 +655,54 @@ view_change_rows <- function(views, live) {
       }
 
       if (same_view_value(compare_value, value, prop)) {
-        next
+        return(NULL)
       }
 
-      if (prop == "DefaultView" && isFALSE(proposed)) {
-        # Another view becoming the default view replaces this one
-        if (replaces_default) {
-          next
-        }
+      removes_default <- prop == "DefaultView" && isFALSE(proposed)
 
-        rows <- c(rows, list(new_change_row(
-          object = "view",
-          name = current[["Title"]],
-          id = current[["Id"]],
-          action = "blocked",
-          property = prop,
-          current = value,
-          proposed = proposed,
-          note = "Set another view as the default view instead."
-        )))
-        next
+      # Another view becoming the default view replaces this one
+      if (removes_default && replaces_default) {
+        return(NULL)
       }
 
-      rows <- c(rows, list(new_change_row(
+      new_change_row(
         object = "view",
         name = current[["Title"]],
         id = current[["Id"]],
-        action = "update",
+        action = if (removes_default) "blocked" else "update",
         property = prop,
         current = value,
         proposed = proposed,
-        method = "rest"
-      )))
+        method = if (removes_default) NA_character_ else "rest",
+        note = if (removes_default) {
+          "Set another view as the default view instead."
+        } else {
+          NA_character_
+        }
+      )
     }
-  }
+  )
 
-  for (view in live) {
-    if (view[["Id"]] %in% matched) {
-      next
+  bind_change_rows(rows)
+}
+
+#' @noRd
+view_delete_row <- function(view, replaces_default = FALSE) {
+  blocked <- isTRUE(view[["DefaultView"]]) && !replaces_default
+
+  new_change_row(
+    object = "view",
+    name = view[["Title"]],
+    id = view[["Id"]],
+    action = if (blocked) "blocked" else "delete",
+    current = "view",
+    method = if (blocked) NA_character_ else "rest",
+    note = if (blocked) {
+      "The default view can't be deleted unless another view is set as the default view."
+    } else {
+      NA_character_
     }
-
-    blocked <- isTRUE(view[["DefaultView"]]) && !replaces_default
-
-    rows <- c(rows, list(new_change_row(
-      object = "view",
-      name = view[["Title"]],
-      id = view[["Id"]],
-      action = if (blocked) "blocked" else "delete",
-      current = "view",
-      method = if (blocked) NA_character_ else "rest",
-      note = if (blocked) {
-        "The default view can't be deleted unless another view is set as the default view."
-      } else {
-        NA_character_
-      }
-    )))
-  }
-
-  if (length(rows) == 0) {
-    return(NULL)
-  }
-
-  vctrs::vec_rbind(!!!rows)
+  )
 }
 
 #' Find properties that differ between a proposed and current definition
@@ -969,7 +989,7 @@ sync_sp_list <- function(
   )
 
   list_name <- sp_list[["properties"]][["displayName"]]
-  print_column_changes(changes, list_name = list_name, dry_run = dry_run)
+  print_changes(changes, list_name = list_name, dry_run = dry_run)
 
   if (dry_run || !any(changes[["status"]] == "planned")) {
     return(invisible(changes))
@@ -980,6 +1000,7 @@ sync_sp_list <- function(
     purrr::map_chr(definitions[["columns"]], "name")
   )
 
+  changes <- apply_list_changes(changes, sp_list)
   changes <- apply_column_changes(changes, columns, sp_list, call = call)
   changes <- apply_view_changes(
     changes,
@@ -1035,9 +1056,9 @@ plan_change_status <- function(changes, delete, allow_data_loss) {
   status
 }
 
-#' Print planned or skipped column changes
+#' Print planned or skipped changes
 #' @noRd
-print_column_changes <- function(changes, list_name, dry_run = TRUE) {
+print_changes <- function(changes, list_name, dry_run = TRUE) {
   if (nrow(changes) == 0) {
     cli_inform(c("v" = "List {.val {list_name}} matches the definitions."))
     return(invisible(NULL))
@@ -1045,7 +1066,7 @@ print_column_changes <- function(changes, list_name, dry_run = TRUE) {
 
   lines <- purrr::map_chr(
     vctrs::vec_chop(changes),
-    format_column_change
+    format_change
   )
 
   bullets <- match_value(
@@ -1088,9 +1109,9 @@ match_value <- function(x, values, default) {
   out
 }
 
-#' Format a single column change for printing
+#' Format a single change for printing
 #' @noRd
-format_column_change <- function(change) {
+format_change <- function(change) {
   name <- switch(
     change[["object"]],
     list = "list",
@@ -1159,38 +1180,43 @@ format_change_value <- function(x) {
   value
 }
 
+#' Apply planned list setting changes in one request
+#' @noRd
+apply_list_changes <- function(changes, sp_list) {
+  list_rows <- which(
+    changes[["status"]] == "planned" &
+      changes[["object"]] == "list" &
+      changes[["action"]] == "update"
+  )
+
+  if (length(list_rows) == 0) {
+    return(changes)
+  }
+
+  body <- list()
+
+  for (idx in list_rows) {
+    property <- changes[["property"]][[idx]]
+    proposed <- changes[["proposed"]][[idx]]
+
+    if (startsWith(property, "list.")) {
+      body[["list"]][[sub("^list\\.", "", property)]] <- proposed
+    } else {
+      body[[property]] <- proposed
+    }
+  }
+
+  try_change(
+    changes,
+    list_rows,
+    sp_list$do_operation(body = body, encode = "json", http_verb = "PATCH")
+  )
+}
+
 #' Apply planned column changes
 #' @noRd
 apply_column_changes <- function(changes, columns, sp_list, call = caller_env()) {
-  planned <- changes[["status"]] == "planned"
-
-  # Update list settings in one request
-  list_rows <- which(
-    planned & changes[["object"]] == "list" & changes[["action"]] == "update"
-  )
-
-  if (length(list_rows) > 0) {
-    body <- list()
-
-    for (idx in list_rows) {
-      property <- changes[["property"]][[idx]]
-      proposed <- changes[["proposed"]][[idx]]
-
-      if (startsWith(property, "list.")) {
-        body[["list"]][[sub("^list\\.", "", property)]] <- proposed
-      } else {
-        body[[property]] <- proposed
-      }
-    }
-
-    changes <- try_column_change(
-      changes,
-      list_rows,
-      sp_list$do_operation(body = body, encode = "json", http_verb = "PATCH")
-    )
-  }
-
-  planned <- planned & changes[["object"]] == "column"
+  planned <- changes[["status"]] == "planned" & changes[["object"]] == "column"
 
   # Add columns (calculated columns last since formulas may reference them)
   add_names <- changes[["name"]][planned & changes[["action"]] == "add"]
@@ -1202,7 +1228,7 @@ apply_column_changes <- function(changes, columns, sp_list, call = caller_env())
 
   for (name in add_names) {
     idx <- which(changes[["name"]] == name & changes[["action"]] == "add")
-    changes <- try_column_change(
+    changes <- try_change(
       changes,
       idx,
       create_sp_list_column(
@@ -1218,7 +1244,7 @@ apply_column_changes <- function(changes, columns, sp_list, call = caller_env())
 
   for (name in unique(changes[["name"]][update_rows])) {
     idx <- which(update_rows & changes[["name"]] %in% name)
-    changes <- try_column_change(
+    changes <- try_change(
       changes,
       idx,
       apply_column_updates(
@@ -1234,7 +1260,7 @@ apply_column_changes <- function(changes, columns, sp_list, call = caller_env())
   delete_rows <- which(planned & changes[["action"]] == "delete")
 
   for (idx in delete_rows) {
-    changes <- try_column_change(
+    changes <- try_change(
       changes,
       idx,
       delete_sp_list_column(
@@ -1264,10 +1290,9 @@ apply_view_changes <- function(changes, views, sp_list, call = caller_env()) {
 
   # Add views (without setting the default view)
   for (idx in which(planned & changes[["action"]] == "add")) {
-    view <- views[[changes[["name"]][[idx]]]]
-    view <- view[setdiff(names(view), c(sp_view_read_only_props, "DefaultView"))]
+    view <- as_view_to_create(views[[changes[["name"]][[idx]]]])
 
-    changes <- try_column_change(
+    changes <- try_change(
       changes,
       idx,
       create_sp_list_view(sp_list, view_definition = view, call = call)
@@ -1283,7 +1308,7 @@ apply_view_changes <- function(changes, views, sp_list, call = caller_env()) {
     idx <- which(update_rows & changes[["id"]] %in% view_id)
     props <- set_names(changes[["proposed"]][idx], changes[["property"]][idx])
 
-    changes <- try_column_change(
+    changes <- try_change(
       changes,
       idx,
       update_sp_list_view(
@@ -1309,7 +1334,7 @@ apply_view_changes <- function(changes, views, sp_list, call = caller_env()) {
     )
 
     if (all(changes[["status"]][idx] != "failed")) {
-      changes <- try_column_change(
+      changes <- try_change(
         changes,
         idx,
         update_sp_list_view(
@@ -1324,7 +1349,7 @@ apply_view_changes <- function(changes, views, sp_list, call = caller_env()) {
 
   # Delete views
   for (idx in which(planned & changes[["action"]] == "delete")) {
-    changes <- try_column_change(
+    changes <- try_change(
       changes,
       idx,
       delete_sp_list_view(
@@ -1341,7 +1366,7 @@ apply_view_changes <- function(changes, views, sp_list, call = caller_env()) {
 
 #' Evaluate a change and record the status
 #' @noRd
-try_column_change <- function(changes, idx, expr) {
+try_change <- function(changes, idx, expr) {
   result <- tryCatch(
     {
       force(expr)

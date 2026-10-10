@@ -34,10 +34,10 @@
       Error:
       ! `sp_list` must be a <ms_list> object or a list of column metadata from `get_sp_list_metadata(as_data_frame = FALSE)`.
 
-# print_column_changes summarizes planned changes
+# print_changes summarizes planned changes
 
     Code
-      print_column_changes(changes, list_name = "Test")
+      print_changes(changes, list_name = "Test")
     Message
       Planned changes for list "Test":
       * update Notes text.allowMultipleLines: FALSE -> TRUE [REST]

@@ -689,20 +689,30 @@ check_sp_validation <- function(x, arg, call = caller_env()) {
   x
 }
 
-#' Error for unknown column definition properties
+#' Error for unknown properties
+#'
+#' @param kind Optional word describing the properties (e.g. `"view"`).
+#' @param hints Named character vector of property names (or longer hints)
+#'   to suggest in place of common alternatives, named by the alternative.
 #' @noRd
 abort_unknown_props <- function(
   unknown,
   label,
   allowed = NULL,
   read_only = NULL,
+  kind = NULL,
+  hints = sp_column_prop_hints,
   call = caller_env()
 ) {
-  hints <- sp_column_prop_hints[intersect(unknown, names(sp_column_prop_hints))]
+  hints <- hints[intersect(unknown, names(hints))]
 
   cli_abort(
     c(
-      "{.field {label}} has unknown propert{?y/ies}: {.field {unknown}}.",
+      paste0(
+        "{.field {label}} has unknown ",
+        if (!is.null(kind)) paste0(kind, " "),
+        "propert{?y/ies}: {.field {unknown}}."
+      ),
       if (length(read_only) > 0) {
         c("i" = "{.field {read_only}} {?is/are} read-only.")
       },

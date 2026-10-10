@@ -149,7 +149,7 @@ SP.View property: \code{CustomFormatter}.}
 
 \item{view_definition}{Optional. A named list of SP.View properties (e.g.
 \code{list(Title = "Active", RowLimit = 50)}). Used in place of the other view
-arguments.}
+arguments, which can't be supplied with \code{view_definition}.}
 
 \item{confirm}{If \code{TRUE} (default), ask for confirmation before deleting a
 view.}

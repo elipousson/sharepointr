@@ -1370,17 +1370,30 @@ apply_view_changes <- function(changes, views, sp_list, call = caller_env()) {
     )
   }
 
+  # A deleted view can only be the default view if it is replaced by another
+  # view, so the view is only checked if setting the default view failed
+  check_default <- length(default_idx) > 0 &&
+    any(changes[["status"]][default_idx] != "applied")
+
   # Delete views
   for (idx in which(planned & changes[["action"]] == "delete")) {
+    view_id <- changes[["id"]][[idx]]
+    view_title <- changes[["name"]][[idx]]
+
     changes <- try_change(
       changes,
       idx,
-      delete_sp_list_view(
-        sp_list,
-        view_id = changes[["id"]][[idx]],
-        confirm = FALSE,
-        call = call
-      )
+      if (check_default) {
+        delete_sp_list_view(
+          sp_list,
+          view_id = view_id,
+          confirm = FALSE,
+          call = call
+        )
+      } else {
+        cli_progress_step("Deleting view {.val {view_title}}")
+        remove_sp_list_view(sp_list, view_id, call = call)
+      }
     )
   }
 

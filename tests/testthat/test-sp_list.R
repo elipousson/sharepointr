@@ -880,3 +880,34 @@ test_that("get_sp_list() returns the matching site list for a list name", {
     list(list(NULL, "list-3"), list("User Information List", NULL))
   )
 })
+
+test_that("get_sp_list_metadata(sync_fields = TRUE) updates list properties with one request", {
+  columns <- list(list(name = "Title", text = list()))
+  n_requests <- 0
+
+  # Minimal stand-in for a Microsoft365R::ms_list (without a sync_fields
+  # method, which would request the list again)
+  sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
+  sp_list$properties <- list(id = "list-1", displayName = "Old")
+  sp_list$do_operation <- function(options = NULL, simplify = FALSE) {
+    n_requests <<- n_requests + 1
+    list(
+      id = "list-1",
+      displayName = "New",
+      `columns@odata.context` = "context",
+      columns = columns
+    )
+  }
+
+  expect_identical(
+    get_sp_list_metadata(sp_list = sp_list, sync_fields = TRUE, as_data_frame = FALSE),
+    columns
+  )
+  expect_identical(n_requests, 1)
+  expect_identical(sp_list$properties, list(id = "list-1", displayName = "New"))
+
+  # Properties aren't changed if sync_fields = FALSE
+  sp_list$properties <- list(id = "list-1", displayName = "Old")
+  get_sp_list_metadata(sp_list = sp_list, as_data_frame = FALSE)
+  expect_identical(sp_list$properties[["displayName"]], "Old")
+})

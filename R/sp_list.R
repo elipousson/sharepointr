@@ -293,14 +293,18 @@ get_sp_list_metadata <- function(
 
   check_ms_obj(sp_list, "ms_list", call = call)
 
-  if (sync_fields) {
-    sp_list <- sp_list$sync_fields()
-  }
-
   sp_list_op_resp <- sp_list$do_operation(
     options = list(expand = "columns"),
     simplify = as_data_frame
   )
+
+  # The response has the same list properties as the sync_fields method (in
+  # addition to the columns) so the list isn't requested again
+  if (sync_fields) {
+    sp_list$properties <- sp_list_op_resp[
+      setdiff(names(sp_list_op_resp), c("columns", "columns@odata.context"))
+    ]
+  }
 
   sp_list_meta <- sp_list_op_resp$columns
 

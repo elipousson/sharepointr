@@ -338,8 +338,9 @@ test_that("apply_view_changes applies views in order", {
       record("update", view_id = view_id, props = props)
     },
     get_sp_list_view = function(...) stop("Views shouldn't be requested again."),
-    delete_sp_list_view = function(sp_list, view_title = NULL, view_id = NULL, ..., confirm = TRUE, call = NULL) {
-      record("delete", view_id = view_id, confirm = confirm)
+    delete_sp_list_view = function(...) stop("Views shouldn't be checked before deleting."),
+    remove_sp_list_view = function(sp_list, view_id, call = NULL) {
+      record("delete", view_id = view_id)
     }
   )
 
@@ -410,6 +411,33 @@ test_that("apply_view_changes doesn't set a default view that failed to be creat
   expect_identical(added[["status"]], "failed")
   expect_identical(added[["note"]], "Can't create view.")
   expect_false(any(changes[["status"]] == "planned"))
+})
+
+test_that("apply_view_changes checks views before deleting them if the default view isn't set", {
+  deleted <- list()
+
+  local_mocked_bindings(
+    add_sp_list_view = function(...) "new-view",
+    set_sp_list_view_props = function(sp_list, view_id, props, ...) {
+      if (has_name(props, "DefaultView")) cli::cli_abort("Can't set the default view.")
+    },
+    delete_sp_list_view = function(sp_list, view_id = NULL, ..., confirm = TRUE) {
+      deleted[[length(deleted) + 1]] <<- list(fn = "checked", view_id = view_id, confirm = confirm)
+    },
+    remove_sp_list_view = function(...) stop("Views should be checked before deleting.")
+  )
+
+  views <- list(list(Title = "Active", DefaultView = TRUE, ViewFields = "LinkTitle"))
+  changes <- view_change_rows(views, live_views)
+  changes[["status"]] <- plan_change_status(changes, delete = TRUE, allow_data_loss = FALSE)
+
+  changes <- apply_view_changes(changes, views, sp_list = NULL)
+
+  # The current default view is only deleted after checking it isn't still the
+  # default view
+  expect_true(length(deleted) > 0)
+  expect_true(all(purrr::map_chr(deleted, "fn") == "checked"))
+  expect_false(any(purrr::map_lgl(deleted, "confirm")))
 })
 
 test_that("compare_sp_list only compares views if the definition has views", {

@@ -821,12 +821,21 @@ delete_sp_list_view <- function(
 
   cli_progress_step("Deleting view {.val {view[['Title']]}}")
 
+  remove_sp_list_view(sp_list, view[["Id"]], call = call)
+
+  invisible(NULL)
+}
+
+#' Delete a view without getting the view
+#'
+#' Used by [delete_sp_list_view()] and [sync_sp_list()] (if the view can't be
+#' the default view).
+#' @noRd
+remove_sp_list_view <- function(sp_list, view_id, call = caller_env()) {
   sp_list_rest_request(
     sp_list,
-    sp_view_path(view_id = view[["Id"]]),
+    sp_view_path(view_id = view_id),
     method = "DELETE",
     call = call
   )
-
-  invisible(NULL)
 }

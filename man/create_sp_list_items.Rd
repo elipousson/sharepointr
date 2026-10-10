@@ -37,6 +37,7 @@ update_sp_list_items(
   .id = "id",
   allow_display_nm = FALSE,
   check_fields = TRUE,
+  strict = FALSE,
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
   .progress = TRUE,
@@ -110,10 +111,10 @@ method for SharePoint site object.}
 \item{drive}{A \code{ms_drive} object. If \code{drive} is supplied, \code{drive_name} and
 \code{drive_id} are ignored.}
 
-\item{check_fields}{If \code{TRUE} (default), column names for the input data are
-matched to the fields of the list object. If \code{FALSE}, the function will
-error if any column names can't be matched to a field in the supplied
-SharePoint list.}
+\item{check_fields}{If \code{TRUE} (default), column names (or record field
+names) for the input data are matched to the fields of the list object.
+If \code{FALSE}, names aren't checked and the Graph API errors for any name
+that isn't a list field.}
 
 \item{sync_fields}{If \code{TRUE}, use the \code{sync_fields} method to sync the fields
 of the local \code{ms_list} object with the fields of the SharePoint List source
@@ -123,10 +124,10 @@ before retrieving list metadata.}
 created using \code{\link[=data_as_column_definition_list]{data_as_column_definition_list()}} to set the column
 definitions for the list.}
 
-\item{strict}{Not yet implemented as of 2024-08-12. If \code{TRUE}, all column
-names in data must be matched to field names in the supplied SharePoint
-list. If \code{FALSE} (default), unmatched columns will be dropped with a
-warning.}
+\item{strict}{If \code{TRUE}, all column names in a data frame (or field names
+in a list of records) must match field names in the supplied SharePoint
+list. If \code{FALSE} (default), unmatched names are dropped with a message.
+Only used if \code{check_fields = TRUE}.}
 
 \item{.progress}{Whether to show a progress bar. Use \code{TRUE} to turn on
 a basic progress bar, use a string to give it a name, or see

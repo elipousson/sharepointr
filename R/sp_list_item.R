@@ -601,14 +601,14 @@ get_sp_list_item <- function(
 #'   unchanged, even when `na_fields = "replace"`. For
 #'   [create_sp_list_items()], wrap a single record in a list (e.g.
 #'   `list(record)`) and `data` must be a data frame if `create_list = TRUE`.
-#' @param strict Not yet implemented as of 2024-08-12. If `TRUE`, all column
-#'   names in data must be matched to field names in the supplied SharePoint
-#'   list. If `FALSE` (default), unmatched columns will be dropped with a
-#'   warning.
-#' @param check_fields If `TRUE` (default), column names for the input data are
-#'   matched to the fields of the list object. If `FALSE`, the function will
-#'   error if any column names can't be matched to a field in the supplied
-#'   SharePoint list.
+#' @param strict If `TRUE`, all column names in a data frame (or field names
+#'   in a list of records) must match field names in the supplied SharePoint
+#'   list. If `FALSE` (default), unmatched names are dropped with a message.
+#'   Only used if `check_fields = TRUE`.
+#' @param check_fields If `TRUE` (default), column names (or record field
+#'   names) for the input data are matched to the fields of the list object.
+#'   If `FALSE`, names aren't checked and the Graph API errors for any name
+#'   that isn't a list field.
 #' @inheritParams ms_graph_arg_terms
 #' @inheritParams get_sp_list
 #' @param allow_display_nm If `TRUE`, allow data to use list field display names
@@ -793,21 +793,18 @@ create_sp_list_items <- function(
   )
 
   purrr::map(
-    seq_along(records),
+    records,
     purrr::in_parallel(
-      \(i) {
+      \(record) {
         fn(
           .sp_list = .sp_list,
-          .fields = .records[[i]],
-          .multi_fields = .multi_fields,
-          call = call
+          .fields = record,
+          .multi_fields = .multi_fields
         )
       },
       fn = create_sp_list_item,
       .sp_list = sp_list,
-      .records = records,
-      .multi_fields = multi_fields,
-      call = call
+      .multi_fields = multi_fields
     ),
     .progress = .progress
   )
@@ -845,77 +842,98 @@ validate_sp_list_data_fields <- function(
     # column types
   }
 
-  nm <- names(data)
+  nm_match <- match_sp_list_field_names(
+    names(data),
+    values = values,
+    drop_fields = drop_fields,
+    strict = strict,
+    what = if (is.data.frame(data)) "column" else "field",
+    call = call
+  )
 
+  if (all(nm_match)) {
+    return(data)
+  }
+
+  if (is.data.frame(data)) {
+    return(data[, nm_match, drop = FALSE])
+  }
+
+  data[nm_match]
+}
+
+#' Match names in list item data to list field names
+#'
+#' @param nm Names from a data frame or from list item records.
+#' @param values List field names.
+#' @param what Word used for the names in messages (e.g. `"column"` for a data
+#'   frame or `"field"` for list records).
+#' @returns A logical vector the same length as `nm` that is `TRUE` for names
+#'   to keep. Names that don't match are dropped with a message, unless `strict
+#'   = TRUE`, in which case it errors. Errors if no names match.
+#' @noRd
+match_sp_list_field_names <- function(
+  nm,
+  values,
+  drop_fields = c("ContentType", "Attachments"),
+  strict = FALSE,
+  what = "column",
+  arg = "data",
+  call = caller_env()
+) {
   # Drop fields that are not typically user-editable
   if (!is.null(drop_fields)) {
     values <- setdiff(values, drop_fields)
   }
 
   nm_match <- (nm %in% values) |
-    # Always allow columns that end in LookupId
+    # Always allow names that end in LookupId
     stringr::str_detect(nm, "LookupId")
+
+  # FIXME: If strict is `TRUE` should this require that all values are also
+  # present in nm?
+  if (all(nm_match)) {
+    return(nm_match)
+  }
 
   allowed_nm_msg <- "Field name{?s} from list are {.val {values}}"
 
-  if (all(nm_match)) {
-    # FIXME: If strict is `TRUE` should this required that all allowed_nm values
-    # are also present in nm? The following code does this but I'm unsure if it
-    # is a good approach.
-    #   if (!strict) return(data)
-    #
-    #   if (!all(allowed_nm %in% nm)) {
-    #     cli_abort(
-    #       c("{.arg data} must include all writable field names.",
-    #       "i" = allowed_nm_msg),
-    #       call = call
-    #     )
-    #   }
-    return(data)
-  }
-
-  # FIXME: Use element instead of column for messages if function supports lists
-  #  and data frames
   if (!any(nm_match)) {
     cli_abort(
       c(
-        "At least one column in {.arg data} must match field names
-        in the supplied list.",
+        "At least one {what} in {.arg {arg}} must match field names in the
+        supplied list.",
         "i" = allowed_nm_msg
       ),
       call = call
     )
   }
 
-  if (!all(nm_match)) {
-    msg <- "All column names in {.arg data} must match field names
-    in the supplied list."
+  msg <- "All {what} names in {.arg {arg}} must match field names in the
+  supplied list."
 
-    if (strict) {
-      cli_abort(
-        c(
-          msg,
-          "i" = allowed_nm_msg
-        ),
-        call = call
-      )
-    }
-
-    cli::cli_inform(
+  if (strict) {
+    cli_abort(
       c(
-        "!" = msg,
-        "i" = "Column{?s} {.val {nm[!nm_match]}} dropped from {.arg data}"
-      )
+        msg,
+        "i" = allowed_nm_msg
+      ),
+      call = call
     )
-
-    if (is.data.frame(data)) {
-      data <- data[, nm_match, drop = FALSE]
-    } else {
-      data <- data[nm_match]
-    }
-
-    return(data)
   }
+
+  what_title <- paste0(toupper(substr(what, 1, 1)), substring(what, 2))
+  dropped <- nm[!nm_match]
+
+  cli::cli_inform(
+    c(
+      "!" = msg,
+      "i" = "{what_title}{cli::qty(length(dropped))}{?s} {.val {dropped}}
+      dropped from {.arg {arg}}"
+    )
+  )
+
+  nm_match
 }
 
 #' @rdname create_sp_list_items
@@ -932,6 +950,7 @@ update_sp_list_items <- function(
   .id = "id",
   allow_display_nm = FALSE,
   check_fields = TRUE,
+  strict = FALSE,
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
   .progress = TRUE,
@@ -1007,6 +1026,7 @@ update_sp_list_items <- function(
         update_data,
         values = field_nm,
         drop_fields = drop_fields,
+        strict = strict,
         call = call
       )
     }
@@ -1035,6 +1055,7 @@ update_sp_list_items <- function(
         records,
         values = field_nm,
         drop_fields = drop_fields,
+        strict = strict,
         call = call
       )
     }
@@ -1044,14 +1065,15 @@ update_sp_list_items <- function(
   # a single value is selected
   multi_fields <- pull_sp_list_multi_cols(col_metadata = col_metadata)
 
-  purrr::map(
-    seq_along(item_ids),
+  purrr::map2(
+    records,
+    item_ids,
     purrr::in_parallel(
-      \(i) {
+      \(record, item_id) {
         fn(
-          .data = x[[i]],
+          .data = record,
           na_fields = na_fields,
-          item_id = item_id[[i]],
+          item_id = item_id,
           sp_list = sp_list,
           # Fields are already validated (or skipped) for all items
           check_fields = FALSE,
@@ -1060,9 +1082,7 @@ update_sp_list_items <- function(
         )
       },
       fn = update_sp_list_item,
-      item_id = item_ids,
       na_fields = na_fields,
-      x = records,
       sp_list = sp_list,
       .multi_fields = multi_fields,
       call = call
@@ -1239,17 +1259,18 @@ validate_sp_item_record_fields <- function(
   strict = FALSE,
   call = caller_env()
 ) {
-  record_nm <- unique(unlist(purrr::map(records, names)))
+  record_nm <- unique(unlist(purrr::map(records, names))) %||% character(0)
 
-  valid_nm <- names(
-    validate_sp_list_data_fields(
-      set_names(as.list(record_nm), record_nm),
-      values = values,
-      drop_fields = drop_fields,
-      strict = strict,
-      call = call
-    )
+  nm_match <- match_sp_list_field_names(
+    record_nm,
+    values = values,
+    drop_fields = drop_fields,
+    strict = strict,
+    what = "field",
+    call = call
   )
+
+  valid_nm <- record_nm[nm_match]
 
   purrr::map(records, \(x) x[names(x) %in% valid_nm])
 }
@@ -1873,7 +1894,7 @@ delete_sp_list_items <- function(
   if (confirm) {
     check_yes(
       cli::format_inline(
-        "Do you want to delete {length(item_id)} list item(s)?"
+        "Do you want to delete {length(item_id)} list item{?s}?"
       ),
       call = call
     )

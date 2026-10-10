@@ -769,6 +769,54 @@ test_that("delete_sp_list_item() and delete_sp_list_items() check arguments", {
   expect_length(requests$deletes, 0)
 })
 
+test_that("match_sp_list_field_names() matches names to list fields", {
+  values <- c("Title", "Status", "ContentType")
+
+  expect_identical(
+    match_sp_list_field_names(c("Title", "ProjectLookupId"), values),
+    c(TRUE, TRUE)
+  )
+  expect_identical(match_sp_list_field_names(character(0), values), logical(0))
+
+  expect_snapshot({
+    match_sp_list_field_names(c("Title", "Other", "ContentType"), values)
+    match_sp_list_field_names(c("Title", "Other"), values, what = "field")
+  })
+  expect_snapshot(
+    match_sp_list_field_names("Other", values, what = "field"),
+    error = TRUE
+  )
+  expect_snapshot(
+    match_sp_list_field_names(c("Title", "Other"), values, strict = TRUE),
+    error = TRUE
+  )
+})
+
+test_that("update_sp_list_items() supports strict field matching", {
+  requests <- local_fake_item_list()
+
+  expect_error(
+    update_sp_list_items(
+      list(list(id = "1", Title = "A", Other = "B")),
+      sp_list = requests$sp_list,
+      strict = TRUE,
+      .progress = FALSE
+    ),
+    "All field names in `data` must match"
+  )
+  expect_error(
+    update_sp_list_items(
+      data.frame(id = "1", Title = "A", Other = "B"),
+      sp_list = requests$sp_list,
+      strict = TRUE,
+      .progress = FALSE
+    ),
+    "All column names in `data` must match"
+  )
+
+  expect_length(requests$updates, 0)
+})
+
 test_that("pull_sp_list_multi_cols() finds multi-value columns", {
   col_metadata <- list(
     list(name = "Title", text = list(allowMultipleLines = FALSE)),

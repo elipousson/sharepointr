@@ -80,7 +80,25 @@ rooms <- list_sp_list_items(sp_list = room_list)
 head(rooms[, c(1:7)])
 ```
 
-Use `select` to return only some columns, `filter` to return only matching items, and `display_nm = "replace"` to use the column display names (the names shown in SharePoint) in place of the internal column names.
+Use `select` to return only some columns and `display_nm = "replace"` to use the column display names (the names shown in SharePoint) in place of the internal column names.
+
+Use `filter` to return only matching items. A filter is an [OData `$filter` expression](https://learn.microsoft.com/en-us/graph/filter-query-parameter) passed to the Microsoft Graph API:
+
+- Prefix column names with `fields/` and use the internal column name, e.g. `fields/RoomCategory` (not the display name).
+- Put text values in single quotes, e.g. `fields/RoomCategory eq 'SERVICE'`.
+- Use comparison operators (`eq`, `ne`, `gt`, `ge`, `lt`, `le`), combine conditions with `and` or `or`, and match text with `startswith()`.
+
+```{r}
+service_rooms <- list_sp_list_items(
+  sp_list = room_list,
+  filter = "fields/RoomCategory eq 'SERVICE' and startswith(fields/Title, '08')",
+  select = c("id", "Title", "RoomType", "RoomCategory")
+)
+
+head(service_rooms)
+```
+
+Filtering on a column that isn't indexed works on smaller lists, but may fail on lists with more than 5,000 items, so index any columns you filter on often (e.g. with `indexed: true` in a YAML definition). See the Microsoft Graph documentation on [listing items](https://learn.microsoft.com/en-us/graph/api/listitem-list) for more examples.
 
 You can get a single list item as a `Microsoft365R::ms_list_item` object using `get_sp_list_item()`. The id values are not visible by default when looking at a Microsoft List online but they are included in the list item data frame:
 
@@ -287,7 +305,7 @@ create_sp_list_items(
   list_name = "North Carolina SIDS data",
   description = "Sudden Infant Death Syndrome (SIDS) sample data for North Carolina counties, two time periods (1974-78 and 1979-84).",
   create_list = TRUE,
-  data = nc,
+  data = nc[, c(1, 2, 3)],
   site = sp_site
 )
 

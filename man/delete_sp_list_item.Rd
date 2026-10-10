@@ -26,6 +26,7 @@ delete_sp_list_items(
   sp_list = NULL,
   filter = NULL,
   confirm = TRUE,
+  .batch = getOption("sharepointr.batch", TRUE),
   .progress = TRUE,
   call = caller_env()
 )
@@ -74,6 +75,20 @@ mentioned in error messages as the source of the error. See the
 \item{filter}{Optional. A string with an OData filter expression used to
 find the items to delete if \code{item_id} is \code{NULL}. Can't be supplied with
 \code{item_id}. See \code{\link[=list_sp_list_items]{list_sp_list_items()}}.}
+
+\item{.batch}{If \code{TRUE} (default), items are sent with Microsoft Graph
+\verb{$batch} requests (up to 20 items per request), which is much faster than
+a separate request for each item. Requests throttled by the Graph API are
+retried after the requested delay. If any items fail, the remaining items
+are still sent and the error lists the failed items. If \code{FALSE}, a
+separate request is sent for each item and the first failed item is an
+error. Use \code{options(sharepointr.batch = FALSE)} to change the default for
+the session. In either case, requests are sent in parallel if
+\code{mirai::daemons()} are set (see \code{\link[purrr:in_parallel]{purrr::in_parallel()}}). For
+\code{\link[=create_sp_list_items]{create_sp_list_items()}}, items sent in a \verb{$batch} request (or in
+parallel) may be created in a different order than \code{data}, so new item IDs
+may not follow the order of \code{data}. Use \code{.batch = FALSE} (without daemons)
+if item IDs must follow the order of \code{data}.}
 
 \item{.progress}{Whether to show a progress bar. Use \code{TRUE} to turn on
 a basic progress bar, use a string to give it a name, or see

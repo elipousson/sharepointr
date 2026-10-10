@@ -513,6 +513,11 @@ test_that("normalize_sp_formula matches formulas saved by SharePoint", {
   ))
 })
 
+test_that("same_column_value compares locales ignoring case", {
+  expect_true(same_column_value("en-us", "en-US", "locale", "currency"))
+  expect_false(same_column_value("en-us", "en-GB", "locale", "currency"))
+})
+
 test_that("list_change_rows compares list settings", {
   properties <- list(
     displayName = "Projects",

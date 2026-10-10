@@ -38,9 +38,9 @@ options(cli.default_handler = suppressMessages)
 SharePoint Lists (also known as Microsoft Lists) can be added to a SharePoint site or created for a single user. This package assumes you are working with lists within a SharePoint site. This article covers:
 
 - Reading lists and list items
-- Creating lists and list items
-
-The package also supports updating and deleting lists and list items which should be added to this article in the future.
+- Creating lists from column definitions or a YAML file
+- Updating a list to match a YAML file
+- Creating, updating, and deleting list items
 
 ## Reading lists and list items
 
@@ -61,14 +61,12 @@ sp_site <- get_sp_site(
   "https://bmore.sharepoint.com/sites/DOP-ALL"
 )
 
-site_lists <- list_sp_lists(site = sp_site)
-
 room_list <- get_sp_list(list_name = "DOP Rooms", site = sp_site)
 
 room_list
 ```
 
-To get the *items* from a list as a data frame, you need to use the `list_sp_list_items()` function. This function allows you to pass a site and list name, a list URL in place of a list name with no site, or to pass a list object directly:
+To get the *items* from a list as a data frame, use `list_sp_list_items()`. You can pass a list name and site, a list URL, or a list object:
 
 ```{r}
 rooms <- list_sp_list_items(list_name = "DOP Rooms", site = sp_site)
@@ -79,8 +77,28 @@ rooms <- list_sp_list_items(
 
 rooms <- list_sp_list_items(sp_list = room_list)
 
-head(rooms[ , c(2:8)])
+head(rooms[, c(1:7)])
 ```
+
+Use `select` to return only some columns and `display_nm = "replace"` to use the column display names (the names shown in SharePoint) in place of the internal column names.
+
+Use `filter` to return only matching items. A filter is an [OData `$filter` expression](https://learn.microsoft.com/en-us/graph/filter-query-parameter) passed to the Microsoft Graph API:
+
+- Prefix column names with `fields/` and use the internal column name, e.g. `fields/RoomCategory` (not the display name).
+- Put text values in single quotes, e.g. `fields/RoomCategory eq 'SERVICE'`.
+- Use comparison operators (`eq`, `ne`, `gt`, `ge`, `lt`, `le`), combine conditions with `and` or `or`, and match text with `startswith()`.
+
+```{r}
+service_rooms <- list_sp_list_items(
+  sp_list = room_list,
+  filter = "fields/RoomCategory eq 'SERVICE' and startswith(fields/Title, '08')",
+  select = c("id", "Title", "RoomType", "RoomCategory")
+)
+
+head(service_rooms)
+```
+
+Filtering on a column that isn't indexed works on smaller lists, but may fail on lists with more than 5,000 items, so index any columns you filter on often (e.g. with `indexed: true` in a YAML definition). See the Microsoft Graph documentation on [listing items](https://learn.microsoft.com/en-us/graph/api/listitem-list) for more examples.
 
 You can get a single list item as a `Microsoft365R::ms_list_item` object using `get_sp_list_item()`. The id values are not visible by default when looking at a Microsoft List online but they are included in the list item data frame:
 
@@ -88,59 +106,169 @@ You can get a single list item as a `Microsoft365R::ms_list_item` object using `
 get_sp_list_item(id = 26, sp_list = room_list)
 ```
 
-## Creating lists and list items
+## Creating lists
 
-A list name and site (or site URL) are the only requirements to create a list:
+A list name and site (or site URL) are the only requirements to create a list. However, a list created using the default `template = "genericList"` has only one column: Title. Columns can be added when the list is created or afterwards with `create_sp_list_column()`.
+
+Creating a column requires a column definition. Create one using `create_column_definition()` or one of the column type-specific variations:
+
+```{r}
+create_text_column("TextColumn", multiple_lines = TRUE)
+
+create_number_column("NumberColumn", decimal_places = "none")
+
+create_choice_column("ChoiceColumn", choices = c("Apple", "Pear", "Orange"))
+```
+
+If you are creating a list for an existing data frame, `data_as_column_definition_list()` creates a column definition for each column. Data frames with character, numeric, datetime, and factor values are supported but list columns are not.
+
+```{r}
+penguins_columns <- data_as_column_definition_list(penguins)
+
+str(penguins_columns[1:2])
+```
+
+Pass the column definitions to the `columns` argument of `create_sp_list()` to create the columns with the list:
 
 ```{r}
 penguins_list <- create_sp_list(
   list_name = "penguins",
   description = "Measurements of Penguins near Palmer Station, Antarctica",
+  columns = penguins_columns,
   site = sp_site
 )
 
 penguins_list
 ```
 
-However, a list created using the default `template = "genericList"` has only one column: Title. You can add column to a list before or after it is created. Creating columns required a column definition which can be created using the `create_column_definition()` function or one of the column type-specific variations:
+### Defining a list with YAML
 
-```{r}
-create_text_column("Text Column", multiple_lines = TRUE)
+A list and its columns can also be defined in a YAML file (an experimental feature). The YAML format uses the same property names as the Microsoft Graph API [list](https://learn.microsoft.com/en-us/graph/api/resources/list) and [columnDefinition](https://learn.microsoft.com/en-us/graph/api/resources/columndefinition) resources, and a `custom` key can hold any other metadata you want to keep with the definition. The package includes an example:
 
-create_number_column("Number Column", decimals = 0)
+```{r, comment = ""}
+example_yaml <- system.file(
+  "extdata", "example-list.yaml",
+  package = "sharepointr"
+)
 
-create_choice_column("Choice Column", choices = c("Apple", "Pear", "Orange"))
+writeLines(readLines(example_yaml))
 ```
 
-`create_sp_list_column()` takes a column definition and a Microsoft List object and adds a column to the list.
-
-You can specify multiple columns at once using a list or data frame of parameters (leaving blank values where a parameter is not applicable):
+`read_sp_list_yaml()` reads and validates the file. Use `as.data.frame()` to get a table with one row per column:
 
 ```{r}
-create_column_definition_list(
-  definitions = data.frame(
-    name = c("Text Column", "Number Column"),
-    type = c("text", "number"),
-    decimals = c(NA, 0)
-  )
+projects_definition <- read_sp_list_yaml(example_yaml)
+
+as.data.frame(projects_definition)[, c("name", "displayName", "type", "required")]
+```
+
+Pass the definition (or the path to the file) to the `definition` argument of `create_sp_list()`. The definition sets the list name, description, template, and columns:
+
+```{r}
+projects_list <- create_sp_list(
+  definition = projects_definition,
+  site = sp_site
+)
+
+projects_list
+```
+
+You can also go the other way: `get_sp_list_definition()` returns the definition for an existing list, and `write_sp_list_yaml()` writes it to a file. This is a convenient way to start a YAML file for a list you created in SharePoint.
+
+```{r, eval = FALSE}
+write_sp_list_yaml(projects_list, "projects.yaml")
+```
+
+## Updating a list to match a YAML file
+
+Keeping a list definition in a YAML file makes it possible to track changes to a list in version control. After you edit the definition (in the file or, as in this example, in R), `compare_sp_list()` shows the differences from the existing list:
+
+```{r}
+# Add a choice and a new column
+projects_definition$columns[[4]]$choice$choices <- c(
+  "Planning", "Active", "On Hold", "Closed"
+)
+
+projects_definition$columns <- c(
+  projects_definition$columns,
+  list(create_text_column("ProjectLead", display_name = "Project Lead"))
+)
+
+projects_changes <- compare_sp_list(
+  projects_definition,
+  sp_list = projects_list
+)
+
+projects_changes[, c("object", "name", "action", "property", "method")]
+```
+
+`sync_sp_list()` makes the changes. By default, it only reports the planned changes (`dry_run = TRUE`) and doesn't delete columns or views that are missing from the definition (`delete = FALSE`). Changes that may cause data loss (such as switching a column from multiple lines of text to a single line) are skipped unless `allow_data_loss = TRUE`, and changes that SharePoint doesn't allow (such as changing a column type) are reported as blocked.
+
+```{r}
+sync_sp_list(
+  projects_definition,
+  sp_list = projects_list,
+  dry_run = FALSE
 )
 ```
 
-If you are creating column definitions based on an existing data frame you can alternatively use `data_as_column_definition_list()`:
+A definition can also include list views using an optional `views` key. See `read_sp_list_yaml()` for details on the format.
+
+## Creating, updating, and deleting list items
+
+`create_sp_list_items()` adds the rows of a data frame (or a list of records) to a list. Column names must match the internal column names for the list (or set `allow_display_nm = TRUE` to also match display names):
 
 ```{r}
-penguins_column_defintions <- data_as_column_definition_list(penguins)
+projects <- data.frame(
+  Title = c("Main Street Plan", "Harbor Park", "Library Renovation"),
+  ProjectID = c("P-001", "P-002", "P-003"),
+  ProjectStatus = c("Planning", "Active", "On Hold"),
+  StartDate = as.Date(c("2026-01-15", "2025-06-01", "2026-03-01")),
+  Budget = c(250000, 1200000, 800000),
+  IsActive = c(FALSE, TRUE, FALSE)
+)
 
-str(penguins_column_defintions)
+create_sp_list_items(projects, sp_list = projects_list)
+
+project_items <- list_sp_list_items(
+  sp_list = projects_list,
+  select = c("id", "Title", "ProjectID", "ProjectStatus")
+)
+
+project_items
 ```
 
-At present, data frames with character, numeric, datetime, and factor values are supported but list columns are not.
+To update items, include the item id in an `id` column (or set `.id` to use another column name). If you use `select` when reading items, include `"id"` to keep the id column. Columns that aren't included are left unchanged, and `NA` values are skipped unless `na_fields = "replace"`:
 
-These column definition lists should be provided as the `columns` argument for `create_sp_list()` to create the columns at the same time as the list.
+```{r}
+project_updates <- project_items[, c("id", "ProjectID", "ProjectStatus")]
+project_updates$ProjectStatus[project_updates$ProjectID == "P-001"] <- "Active"
+project_updates$ProjectStatus[project_updates$ProjectID == "P-003"] <- "Active"
 
-`create_sp_list_items()` also allows users to create a list and populate the list with items in a single function call by setting `create_list = TRUE`:
+update_sp_list_items(
+  project_updates[, c("id", "ProjectStatus")],
+  sp_list = projects_list
+)
+```
 
-```{r, eval=FALSE}
+`delete_sp_list_items()` takes a vector of item ids, a data frame with an `id` column, or a `filter`:
+
+```{r}
+delete_sp_list_items(
+  project_items[project_items$ProjectID == "P-002", ],
+  sp_list = projects_list,
+  confirm = FALSE
+)
+
+list_sp_list_items(
+  sp_list = projects_list,
+  select = c("id", "Title", "ProjectStatus")
+)
+```
+
+`create_sp_list_items()` can also create a list and populate it with items in a single function call by setting `create_list = TRUE`. The column definitions are created from the data with `data_as_column_definition_list()`:
+
+```{r, eval = FALSE}
 create_sp_list_items(
   list_name = "penguins",
   description = "Measurements of Penguins near Palmer Station, Antarctica",
@@ -150,21 +278,34 @@ create_sp_list_items(
 )
 ```
 
-You can use this same function with `create_list = FALSE` (the default) to add multiple items to a list.
-Create individual items using `create_sp_list_item()`.
+### Batch requests
 
-`create_sp_list_items()` offers special handling for the sfc list columns.
-If `data` is an sf object, the geometry column is converted to well-known text using `sf::st_as_text()`.
-The CRS is not stored as part of the list so the CRS must be specified when reading the data back into a sf object.
+By default, `create_sp_list_items()`, `update_sp_list_items()`, and `delete_sp_list_items()` send items with Microsoft Graph [`$batch` requests](https://learn.microsoft.com/en-us/graph/json-batching) that combine up to 20 items in each request. This is much faster than sending a request for each item. If you set the number of daemons (persistent background processes) using `mirai::daemons()`, the batch requests are also sent in parallel with `purrr::in_parallel()`:
+
+```{r, eval = FALSE}
+mirai::daemons(4)
+
+create_sp_list_items(penguins, sp_list = penguins_list)
+
+mirai::daemons(0)
+```
+
+If the Graph API throttles a request, it is sent again after the requested delay. If some items fail, the other items are still created, updated, or deleted and the error lists the items that failed.
+
+Items created in the same batch request may not get ids in the same order as the rows in your data. If the order of ids matters, set `.batch = FALSE` (or `options(sharepointr.batch = FALSE)`) to send a request for each item.
+
+### Spatial data
+
+`create_sp_list_items()` offers special handling for sf objects: the geometry column is converted to well-known text using `sf::st_as_text()`. The CRS is not stored as part of the list so the CRS must be specified when reading the data back into a sf object.
 
 ```{r}
-nc <- sf::st_read(system.file("shape/nc.shp", package="sf"))
+nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
 
 create_sp_list_items(
   list_name = "North Carolina SIDS data",
   description = "Sudden Infant Death Syndrome (SIDS) sample data for North Carolina counties, two time periods (1974-78 and 1979-84).",
   create_list = TRUE,
-  data = nc,
+  data = nc[, c(1, 2, 3)],
   site = sp_site
 )
 
@@ -182,24 +323,14 @@ sf::st_as_sf(
 )
 ```
 
-Creating or updating large numbers of items can be very slow.
-If you are creating a large number of items, you can use the parallelization feature built-in to the pakage via `purrr::in_parallel()`.
-Set the number of daemons, or persistent background processes, to handle the requests in parallel using `mirai::daemons()` before calling `create_sp_list_items()` and the process should speed up.
-
 ```{r, echo=FALSE}
-suppressMessages(
-  delete_sp_list(
-    list_name = "penguins",
-    confirm = FALSE,
-    site = sp_site
+for (list_name in c("penguins", "Example Projects", "North Carolina SIDS data")) {
+  suppressMessages(
+    delete_sp_list(
+      list_name = list_name,
+      confirm = FALSE,
+      site = sp_site
+    )
   )
-)
-
-suppressMessages(
-  delete_sp_list(
-    list_name = "North Carolina SIDS data",
-    confirm = FALSE,
-    site = sp_site
-  )
-)
+}
 ```

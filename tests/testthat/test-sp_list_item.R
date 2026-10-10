@@ -270,6 +270,7 @@ test_that("update_sp_list_items() updates items from a data frame or a list of r
     expect_identical(http_verb, "PATCH")
     updates$calls[[sub("^items/", "", op)]] <- body[["fields"]]
   }
+  local_batch_with_do_operation(sp_list)
 
   records <- list(
     list(id = "1", Title = "A", Other = "dropped", Modified = "dropped"),
@@ -389,6 +390,7 @@ test_that("create_sp_list_items() creates items with multi-value fields", {
   sp_list$do_operation <- function(op, body, http_verb) {
     creates$bodies <- c(creates$bodies, list(body))
   }
+  local_batch_with_do_operation(sp_list)
 
   data <- tibble::tibble(
     Title = c("A", "B"),
@@ -434,6 +436,7 @@ test_that("delete_sp_list_items() accepts ids, a data frame, or a list of record
   sp_list$do_operation <- function(op, http_verb) {
     deletes$ops <- c(deletes$ops, paste(http_verb, op))
   }
+  local_batch_with_do_operation(sp_list)
 
   expected_ops <- c("DELETE items/1", "DELETE items/2")
 
@@ -592,6 +595,8 @@ local_fake_item_list <- function(env = parent.frame()) {
     },
     .env = env
   )
+
+  local_batch_with_do_operation(sp_list, env = env)
 
   requests$sp_list <- sp_list
   requests
@@ -1036,7 +1041,6 @@ test_that("sp_list_as_ptype_data_frame() builds a ptype for every list column", 
   expect_named(
     ptype,
     c(
-      "@odata.etag",
       "id",
       "Title",
       "Amount",
@@ -1091,7 +1095,7 @@ test_that("sp_list_as_ptype_data_frame() matches select by raw or LookupId name"
     select = c("id", "Person", "RelatedLookupId", "Unknown")
   )
 
-  expect_named(ptype, c("@odata.etag", "id", "PersonLookupId", "RelatedLookupId"))
+  expect_named(ptype, c("id", "PersonLookupId", "RelatedLookupId"))
 })
 
 test_that("list_sp_list_items() fetches column metadata once for select, formatting, and display names", {
@@ -1154,7 +1158,7 @@ test_that("list_sp_list_items() fetches column metadata once for select, formatt
 
   expect_identical(n_metadata_calls, 1)
   expect_identical(graph_expand, "fields(select=ID,Title,Due)")
-  expect_named(items, c("@odata.etag", "id", "Title", "Due"))
+  expect_named(items, c("id", "Title", "Due"))
   expect_equal(items[["Due"]], as.Date("2026-08-05"), ignore_attr = "label")
   expect_identical(attr(items[["Due"]], "label"), "Due Date")
   expect_identical(attr(items[["Title"]], "label"), "Item Title")
@@ -1260,4 +1264,76 @@ test_that("delete_sp_list_items() finds items with a filter without getting list
 
   expect_identical(requests$n_metadata, 0)
   expect_identical(requests$deletes, c("items/4", "items/5"))
+})
+
+test_that("bulk item functions send a request per item with `.batch = FALSE`", {
+  requests <- local_fake_item_list()
+  local_mocked_bindings(
+    sp_graph_batch_requests = function(...) stop("$batch requests shouldn't be used.")
+  )
+
+  create_sp_list_items(
+    list(list(Title = "A"), list(Title = "B")),
+    sp_list = requests$sp_list,
+    .batch = FALSE,
+    .progress = FALSE
+  )
+  expect_identical(requests$creates, list(list(Title = "A"), list(Title = "B")))
+
+  # The default can be set with an option
+  withr::local_options(sharepointr.batch = FALSE)
+
+  suppressMessages(update_sp_list_items(
+    data.frame(id = c("1", "2"), Title = c("C", "D")),
+    sp_list = requests$sp_list,
+    .progress = FALSE
+  ))
+  expect_identical(purrr::map_chr(requests$updates, "id"), c("1", "2"))
+
+  delete_sp_list_items(
+    c("1", "2"),
+    sp_list = requests$sp_list,
+    confirm = FALSE,
+    .progress = FALSE
+  )
+  expect_identical(requests$deletes, c("items/1", "items/2"))
+
+  expect_error(
+    create_sp_list_items(list(list(Title = "A")), sp_list = requests$sp_list, .batch = "yes"),
+    "must be `TRUE` or `FALSE`"
+  )
+})
+
+test_that("update_sp_list_items() skips items without values with `.batch = TRUE`", {
+  requests <- local_fake_item_list()
+
+  expect_message(
+    update_sp_list_items(
+      data.frame(id = c("1", "2"), Title = c("A", NA)),
+      sp_list = requests$sp_list,
+      check_fields = FALSE,
+      .progress = FALSE
+    ),
+    "1 item is empty after dropping"
+  )
+  expect_identical(
+    requests$updates,
+    list(list(id = "1", fields = list(Title = "A")))
+  )
+})
+
+test_that("delete_sp_list_items() returns a status for each item with `.batch = TRUE`", {
+  requests <- local_fake_item_list()
+
+  resp <- delete_sp_list_items(
+    c("1", "2"),
+    sp_list = requests$sp_list,
+    confirm = FALSE,
+    .progress = FALSE
+  )
+
+  expect_identical(
+    resp,
+    list(structure(list(), status = 200L), structure(list(), status = 200L))
+  )
 })

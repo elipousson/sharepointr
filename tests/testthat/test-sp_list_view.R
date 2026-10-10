@@ -102,12 +102,29 @@ test_that("list_sp_list_views returns a data frame of views", {
   expect_identical(views[["DefaultView"]], c(TRUE, FALSE))
   expect_type(views[["RowLimit"]], "integer")
   expect_false("HtmlSchemaXml" %in% names(views))
-  expect_false("CustomFormatter" %in% names(views))
+  # An empty custom formatter is NA, not a missing column
+  expect_identical(views[["CustomFormatter"]], c(NA_character_, NA_character_))
 
   expect_identical(nrow(list_sp_list_views(new_fake_ms_list(), hidden = TRUE)), 3L)
 
   view_list <- list_sp_list_views(new_fake_ms_list(), as_data_frame = FALSE)
   expect_identical(view_list[[2]][["ViewFields"]], "LinkTitle")
+})
+
+test_that("list_sp_list_views returns the same columns for any views", {
+  local_mock_views(list(rest_view("v1", "Untitled Form", hidden = TRUE)))
+
+  empty <- list_sp_list_views(new_fake_ms_list())
+  expect_identical(nrow(empty), 0L)
+  expect_identical(empty, sp_view_table_ptype())
+
+  # A view with missing properties has NA values
+  view <- clean_view(rest_view("v2", "Sparse"))
+  view[c("RowLimit", "ServerRelativeUrl")] <- NULL
+  table <- views_as_table(list(view))
+  expect_identical(vctrs::vec_ptype(table), sp_view_table_ptype())
+  expect_identical(table[["RowLimit"]], NA_integer_)
+  expect_identical(table[["ViewFields"]], list(c("LinkTitle", "Amount")))
 })
 
 test_that("get_sp_list_view gets views by title, id, or the default view", {

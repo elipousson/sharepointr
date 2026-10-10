@@ -95,8 +95,7 @@ For \code{\link[=create_sp_list_view]{create_sp_list_view()}} and \code{\link[=u
 the view. SP.View property: \code{Hidden}.}
 
 \item{as_data_frame}{If \code{TRUE} (default), return a data frame with one row
-per view and a \code{ViewFields} list column. If \code{FALSE}, return a list of
-views.}
+per view. If \code{FALSE}, return a list of views.}
 
 \item{list_name}{List name or URL. Used to get the list if \code{sp_list} is
 \code{NULL}.}
@@ -156,6 +155,11 @@ view.}
 }
 \value{
 \code{\link[=list_sp_list_views]{list_sp_list_views()}} returns a data frame or a list of views.
+The data frame always has the same columns (\code{Id}, \code{Title},
+\code{DefaultView}, \code{Hidden}, \code{ViewFields}, \code{ViewQuery}, \code{RowLimit}, \code{Paged},
+\code{Scope}, \code{CustomFormatter}, \code{MobileView}, \code{MobileDefaultView},
+\code{ServerRelativeUrl}, \code{ViewType}, and \code{PersonalView}), even if the list
+has no views. \code{ViewFields} is a list column and missing values are \code{NA}.
 \code{\link[=get_sp_list_view]{get_sp_list_view()}}, \code{\link[=create_sp_list_view]{create_sp_list_view()}}, and
 \code{\link[=update_sp_list_view]{update_sp_list_view()}} return a named list of SP.View properties
 (\code{Id}, \code{Title}, \code{ViewFields}, \code{ViewQuery}, \code{RowLimit}, \code{DefaultView},

@@ -322,10 +322,14 @@ sp_view_path <- function(view_title = NULL, view_id = NULL) {
 #'   For [create_sp_list_view()] and [update_sp_list_view()], if `TRUE`, hide
 #'   the view. SP.View property: `Hidden`.
 #' @param as_data_frame If `TRUE` (default), return a data frame with one row
-#'   per view and a `ViewFields` list column. If `FALSE`, return a list of
-#'   views.
+#'   per view. If `FALSE`, return a list of views.
 #' @inheritParams rlang::args_error_context
 #' @returns [list_sp_list_views()] returns a data frame or a list of views.
+#'   The data frame always has the same columns (`Id`, `Title`,
+#'   `DefaultView`, `Hidden`, `ViewFields`, `ViewQuery`, `RowLimit`, `Paged`,
+#'   `Scope`, `CustomFormatter`, `MobileView`, `MobileDefaultView`,
+#'   `ServerRelativeUrl`, `ViewType`, and `PersonalView`), even if the list
+#'   has no views. `ViewFields` is a list column and missing values are `NA`.
 #'   [get_sp_list_view()], [create_sp_list_view()], and
 #'   [update_sp_list_view()] return a named list of SP.View properties
 #'   (`Id`, `Title`, `ViewFields`, `ViewQuery`, `RowLimit`, `DefaultView`,
@@ -389,27 +393,54 @@ list_sp_list_views <- function(
     return(views)
   }
 
-  if (length(views) == 0) {
-    return(data.frame())
-  }
+  views_as_table(views)
+}
 
-  rows <- purrr::map(
-    views,
-    \(view) {
-      view[["ViewFields"]] <- list(view[["ViewFields"]])
-      vctrs::new_data_frame(purrr::map(view, \(x) if (is.list(x)) x else list(x)), n = 1L)
+#' Prototype for a data frame of views
+#'
+#' Has a column for each SP.View property kept by `clean_view()`.
+#' @noRd
+sp_view_table_ptype <- function() {
+  vctrs::data_frame(
+    Id = character(),
+    Title = character(),
+    DefaultView = logical(),
+    Hidden = logical(),
+    ViewFields = list(),
+    ViewQuery = character(),
+    RowLimit = integer(),
+    Paged = logical(),
+    Scope = integer(),
+    CustomFormatter = character(),
+    MobileView = logical(),
+    MobileDefaultView = logical(),
+    ServerRelativeUrl = character(),
+    ViewType = character(),
+    PersonalView = logical()
+  )
+}
+
+#' Convert a list of views to a data frame
+#'
+#' Returns the same columns and column types for any views (including no
+#' views). Missing properties are `NA` and `ViewFields` is a list column.
+#' @noRd
+views_as_table <- function(views) {
+  cols <- purrr::imap(
+    sp_view_table_ptype(),
+    \(ptype, prop) {
+      values <- purrr::map(views, prop)
+
+      if (is.list(ptype)) {
+        return(purrr::map(values, \(x) x %||% character()))
+      }
+
+      values <- purrr::map(values, \(x) x %||% vctrs::vec_init(ptype))
+      purrr::list_c(values, ptype = ptype)
     }
   )
 
-  table <- vctrs::vec_rbind(!!!rows)
-  first <- c("Id", "Title", "DefaultView", "Hidden", "ViewFields")
-  table <- table[c(intersect(first, names(table)), setdiff(names(table), first))]
-  table[setdiff(names(table), "ViewFields")] <- purrr::map(
-    table[setdiff(names(table), "ViewFields")],
-    simplify_list_col
-  )
-
-  table
+  vctrs::new_data_frame(cols, n = length(views))
 }
 
 #' Get a `ms_list` for the view functions

@@ -60,10 +60,11 @@ test_that("get_sp_list_column works", {
     "list"
   )
 
+  # A column found by name is taken from the list metadata so it doesn't have
+  # the "@odata.context" response element
   expect_named(
     sp_list_column,
     c(
-      "@odata.context",
       "columnGroup",
       "description",
       "displayName",
@@ -785,5 +786,59 @@ test_that("create_sp_list_lookup_column and create_sp_list_person_column create 
   expect_identical(
     column_definitions[[2]][["personOrGroup"]],
     list(allowMultipleSelection = TRUE, chooseFromType = "peopleOnly")
+  )
+})
+
+test_that("get_sp_list_column() and update_sp_list_column() use list metadata for a column name", {
+  col_metadata <- list(
+    list(id = "col-1", name = "Title", displayName = "Title", text = list()),
+    list(
+      id = "col-2",
+      name = "Status",
+      displayName = "Item Status",
+      description = "Old",
+      text = list()
+    )
+  )
+
+  local_mocked_bindings(
+    get_sp_list_metadata = function(..., as_data_frame = TRUE) col_metadata
+  )
+
+  ops <- list()
+  sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
+  sp_list$do_operation <- function(op = "", body = NULL, encode = NULL, http_verb = "GET") {
+    ops <<- c(ops, list(list(op = op, http_verb = http_verb, body = body)))
+  }
+
+  expect_identical(
+    get_sp_list_column(sp_list = sp_list, column_name = "Status"),
+    col_metadata[[2]]
+  )
+  expect_identical(
+    get_sp_list_column(
+      sp_list = sp_list,
+      column_name = "Item Status",
+      column_name_type = "displayName"
+    ),
+    col_metadata[[2]]
+  )
+  expect_length(ops, 0)
+
+  update_sp_list_column(
+    sp_list = sp_list,
+    column_name = "Status",
+    column_definition = list(name = "Status", description = "New", text = list())
+  )
+
+  # Only the PATCH request is sent (no separate request for the column)
+  expect_identical(
+    ops,
+    list(list(op = "columns/col-2", http_verb = "PATCH", body = list(description = "New")))
+  )
+
+  expect_error(
+    get_sp_list_column(sp_list = sp_list, column_name = "Missing"),
+    "must be one of"
   )
 })

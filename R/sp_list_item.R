@@ -295,6 +295,10 @@ get_sp_list_items <- function(
 #' @returns If `simplify = FALSE` or `all_metadata = TRUE`, the raw paged list
 #'   of item values. Otherwise, a data frame of item fields with every list
 #'   column present (even if empty for all items).
+#' @param ptype If "metadata" (default), blank columns are typed using the list
+#'   column metadata (requested if `col_metadata` is `NULL`). If "select",
+#'   blank columns named in `select` are filled with `NA` without requesting
+#'   list metadata (for internal callers that only need a few columns).
 #' @noRd
 .ms365_list_items <- function(
   sp_list,
@@ -308,9 +312,11 @@ get_sp_list_items <- function(
   all_metadata = FALSE,
   time_cols = c("Created", "Modified"),
   col_metadata = NULL,
+  ptype = c("metadata", "select"),
   call = caller_env()
 ) {
   check_string(filter, allow_null = TRUE, call = call)
+  ptype <- arg_match(ptype, error_call = call)
 
   # Preserve the "id" naming convention used by list metadata (see
   # sp_list_ptype_col_metadata()) for the ptype built below, independent of
@@ -386,11 +392,19 @@ get_sp_list_items <- function(
   # Guarantee every list column is present, in list order, even when a field
   # is empty for every returned item (and so is otherwise dropped entirely by
   # the Graph API)
-  ptype_df <- sp_list_as_ptype_data_frame(
-    sp_list = sp_list,
-    col_metadata = col_metadata,
-    select = select_ptype
-  )
+  if (ptype == "select" && !is.null(select_ptype)) {
+    # Untyped columns in select order, without requesting list metadata
+    ptype_df <- vctrs::data_frame(
+      !!!rep_named(c("@odata.etag", select_ptype), list(vctrs::unspecified())),
+      .name_repair = "minimal"
+    )
+  } else {
+    ptype_df <- sp_list_as_ptype_data_frame(
+      sp_list = sp_list,
+      col_metadata = col_metadata,
+      select = select_ptype
+    )
+  }
 
   vctrs::vec_rbind(ptype_df, list_values$fields)
 }
@@ -732,19 +746,20 @@ create_sp_list_items <- function(
       call = call
     )
 
-  display_nm <- NULL
-
-  if (allow_display_nm) {
-    display_nm <- pull_sp_list_display_names(sp_list)
-  }
-
-  # Get column definitions once to validate fields and find multi-value fields
+  # Get column definitions once to validate fields, use display names, and find
+  # multi-value fields
   col_metadata <- get_sp_list_metadata(
     sp_list = sp_list,
     sync_fields = sync_fields,
     as_data_frame = FALSE,
     call = call
   )
+
+  display_nm <- NULL
+
+  if (allow_display_nm) {
+    display_nm <- pull_sp_list_display_names(col_metadata = col_metadata)
+  }
 
   field_nm <- names(pull_sp_list_cols(col_metadata, col_type = "editable"))
 
@@ -1018,7 +1033,7 @@ update_sp_list_items <- function(
   display_nm <- NULL
 
   if (allow_display_nm) {
-    display_nm <- pull_sp_list_display_names(sp_list)
+    display_nm <- pull_sp_list_display_names(col_metadata = col_metadata)
   }
 
   if (is.data.frame(data)) {
@@ -1439,14 +1454,25 @@ update_sp_list_item <- function(
 
     check_ms_obj(sp_list, "ms_list", call = call)
 
-    .multi_fields <- .multi_fields %||%
-      pull_sp_list_multi_cols(sp_list = sp_list)
+    # Get column definitions once to validate fields and find multi-value fields
+    if (is.null(.multi_fields) || check_fields) {
+      col_metadata <- get_sp_list_metadata(
+        sp_list = sp_list,
+        as_data_frame = FALSE,
+        call = call
+      )
+
+      .multi_fields <- .multi_fields %||%
+        pull_sp_list_multi_cols(col_metadata = col_metadata)
+    }
 
     if (check_fields) {
       update_data <- suppressMessages(
         validate_sp_list_data_fields(
           update_data,
-          sp_list = sp_list,
+          values = names(
+            pull_sp_list_cols(col_metadata, col_type = "editable", call = call)
+          ),
           drop_fields = c(.id, drop_fields)
         )
       )
@@ -1471,8 +1497,15 @@ update_sp_list_item <- function(
       "Updating item {.val {item_id}}"
     )
 
+    # The update_item method gets the item before the update and again after
+    # https://learn.microsoft.com/en-us/graph/api/listitem-update?view=graph-rest-1.0&tabs=http
     withCallingHandlers(
-      inject(sp_list$update_item(item_id, !!!update_data)),
+      sp_list$do_operation(
+        paste0("items/", item_id),
+        body = list(fields = update_data),
+        encode = "json",
+        http_verb = "PATCH"
+      ),
       error = function(cnd) {
         cli_abort(
           cnd$message,
@@ -1489,8 +1522,13 @@ update_sp_list_item <- function(
       "Updating item {.val {item_id}}"
     )
 
+    # The update method gets the item again after the update
     withCallingHandlers(
-      inject(sp_list_item$update(fields = list(!!!update_data))),
+      sp_list_item$do_operation(
+        body = list(fields = update_data),
+        encode = "json",
+        http_verb = "PATCH"
+      ),
       error = function(cnd) {
         cli_abort(
           cnd$message,
@@ -1888,10 +1926,11 @@ delete_sp_list_items <- function(
   sp_list <- sp_list %||% get_sp_list(..., call = call)
 
   if (is.null(item_id)) {
-    sp_list_items <- list_sp_list_items(
+    sp_list_items <- .ms365_list_items(
       sp_list = sp_list,
       filter = filter,
       select = "id",
+      ptype = "select",
       call = call
     )
 

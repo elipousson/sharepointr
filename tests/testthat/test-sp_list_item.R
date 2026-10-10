@@ -266,8 +266,9 @@ test_that("update_sp_list_items() updates items from a data frame or a list of r
   updates <- new.env()
   updates$calls <- list()
   sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
-  sp_list$update_item <- function(id, ...) {
-    updates$calls[[id]] <- list(...)
+  sp_list$do_operation <- function(op, body, encode, http_verb) {
+    expect_identical(http_verb, "PATCH")
+    updates$calls[[sub("^items/", "", op)]] <- body[["fields"]]
   }
 
   records <- list(
@@ -564,12 +565,14 @@ local_fake_item_list <- function(env = parent.frame()) {
   requests$n_metadata <- 0
 
   sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
-  sp_list$update_item <- function(id, ...) {
-    requests$updates <- c(requests$updates, list(list(id = id, fields = list(...))))
-  }
-  sp_list$do_operation <- function(op, body = NULL, http_verb = "GET") {
+  sp_list$do_operation <- function(op, body = NULL, encode = NULL, http_verb = "GET") {
     if (http_verb == "DELETE") {
       requests$deletes <- c(requests$deletes, op)
+    } else if (http_verb == "PATCH") {
+      requests$updates <- c(
+        requests$updates,
+        list(list(id = sub("^items/", "", op), fields = body[["fields"]]))
+      )
     } else {
       requests$creates <- c(requests$creates, list(body[["fields"]]))
     }
@@ -1179,4 +1182,82 @@ test_that("format_sp_list_date_cols() formats date and dateTime columns", {
     as.POSIXct("2026-08-05 14:30:00", tz = "UTC")
   )
   expect_named(formatted, names(items))
+})
+
+test_that("update_sp_list_item() sends one PATCH and gets column metadata once", {
+  requests <- local_fake_item_list()
+
+  update_sp_list_item(
+    .data = list(id = "1", Title = "A", Other = "dropped", Choices = "B"),
+    sp_list = requests$sp_list
+  )
+
+  # Used for both validating fields and finding multi-value fields
+  expect_identical(requests$n_metadata, 1)
+  expect_identical(
+    requests$updates,
+    list(list(
+      id = "1",
+      fields = list(
+        Title = "A",
+        Choices = list("B"),
+        `Choices@odata.type` = "Collection(Edm.String)"
+      )
+    ))
+  )
+
+  # No metadata is needed if fields aren't checked and multi-value fields are
+  # supplied
+  update_sp_list_item(
+    .data = list(id = "2", Title = "C"),
+    sp_list = requests$sp_list,
+    check_fields = FALSE,
+    .multi_fields = character(0)
+  )
+  expect_identical(requests$n_metadata, 1)
+
+  # A list item object is updated with a single PATCH (without getting the
+  # item again)
+  sp_list_item <- structure(new.env(), class = c("ms_list_item", "ms_object"))
+  sp_list_item$properties <- list(id = "3")
+  sp_list_item$do_operation <- function(op = "", body = NULL, encode = NULL, http_verb = "GET") {
+    requests$item_ops <- c(requests$item_ops, list(list(op, http_verb, body)))
+  }
+
+  update_sp_list_item(.data = list(Title = "D"), sp_list_item = sp_list_item)
+  expect_identical(
+    requests$item_ops,
+    list(list("", "PATCH", list(fields = list(Title = "D"))))
+  )
+})
+
+test_that("delete_sp_list_items() finds items with a filter without getting list metadata", {
+  requests <- local_fake_item_list()
+  sp_list <- requests$sp_list
+  sp_list$properties <- list(id = "list", parentReference = list(siteId = "site"))
+  sp_list$get_list_pager <- function(...) NULL
+
+  # Accept the arguments used to list items (in addition to deletes)
+  do_item_operation <- sp_list$do_operation
+  sp_list$do_operation <- function(op, ..., http_verb = "GET") {
+    if (http_verb == "DELETE") do_item_operation(op, http_verb = http_verb)
+  }
+
+  local_mocked_bindings(
+    .sp_extract_list_values = function(pager, ...) {
+      values <- data.frame(id = c("4", "5"))
+      values[["fields"]] <- data.frame(`@odata.etag` = "1", id = c("4", "5"), check.names = FALSE)
+      values
+    }
+  )
+
+  delete_sp_list_items(
+    sp_list = sp_list,
+    filter = "fields/Title eq 'A'",
+    confirm = FALSE,
+    .progress = FALSE
+  )
+
+  expect_identical(requests$n_metadata, 0)
+  expect_identical(requests$deletes, c("items/4", "items/5"))
 })

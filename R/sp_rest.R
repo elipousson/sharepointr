@@ -83,13 +83,25 @@ sp_rest_token <- function(sp_list, host, call = caller_env()) {
 
 #' Get the site web URL for a `ms_list`
 #' @noRd
+# Cache of site web URLs keyed by site ID (a site ID doesn't change, so this
+# avoids a Graph request for every SharePoint REST API request)
+sp_site_web_urls <- new.env(parent = emptyenv())
+
 sp_list_web_url <- function(sp_list, call = caller_env()) {
+  site_id <- sp_list_site_id(sp_list)
+  cached <- sp_site_web_urls[[site_id]]
+
+  if (!is.null(cached)) {
+    return(cached)
+  }
+
   site <- AzureGraph::call_graph_endpoint(
     sp_list[["token"]],
-    paste0("sites/", sp_list_site_id(sp_list)),
+    paste0("sites/", site_id),
     options = list(`$select` = "webUrl")
   )
 
+  sp_site_web_urls[[site_id]] <- site[["webUrl"]]
   site[["webUrl"]]
 }
 

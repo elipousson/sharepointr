@@ -842,11 +842,13 @@ get_sp_list_column <- function(
   check_ms_obj(sp_list, "ms_list", call = call)
 
   if (!is.null(column_name) && is.null(column_id)) {
-    column_id <- sp_list_column_as_id(
-      column_name = column_name,
-      sp_list = sp_list,
-      column_name_type = column_name_type,
-      call = call
+    return(
+      sp_list_column_by_name(
+        column_name,
+        sp_list = sp_list,
+        column_name_type = column_name_type,
+        call = call
+      )
     )
   } else if (!is_string(column_id)) {
     cli::cli_abort(
@@ -1010,23 +1012,24 @@ update_sp_list_column <- function(
   }
 
   if (!is.null(column_name) && is.null(column_id)) {
-    column_id <- sp_list_column_as_id(
-      column_name = column_name,
+    existing_column <- sp_list_column_by_name(
+      column_name,
       sp_list = sp_list,
       column_name_type = column_name_type,
       call = call
     )
-  } else if (!is_string(column_id)) {
+    column_id <- existing_column[["id"]]
+  } else if (is_string(column_id)) {
+    existing_column <- get_sp_list_column(
+      sp_list = sp_list,
+      column_id = column_id
+    )
+  } else {
     cli::cli_abort(
       "{.arg column_id} or {.arg column_name} must be provided.",
       call = call
     )
   }
-
-  existing_column <- get_sp_list_column(
-    sp_list = sp_list,
-    column_id = column_id
-  )
 
   column_definition <- column_definition %||%
     create_column_definition(
@@ -1131,17 +1134,42 @@ sp_list_column_as_id <- function(
   column_name_type = "name",
   call = caller_env()
 ) {
+  sp_list_column_by_name(
+    column_name,
+    sp_list = sp_list,
+    column_name_type = column_name_type,
+    call = call
+  )[["id"]]
+}
+
+#' Get a column definition from the list metadata by column name
+#'
+#' Used in place of a separate request for the column (by id) when only the
+#' column name is known.
+#' @returns The columnDefinition (as a list) matched to `column_name`.
+#' @noRd
+sp_list_column_by_name <- function(
+  column_name,
+  sp_list = NULL,
+  column_name_type = "name",
+  call = caller_env()
+) {
   column_name_type <- arg_match0(
     column_name_type,
     c("name", "displayName"),
     error_call = call
   )
-  column_info <- sp_list$get_column_info()
-  values <- column_info[[column_name_type]]
+
+  col_metadata <- get_sp_list_metadata(
+    sp_list = sp_list,
+    as_data_frame = FALSE,
+    call = call
+  )
+
+  values <- as.character(pluck_sp_list_meta(col_metadata, column_name_type))
   column_name <- arg_match(column_name, values, error_call = call)
-  column_info[["id"]][
-    match(column_name, values)
-  ]
+
+  col_metadata[[match(column_name, values)]]
 }
 
 #' Create SharePoint list lookup column and update lookup column items
@@ -1425,13 +1453,14 @@ update_sp_list_lookup_items <- function(
     )
 
   if (is.null(lookup_list_data)) {
-    lookup_list_data <- get_sp_list_items(
+    lookup_list_data <- .ms365_list_items(
       sp_list = get_sp_lookup_list(
         lookup_list,
         sp_list = sp_list,
         call = call
       ),
       select = c(.id, lookup_join_column),
+      ptype = "select",
       call = call
     )
   }
@@ -1516,9 +1545,10 @@ fmt_sp_list_lookup_items <- function(
   is_records <- !is.data.frame(data)
 
   if (is.null(lookup_list_data)) {
-    lookup_list_data <- get_sp_list_items(
+    lookup_list_data <- .ms365_list_items(
       sp_list = get_sp_lookup_list(lookup_list, ..., call = call),
       select = unique(c(.id, lookup_join_column)),
+      ptype = "select",
       call = call
     )
   }

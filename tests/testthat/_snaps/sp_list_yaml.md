@@ -239,3 +239,14 @@
       ! displayName in the custom metadata for column A can't use the name of a column property.
       i Use `custom_prefix` to add a prefix to the names of custom metadata.
 
+# write_sp_list_yaml warns for list arguments with a definition
+
+    Code
+      write_sp_list_yaml(read_sp_list_yaml(example_path()), out, include_views = TRUE)
+    Condition
+      Warning:
+      `include_views` is ignored unless `x` is a <ms_list> object.
+      i Use `get_sp_list_definition()` to get a definition from a list.
+    Message
+      v Wrote 9 columns to <path>.
+

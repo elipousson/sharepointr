@@ -160,10 +160,11 @@ The data frame always has the same columns (\code{Id}, \code{Title},
 \code{Scope}, \code{CustomFormatter}, \code{MobileView}, \code{MobileDefaultView},
 \code{ServerRelativeUrl}, \code{ViewType}, and \code{PersonalView}), even if the list
 has no views. \code{ViewFields} is a list column and missing values are \code{NA}.
-\code{\link[=get_sp_list_view]{get_sp_list_view()}}, \code{\link[=create_sp_list_view]{create_sp_list_view()}}, and
-\code{\link[=update_sp_list_view]{update_sp_list_view()}} return a named list of SP.View properties
-(\code{Id}, \code{Title}, \code{ViewFields}, \code{ViewQuery}, \code{RowLimit}, \code{DefaultView},
-and other properties). \code{\link[=delete_sp_list_view]{delete_sp_list_view()}} invisibly returns \code{NULL}.
+\code{\link[=get_sp_list_view]{get_sp_list_view()}} returns a named list of SP.View properties (\code{Id},
+\code{Title}, \code{ViewFields}, \code{ViewQuery}, \code{RowLimit}, \code{DefaultView}, and other
+properties). \code{\link[=create_sp_list_view]{create_sp_list_view()}} and \code{\link[=update_sp_list_view]{update_sp_list_view()}}
+invisibly return the created or updated view in the same format.
+\code{\link[=delete_sp_list_view]{delete_sp_list_view()}} invisibly returns \code{NULL}.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

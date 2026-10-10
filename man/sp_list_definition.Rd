@@ -42,7 +42,8 @@ mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{x}{For \code{\link[=write_sp_list_yaml]{write_sp_list_yaml()}}, a \code{sp_list_definition} object or a
-\code{ms_list} object. For \code{\link[=as_sp_list_definition]{as_sp_list_definition()}}, a named list with the
+\code{ms_list} object. \code{keep_defaults}, \code{read_only}, and \code{include_views} are
+only used for a \code{ms_list} object. For \code{\link[=as_sp_list_definition]{as_sp_list_definition()}}, a named list with the
 same structure as a YAML file or an unnamed list of column definitions.}
 
 \item{...}{Must be empty.}

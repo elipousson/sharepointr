@@ -245,7 +245,7 @@ compare_sp_list <- function(
     )
   }
 
-  bind_change_rows(rows) %||% new_change_row()
+  bind_change_rows(rows) %||% change_rows_ptype()
 }
 
 #' Get the list described by a definition
@@ -409,13 +409,30 @@ as_sync_definitions <- function(definitions, call = caller_env()) {
   new_sp_list_definition(display_name = NULL, columns = columns)
 }
 
+#' Prototype for a data frame of changes (with no rows)
+#' @noRd
+change_rows_ptype <- function() {
+  vctrs::data_frame(
+    object = character(),
+    name = character(),
+    id = character(),
+    action = character(),
+    property = character(),
+    current = list(),
+    proposed = list(),
+    method = character(),
+    data_loss = logical(),
+    note = character()
+  )
+}
+
 #' Create a data frame with one row for a list, column, or view change
 #' @noRd
 new_change_row <- function(
   object = "column",
-  name = character(),
+  name,
   id = NA_character_,
-  action = character(),
+  action,
   property = NA_character_,
   current = NULL,
   proposed = NULL,
@@ -423,23 +440,6 @@ new_change_row <- function(
   data_loss = FALSE,
   note = NA_character_
 ) {
-  if (length(name) == 0) {
-    return(
-      vctrs::data_frame(
-        object = character(),
-        name = character(),
-        id = character(),
-        action = character(),
-        property = character(),
-        current = list(),
-        proposed = list(),
-        method = character(),
-        data_loss = logical(),
-        note = character()
-      )
-    )
-  }
-
   vctrs::data_frame(
     object = object,
     name = name,

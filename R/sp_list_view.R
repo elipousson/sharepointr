@@ -330,10 +330,11 @@ sp_view_path <- function(view_title = NULL, view_id = NULL) {
 #'   `Scope`, `CustomFormatter`, `MobileView`, `MobileDefaultView`,
 #'   `ServerRelativeUrl`, `ViewType`, and `PersonalView`), even if the list
 #'   has no views. `ViewFields` is a list column and missing values are `NA`.
-#'   [get_sp_list_view()], [create_sp_list_view()], and
-#'   [update_sp_list_view()] return a named list of SP.View properties
-#'   (`Id`, `Title`, `ViewFields`, `ViewQuery`, `RowLimit`, `DefaultView`,
-#'   and other properties). [delete_sp_list_view()] invisibly returns `NULL`.
+#'   [get_sp_list_view()] returns a named list of SP.View properties (`Id`,
+#'   `Title`, `ViewFields`, `ViewQuery`, `RowLimit`, `DefaultView`, and other
+#'   properties). [create_sp_list_view()] and [update_sp_list_view()]
+#'   invisibly return the created or updated view in the same format.
+#'   [delete_sp_list_view()] invisibly returns `NULL`.
 #' @keywords lists
 #' @examples
 #' \dontrun{
@@ -609,7 +610,7 @@ create_sp_list_view <- function(
     )
   }
 
-  get_sp_list_view(sp_list, view_id = resp[["Id"]], call = call)
+  invisible(get_sp_list_view(sp_list, view_id = resp[["Id"]], call = call))
 }
 
 #' @rdname list_sp_list_views

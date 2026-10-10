@@ -190,7 +190,8 @@
 #'
 #' @param path Path to a YAML file.
 #' @param x For [write_sp_list_yaml()], a `sp_list_definition` object or a
-#'   `ms_list` object. For [as_sp_list_definition()], a named list with the
+#'   `ms_list` object. `keep_defaults`, `read_only`, and `include_views` are
+#'   only used for a `ms_list` object. For [as_sp_list_definition()], a named list with the
 #'   same structure as a YAML file or an unnamed list of column definitions.
 #' @inheritParams rlang::args_error_context
 #' @returns A `sp_list_definition` object: a list with `format_version`,
@@ -643,6 +644,12 @@ new_sp_list_definition <- function(
 ) {
   read_only <- read_only[intersect(names(sp_list_read_only_props), names(read_only))]
 
+  # A definition without views has `NULL` views (not an empty list) so views
+  # are only compared, synced, or kept from an existing file if there are any
+  if (length(views) == 0) {
+    views <- NULL
+  }
+
   structure(
     c(
       list(
@@ -1060,6 +1067,24 @@ write_sp_list_yaml <- function(
       call = call
     )
   } else {
+    ignored <- c(
+      "keep_defaults"[!missing(keep_defaults)],
+      "read_only"[!missing(read_only)],
+      "include_views"[!missing(include_views)]
+    )
+
+    if (length(ignored) > 0) {
+      cli_warn(
+        c(
+          "{.arg {ignored}} {?is/are} ignored unless {.arg x} is a
+          {.cls ms_list} object.",
+          "i" = "Use {.fn get_sp_list_definition} to get a definition from
+          a list."
+        ),
+        call = call
+      )
+    }
+
     x <- as_sp_list_definition(x, call = call)
   }
 
@@ -1074,7 +1099,12 @@ write_sp_list_yaml <- function(
     x <- merge_sp_list_definition(x, existing, call = call)
   }
 
+  # Order keys before writing so the returned definition matches the file
   x[["columns"]] <- purrr::map(x[["columns"]], order_column_keys)
+  if (!is.null(x[["views"]])) {
+    x[["views"]] <- purrr::map(x[["views"]], order_view_keys)
+  }
+
   yaml <- yaml12::format_yaml(as_yaml_list(x))
 
   doc_start <- doc_start %||% existing_doc_start
@@ -1217,7 +1247,6 @@ as_yaml_list <- function(x) {
   columns <- purrr::map(
     x[["columns"]],
     \(col) {
-      col <- order_column_keys(col)
       type <- column_type_key(col)
 
       if (!is.null(type)) {
@@ -1268,8 +1297,6 @@ as_yaml_list <- function(x) {
 #' Convert a view definition to a list for writing YAML
 #' @noRd
 as_yaml_view <- function(view) {
-  view <- order_view_keys(view)
-
   # Write fields as a sequence even if there is a single field
   if (has_name(view, "ViewFields")) {
     view[["ViewFields"]] <- as.list(view[["ViewFields"]])

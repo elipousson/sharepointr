@@ -615,3 +615,36 @@ test_that("clean_live_column drops read-only properties and default values", {
   )
   expect_identical(choice[["choice"]], list(choices = c("a", "b")))
 })
+
+test_that("write_sp_list_yaml warns for list arguments with a definition", {
+  out <- withr::local_tempfile(fileext = ".yaml")
+
+  expect_snapshot(
+    write_sp_list_yaml(read_sp_list_yaml(example_path()), out, include_views = TRUE),
+    transform = \(x) sub("(Wrote .* to ).*$", "\\1<path>.", x)
+  )
+})
+
+test_that("as_sp_list_definition stores empty views as NULL", {
+  definition <- as_sp_list_definition(
+    list(displayName = "Test", columns = list(), views = list())
+  )
+
+  expect_null(definition[["views"]])
+  expect_false("views" %in% names(as_yaml_list(definition)))
+})
+
+test_that("write_sp_list_yaml returns a definition in the same order as the file", {
+  definition <- as_sp_list_definition(list(
+    displayName = "Test",
+    columns = list(list(text = list(), displayName = "Status", name = "Status")),
+    views = list(list(RowLimit = 10L, ViewFields = "Status", Title = "A"))
+  ))
+
+  out <- withr::local_tempfile(fileext = ".yaml")
+  written <- suppressMessages(write_sp_list_yaml(definition, out))
+
+  expect_identical(names(written[["columns"]][[1]]), c("name", "displayName", "text"))
+  expect_identical(names(written[["views"]][[1]]), c("Title", "ViewFields", "RowLimit"))
+  expect_identical(read_sp_list_yaml(out), written)
+})

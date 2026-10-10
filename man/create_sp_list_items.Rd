@@ -24,6 +24,7 @@ create_sp_list_items(
   sync_fields = FALSE,
   create_list = FALSE,
   strict = FALSE,
+  .batch = getOption("sharepointr.batch", TRUE),
   .progress = TRUE,
   call = caller_env()
 )
@@ -40,6 +41,7 @@ update_sp_list_items(
   strict = FALSE,
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
+  .batch = getOption("sharepointr.batch", TRUE),
   .progress = TRUE,
   call = caller_env()
 )
@@ -128,6 +130,20 @@ definitions for the list.}
 in a list of records) must match field names in the supplied SharePoint
 list. If \code{FALSE} (default), unmatched names are dropped with a message.
 Only used if \code{check_fields = TRUE}.}
+
+\item{.batch}{If \code{TRUE} (default), items are sent with Microsoft Graph
+\verb{$batch} requests (up to 20 items per request), which is much faster than
+a separate request for each item. Requests throttled by the Graph API are
+retried after the requested delay. If any items fail, the remaining items
+are still sent and the error lists the failed items. If \code{FALSE}, a
+separate request is sent for each item and the first failed item is an
+error. Use \code{options(sharepointr.batch = FALSE)} to change the default for
+the session. In either case, requests are sent in parallel if
+\code{mirai::daemons()} are set (see \code{\link[purrr:in_parallel]{purrr::in_parallel()}}). For
+\code{\link[=create_sp_list_items]{create_sp_list_items()}}, items sent in a \verb{$batch} request (or in
+parallel) may be created in a different order than \code{data}, so new item IDs
+may not follow the order of \code{data}. Use \code{.batch = FALSE} (without daemons)
+if item IDs must follow the order of \code{data}.}
 
 \item{.progress}{Whether to show a progress bar. Use \code{TRUE} to turn on
 a basic progress bar, use a string to give it a name, or see

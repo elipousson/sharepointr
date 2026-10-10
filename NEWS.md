@@ -2,6 +2,7 @@
 
 ## Added
 
+* Add a `.batch` argument to `create_sp_list_items()`, `update_sp_list_items()`, and `delete_sp_list_items()`. By default, items are now sent with Microsoft Graph `$batch` requests (up to 20 items per request), which was 7 to 9 times faster than a request per item in testing (and 10 to 15 times faster with `mirai::daemons()` set). Throttled requests are retried after the delay requested by the API. If any items fail, the other items are still sent and the error lists the failed items. Use `.batch = FALSE` or `options(sharepointr.batch = FALSE)` to send a request per item. Items created in a `$batch` request may not get IDs in the same order as the input data (use `.batch = FALSE` if the order of IDs matters). (2026-10-10)
 * Add `upload_sp_items()` function (2024-06-24).
 * Add vignette for reading and writing items from SharePoint (#9; 2024-07-25).
 * Add `update_sp_list_items()` function and refactor `update_sp_list_item()` to use `rlang::list2()` and `rlang::inject()` which adds support for data frame inputs. (2024-08-10)

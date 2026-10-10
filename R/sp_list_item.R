@@ -652,6 +652,19 @@ get_sp_list_item <- function(
 #' @param create_list If `TRUE` and `list_name` is supplied, a new list is
 #' created using [data_as_column_definition_list()] to set the column
 #' definitions for the list.
+#' @param .batch If `TRUE` (default), items are sent with Microsoft Graph
+#'   `$batch` requests (up to 20 items per request), which is much faster than
+#'   a separate request for each item. Requests throttled by the Graph API are
+#'   retried after the requested delay. If any items fail, the remaining items
+#'   are still sent and the error lists the failed items. If `FALSE`, a
+#'   separate request is sent for each item and the first failed item is an
+#'   error. Use `options(sharepointr.batch = FALSE)` to change the default for
+#'   the session. In either case, requests are sent in parallel if
+#'   `mirai::daemons()` are set (see [purrr::in_parallel()]). For
+#'   [create_sp_list_items()], items sent in a `$batch` request (or in
+#'   parallel) may be created in a different order than `data`, so new item IDs
+#'   may not follow the order of `data`. Use `.batch = FALSE` (without daemons)
+#'   if item IDs must follow the order of `data`.
 #' @inheritParams purrr::map
 #' @examples
 #' sp_list_url <- "<SharePoint List URL with a Name field>"
@@ -685,9 +698,11 @@ create_sp_list_items <- function(
   sync_fields = FALSE,
   create_list = FALSE,
   strict = FALSE,
+  .batch = getOption("sharepointr.batch", TRUE),
   .progress = TRUE,
   call = caller_env()
 ) {
+  check_bool(.batch, call = call)
   input <- data
 
   # Check the input before any API calls (or creating a list)
@@ -820,6 +835,37 @@ create_sp_list_items <- function(
   cli_progress_step(
     "Importing {.arg data} into list"
   )
+
+  if (.batch) {
+    fields <- purrr::map(
+      records,
+      \(record) {
+        prep_sp_list_item_create_fields(record, multi_fields = multi_fields)
+      }
+    )
+
+    # Records without any values aren't created (as with create_sp_list_item())
+    has_fields <- !purrr::map_lgl(fields, is_empty)
+
+    responses <- sp_graph_batch_requests(
+      sp_list[["token"]],
+      purrr::map(
+        fields[has_fields],
+        \(x) sp_list_item_request(sp_list, "POST", fields = x)
+      ),
+      .progress = .progress,
+      call = call
+    )
+
+    check_sp_batch_responses(
+      responses,
+      labels = paste("Record", which(has_fields)),
+      action = "be created",
+      call = call
+    )
+
+    return(invisible(input))
+  }
 
   purrr::map(
     records,
@@ -982,9 +1028,11 @@ update_sp_list_items <- function(
   strict = FALSE,
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
+  .batch = getOption("sharepointr.batch", TRUE),
   .progress = TRUE,
   call = caller_env()
 ) {
+  check_bool(.batch, call = call)
   input <- data
 
   if (is.data.frame(data) && nrow(data) == 0) {
@@ -1093,6 +1141,63 @@ update_sp_list_items <- function(
   # Multi-value (Collection) columns need an "@odata.type" annotation even when
   # a single value is selected
   multi_fields <- pull_sp_list_multi_cols(col_metadata = col_metadata)
+
+  if (.batch) {
+    na_fields <- arg_match(na_fields, error_call = call)
+
+    fields <- purrr::map(
+      records,
+      \(record) {
+        prep_sp_list_item_update_fields(
+          record,
+          na_fields = na_fields,
+          multi_fields = multi_fields
+        )
+      }
+    )
+
+    # Items without any values after dropping NA values aren't updated (as
+    # with update_sp_list_item())
+    has_fields <- !purrr::map_lgl(fields, is.null)
+
+    if (!all(has_fields)) {
+      skipped_ids <- item_ids[!has_fields]
+
+      cli::cli_bullets(
+        c(
+          "!" = "{length(skipped_ids)} item{?s} {?is/are} empty after dropping
+          `NA` and empty values.",
+          "Item{?s} {.val {skipped_ids}} can't be updated."
+        )
+      )
+    }
+
+    cli_progress_step(
+      "Updating {sum(has_fields)} list item{?s}"
+    )
+
+    responses <- sp_graph_batch_requests(
+      sp_list[["token"]],
+      purrr::map2(
+        fields[has_fields],
+        item_ids[has_fields],
+        \(x, item_id) {
+          sp_list_item_request(sp_list, "PATCH", item_id = item_id, fields = x)
+        }
+      ),
+      .progress = .progress,
+      call = call
+    )
+
+    check_sp_batch_responses(
+      responses,
+      labels = paste("Item", item_ids[has_fields]),
+      action = "be updated",
+      call = call
+    )
+
+    return(invisible(input))
+  }
 
   purrr::map2(
     records,
@@ -1406,28 +1511,18 @@ update_sp_list_item <- function(
 
   # Drop or replace NA fields
   na_fields <- arg_match(na_fields, error_call = call)
+  .data <- prep_sp_list_item_na_fields(.data, na_fields = na_fields)
 
-  if (na_fields == "drop") {
-    .data <- drop_na_fields(.data)
-
-    # Only the item id (or nothing) is left
-    if (all(names(.data) %in% .id)) {
-      cli::cli_bullets(
-        c(
-          "!" = "{.arg .data} is empty after dropping `NA` and empty values.",
-          "Item can't be updated."
-        )
+  # Only the item id (or nothing) is left
+  if (na_fields == "drop" && all(names(.data) %in% .id)) {
+    cli::cli_bullets(
+      c(
+        "!" = "{.arg .data} is empty after dropping `NA` and empty values.",
+        "Item can't be updated."
       )
-
-      return(invisible(.data))
-    }
-  } else if (na_fields == "replace") {
-    # Replace any NA_integer_ or NA_real_ values w/ NA
-    .data <- vctrs::vec_assign(
-      .data,
-      i = is.na(.data),
-      value = NA
     )
+
+    return(invisible(.data))
   }
 
   # Fill item id value from input list or data frame
@@ -1481,16 +1576,7 @@ update_sp_list_item <- function(
     # TODO: Implement check_fields if `sp_list_item` is supplied
   }
 
-  # Convert POSIXct/Date fields to unambiguous UTC strings before the Graph
-  # API body is serialized
-  update_data <- purrr::map(update_data, .sp_dttm_to_graph)
-
-  # Append "@odata.type" fields so multi-value (Collection) columns are
-  # recognized by the Graph API
-  update_data <- append_field_odata_types(
-    update_data,
-    multi_fields = .multi_fields
-  )
+  update_data <- as_graph_item_fields(update_data, multi_fields = .multi_fields)
 
   if (!is.null(sp_list)) {
     cli_progress_step(
@@ -1634,6 +1720,100 @@ drop_na_fields <- function(fields) {
   )
 }
 
+#' Drop or replace `NA` fields for a list item update
+#' @param na_fields If "drop", drop `NA` and empty fields with
+#'   `drop_na_fields()`. If "replace", replace any `NA` values (e.g.
+#'   `NA_integer_` or `NA_real_`) with `NA` so the field is cleared.
+#' @returns `fields` with `NA` fields dropped or replaced.
+#' @noRd
+prep_sp_list_item_na_fields <- function(fields, na_fields = "drop") {
+  if (na_fields == "drop") {
+    return(drop_na_fields(fields))
+  }
+
+  vctrs::vec_assign(fields, i = is.na(fields), value = NA)
+}
+
+#' Prepare fields to create a list item
+#'
+#' Used by [create_sp_list_item()] and [create_sp_list_items()] (for $batch
+#' requests).
+#' @param fields A named list or single row data frame.
+#' @param keep_na If `FALSE`, drop fields with all `NA` values (required for
+#'   number fields).
+#' @returns A named list of fields for the Graph API request body (possibly
+#'   empty).
+#' @noRd
+prep_sp_list_item_create_fields <- function(
+  fields,
+  keep_na = FALSE,
+  multi_fields = NULL
+) {
+  if (is.data.frame(fields)) {
+    stopifnot(nrow(fields) == 1)
+    fields <- as.list(fields)
+  }
+
+  # Coerce sf column to WKT (consistent with create_sp_list_items())
+  fields <- sfc_cols_as_wkt(fields)
+
+  # Unwrap list-column values (e.g. multi-select choice values) so each field
+  # is a vector instead of a length 1 list
+  fields <- unwrap_list_fields(fields)
+
+  if (!keep_na) {
+    fields <- purrr::discard(fields, \(x) all(is.na(x)))
+  }
+
+  # Drop NULL values
+  fields <- purrr::compact(fields)
+
+  if (is_empty(fields)) {
+    return(fields)
+  }
+
+  as_graph_item_fields(fields, multi_fields = multi_fields)
+}
+
+#' Prepare fields to update a list item
+#'
+#' Used by [update_sp_list_items()] (for $batch requests) with the same steps
+#' as [update_sp_list_item()].
+#' @param fields A named list or single row data frame without the item id.
+#' @returns A named list of fields for the Graph API request body or `NULL` if
+#'   no fields are left after dropping `NA` fields.
+#' @noRd
+prep_sp_list_item_update_fields <- function(
+  fields,
+  na_fields = "drop",
+  multi_fields = NULL
+) {
+  if (is.data.frame(fields)) {
+    fields <- as.list(fields)
+  }
+
+  fields <- unwrap_list_fields(fields)
+  fields <- prep_sp_list_item_na_fields(fields, na_fields = na_fields)
+
+  if (na_fields == "drop" && is_empty(fields)) {
+    return(NULL)
+  }
+
+  as_graph_item_fields(fields, multi_fields = multi_fields)
+}
+
+#' Convert fields to the values sent to the Graph API
+#'
+#' Converts POSIXct/Date fields to unambiguous UTC strings (before the request
+#' body is serialized) and appends "@odata.type" fields so multi-value
+#' (Collection) columns are recognized by the Graph API.
+#' @returns `fields` with converted date fields and any "@odata.type" fields.
+#' @noRd
+as_graph_item_fields <- function(fields, multi_fields = NULL) {
+  fields <- purrr::map(fields, .sp_dttm_to_graph)
+  append_field_odata_types(fields, multi_fields = multi_fields)
+}
+
 #' Convert lookup ID values to integers
 #' @returns `x` as an integer vector. Errors if any value can't be converted to
 #'   a whole number.
@@ -1750,40 +1930,18 @@ create_sp_list_item <- function(
   .keep_na = FALSE,
   .multi_fields = NULL
 ) {
-  if (!is.null(.fields) && is.data.frame(.fields)) {
-    stopifnot(nrow(.fields) == 1)
-    .fields <- as.list(.fields)
-  }
-
   .fields <- .fields %||% rlang::list2(...)
 
-  # Coerce sf column to WKT (consistent with create_sp_list_items())
-  .fields <- sfc_cols_as_wkt(.fields)
-
-  # Unwrap list-column values (e.g. multi-select choice values) so each field
-  # is a vector instead of a length 1 list
-  .fields <- unwrap_list_fields(.fields)
-
-  if (!.keep_na) {
-    # Required for numeric fields
-    .fields <- purrr::discard(.fields, \(x) {
-      all(is.na(x))
-    })
-  }
-
-  # Drop NULL values
-  .fields <- purrr::compact(.fields)
+  .fields <- prep_sp_list_item_create_fields(
+    .fields,
+    keep_na = .keep_na,
+    multi_fields = .multi_fields
+  )
 
   if (is_empty(.fields)) {
     # FIXME: Add warning if .fields has no valid input
     return(invisible(.fields))
   }
-
-  # Convert POSIXct/Date fields to unambiguous UTC strings before the Graph
-  # API body is serialized
-  .fields <- purrr::map(.fields, .sp_dttm_to_graph)
-
-  .fields <- append_field_odata_types(.fields, multi_fields = .multi_fields)
 
   # TODO: Add check if data in .fields matches schema from list
 
@@ -1896,6 +2054,7 @@ delete_sp_list_item <- function(
 
 #' @rdname delete_sp_list_item
 #' @inheritParams list_sp_list_items
+#' @inheritParams create_sp_list_items
 #' @param filter Optional. A string with an OData filter expression used to
 #'   find the items to delete if `item_id` is `NULL`. Can't be supplied with
 #'   `item_id`. See [list_sp_list_items()].
@@ -1908,9 +2067,12 @@ delete_sp_list_items <- function(
   sp_list = NULL,
   filter = NULL,
   confirm = TRUE,
+  .batch = getOption("sharepointr.batch", TRUE),
   .progress = TRUE,
   call = caller_env()
 ) {
+  check_bool(.batch, call = call)
+
   if (!is.null(item_id) && !is.null(filter)) {
     cli_abort(
       "Supply {.arg item_id} or {.arg filter}, not both.",
@@ -1954,6 +2116,35 @@ delete_sp_list_items <- function(
   }
 
   # https://learn.microsoft.com/en-us/graph/api/listitem-delete?view=graph-rest-1.0&tabs=http
+  if (.batch) {
+    cli_progress_step("Deleting {length(item_id)} list item{?s}")
+
+    responses <- sp_graph_batch_requests(
+      sp_list[["token"]],
+      purrr::map(
+        item_id,
+        \(i) sp_list_item_request(sp_list, "DELETE", item_id = i)
+      ),
+      .progress = .progress,
+      call = call
+    )
+
+    check_sp_batch_responses(
+      responses,
+      labels = paste("Item", item_id),
+      action = "be deleted",
+      call = call
+    )
+
+    # Match the response for a single DELETE request
+    resp_list <- purrr::map(
+      responses,
+      \(x) structure(list(), status = as.integer(x[["status"]]))
+    )
+
+    return(invisible(resp_list))
+  }
+
   resp_list <- purrr::map(
     item_id,
     purrr::in_parallel(

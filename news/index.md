@@ -126,9 +126,118 @@
 - Add `user_type` and `filter` arguments to
   [`list_sp_site_user_info()`](https://elipousson.github.io/sharepointr/reference/list_sp_site_user_info.md).
   Use `user_type = "visible"` to exclude hidden users. (2026-10-01)
+- Add a YAML format for SharePoint list definitions that uses Microsoft
+  Graph list and columnDefinition property names (`displayName`,
+  `description`, `list` for listInfo settings like `template`, and
+  `columns`), with `custom` metadata (at the list or column level)
+  passed through without validation. Read-only list properties
+  (e.g. `id`, `webUrl`, `createdDateTime`, and `parentReference`) and
+  column ids can be included as a reference to an existing list; they
+  are never sent to SharePoint.
+  [`get_sp_list_definition()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md)
+  and
+  [`write_sp_list_yaml()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md)
+  include the stable read-only properties and column ids by default
+  (`read_only = "stable"`). Add
+  [`read_sp_list_yaml()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md),
+  [`write_sp_list_yaml()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md),
+  [`get_sp_list_definition()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md),
+  [`as_sp_list_definition()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md),
+  and
+  [`sp_list_definition_table()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition_table.md)
+  (also used by an
+  [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) method)
+  as experimental functions.
+  [`write_sp_list_yaml()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md)
+  keeps the comment header, `custom` metadata, and column order from an
+  existing file. Requires
+  [yaml12](https://posit-dev.github.io/r-yaml12/) (added to Suggests).
+  (2026-10-09)
+- Add
+  [`compare_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+  and
+  [`sync_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+  (experimental) to compare column definitions with an existing list and
+  apply the changes. Only changed properties are sent. Changes the Graph
+  API can’t make (switching between single and multiple lines of text or
+  single and multiple choice, and column validation) use the SharePoint
+  REST API. Changes that may cause data loss are skipped unless
+  `allow_data_loss = TRUE`, and changes that can’t be made
+  (e.g. changing the column type) are reported as blocked. (2026-10-09)
+- Add
+  [`list_sp_list_views()`](https://elipousson.github.io/sharepointr/reference/list_sp_list_views.md),
+  [`get_sp_list_view()`](https://elipousson.github.io/sharepointr/reference/list_sp_list_views.md),
+  [`create_sp_list_view()`](https://elipousson.github.io/sharepointr/reference/list_sp_list_views.md),
+  [`update_sp_list_view()`](https://elipousson.github.io/sharepointr/reference/list_sp_list_views.md),
+  and
+  [`delete_sp_list_view()`](https://elipousson.github.io/sharepointr/reference/list_sp_list_views.md)
+  (experimental) for SharePoint list views. The Graph API doesn’t
+  support views, so these functions use the SharePoint REST API (with a
+  delegated login) and the SP.View property names (e.g. `ViewFields`,
+  `ViewQuery`, `RowLimit`).
+  [`update_sp_list_view()`](https://elipousson.github.io/sharepointr/reference/list_sp_list_views.md)
+  only changes properties that differ from the existing view, and the
+  default view can’t be deleted. Add
+  [jsonlite](https://jeroen.r-universe.dev/jsonlite) to Imports for view
+  formatting (`custom_formatter`). (2026-10-09)
+- List definitions support an optional `views` key with SP.View
+  properties. `create_sp_list(definition = )` creates the views (a view
+  titled “All Items” updates the default view), and
+  [`get_sp_list_definition()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md)
+  and
+  [`write_sp_list_yaml()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md)
+  include views if `include_views = TRUE` (default `FALSE`). View
+  formatting is written as a YAML mapping. (2026-10-09)
+- Add
+  [`as_column_definition()`](https://elipousson.github.io/sharepointr/reference/as_column_definition.md)
+  to validate a column definition using Graph property names and
+  [`column_validation()`](https://elipousson.github.io/sharepointr/reference/column_validation.md)
+  to create a column validation definition. (2026-10-09)
+- [`create_column_definition()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
+  and the `create_*_column()` helpers now accept Graph property names
+  passed to `...` (e.g. `allowMultipleLines = TRUE`) and validate all
+  properties. Unknown properties are now an error instead of being added
+  to the definition. (2026-10-09)
+- Add a `definition` argument to
+  [`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md)
+  to create a list (name, description, template and other listInfo
+  settings, and columns) from a definition or YAML file. A `Title`
+  column updates the default title column, calculated columns are added
+  after the list is created, and column validation is applied with the
+  SharePoint REST API. `list_name` is now optional when `definition` is
+  supplied.
+  [`create_sp_list_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_column.md)
+  also accepts definitions from
+  [`read_sp_list_yaml()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md).
+  (2026-10-09)
+- [`compare_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+  and
+  [`sync_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+  compare and update list views if a definition has a `views` element
+  (or skip them with `views = FALSE`). Views are matched by `Id` or
+  `Title`, the default view is set after other changes, and the current
+  default view can’t be deleted unless another view becomes the default.
+  The results have an `object` column (`"list"`, `"column"`, or
+  `"view"`) and an `id` column (replacing `column_id`). (2026-10-09)
+- [`compare_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+  and
+  [`sync_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+  use a definition `id` and `parentReference.siteId` to get the list if
+  `sp_list` isn’t supplied, and error if the list `id` doesn’t match the
+  definition. They also compare and update the list `displayName`,
+  `description`, `hidden`, and `contentTypesEnabled` settings. Formulas
+  are compared after normalizing the changes SharePoint makes when
+  saving a formula. (2026-10-09)
 
 ### Fixes
 
+- Fix
+  [`update_sp_list_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_column.md)
+  sending the whole column definition: only properties that differ from
+  the existing column are sent. (2026-10-09)
+- Fix
+  [`create_number_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
+  rejecting decimal `max` and `min` values. (2026-10-09)
 - Fix
   [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
   and
@@ -237,6 +346,27 @@
   [vctrs](https://vctrs.r-lib.org/) to match items in
   [`update_sp_list_lookup_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md).
   (2026-10-01)
+- The `create_*_column()` helpers no longer send default values for
+  properties that aren’t supplied, so SharePoint uses its own defaults.
+  This changes the defaults for `hidden` (was `FALSE`), `text_type` (was
+  `"plain"`), `allow_text` (was `TRUE`; SharePoint defaults to `FALSE`),
+  `display_as` for choice (was `"dropDownMenu"`) and date columns (was
+  `"default"`), `decimal_places` (was `"automatic"`), `format` for date
+  columns (was `"dateOnly"`;
+  [`create_column_definition_list()`](https://elipousson.github.io/sharepointr/reference/create_column_definition_list.md)
+  still uses `"dateOnly"` for a `"date"` type), `locale` (was
+  `"en-us"`), and `allow_multiple_values` for term columns (was `TRUE`).
+  (2026-10-09)
+- Deprecate arguments to align with Graph property names: `displayname`
+  (use `display_name`), `decimals` (use `decimal_places`), and
+  `allow_multiple` (use `allow_multiple_values` for lookup and term
+  columns or `allow_multiple_selection` for person or group columns).
+  (2026-10-09)
+- [`create_calculated_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
+  errors if `format` is supplied when `output_type` isn’t `"dateTime"`
+  (previously ignored) and returns the formula as a string. (2026-10-09)
+- Document that the Graph API can’t create hyperlink, picture,
+  thumbnail, geolocation, or term columns on a list. (2026-10-09)
 
 ## sharepointr 0.1.0
 

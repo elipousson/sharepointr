@@ -29,12 +29,13 @@ create_sp_list_person_column(
   sp_list = NULL,
   column_name,
   ...,
-  allow_multiple = NULL,
+  allow_multiple_selection = NULL,
   display_as = NULL,
   from_type = "peopleOnly",
   list_name = NULL,
   site = NULL,
   site_url = NULL,
+  allow_multiple = deprecated(),
   call = caller_env()
 )
 
@@ -110,7 +111,8 @@ update_sp_list_person_items(
 
 - lookup_list_column:
 
-  Name of lookup column in the lookup list to use.
+  Name of lookup column in the lookup list to use. Graph property:
+  `columnName`.
 
 - ...:
 
@@ -126,62 +128,81 @@ update_sp_list_person_items(
 
   `enforce_unique`
 
-  :   Enforce unique values in column.
+  :   Enforce unique values in column. Graph property:
+      `enforceUniqueValues`.
 
   `hidden`
 
-  :   If `TRUE`, column will be hidden by default.
+  :   If `TRUE`, column will be hidden by default. Graph property:
+      `hidden`.
 
   `deletable`
 
-  :   If `TRUE`, column can't be deleted separate from the list.
+  :   If `TRUE`, column can't be deleted separate from the list. Graph
+      property: `isDeletable`.
 
   `required`
 
-  :   If `TRUE`, column will be required.
+  :   If `TRUE`, column will be required. Graph property: `required`.
 
   `default`
 
   :   Default value set by helper
       [`get_column_default()`](https://elipousson.github.io/sharepointr/reference/get_column_default.md)
-      function.
+      function. Graph property: `defaultValue`.
 
   `description`
 
-  :   Column description.
+  :   Column description. Graph property: `description`.
+
+  `display_name`
+
+  :   Column display name. Graph property: `displayName`.
 
   `displayname`
 
-  :   Column display name.
+  :   **\[deprecated\]** Use `display_name`.
 
-  `indexed,sealed,propagate_changes,read_only,validation,id,show_full_name`
+  `validation`
+
+  :   Column validation created with
+      [`column_validation()`](https://elipousson.github.io/sharepointr/reference/column_validation.md).
+      Graph property: `validation`.
+
+  `indexed,sealed,propagate_changes,read_only,id`
 
   :   Additional arguments used by
       [`create_column_definition()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md).
+      Graph properties: `indexed`, `isSealed`, `propagateChanges`,
+      `readOnly`, and `id`.
 
   `multiple_lines`
 
-  :   Logical. If `TRUE`, allow multiple lines of text.
+  :   Logical. If `TRUE`, allow multiple lines of text. Graph property:
+      `allowMultipleLines`.
 
   `append_changes`
 
   :   Logical. If `TRUE`, append changes to existing value for column.
+      Graph property: `appendChangesToExistingText`.
 
   `lines`
 
-  :   Whole number.
+  :   Whole number. Size of the text box. Graph property:
+      `linesForEditing`.
 
   `max_length`
 
-  :   Whole number. Max length in number of characters.
+  :   Whole number. Max length in number of characters. Graph property:
+      `maxLength`.
 
   `text_type`
 
-  :   One of `c("plain", "richText")`
+  :   One of `c("plain", "richText")`. Graph property: `textType`.
 
   `choices`
 
-  :   A character vector of choice options.
+  :   A character vector of choice options. Graph property: `choices`.
 
   `allow_na`
 
@@ -195,20 +216,34 @@ update_sp_list_person_items(
 
   `allow_text`
 
-  :   If `TRUE`, allow text entry in the choice column.
+  :   If `TRUE`, allow text entry in the choice column. Graph property:
+      `allowTextEntry`.
 
-  `decimals`
+  `decimal_places`
 
-  :   One of `c("none", "one", "two", "three", "four", "five")` or a
-      numeric value between 0 and 5.
+  :   One of
+      `c("automatic", "none", "one", "two", "three", "four", "five")` or
+      a whole number between 0 and 5. Graph property: `decimalPlaces`.
 
   `max,min`
 
-  :   Minimum and maximum values allowed in number column.
+  :   Minimum and maximum values allowed in number column. Graph
+      properties: `maximum` and `minimum`.
+
+  `decimals`
+
+  :   **\[deprecated\]** Use `decimal_places`.
+
+  `format`
+
+  :   For
+      [`create_datetime_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md),
+      `"dateOnly"` or `"dateTime"`. Graph property: `format`.
 
   `locale`
 
-  :   Locale
+  :   Locale used to set the currency symbol, e.g. `"en-us"`. Graph
+      property: `locale`.
 
   `formula`
 
@@ -218,26 +253,31 @@ update_sp_list_person_items(
       Reference existing columns using the display name enclosed in
       square brackets. The formula must start with an equals sign `"="`
       which this function appends to the formula text if it is missing.
-
-  `format`
-
-  :   `"dateOnly"` or `"dateTime"`. Required by
-      `create_calculated_column` if `output_type` is "dateTime"
-      otherwise ignored.
+      The formula is processed with
+      [`glue::glue()`](https://glue.tidyverse.org/reference/glue.html).
+      Graph property: `formula`.
 
   `output_type`
 
   :   Value type returned by calculated formula. One of
-      `c("text", "boolean", "currency", "dateTime", "number")`
+      `c("text", "boolean", "currency", "dateTime", "number")`. Defaults
+      to `"text"`. Graph property: `outputType`.
+
+  `allow_multiple_values`
+
+  :   If `TRUE`, allow a lookup or term column to store multiple values.
+      Graph property: `allowMultipleValues`.
 
   `allow_unlimited_length`
 
-  :   If `TRUE`, allow lookup column to return any length value.
+  :   If `TRUE`, allow lookup column to return any length value. Graph
+      property: `allowUnlimitedLength`.
 
   `primary_lookup_column_id`
 
   :   If column definition is for a secondary column, the primary lookup
-      column ID must be supplied.
+      column ID must be supplied. Graph property:
+      `primaryLookupColumnId`.
 
   `is_picture`
 
@@ -246,6 +286,12 @@ update_sp_list_person_items(
       [`create_hyperlink_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md))
       or image (`TRUE`, default for
       [`create_picture_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)).
+      Graph property: `isPicture`.
+
+  `show_full_name`
+
+  :   If `TRUE`, display the entire term path. Graph property:
+      `showFullyQualifiedName`.
 
   `split`
 
@@ -281,9 +327,10 @@ update_sp_list_person_items(
   [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
   information.
 
-- allow_multiple:
+- allow_multiple_selection:
 
-  If `TRUE`, allow lookup column to return multiple values.
+  If `TRUE`, allow a person or group column to store multiple values.
+  Graph property: `allowMultipleSelection`.
 
 - display_as:
 
@@ -291,14 +338,26 @@ update_sp_list_person_items(
   of`c("checkBoxes", "dropDownMenu", "radioButtons")`. For
   `create_number_column`, one of `c("number", "percentage")`. For
   `create_datetime_column`, one of
-  `c("default", "friendly", "standard")`.
+  `c("default", "friendly", "standard")`. Graph property: `displayAs`.
 
 - from_type:
 
   What type of resources to choose from. Defaults to "peopleOnly" for
   [`create_person_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
   or "peopleAndGroups" for
-  [`create_group_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
+  [`create_group_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md).
+  Graph property: `chooseFromType`.
+
+- allow_multiple:
+
+  **\[deprecated\]** Use `allow_multiple_values` for
+  [`create_lookup_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
+  and
+  [`create_term_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
+  or `allow_multiple_selection` for
+  [`create_person_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
+  and
+  [`create_group_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md).
 
 - data:
 

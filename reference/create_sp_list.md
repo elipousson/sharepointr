@@ -15,9 +15,19 @@ Notes on creating a SharePoint list:
 - Dashes (\`"-"“) in list names are removed from the list name but
   retained in the list display name.
 
-- If your definition includes calculated columns, these columns may need
-  to be added after the list is initially created using
-  [`create_sp_list_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_column.md).
+- Calculated columns are added after the list is created since formulas
+  may reference other columns.
+
+- Column validation is applied with the SharePoint REST API after the
+  list is created since the Graph API doesn't support it.
+
+- A `"Title"` column in `columns` or `definition` updates the default
+  `"Title"` column of a `"genericList"` list (combined with
+  `title_definition`) instead of adding a new column.
+
+- Views in `definition` are created with the SharePoint REST API after
+  the columns are created. A view titled `"All Items"` updates the
+  default view of a `"genericList"` list.
 
 Notes on updating a SharePoint list:
 
@@ -28,14 +38,15 @@ Notes on updating a SharePoint list:
 
 ``` r
 create_sp_list(
-  list_name,
+  list_name = NULL,
   ...,
   description = NULL,
   columns = NULL,
-  template = "genericList",
+  template = NULL,
   content_types = NULL,
   hidden = NULL,
   title_definition = list(required = FALSE),
+  definition = NULL,
   site_url = NULL,
   site = NULL,
   call = caller_env()
@@ -75,7 +86,8 @@ delete_sp_list(
 
 - list_name:
 
-  Required. List name used as `displayName` property.
+  List name used as `displayName` property. Required unless `definition`
+  is supplied.
 
 - ...:
 
@@ -92,13 +104,15 @@ delete_sp_list(
 
   Optional. Use
   [`create_column_definition()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
-  to create a single column definition or use
+  to create a single column definition or
   [`create_column_definition_list()`](https://elipousson.github.io/sharepointr/reference/create_column_definition_list.md)
-  to create a list of column definitions.
+  to create a list of column definitions. `custom` metadata is dropped.
+  A `sp_list_definition` object is used as `definition`.
 
 - template:
 
-  Type of template to use in creating the list.
+  Optional list template (Graph listInfo property `template`). Defaults
+  to `"genericList"`.
 
 - content_types:
 
@@ -113,6 +127,18 @@ delete_sp_list(
   Named list used to update the column definition of the default
   `"Title"` column created when using the `"genericList"` template. By
   default, makes Title column optional.
+
+- definition:
+
+  Optional. A list definition from
+  [`read_sp_list_yaml()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md)
+  or a path to a YAML file. The definition `displayName`, `description`,
+  `columns`, and `list` settings (`template`, `hidden`, and
+  `contentTypesEnabled`) are used unless the matching argument is
+  supplied. Read-only list properties (e.g. `id`) and column ids are
+  ignored. `definition` can't be combined with `columns`. Views in the
+  definition are also created (see
+  [`list_sp_list_views()`](https://elipousson.github.io/sharepointr/reference/list_sp_list_views.md)).
 
 - site_url:
 
@@ -168,3 +194,14 @@ delete_sp_list(
 For `create_sp_list()`, invisibly returns a `ms_list` object for the
 newly created list. For `update_sp_list()`, the updated `ms_list`
 object. For `delete_sp_list()`, invisibly returns `NULL`.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+create_sp_list(
+  definition = "list-fields/capital-project.yaml",
+  site_url = "<SharePoint site url>"
+)
+} # }
+```

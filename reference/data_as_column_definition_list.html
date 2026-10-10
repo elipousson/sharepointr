@@ -106,7 +106,7 @@ type, and other definition properties.</p>
 <p>The type for each vector in the input data frame is checked with
 <code><a href="https://vctrs.r-lib.org/reference/vec_ptype_full.html" class="external-link">vctrs::vec_ptype_abbr</a></code> and mapped to corresponding SharePoint list column
 definitions:</p><ul><li><p>factors are specified as choice columns</p></li>
-<li><p>integers are specified as number columns with <code>decimals</code> set to "none"</p></li>
+<li><p>integers are specified as number columns with <code>decimal_places</code> set to "none"</p></li>
 <li><p>characters with any value exceeding 255 characters have <code>multiple_lines</code> set to <code>TRUE</code></p></li>
 <li><p>characters composed entirely of URL values are specified as hyperlink columns</p></li>
 <li><p>dates are specified as date columns</p></li>
@@ -123,143 +123,88 @@ If the levels of any input factor column contain the character specified with <c
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]$name</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "mpg"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]$hidden</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]$number</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]$number$decimalPlaces</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "automatic"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]$name</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "cyl"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]$hidden</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]$number</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]$number$decimalPlaces</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "automatic"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]$name</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "disp"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]$hidden</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]$number</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]$number$decimalPlaces</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "automatic"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[4]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[4]]$name</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "hp"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[4]]$hidden</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[4]]$number</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[4]]$number$decimalPlaces</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "automatic"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[5]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[5]]$name</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "drat"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[5]]$hidden</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[5]]$number</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[5]]$number$decimalPlaces</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "automatic"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[6]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[6]]$name</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "wt"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[6]]$hidden</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[6]]$number</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[6]]$number$decimalPlaces</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "automatic"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[7]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[7]]$name</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "qsec"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[7]]$hidden</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[7]]$number</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[7]]$number$decimalPlaces</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "automatic"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[8]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[8]]$name</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "vs"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[8]]$hidden</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[8]]$number</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[8]]$number$decimalPlaces</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "automatic"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[9]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[9]]$name</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "am"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[9]]$hidden</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[9]]$number</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[9]]$number$decimalPlaces</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "automatic"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[10]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[10]]$name</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "gear"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[10]]$hidden</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[10]]$number</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[10]]$number$decimalPlaces</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "automatic"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[11]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[11]]$name</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "carb"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[11]]$hidden</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[11]]$number</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[11]]$number$decimalPlaces</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "automatic"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>

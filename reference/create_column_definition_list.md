@@ -3,7 +3,7 @@
 `create_column_definition_list()` is a vectorized version of
 [`create_column_definition()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
 that uses a list or data frame input to create a list of column
-definitions. This list can be used as the `fields` argument for
+definitions. This list can be used as the `columns` argument for
 [`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md).
 
 ## Usage
@@ -22,8 +22,10 @@ create_column_definition_list(definitions, col_type = "text", ignore_na = TRUE)
 - col_type:
 
   Column type to use if not provided as a "type" column in the input
-  definitions data frame. Allowed values include date and datetime,
-  person, group, and personorgroup. Not case sensitive.
+  definitions data frame. Allowed values include the Graph column type
+  keys (e.g. "dateTime" or "personOrGroup") and the shorter names date,
+  datetime, person, group, hyperlink, and picture. Not case sensitive. A
+  "date" column uses `format = "dateOnly"` unless a format is supplied.
 
 - ignore_na:
 
@@ -34,8 +36,16 @@ create_column_definition_list(definitions, col_type = "text", ignore_na = TRUE)
 A list of named lists, one per row of `definitions`, each formatted as a
 columnDefinition (as created by
 [`create_column_definition()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md))
-for use as the `fields` argument to
+for use as the `columns` argument to
 [`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md).
+
+## Details
+
+Columns in `definitions` can use the argument names of the
+`create_*_column()` helpers (e.g. `multiple_lines`) or Graph property
+names (e.g. `allowMultipleLines`). See
+[`create_column_definition()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
+for details.
 
 ## Examples
 
@@ -43,7 +53,7 @@ for use as the `fields` argument to
 definition_df <- data.frame(
   name = c("FirstColumn", "SecondColumn"),
   type = c("text", "number"),
-  decimals = c(NA, 0),
+  decimal_places = c(NA, 0),
   multiple_lines = c(TRUE, NA)
 )
 
@@ -52,24 +62,15 @@ create_column_definition_list(definition_df)
 #> [[1]]$name
 #> [1] "FirstColumn"
 #> 
-#> [[1]]$hidden
-#> [1] FALSE
-#> 
 #> [[1]]$text
 #> [[1]]$text$allowMultipleLines
 #> [1] TRUE
-#> 
-#> [[1]]$text$textType
-#> [1] "plain"
 #> 
 #> 
 #> 
 #> [[2]]
 #> [[2]]$name
 #> [1] "SecondColumn"
-#> 
-#> [[2]]$hidden
-#> [1] FALSE
 #> 
 #> [[2]]$number
 #> [[2]]$number$decimalPlaces

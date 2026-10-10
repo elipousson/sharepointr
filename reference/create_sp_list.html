@@ -8,9 +8,16 @@ default.
 Notes on creating a SharePoint list:
 Dashes (`&quot;-&quot;“) in list names are removed from the list name but retained
 in the list display name.
-If your definition includes calculated columns, these columns may need to
-be added after the list is initially created using
-create_sp_list_column().
+Calculated columns are added after the list is created since formulas
+may reference other columns.
+Column validation is applied with the SharePoint REST API after the list
+is created since the Graph API doesn't support it.
+A &quot;Title&quot; column in columns or definition updates the default
+&quot;Title&quot; column of a &quot;genericList&quot; list (combined with
+title_definition) instead of adding a new column.
+Views in definition are created with the SharePoint REST API after the
+columns are created. A view titled &quot;All Items&quot; updates the default view
+of a &quot;genericList&quot; list.
 
 
 Notes on updating a SharePoint list:
@@ -26,9 +33,16 @@ default.
 Notes on creating a SharePoint list:
 Dashes (`&quot;-&quot;“) in list names are removed from the list name but retained
 in the list display name.
-If your definition includes calculated columns, these columns may need to
-be added after the list is initially created using
-create_sp_list_column().
+Calculated columns are added after the list is created since formulas
+may reference other columns.
+Column validation is applied with the SharePoint REST API after the list
+is created since the Graph API doesn't support it.
+A &quot;Title&quot; column in columns or definition updates the default
+&quot;Title&quot; column of a &quot;genericList&quot; list (combined with
+title_definition) instead of adding a new column.
+Views in definition are created with the SharePoint REST API after the
+columns are created. A view titled &quot;All Items&quot; updates the default view
+of a &quot;genericList&quot; list.
 
 
 Notes on updating a SharePoint list:
@@ -84,9 +98,16 @@ description.</p>
 default.</p>
 <p>Notes on creating a SharePoint list:</p><ul><li><p>Dashes (`"-"“) in list names are removed from the list name but retained
 in the list display name.</p></li>
-<li><p>If your definition includes calculated columns, these columns may need to
-be added after the list is initially created using
-<code><a href="create_sp_list_column.html">create_sp_list_column()</a></code>.</p></li>
+<li><p>Calculated columns are added after the list is created since formulas
+may reference other columns.</p></li>
+<li><p>Column validation is applied with the SharePoint REST API after the list
+is created since the Graph API doesn't support it.</p></li>
+<li><p>A <code>"Title"</code> column in <code>columns</code> or <code>definition</code> updates the default
+<code>"Title"</code> column of a <code>"genericList"</code> list (combined with
+<code>title_definition</code>) instead of adding a new column.</p></li>
+<li><p>Views in <code>definition</code> are created with the SharePoint REST API after the
+columns are created. A view titled <code>"All Items"</code> updates the default view
+of a <code>"genericList"</code> list.</p></li>
 </ul><p>Notes on updating a SharePoint list:</p><ul><li><p>The <code>"Title"</code> column type is always a "text" type column and can't be
 changed.</p></li>
 </ul></div>
@@ -94,14 +115,15 @@ changed.</p></li>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">create_sp_list</span><span class="op">(</span></span>
-<span>  <span class="va">list_name</span>,</span>
+<span>  list_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  description <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  columns <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  template <span class="op">=</span> <span class="st">"genericList"</span>,</span>
+<span>  template <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  content_types <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  hidden <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  title_definition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>required <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>  definition <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
@@ -142,7 +164,8 @@ changed.</p></li>
 
 
 <dl><dt id="arg-list-name">list_name<a class="anchor" aria-label="anchor" href="#arg-list-name"></a></dt>
-<dd><p>Required. List name used as <code>displayName</code> property.</p></dd>
+<dd><p>List name used as <code>displayName</code> property. Required unless
+<code>definition</code> is supplied.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -156,12 +179,14 @@ changed.</p></li>
 
 <dt id="arg-columns">columns<a class="anchor" aria-label="anchor" href="#arg-columns"></a></dt>
 <dd><p>Optional. Use <code><a href="create_column_definition.html">create_column_definition()</a></code> to create a single
-column definition or use <code><a href="create_column_definition_list.html">create_column_definition_list()</a></code> to create a list
-of column definitions.</p></dd>
+column definition or <code><a href="create_column_definition_list.html">create_column_definition_list()</a></code> to create a list
+of column definitions. <code>custom</code> metadata is dropped. A <code>sp_list_definition</code>
+object is used as <code>definition</code>.</p></dd>
 
 
 <dt id="arg-template">template<a class="anchor" aria-label="anchor" href="#arg-template"></a></dt>
-<dd><p>Type of template to use in creating the list.</p></dd>
+<dd><p>Optional list template (Graph listInfo property <code>template</code>).
+Defaults to <code>"genericList"</code>.</p></dd>
 
 
 <dt id="arg-content-types">content_types<a class="anchor" aria-label="anchor" href="#arg-content-types"></a></dt>
@@ -177,6 +202,16 @@ enabled.</p></dd>
 <dd><p>Named list used to update the column definition of
 the default <code>"Title"</code> column created when using the <code>"genericList"</code> template.
 By default, makes Title column optional.</p></dd>
+
+
+<dt id="arg-definition">definition<a class="anchor" aria-label="anchor" href="#arg-definition"></a></dt>
+<dd><p>Optional. A list definition from <code><a href="sp_list_definition.html">read_sp_list_yaml()</a></code> or
+a path to a YAML file. The definition <code>displayName</code>, <code>description</code>,
+<code>columns</code>, and <code>list</code> settings (<code>template</code>, <code>hidden</code>, and
+<code>contentTypesEnabled</code>) are used unless the matching argument is supplied.
+Read-only list properties (e.g. <code>id</code>) and column ids are ignored.
+<code>definition</code> can't be combined with <code>columns</code>. Views in the definition are
+also created (see <code><a href="list_sp_list_views.html">list_sp_list_views()</a></code>).</p></dd>
 
 
 <dt id="arg-site-url">site_url<a class="anchor" aria-label="anchor" href="#arg-site-url"></a></dt>
@@ -232,6 +267,16 @@ the newly created list. For <code>update_sp_list()</code>, the updated <code>ms_
 object. For <code>delete_sp_list()</code>, invisibly returns <code>NULL</code>.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="fu">create_sp_list</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  definition <span class="op">=</span> <span class="st">"list-fields/capital-project.yaml"</span>,</span></span>
+<span class="r-in"><span>  site_url <span class="op">=</span> <span class="st">"&lt;SharePoint site url&gt;"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

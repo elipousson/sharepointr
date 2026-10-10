@@ -1008,3 +1008,85 @@ test_that("update_sp_list_items updates multiple items from a data frame", {
     .progress = FALSE
   )
 })
+
+test_that("sp_list_as_ptype_data_frame() builds a ptype for every list column", {
+  col_metadata <- list(
+    list(name = "ID", number = list()),
+    list(name = "Title", text = list()),
+    list(name = "Amount", currency = list()),
+    list(name = "Done", boolean = list()),
+    list(name = "Status", choice = list(choices = list("A", "B"))),
+    list(
+      name = "Tags",
+      choice = list(choices = list("A", "B"), displayAs = "checkBoxes")
+    ),
+    list(name = "Due", dateTime = list(format = "dateOnly")),
+    list(name = "Person", personOrGroup = list(allowMultipleSelection = FALSE)),
+    list(name = "Related", lookup = list(allowMultipleValues = TRUE)),
+    list(name = "Link", hyperlinkOrPicture = list()),
+    list(name = "ItemChildCount", lookup = list())
+  )
+
+  ptype <- sp_list_as_ptype_data_frame(col_metadata = col_metadata)
+
+  expect_identical(nrow(ptype), 0L)
+  expect_named(
+    ptype,
+    c(
+      "@odata.etag",
+      "id",
+      "Title",
+      "Amount",
+      "Done",
+      "Status",
+      "Tags",
+      "Due",
+      "PersonLookupId",
+      "RelatedLookupId",
+      "Link",
+      "ItemChildCount"
+    )
+  )
+  expect_identical(ptype[["Title"]], character())
+  expect_identical(ptype[["Amount"]], double())
+  expect_identical(ptype[["Done"]], logical())
+  expect_identical(ptype[["Due"]], character())
+  expect_identical(ptype[["PersonLookupId"]], character())
+  expect_identical(ptype[["Tags"]], list())
+  expect_identical(ptype[["RelatedLookupId"]], list())
+  expect_s3_class(ptype[["id"]], "vctrs_unspecified")
+  expect_s3_class(ptype[["Link"]], "vctrs_unspecified")
+  expect_s3_class(ptype[["ItemChildCount"]], "vctrs_unspecified")
+
+  # Blank columns are filled in list order and multi-value columns keep the
+  # same type whether or not they have values
+  fields <- data.frame(id = "1", Amount = 2L)
+  fields[["Tags"]] <- list(c("A", "B"))
+  fields[["Extra"]] <- "x"
+
+  items <- vctrs::vec_rbind(ptype, fields)
+
+  expect_named(items, c(names(ptype), "Extra"))
+  expect_identical(items[["Amount"]], 2)
+  expect_identical(items[["Title"]], NA_character_)
+  expect_identical(items[["Tags"]], list(c("A", "B")))
+  expect_identical(vctrs::vec_rbind(ptype, NULL)[["Tags"]], list())
+})
+
+test_that("sp_list_as_ptype_data_frame() matches select by raw or LookupId name", {
+  col_metadata <- list(
+    list(name = "ID", number = list()),
+    list(name = "Title", text = list()),
+    list(name = "Person", personOrGroup = list()),
+    list(name = "Related", lookup = list())
+  )
+
+  # Raw names (as used by select_type = "editable") and LookupId names both
+  # match; unknown names are left for the Graph API to handle
+  ptype <- sp_list_as_ptype_data_frame(
+    col_metadata = col_metadata,
+    select = c("id", "Person", "RelatedLookupId", "Unknown")
+  )
+
+  expect_named(ptype, c("@odata.etag", "id", "PersonLookupId", "RelatedLookupId"))
+})

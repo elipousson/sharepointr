@@ -1957,6 +1957,19 @@ sp_list_internal_colnames <- c(
   "AppEditorLookupId"
 )
 
+#' Internal fields modeled as lookup columns in list metadata that the Graph
+#' API returns under their own name (without a "LookupId" suffix).
+#'
+#' @noRd
+sp_list_lookup_exempt_colnames <- c(
+  "ItemChildCount",
+  "FolderChildCount",
+  "_ComplianceFlags",
+  "_ComplianceTag",
+  "_ComplianceTagWrittenTime",
+  "_ComplianceTagUserId"
+)
+
 
 #' System fields for SharePoint Online
 #' <https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/connections/connection-sharepoint-online#notes>

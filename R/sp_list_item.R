@@ -88,24 +88,33 @@ list_sp_list_items <- function(
       call = call
     )
 
-  # FIXME: I think this is not necessary since Microsoft365R already does the
-  # same thing
-  if (is.character(select)) {
-    if (select_type != "asis") {
-      cli::cli_bullets(
-        c("!" = "{.arg select_type} is ignored if {.arg} select is provided.")
-      )
-      select_type <- "asis"
-    }
-  } else if (select_type != "asis") {
-    # Get editable or visible columns
-    sp_list_cols <- get_sp_list_metadata(
+  if (is.character(select) && select_type != "asis") {
+    cli::cli_bullets(
+      c("!" = "{.arg select_type} is ignored if {.arg select} is provided.")
+    )
+    select_type <- "asis"
+  }
+
+  # Fetch list column metadata once for selecting columns, formatting dates,
+  # and display names (also reused to build the ptype in .ms365_list_items())
+  col_metadata <- NULL
+
+  if (select_type != "asis" || col_formatting != "asis" || display_nm != "drop") {
+    col_metadata <- get_sp_list_metadata(
       sp_list = sp_list,
-      keep = select_type,
+      as_data_frame = FALSE,
       call = call
     )
+  }
 
-    select <- c("ID", sp_list_cols[["name"]])
+  # FIXME: I think this is not necessary since Microsoft365R already does the
+  # same thing
+  if (select_type != "asis") {
+    # Get editable or visible columns
+    select <- c(
+      "ID",
+      names(pull_sp_list_cols(col_metadata, col_type = select_type, call = call))
+    )
   }
 
   cli::cli_progress_step(
@@ -123,7 +132,8 @@ list_sp_list_items <- function(
     all_metadata = all_metadata,
     simplify = as_data_frame,
     n = n,
-    pagesize = pagesize
+    pagesize = pagesize,
+    col_metadata = col_metadata
   )
 
   if (all_metadata && !as_data_frame) {
@@ -141,43 +151,13 @@ list_sp_list_items <- function(
   # }
 
   if (col_formatting != "asis") {
-    # TODO: Avoid duplicate call if sp_list_cols object is already available
-    sp_list_col_info <- sp_list$get_column_info()
-
-    # Limit to available columns in case select is used or blank columns are dropped
-    sp_list_col_info <- sp_list_col_info[
-      sp_list_col_info[["name"]] %in% names(sp_list_items),
-    ]
-
-    date_time_col_info <- sp_list_col_info[["dateTime"]]
-    date_col_i <- !is.na(date_time_col_info[["format"]])
-
-    # Format date and dateTime columns
-    if (any(date_col_i)) {
-      date_time_col_format <- date_time_col_info[date_col_i, ]
-      date_col_names <- sp_list_col_info[["name"]][date_col_i]
-
-      sp_list_items_modified <- purrr::reduce(
-        .x = seq_along(date_col_names),
-        .f = \(items, i) {
-          nm <- date_col_names[i]
-          if (date_time_col_format[i, ][["format"]] == "dateOnly") {
-            items[[nm]] <- as.Date(.ms365_dttm(items[[nm]], tz = tz))
-          } else if (date_time_col_format[i, ][["format"]] == "dateTime") {
-            # TODO: This option is not tested.
-            items[[nm]] <- .ms365_dttm(items[[nm]], tz = tz)
-          }
-
-          items
-        },
-        .init = sp_list_items
-      )
-
-      sp_list_items <- sp_list_items_modified
-    }
+    sp_list_items <- format_sp_list_date_cols(
+      sp_list_items,
+      col_metadata = col_metadata,
+      tz = tz
+    )
 
     # TODO: Implement support for formatting choice columns as factor
-    # choice_col_info <- sp_list_col_info[["choice"]]
   }
 
   # FIXME: Implement some way to reorder columns
@@ -197,7 +177,7 @@ list_sp_list_items <- function(
   }
 
   # Pull display names
-  values <- pull_sp_list_display_names(sp_list)
+  values <- pull_sp_list_display_names(col_metadata = col_metadata)
 
   # Use display names as labels
   if (display_nm == "label") {
@@ -327,6 +307,7 @@ get_sp_list_items <- function(
   simplify = TRUE,
   all_metadata = FALSE,
   time_cols = c("Created", "Modified"),
+  col_metadata = NULL,
   call = caller_env()
 ) {
   check_string(filter, allow_null = TRUE, call = call)
@@ -407,6 +388,7 @@ get_sp_list_items <- function(
   # the Graph API)
   ptype_df <- sp_list_as_ptype_data_frame(
     sp_list = sp_list,
+    col_metadata = col_metadata,
     select = select_ptype
   )
 
@@ -487,9 +469,42 @@ opt_order_by <- function(
 #' @returns A named character vector of column display names, named with the
 #'   corresponding column names.
 #' @noRd
-pull_sp_list_display_names <- function(sp_list) {
-  sp_list_cols <- sp_list$get_column_info()
-  set_names(sp_list_cols$displayName, sp_list_cols$name)
+pull_sp_list_display_names <- function(sp_list = NULL, col_metadata = NULL) {
+  col_metadata <- col_metadata %||% sp_list$get_column_info()
+
+  set_names(
+    pluck_sp_list_meta(col_metadata, "displayName"),
+    pluck_sp_list_meta(col_metadata, "name")
+  )
+}
+
+#' Format date and dateTime list columns as Date and POSIXct vectors
+#' @param col_metadata List column metadata (a list of column definitions).
+#' @returns `sp_list_items` with any "dateOnly" columns converted to Date and
+#'   "dateTime" columns converted to POSIXct (in time zone `tz`).
+#' @noRd
+format_sp_list_date_cols <- function(
+  sp_list_items,
+  col_metadata,
+  tz = Sys.timezone()
+) {
+  for (col in col_metadata) {
+    nm <- col[["name"]]
+    date_format <- col[["dateTime"]][["format"]]
+
+    if (is.null(date_format) || !has_name(sp_list_items, nm)) {
+      next
+    }
+
+    if (date_format == "dateOnly") {
+      sp_list_items[[nm]] <- as.Date(.ms365_dttm(sp_list_items[[nm]], tz = tz))
+    } else if (date_format == "dateTime") {
+      # TODO: This option is not tested.
+      sp_list_items[[nm]] <- .ms365_dttm(sp_list_items[[nm]], tz = tz)
+    }
+  }
+
+  sp_list_items
 }
 
 #' @returns A named vector of item id values, named with the values of

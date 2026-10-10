@@ -1090,3 +1090,93 @@ test_that("sp_list_as_ptype_data_frame() matches select by raw or LookupId name"
 
   expect_named(ptype, c("@odata.etag", "id", "PersonLookupId", "RelatedLookupId"))
 })
+
+test_that("list_sp_list_items() fetches column metadata once for select, formatting, and display names", {
+  col_metadata <- list(
+    list(name = "ID", displayName = "ID", readOnly = TRUE, number = list()),
+    list(name = "Title", displayName = "Item Title", text = list()),
+    list(
+      name = "Due",
+      displayName = "Due Date",
+      dateTime = list(format = "dateOnly")
+    ),
+    list(
+      name = "Modified",
+      displayName = "Modified",
+      readOnly = TRUE,
+      dateTime = list(format = "dateTime")
+    )
+  )
+
+  n_metadata_calls <- 0
+  graph_expand <- NULL
+
+  local_mocked_bindings(
+    get_sp_list_metadata = function(..., as_data_frame = TRUE) {
+      n_metadata_calls <<- n_metadata_calls + 1
+      col_metadata
+    },
+    .sp_extract_list_values = function(pager, ...) {
+      fields <- data.frame(
+        `@odata.etag` = "1",
+        id = "1",
+        Due = "2026-08-05T04:00:00Z",
+        check.names = FALSE
+      )
+      values <- data.frame(id = "1")
+      values[["fields"]] <- fields
+      values
+    }
+  )
+
+  sp_list <- structure(
+    list(
+      properties = list(id = "list", parentReference = list(siteId = "site")),
+      do_operation = function(op, options, ...) {
+        graph_expand <<- options[["expand"]]
+        NULL
+      },
+      get_list_pager = function(...) NULL
+    ),
+    class = c("ms_list", "ms_object")
+  )
+
+  items <- list_sp_list_items(
+    sp_list = sp_list,
+    select_type = "editable",
+    col_formatting = "date",
+    display_nm = "label",
+    tz = "America/New_York"
+  )
+
+  expect_identical(n_metadata_calls, 1)
+  expect_identical(graph_expand, "fields(select=ID,Title,Due)")
+  expect_named(items, c("@odata.etag", "id", "Title", "Due"))
+  expect_equal(items[["Due"]], as.Date("2026-08-05"), ignore_attr = "label")
+  expect_identical(attr(items[["Due"]], "label"), "Due Date")
+  expect_identical(attr(items[["Title"]], "label"), "Item Title")
+})
+
+test_that("format_sp_list_date_cols() formats date and dateTime columns", {
+  col_metadata <- list(
+    list(name = "Title", text = list()),
+    list(name = "Due", dateTime = list(format = "dateOnly")),
+    list(name = "Start", dateTime = list(format = "dateTime")),
+    list(name = "Missing", dateTime = list(format = "dateOnly"))
+  )
+  items <- data.frame(
+    Title = "A",
+    Due = "2026-08-05T04:00:00Z",
+    Start = "2026-08-05T14:30:00Z"
+  )
+
+  formatted <- format_sp_list_date_cols(items, col_metadata, tz = "UTC")
+
+  expect_identical(formatted[["Title"]], "A")
+  expect_identical(formatted[["Due"]], as.Date("2026-08-05"))
+  expect_identical(
+    formatted[["Start"]],
+    as.POSIXct("2026-08-05 14:30:00", tz = "UTC")
+  )
+  expect_named(formatted, names(items))
+})

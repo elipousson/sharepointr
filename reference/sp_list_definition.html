@@ -102,6 +102,7 @@ YAML file.</p></li>
 <span>  keep_defaults <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  read_only <span class="op">=</span> <span class="st">"stable"</span>,</span>
 <span>  include_views <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  doc_start <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -167,13 +168,23 @@ REST API, which requires a delegated (user) login. See
 
 
 <dt id="arg-merge">merge<a class="anchor" aria-label="anchor" href="#arg-merge"></a></dt>
-<dd><p>If <code>TRUE</code> (default) and <code>path</code> exists, keep the comment header,
-<code>custom</code> metadata, and column order from the existing file. Read-only
-list properties and column ids always come from <code>x</code>. Views come from <code>x</code>
-if it has views (e.g. with <code>include_views = TRUE</code>) and are otherwise kept
-from the existing file. Columns that
-are only in the existing file are dropped (unless the Graph API doesn't
-return their column type). Comments after the header are always lost.</p></dd>
+<dd><p>If <code>TRUE</code> (default) and <code>path</code> exists, keep the comment header
+and column order from the existing file. <code>custom</code> metadata for the list
+and each column comes from <code>x</code> if it has any and is otherwise kept from
+the existing file (a list never has <code>custom</code> metadata, so it's always
+kept when <code>x</code> is a <code>ms_list</code> object). Read-only list properties
+and column ids always come from <code>x</code>. Views come from <code>x</code> if it has views
+(e.g. with <code>include_views = TRUE</code>) and are otherwise kept from the
+existing file. Columns that are only in the existing file are dropped
+(unless the Graph API doesn't return their column type). Comments after
+the header are always lost.</p></dd>
+
+
+<dt id="arg-doc-start">doc_start<a class="anchor" aria-label="anchor" href="#arg-doc-start"></a></dt>
+<dd><p>If <code>TRUE</code>, write a document start marker (<code>---</code>) after the
+comment header (or at the start of a file with no header). If <code>FALSE</code>,
+don't. If <code>NULL</code> (default), write the marker only if the existing file
+has one (with <code>merge = TRUE</code>).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -187,40 +198,41 @@ return their column type). Comments after the header are always lost.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>YAML format</p>
 <p></p><div class="sourceCode yaml"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Comments before the first key are kept by write_sp_list_yaml()</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">format_version</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Capital Project</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">description</span><span class="kw">:</span><span class="at"> Capital projects and their status.</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">list</span><span class="kw">:</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="at">  </span><span class="fu">template</span><span class="kw">:</span><span class="at"> genericList</span></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co"># Read-only properties of an existing list (optional)</span></span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="fu">id</span><span class="kw">:</span><span class="at"> 5a8b3c4d-0000-0000-0000-000000000000</span></span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="fu">webUrl</span><span class="kw">:</span><span class="at"> https://example.sharepoint.com/sites/Planning/Lists/CapitalProject</span></span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="fu">parentReference</span><span class="kw">:</span></span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="at">  </span><span class="fu">siteId</span><span class="kw">:</span><span class="at"> example.sharepoint.com,1111,2222</span></span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="fu">custom</span><span class="kw">:</span></span>
-<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="at">  </span><span class="fu">owner</span><span class="kw">:</span><span class="at"> Planning</span></span>
-<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="fu">columns</span><span class="kw">:</span></span>
-<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Title</span></span>
-<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="at">    </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Project Name</span></span>
-<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="at">    </span><span class="fu">required</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="at">    </span><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="kw">{}</span></span>
-<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> ProjectID</span></span>
-<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="at">    </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Project ID</span></span>
-<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a><span class="at">    </span><span class="fu">description</span><span class="kw">:</span><span class="at"> Project reference ID</span></span>
-<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="at">    </span><span class="fu">required</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="at">    </span><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="kw">{}</span></span>
-<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Notes</span></span>
-<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="at">    </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Project Notes</span></span>
-<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="at">    </span><span class="fu">text</span><span class="kw">:</span></span>
-<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="at">      </span><span class="fu">allowMultipleLines</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="at">    </span><span class="fu">custom</span><span class="kw">:</span></span>
-<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="at">      </span><span class="fu">form_order</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
-<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Status</span></span>
-<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="at">    </span><span class="fu">choice</span><span class="kw">:</span></span>
-<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="at">      </span><span class="fu">choices</span><span class="kw">:</span></span>
-<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a><span class="at">        </span><span class="kw">-</span><span class="at"> Active</span></span>
-<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a><span class="at">        </span><span class="kw">-</span><span class="at"> Closed</span></span>
-<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a><span class="at">      </span><span class="fu">displayAs</span><span class="kw">:</span><span class="at"> radioButtons</span></span></code></pre><p></p></div>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">format_version</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Capital Project</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">description</span><span class="kw">:</span><span class="at"> Capital projects and their status.</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">list</span><span class="kw">:</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="at">  </span><span class="fu">template</span><span class="kw">:</span><span class="at"> genericList</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co"># Read-only properties of an existing list (optional)</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="fu">id</span><span class="kw">:</span><span class="at"> 5a8b3c4d-0000-0000-0000-000000000000</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="fu">webUrl</span><span class="kw">:</span><span class="at"> https://example.sharepoint.com/sites/Planning/Lists/CapitalProject</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="fu">parentReference</span><span class="kw">:</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="at">  </span><span class="fu">siteId</span><span class="kw">:</span><span class="at"> example.sharepoint.com,1111,2222</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="fu">custom</span><span class="kw">:</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="at">  </span><span class="fu">owner</span><span class="kw">:</span><span class="at"> Planning</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="fu">columns</span><span class="kw">:</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Title</span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="at">    </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Project Name</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="at">    </span><span class="fu">required</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="at">    </span><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="kw">{}</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> ProjectID</span></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a><span class="at">    </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Project ID</span></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="at">    </span><span class="fu">description</span><span class="kw">:</span><span class="at"> Project reference ID</span></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="at">    </span><span class="fu">required</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="at">    </span><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="kw">{}</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Notes</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="at">    </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Project Notes</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="at">    </span><span class="fu">text</span><span class="kw">:</span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="at">      </span><span class="fu">allowMultipleLines</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="at">    </span><span class="fu">custom</span><span class="kw">:</span></span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="at">      </span><span class="fu">form_order</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Status</span></span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="at">    </span><span class="fu">choice</span><span class="kw">:</span></span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a><span class="at">      </span><span class="fu">choices</span><span class="kw">:</span></span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a><span class="at">        </span><span class="kw">-</span><span class="at"> Active</span></span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a><span class="at">        </span><span class="kw">-</span><span class="at"> Closed</span></span>
+<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a><span class="at">      </span><span class="fu">displayAs</span><span class="kw">:</span><span class="at"> radioButtons</span></span></code></pre><p></p></div>
 <p>Top-level keys use the Graph
 <a href="https://learn.microsoft.com/en-us/graph/api/resources/list?view=graph-rest-1.0" class="external-link">list</a>
 property names:</p><ul><li><p><code>displayName</code> (required): the list display name. SharePoint sets the
@@ -235,7 +247,13 @@ property names <code>template</code> (e.g. <code>genericList</code>, the default
 can't be changed after a list is created.</p></li>
 <li><p><code>format_version</code> (optional): the format version. Only <code>1</code> is supported.</p></li>
 <li><p><code>custom</code> (optional): a mapping that isn't validated (see below).</p></li>
-</ul><p>Read-only list properties can also be included as a reference to an
+</ul><p>Comments and blank lines before the first key are a header that
+<code>write_sp_list_yaml()</code> keeps when it updates a file. An optional document
+start marker (<code>---</code>) after the header marks where the header ends. Other
+comments (including comments between <code>---</code> and the first key) are lost
+when a file is rewritten, so use <code>custom</code> for notes that need to be kept.
+A file can only have one YAML document.</p>
+<p>Read-only list properties can also be included as a reference to an
 existing list: <code>id</code>, <code>name</code>, <code>webUrl</code>, <code>createdDateTime</code>, <code>createdBy</code>,
 <code>lastModifiedDateTime</code>, <code>lastModifiedBy</code>, <code>eTag</code>, <code>parentReference</code>,
 <code>sharepointIds</code>, and <code>system</code>. These properties are never sent to
@@ -249,7 +267,13 @@ Columns are always matched by <code>name</code>.</p>
 <a href="https://learn.microsoft.com/en-us/graph/api/resources/columndefinition?view=graph-rest-1.0" class="external-link">columnDefinition</a>
 property names:</p><ul><li><p><code>name</code> (required): the internal column name. The name can't be changed
 after a column is created and should avoid names that look like
-spreadsheet cell references (e.g. <code>V4</code>).</p></li>
+spreadsheet cell references (e.g. <code>V4</code>). For a list (but not a document
+library), the name of a new column can't be longer than 32 characters,
+counting each space or special character as 7 (e.g. a space is stored as
+<code>_x0020_</code>). SharePoint cuts longer names without an error, so
+<code><a href="create_sp_list.html">create_sp_list()</a></code> and <code><a href="create_sp_list_column.html">create_sp_list_column()</a></code> error instead. Display
+names can be longer: the column settings page allows up to 255
+characters.</p></li>
 <li><p><code>displayName</code>, <code>description</code>, <code>required</code>, <code>enforceUniqueValues</code>,
 <code>hidden</code>, <code>indexed</code>, <code>readOnly</code>, <code>defaultValue</code> (with <code>value</code> or
 <code>formula</code>), and <code>validation</code> (see <code><a href="column_validation.html">column_validation()</a></code>).</p></li>

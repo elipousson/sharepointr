@@ -45,6 +45,7 @@ write_sp_list_yaml(
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
+  doc_start = NULL,
   call = caller_env()
 )
 ```
@@ -112,13 +113,23 @@ write_sp_list_yaml(
 
 - merge:
 
-  If `TRUE` (default) and `path` exists, keep the comment header,
-  `custom` metadata, and column order from the existing file. Read-only
-  list properties and column ids always come from `x`. Views come from
-  `x` if it has views (e.g. with `include_views = TRUE`) and are
-  otherwise kept from the existing file. Columns that are only in the
-  existing file are dropped (unless the Graph API doesn't return their
-  column type). Comments after the header are always lost.
+  If `TRUE` (default) and `path` exists, keep the comment header and
+  column order from the existing file. `custom` metadata for the list
+  and each column comes from `x` if it has any and is otherwise kept
+  from the existing file (a list never has `custom` metadata, so it's
+  always kept when `x` is a `ms_list` object). Read-only list properties
+  and column ids always come from `x`. Views come from `x` if it has
+  views (e.g. with `include_views = TRUE`) and are otherwise kept from
+  the existing file. Columns that are only in the existing file are
+  dropped (unless the Graph API doesn't return their column type).
+  Comments after the header are always lost.
+
+- doc_start:
+
+  If `TRUE`, write a document start marker (`---`) after the comment
+  header (or at the start of a file with no header). If `FALSE`, don't.
+  If `NULL` (default), write the marker only if the existing file has
+  one (with `merge = TRUE`).
 
 ## Value
 
@@ -132,6 +143,7 @@ returns the definition that was written.
 YAML format
 
     # Comments before the first key are kept by write_sp_list_yaml()
+    ---
     format_version: 1
     displayName: Capital Project
     description: Capital projects and their status.
@@ -191,6 +203,13 @@ property names:
 
 - `custom` (optional): a mapping that isn't validated (see below).
 
+Comments and blank lines before the first key are a header that
+`write_sp_list_yaml()` keeps when it updates a file. An optional
+document start marker (`---`) after the header marks where the header
+ends. Other comments (including comments between `---` and the first
+key) are lost when a file is rewritten, so use `custom` for notes that
+need to be kept. A file can only have one YAML document.
+
 Read-only list properties can also be included as a reference to an
 existing list: `id`, `name`, `webUrl`, `createdDateTime`, `createdBy`,
 `lastModifiedDateTime`, `lastModifiedBy`, `eTag`, `parentReference`,
@@ -213,7 +232,16 @@ property names:
 
 - `name` (required): the internal column name. The name can't be changed
   after a column is created and should avoid names that look like
-  spreadsheet cell references (e.g. `V4`).
+  spreadsheet cell references (e.g. `V4`). For a list (but not a
+  document library), the name of a new column can't be longer than 32
+  characters, counting each space or special character as 7 (e.g. a
+  space is stored as `_x0020_`). SharePoint cuts longer names without an
+  error, so
+  [`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md)
+  and
+  [`create_sp_list_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_column.md)
+  error instead. Display names can be longer: the column settings page
+  allows up to 255 characters.
 
 - `displayName`, `description`, `required`, `enforceUniqueValues`,
   `hidden`, `indexed`, `readOnly`, `defaultValue` (with `value` or

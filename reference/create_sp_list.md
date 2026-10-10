@@ -15,6 +15,12 @@ Notes on creating a SharePoint list:
 - Dashes (\`"-"“) in list names are removed from the list name but
   retained in the list display name.
 
+- Column names longer than 32 characters (counting each space or special
+  character as 7) are an error for a list (but not a document library),
+  since SharePoint cuts them without an error. A display name longer
+  than 255 characters (the limit on the column settings page) is a
+  warning.
+
 - Calculated columns are added after the list is created since formulas
   may reference other columns.
 

@@ -171,9 +171,10 @@ the definitions are returned with <code>action = "delete"</code>.</p>
 <li><p><code>"delete"</code>: the column or view isn't in the definitions.</p></li>
 <li><p><code>"blocked"</code>: the change can't be made. This includes changing the column
 type (e.g. text to number), changing a lookup column's source list,
-adding a column type the Graph API can't create, changing the list
-template, and removing the default view without setting another default
-view.</p></li>
+adding a column type the Graph API can't create, adding a list column
+with a name longer than 32 characters (which SharePoint would cut),
+changing the list template, and removing the default view without
+setting another default view.</p></li>
 <li><p><code>"unverified"</code>: the current value can't be read with the Graph API. This
 includes <code>validation</code> (which <code>sync_sp_list()</code> applies every time) and
 columns where the Graph API doesn't return the column type (hyperlink,

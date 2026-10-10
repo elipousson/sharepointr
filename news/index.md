@@ -149,8 +149,16 @@
   [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) method)
   as experimental functions.
   [`write_sp_list_yaml()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md)
-  keeps the comment header, `custom` metadata, and column order from an
-  existing file. Requires
+  keeps the comment header, column order, and `custom` metadata from an
+  existing file (`custom` metadata in a definition passed to
+  [`write_sp_list_yaml()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md)
+  takes precedence). A definition with no columns (e.g. a list with only
+  the default Title column) is written as `columns: []`. An optional
+  document start marker (`---`) can end the comment header, and
+  `write_sp_list_yaml(doc_start = )` controls whether one is written (by
+  default, only if the existing file has one).
+  [`read_sp_list_yaml()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md)
+  errors on a file with more than one YAML document. Requires
   [yaml12](https://posit-dev.github.io/r-yaml12/) (added to Suggests).
   (2026-10-09)
 - Add
@@ -228,6 +236,18 @@
   `description`, `hidden`, and `contentTypesEnabled` settings. Formulas
   are compared after normalizing the changes SharePoint makes when
   saving a formula. (2026-10-09)
+- [`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md)
+  and
+  [`create_sp_list_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_column.md)
+  error if a new list column’s name is longer than 32 characters
+  (counting each space or special character as 7, e.g. `_x0020_`), since
+  SharePoint cuts it without an error (document libraries allow longer
+  names), and warn if a display name is longer than 255 characters (the
+  limit on the column settings page; the Graph API accepts longer ones).
+  [`compare_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+  reports adding a column with a long name as `"blocked"`, so
+  [`sync_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+  skips it. (2026-10-09)
 
 ### Fixes
 

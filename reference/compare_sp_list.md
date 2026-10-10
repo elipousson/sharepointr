@@ -145,9 +145,10 @@ Each change has one of these actions:
 
 - `"blocked"`: the change can't be made. This includes changing the
   column type (e.g. text to number), changing a lookup column's source
-  list, adding a column type the Graph API can't create, changing the
-  list template, and removing the default view without setting another
-  default view.
+  list, adding a column type the Graph API can't create, adding a list
+  column with a name longer than 32 characters (which SharePoint would
+  cut), changing the list template, and removing the default view
+  without setting another default view.
 
 - `"unverified"`: the current value can't be read with the Graph API.
   This includes `validation` (which `sync_sp_list()` applies every time)

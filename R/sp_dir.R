@@ -12,7 +12,12 @@
 #' @param path Path to directory or folder. SharePoint folder URLs are allowed.
 #'   If `NULL`, path is set to default "/". `path` can be a string or a
 #'   character vector. If a vector or path of URLs are supplied, provide a
-#'   `drive` object to improve performance.
+#'   `drive` object to improve performance. If `path` is a SharePoint folder or
+#'   document library URL and `drive_name`, `drive_id`, and `drive` aren't
+#'   supplied, the drive and folder are found with the [Microsoft Graph shares
+#'   API](https://learn.microsoft.com/en-us/graph/api/shares-get) (see
+#'   [get_sp_item()]). If the request fails, the drive and folder path are
+#'   parsed from the URL instead.
 #' @param info The information to return: "partial", "name" or "all". If
 #'   "partial", a data frame is returned containing the name, size, ID and
 #'   whether the item is a file or folder. If "all", a data frame is returned
@@ -96,10 +101,56 @@ sp_dir_info <- function(
     return(vctrs::vec_rbind(!!!dir_info_list, .error_call = call))
   }
 
+  # Use the Graph shares API to get the drive and folder path from the URL. If
+  # the request fails, fall back to the drive and path parsed from the URL.
+  shares_cnd <- NULL
+
+  if (
+    is.null(c(drive_name, drive_id)) &&
+      is.null(drive) &&
+      is_sp_shares_url(path)
+  ) {
+    drive_path <- try_fetch(
+      sp_shares_get_drive_path(path, ..., call = call),
+      error = function(cnd) {
+        shares_cnd <<- cnd
+        NULL
+      }
+    )
+
+    if (!is.null(drive_path)) {
+      if (!drive_path[["is_folder"]]) {
+        cli_abort(
+          c(
+            "{.arg path} must be a folder or document library URL.",
+            "i" = "{.url {path}} is a file."
+          ),
+          call = call
+        )
+      }
+
+      drive <- drive_path[["drive"]]
+      path <- drive_path[["path"]]
+    }
+  }
+
   url_parts <- NULL
   if (!is.null(path) && is_sp_url(path)) {
     url <- path
-    url_parts <- sp_url_parse(url, call = call)
+    url_parts <- try_fetch(
+      sp_url_parse(url, call = call),
+      error = function(cnd) {
+        if (is.null(shares_cnd)) {
+          cnd_signal(cnd)
+        }
+
+        cli_abort(
+          "Can't get a SharePoint folder from {.url {url}}.",
+          parent = shares_cnd,
+          call = call
+        )
+      }
+    )
 
     # Handle for drive URLs that end in "Forms/AllItems.aspx"
     if (is_sp_drive_url(path)) {

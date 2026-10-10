@@ -98,3 +98,61 @@ sp_shares_get_item <- function(
 
   Microsoft365R::ms_drive_item$new(site$token, site$tenant, properties)
 }
+
+#' Get the drive and path for a SharePoint URL with the Graph shares API
+#'
+#' @inheritParams sp_shares_get_item
+#' @returns A list with `drive` (a `ms_drive` object for the item's document
+#'   library), `path` (the item path relative to the drive root, or `""` for
+#'   the drive root), and `is_folder` (`TRUE` for a folder or drive root), or
+#'   `NULL` if no site can be found for the login. Errors if a request fails.
+#' @noRd
+sp_shares_get_drive_path <- function(url, ..., call = caller_env()) {
+  item <- sp_shares_get_item(url, ..., call = call)
+
+  if (is.null(item)) {
+    return(NULL)
+  }
+
+  properties <- item$properties
+
+  drive_properties <- AzureGraph::call_graph_endpoint(
+    item$token,
+    file.path("drives", properties[["parentReference"]][["driveId"]])
+  )
+
+  list(
+    drive = Microsoft365R::ms_drive$new(
+      item$token,
+      item$tenant,
+      drive_properties
+    ),
+    path = sp_drive_item_path(properties),
+    is_folder = !is.null(properties[["folder"]]) ||
+      !is.null(properties[["root"]])
+  )
+}
+
+#' Get the path of a drive item relative to the drive root
+#'
+#' @param properties Drive item properties.
+#' @returns A string, e.g. `"Folder/Subfolder"`, or `""` for the drive root.
+#' @noRd
+sp_drive_item_path <- function(properties) {
+  if (!is.null(properties[["root"]])) {
+    return("")
+  }
+
+  # e.g. "/drives/{drive-id}/root:/Folder" -> "Folder"
+  parent_path <- sub(
+    "^/drives/[^/]+/root:/?",
+    "",
+    properties[["parentReference"]][["path"]] %||% ""
+  )
+
+  if (parent_path == "") {
+    return(properties[["name"]])
+  }
+
+  paste0(parent_path, "/", properties[["name"]])
+}

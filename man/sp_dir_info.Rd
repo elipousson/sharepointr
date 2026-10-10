@@ -41,7 +41,11 @@ sp_dir_ls(
 \item{path}{Path to directory or folder. SharePoint folder URLs are allowed.
 If \code{NULL}, path is set to default "/". \code{path} can be a string or a
 character vector. If a vector or path of URLs are supplied, provide a
-\code{drive} object to improve performance.}
+\code{drive} object to improve performance. If \code{path} is a SharePoint folder or
+document library URL and \code{drive_name}, \code{drive_id}, and \code{drive} aren't
+supplied, the drive and folder are found with the \href{https://learn.microsoft.com/en-us/graph/api/shares-get}{Microsoft Graph shares API} (see
+\code{\link[=get_sp_item]{get_sp_item()}}). If the request fails, the drive and folder path are
+parsed from the URL instead.}
 
 \item{...}{
   Arguments passed on to \code{\link{get_sp_drive}}

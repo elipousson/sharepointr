@@ -65,7 +65,7 @@
 
 ## Changes
 
-* `get_sp_item()` and `get_sp_item_properties()` now use the Microsoft Graph shares API to get a file or folder from a SharePoint URL (a "Copy link" link, document URL, item URL, or document library URL). This supports items in any document library, links to items that have been moved, and item URLs that can't be parsed (e.g. the `webUrl` for a file). If the shares API request fails, the site, drive, and path are parsed from the URL as before. (2026-10-10)
+* `get_sp_item()`, `get_sp_item_properties()`, and `sp_dir_info()` (and `sp_dir_ls()`) now use the Microsoft Graph shares API to get a file or folder from a SharePoint URL (a "Copy link" link, document URL, item URL, or document library URL). This supports items in any document library, links to items that have been moved, and URLs that can't be parsed (e.g. the `webUrl` for a file or a document library URL for a folder with an `id` query parameter). If the shares API request fails, the site, drive, and path are parsed from the URL as before. `sp_dir_info()` now errors if a URL is for a file instead of a folder. (2026-10-10)
 * `list_sp_list_items()` no longer includes the `"@odata.etag"` column, which the Graph API returns with the fields of each item, unless `all_metadata = TRUE`. (2026-10-10)
 * Revise `read_sharepoint()` to support zipped shapefiles. (2024-07-25)
 * Improve printing of custom `.f` argument in `read_sharepoint()`. (2024-10-10)

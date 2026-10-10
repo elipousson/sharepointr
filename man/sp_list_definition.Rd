@@ -195,7 +195,13 @@ property names:
 \itemize{
 \item \code{name} (required): the internal column name. The name can't be changed
 after a column is created and should avoid names that look like
-spreadsheet cell references (e.g. \code{V4}).
+spreadsheet cell references (e.g. \code{V4}). For a list (but not a document
+library), the name of a new column can't be longer than 32 characters,
+counting each space or special character as 7 (e.g. a space is stored as
+\verb{_x0020_}). SharePoint cuts longer names without an error, so
+\code{\link[=create_sp_list]{create_sp_list()}} and \code{\link[=create_sp_list_column]{create_sp_list_column()}} error instead. Display
+names can be longer: the column settings page allows up to 255
+characters.
 \item \code{displayName}, \code{description}, \code{required}, \code{enforceUniqueValues},
 \code{hidden}, \code{indexed}, \code{readOnly}, \code{defaultValue} (with \code{value} or
 \code{formula}), and \code{validation} (see \code{\link[=column_validation]{column_validation()}}).

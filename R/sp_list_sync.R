@@ -28,9 +28,10 @@
 #' - `"delete"`: the column or view isn't in the definitions.
 #' - `"blocked"`: the change can't be made. This includes changing the column
 #'   type (e.g. text to number), changing a lookup column's source list,
-#'   adding a column type the Graph API can't create, changing the list
-#'   template, and removing the default view without setting another default
-#'   view.
+#'   adding a column type the Graph API can't create, adding a list column
+#'   with a name longer than 32 characters (which SharePoint would cut),
+#'   changing the list template, and removing the default view without
+#'   setting another default view.
 #' - `"unverified"`: the current value can't be read with the Graph API. This
 #'   includes `validation` (which [sync_sp_list()] applies every time) and
 #'   columns where the Graph API doesn't return the column type (hyperlink,
@@ -174,6 +175,13 @@ compare_sp_list <- function(
     )
   }
 
+  # Used to check the names of columns to add
+  template <- if (inherits(sp_list, "ms_list")) {
+    sp_list[["properties"]][["list"]][["template"]]
+  } else {
+    definitions[["list"]][["template"]]
+  }
+
   meta <- purrr::keep(meta, \(col) !col[["name"]] %in% exclude)
   live_ids <- set_names(
     purrr::map_chr(meta, \(col) col[["id"]] %||% NA_character_),
@@ -190,7 +198,7 @@ compare_sp_list <- function(
       name <- col[["name"]]
 
       if (!name %in% names(live)) {
-        return(column_add_row(col))
+        return(column_add_row(col, template = template))
       }
 
       column_change_rows(
@@ -454,7 +462,7 @@ new_change_row <- function(
 }
 
 #' @noRd
-column_add_row <- function(col) {
+column_add_row <- function(col, template = NULL) {
   type <- column_type_key(col)
 
   if (type %in% sp_column_types_create_unsupported) {
@@ -463,6 +471,19 @@ column_add_row <- function(col) {
       action = "blocked",
       proposed = type,
       note = "The Graph API can't create this column type."
+    ))
+  }
+
+  if (is_column_name_too_long(col[["name"]], template)) {
+    return(new_change_row(
+      name = col[["name"]],
+      action = "blocked",
+      proposed = type,
+      note = paste0(
+        "The name is longer than ", sp_column_name_max, " characters ",
+        "(counting each space or special character as 7), so SharePoint ",
+        "would cut it. Use a shorter name."
+      )
     ))
   }
 

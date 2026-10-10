@@ -212,3 +212,54 @@ test_that("create_column_definition_list accepts Graph names and type keys", {
     error = TRUE
   )
 })
+
+test_that("sp_column_name_nchar counts encoded characters", {
+  expect_identical(sp_column_name_nchar("ProjectID"), 9L)
+  # Each space is stored as _x0020_
+  expect_identical(sp_column_name_nchar("Name With Spaces Long"), 39L)
+})
+
+test_that("is_column_name_too_long checks names for lists only", {
+  expect_false(is_column_name_too_long(strrep("x", 32)))
+  expect_true(is_column_name_too_long(strrep("x", 33)))
+  expect_true(is_column_name_too_long("Name With Spaces Long"))
+  expect_true(is_column_name_too_long(strrep("x", 33), "genericList"))
+  expect_false(is_column_name_too_long(strrep("x", 33), "documentLibrary"))
+})
+
+test_that("check_new_column_names errors on long names and warns on long display names", {
+  long_name <- "IncompleteSubmissionJustification"
+  expect_error(
+    check_new_column_names(list(list(name = long_name, text = list()))),
+    "longer than 32 characters"
+  )
+  expect_no_error(
+    check_new_column_names(
+      list(list(name = long_name, text = list())),
+      template = "documentLibrary"
+    )
+  )
+  expect_warning(
+    check_new_column_names(
+      list(list(name = "Notes", displayName = strrep("x", 256), text = list()))
+    ),
+    "longer than 255 characters"
+  )
+  expect_no_warning(
+    check_new_column_names(
+      list(list(name = "Notes", displayName = strrep("x", 256), text = list())),
+      display_name = FALSE
+    )
+  )
+})
+
+test_that("create_sp_list errors on a long column name before getting the site", {
+  expect_error(
+    create_sp_list(
+      list_name = "Test",
+      columns = list(create_text_column("IncompleteSubmissionJustification")),
+      site = "not a site"
+    ),
+    "longer than 32 characters"
+  )
+})

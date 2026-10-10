@@ -131,6 +131,10 @@ Notes on creating a SharePoint list:
 \itemize{
 \item Dashes (`"-"``) in list names are removed from the list name but retained
 in the list display name.
+\item Column names longer than 32 characters (counting each space or special
+character as 7) are an error for a list (but not a document library),
+since SharePoint cuts them without an error. A display name longer than
+255 characters (the limit on the column settings page) is a warning.
 \item Calculated columns are added after the list is created since formulas
 may reference other columns.
 \item Column validation is applied with the SharePoint REST API after the list

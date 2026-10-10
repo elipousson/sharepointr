@@ -693,3 +693,33 @@ test_that("sync_sp_list updates views on a live list", {
 
   expect_identical(nrow(compare_sp_list(updated, sp_list = sp_list)), 0L)
 })
+
+test_that("compare_sp_list blocks adding a list column with a long name", {
+  long_name <- "IncompleteSubmissionJustification"
+  definitions <- list(
+    create_text_column("Notes"),
+    create_choice_column("Status", c("a", "b")),
+    create_number_column("Amount", decimal_places = "automatic"),
+    create_boolean_column("OldColumn"),
+    create_text_column(long_name)
+  )
+
+  changes <- compare_sp_list(definitions, sp_list = live_meta)
+  added <- changes[changes[["name"]] == long_name, ]
+  expect_identical(added[["action"]], "blocked")
+  expect_match(added[["note"]], "longer than 32 characters")
+
+  # Document libraries allow longer names
+  library_definition <- as_sp_list_definition(
+    list(
+      displayName = "Test",
+      list = list(template = "documentLibrary"),
+      columns = definitions
+    )
+  )
+  changes <- compare_sp_list(library_definition, sp_list = live_meta)
+  expect_identical(
+    changes[changes[["name"]] == long_name, ][["action"]],
+    "add"
+  )
+})

@@ -271,6 +271,110 @@ as_column_definition <- function(
 #' @param require_type If `TRUE`, require exactly one column type key.
 #' @param label Label used to identify the column in error messages.
 #' @noRd
+# Lists (but not document libraries) cut the internal name of a new column to
+# 32 characters, after encoding spaces and other characters (e.g. a space is
+# stored as `_x0020_`), without an error. The column settings page only allows
+# display names of up to 255 characters (the Graph API accepts longer ones).
+# Checked with the Graph API on 2026-10-09.
+sp_column_name_max <- 32L
+sp_column_display_name_max <- 255L
+
+#' Get the length of a column name after SharePoint encodes it
+#'
+#' Each character that isn't a letter, digit, or underscore is stored as a
+#' 7-character escape (e.g. `_x0020_` for a space).
+#' @noRd
+sp_column_name_nchar <- function(name) {
+  nchar(gsub("[^A-Za-z0-9_]", "_x0000_", name))
+}
+
+#' Check if a column name is too long for a new column
+#'
+#' @param template The list template. Names are only checked for lists (not
+#'   document libraries). `NULL` is treated as a list.
+#' @returns `TRUE` if SharePoint would cut the name of a new column.
+#' @noRd
+is_column_name_too_long <- function(name, template = NULL) {
+  !identical(template, "documentLibrary") &&
+    sp_column_name_nchar(name) > sp_column_name_max
+}
+
+#' Check the names of new columns before creating them
+#'
+#' Errors if a column name is longer than SharePoint allows for a new column on
+#' a list (which SharePoint would cut without an error) and warns if a display
+#' name is longer than the column settings page allows.
+#'
+#' @param columns A list of column definitions.
+#' @param template The list template.
+#' @param display_name If `TRUE`, check display names.
+#' @noRd
+check_new_column_names <- function(
+  columns,
+  template = NULL,
+  display_name = TRUE,
+  call = caller_env()
+) {
+  if (length(columns) == 0) {
+    return(invisible(columns))
+  }
+
+  col_names <- purrr::map_chr(columns, "name")
+  too_long <- col_names[
+    purrr::map_lgl(col_names, \(nm) is_column_name_too_long(nm, template))
+  ]
+
+  if (length(too_long) > 0) {
+    cli_abort(
+      c(
+        # The limit is pasted in so it isn't used as a quantity for {?is/are}
+        paste0(
+          "Column name{?s} {.field {too_long}} {?is/are} longer than ",
+          sp_column_name_max,
+          " characters."
+        ),
+        "i" = "SharePoint cuts the name of a new list column to
+        {sp_column_name_max} characters without an error. Each space or
+        special character counts as 7 (e.g. a space is stored as
+        {.val _x0020_}).",
+        "i" = "Use a shorter {.field name} and set {.field displayName} for the
+        full name."
+      ),
+      call = call
+    )
+  }
+
+  if (display_name) {
+    display_names <- purrr::map_chr(
+      columns,
+      \(col) col[["displayName"]] %||% NA_character_
+    )
+    long_display <- col_names[
+      !is.na(display_names) &
+        nchar(display_names) > sp_column_display_name_max
+    ]
+
+    if (length(long_display) > 0) {
+      cli_warn(
+        c(
+          paste0(
+            "The display name{?s} for {.field {long_display}} {?is/are} ",
+            "longer than ",
+            sp_column_display_name_max,
+            " characters."
+          ),
+          "i" = "{cli::qty(long_display)}SharePoint accepts {?it/them}, but the
+          column settings page only allows {sp_column_display_name_max}
+          characters."
+        ),
+        call = call
+      )
+    }
+  }
+
+  invisible(columns)
+}
+
 validate_column_definition <- function(
   x,
   allow_read_only = FALSE,

@@ -349,6 +349,10 @@ get_sp_list_metadata <- function(
 #'
 #' - Dashes (`"-"``) in list names are removed from the list name but retained
 #'   in the list display name.
+#' - Column names longer than 32 characters (counting each space or special
+#'   character as 7) are an error for a list (but not a document library),
+#'   since SharePoint cuts them without an error. A display name longer than
+#'   255 characters (the limit on the column settings page) is a warning.
 #' - Calculated columns are added after the list is created since formulas
 #'   may reference other columns.
 #' - Column validation is applied with the SharePoint REST API after the list
@@ -465,6 +469,20 @@ create_sp_list <- function(
   template <- template %||% "genericList"
   views <- if (!is.null(definition)) definition[["views"]]
 
+  # Check column names before connecting to the site
+  if (!is.null(columns)) {
+    check_new_column_names(
+      if (is_named(columns) && has_name(columns, "name")) {
+        list(columns)
+      } else {
+        columns
+      },
+      template = template,
+      display_name = FALSE,
+      call = call
+    )
+  }
+
   site <- site %||%
     get_sp_site(
       site_url = site_url,
@@ -503,6 +521,10 @@ create_sp_list <- function(
     )
     calculated_columns <- columns[is_calculated]
     columns <- columns[!is_calculated]
+
+    # Display names of calculated columns are checked when they're added by
+    # create_sp_list_column()
+    check_new_column_names(columns, template = template, call = call)
 
     # Validation isn't supported by the Graph API so it is applied after the
     # list is created
@@ -906,6 +928,12 @@ create_sp_list_column <- function(
   # from definitions read with `read_sp_list_yaml()`
   column_definition[["custom"]] <- NULL
   column_definition[["id"]] <- NULL
+
+  check_new_column_names(
+    list(column_definition),
+    template = sp_list[["properties"]][["list"]][["template"]],
+    call = call
+  )
 
   # The Graph API doesn't support validation so apply it with the SharePoint
   # REST API after creating the column

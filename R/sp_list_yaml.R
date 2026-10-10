@@ -99,7 +99,13 @@
 #'
 #' - `name` (required): the internal column name. The name can't be changed
 #'   after a column is created and should avoid names that look like
-#'   spreadsheet cell references (e.g. `V4`).
+#'   spreadsheet cell references (e.g. `V4`). For a list (but not a document
+#'   library), the name of a new column can't be longer than 32 characters,
+#'   counting each space or special character as 7 (e.g. a space is stored as
+#'   `_x0020_`). SharePoint cuts longer names without an error, so
+#'   [create_sp_list()] and [create_sp_list_column()] error instead. Display
+#'   names can be longer: the column settings page allows up to 255
+#'   characters.
 #' - `displayName`, `description`, `required`, `enforceUniqueValues`,
 #'   `hidden`, `indexed`, `readOnly`, `defaultValue` (with `value` or
 #'   `formula`), and `validation` (see [column_validation()]).

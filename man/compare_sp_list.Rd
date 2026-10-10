@@ -111,9 +111,10 @@ Each change has one of these actions:
 \item \code{"delete"}: the column or view isn't in the definitions.
 \item \code{"blocked"}: the change can't be made. This includes changing the column
 type (e.g. text to number), changing a lookup column's source list,
-adding a column type the Graph API can't create, changing the list
-template, and removing the default view without setting another default
-view.
+adding a column type the Graph API can't create, adding a list column
+with a name longer than 32 characters (which SharePoint would cut),
+changing the list template, and removing the default view without
+setting another default view.
 \item \code{"unverified"}: the current value can't be read with the Graph API. This
 includes \code{validation} (which \code{\link[=sync_sp_list]{sync_sp_list()}} applies every time) and
 columns where the Graph API doesn't return the column type (hyperlink,

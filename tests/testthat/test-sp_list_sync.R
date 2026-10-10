@@ -367,6 +367,46 @@ test_that("apply_view_changes applies views in order", {
   expect_true(all(changes[["status"]] == "applied"))
 })
 
+test_that("apply_view_changes sets an existing default view by Id", {
+  calls <- list()
+
+  local_mocked_bindings(
+    update_sp_list_view = function(sp_list, view_title = NULL, view_id = NULL, ..., default_view = NULL, view_definition = NULL, call = NULL) {
+      calls[[length(calls) + 1]] <<- list(view_title = view_title, view_id = view_id, default_view = default_view)
+      invisible(NULL)
+    }
+  )
+
+  # Renamed and set as the default view
+  views <- list(list(Title = "Working Renamed", Id = "v2", DefaultView = TRUE))
+  changes <- view_change_rows(views, live_views)
+  changes[["status"]] <- plan_change_status(changes, delete = FALSE, allow_data_loss = FALSE)
+
+  changes <- apply_view_changes(changes, views, sp_list = NULL)
+
+  expect_length(calls, 2)
+  expect_identical(calls[[2]], list(view_title = NULL, view_id = "v2", default_view = TRUE))
+  expect_true(all(changes[["status"]] %in% c("applied", "skipped")))
+})
+
+test_that("apply_view_changes doesn't set a default view that failed to be created", {
+  local_mocked_bindings(
+    create_sp_list_view = function(...) cli::cli_abort("Can't create view."),
+    update_sp_list_view = function(...) stop("Shouldn't be called.")
+  )
+
+  views <- list(list(Title = "Active", DefaultView = TRUE))
+  changes <- view_change_rows(views, live_views)
+  changes[["status"]] <- plan_change_status(changes, delete = FALSE, allow_data_loss = FALSE)
+
+  changes <- apply_view_changes(changes, views, sp_list = NULL)
+
+  added <- changes[changes[["action"]] == "add", ]
+  expect_identical(added[["status"]], "failed")
+  expect_identical(added[["note"]], "Can't create view.")
+  expect_false(any(changes[["status"]] == "planned"))
+})
+
 test_that("compare_sp_list only compares views if the definition has views", {
   sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
   sp_list$properties <- list(id = "list-1", displayName = "Projects")

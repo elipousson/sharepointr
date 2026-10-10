@@ -1320,31 +1320,30 @@ apply_view_changes <- function(changes, views, sp_list, call = caller_env()) {
     )
   }
 
-  # Set the default view after all views exist
-  default_rows <- which(
-    planned & changes[["action"]] == "update" & changes[["property"]] %in% "DefaultView"
+  # Set the default view after all views exist. Only one view can be the
+  # default view, so this is an update row for an existing view or an add row
+  # for a new view.
+  default_idx <- which(
+    planned &
+      (changes[["action"]] == "update" & changes[["property"]] %in% "DefaultView" |
+        changes[["action"]] == "add" & changes[["name"]] %in% default_view[["Title"]])
   )
-  added_default <- !is.null(default_view) &&
-    any(planned & changes[["action"]] == "add" & changes[["name"]] == default_view[["Title"]])
 
-  if (length(default_rows) > 0 || added_default) {
-    idx <- c(
-      default_rows,
-      if (added_default) which(changes[["action"]] == "add" & changes[["name"]] == default_view[["Title"]])
-    )
+  if (length(default_idx) > 0 && all(changes[["status"]][default_idx] != "failed")) {
+    # Use the Id of an existing view in case it was renamed
+    view_id <- changes[["id"]][[default_idx[[1]]]]
 
-    if (all(changes[["status"]][idx] != "failed")) {
-      changes <- try_change(
-        changes,
-        idx,
-        update_sp_list_view(
-          sp_list,
-          view_title = default_view[["Title"]],
-          default_view = TRUE,
-          call = call
-        )
+    changes <- try_change(
+      changes,
+      default_idx,
+      update_sp_list_view(
+        sp_list,
+        view_title = if (is.na(view_id)) default_view[["Title"]],
+        view_id = if (!is.na(view_id)) view_id,
+        default_view = TRUE,
+        call = call
       )
-    }
+    )
   }
 
   # Delete views

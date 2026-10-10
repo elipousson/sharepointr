@@ -29,6 +29,7 @@ write_sp_list_yaml(
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
+  doc_start = NULL,
   call = caller_env()
 )
 }
@@ -71,13 +72,21 @@ personal views). Defaults to \code{FALSE}. Views are read with the SharePoint
 REST API, which requires a delegated (user) login. See
 \code{\link[=list_sp_list_views]{list_sp_list_views()}}.}
 
-\item{merge}{If \code{TRUE} (default) and \code{path} exists, keep the comment header,
-\code{custom} metadata, and column order from the existing file. Read-only
-list properties and column ids always come from \code{x}. Views come from \code{x}
-if it has views (e.g. with \code{include_views = TRUE}) and are otherwise kept
-from the existing file. Columns that
-are only in the existing file are dropped (unless the Graph API doesn't
-return their column type). Comments after the header are always lost.}
+\item{merge}{If \code{TRUE} (default) and \code{path} exists, keep the comment header
+and column order from the existing file. \code{custom} metadata for the list
+and each column comes from \code{x} if it has any and is otherwise kept from
+the existing file (a list never has \code{custom} metadata, so it's always
+kept when \code{x} is a \code{ms_list} object). Read-only list properties
+and column ids always come from \code{x}. Views come from \code{x} if it has views
+(e.g. with \code{include_views = TRUE}) and are otherwise kept from the
+existing file. Columns that are only in the existing file are dropped
+(unless the Graph API doesn't return their column type). Comments after
+the header are always lost.}
+
+\item{doc_start}{If \code{TRUE}, write a document start marker (\verb{---}) after the
+comment header (or at the start of a file with no header). If \code{FALSE},
+don't. If \code{NULL} (default), write the marker only if the existing file
+has one (with \code{merge = TRUE}).}
 }
 \value{
 A \code{sp_list_definition} object: a list with \code{format_version},
@@ -106,6 +115,7 @@ YAML file.
 YAML format
 
 \if{html}{\out{<div class="sourceCode yaml">}}\preformatted{# Comments before the first key are kept by write_sp_list_yaml()
+---
 format_version: 1
 displayName: Capital Project
 description: Capital projects and their status.
@@ -159,6 +169,13 @@ can't be changed after a list is created.
 \item \code{format_version} (optional): the format version. Only \code{1} is supported.
 \item \code{custom} (optional): a mapping that isn't validated (see below).
 }
+
+Comments and blank lines before the first key are a header that
+\code{\link[=write_sp_list_yaml]{write_sp_list_yaml()}} keeps when it updates a file. An optional document
+start marker (\verb{---}) after the header marks where the header ends. Other
+comments (including comments between \verb{---} and the first key) are lost
+when a file is rewritten, so use \code{custom} for notes that need to be kept.
+A file can only have one YAML document.
 
 Read-only list properties can also be included as a reference to an
 existing list: \code{id}, \code{name}, \code{webUrl}, \code{createdDateTime}, \code{createdBy},

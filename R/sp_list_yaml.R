@@ -20,6 +20,7 @@
 #'
 #' ```yaml
 #' # Comments before the first key are kept by write_sp_list_yaml()
+#' ---
 #' format_version: 1
 #' displayName: Capital Project
 #' description: Capital projects and their status.
@@ -72,6 +73,13 @@
 #'   can't be changed after a list is created.
 #' - `format_version` (optional): the format version. Only `1` is supported.
 #' - `custom` (optional): a mapping that isn't validated (see below).
+#'
+#' Comments and blank lines before the first key are a header that
+#' [write_sp_list_yaml()] keeps when it updates a file. An optional document
+#' start marker (`---`) after the header marks where the header ends. Other
+#' comments (including comments between `---` and the first key) are lost
+#' when a file is rewritten, so use `custom` for notes that need to be kept.
+#' A file can only have one YAML document.
 #'
 #' Read-only list properties can also be included as a reference to an
 #' existing list: `id`, `name`, `webUrl`, `createdDateTime`, `createdBy`,
@@ -208,7 +216,22 @@ read_sp_list_yaml <- function(path, call = caller_env()) {
     cli_abort("{.file {path}} doesn't exist.", call = call)
   }
 
-  doc <- yaml12::read_yaml(path)
+  # Read every document so a second document (e.g. after a stray `---`)
+  # isn't silently ignored
+  docs <- yaml12::read_yaml(path, multi = TRUE)
+
+  if (length(docs) > 1) {
+    cli_abort(
+      c(
+        "{.file {path}} must have one YAML document, not {length(docs)}.",
+        "i" = "A {.code ---} line starts a new document. Use it only once,
+        before the first key."
+      ),
+      call = call
+    )
+  }
+
+  doc <- if (length(docs) == 1) docs[[1]]
 
   as_sp_list_definition(doc, call = call)
 }
@@ -988,13 +1011,20 @@ order_column_keys <- function(col) {
 }
 
 #' @rdname sp_list_definition
-#' @param merge If `TRUE` (default) and `path` exists, keep the comment header,
-#'   `custom` metadata, and column order from the existing file. Read-only
-#'   list properties and column ids always come from `x`. Views come from `x`
-#'   if it has views (e.g. with `include_views = TRUE`) and are otherwise kept
-#'   from the existing file. Columns that
-#'   are only in the existing file are dropped (unless the Graph API doesn't
-#'   return their column type). Comments after the header are always lost.
+#' @param merge If `TRUE` (default) and `path` exists, keep the comment header
+#'   and column order from the existing file. `custom` metadata for the list
+#'   and each column comes from `x` if it has any and is otherwise kept from
+#'   the existing file (a list never has `custom` metadata, so it's always
+#'   kept when `x` is a `ms_list` object). Read-only list properties
+#'   and column ids always come from `x`. Views come from `x` if it has views
+#'   (e.g. with `include_views = TRUE`) and are otherwise kept from the
+#'   existing file. Columns that are only in the existing file are dropped
+#'   (unless the Graph API doesn't return their column type). Comments after
+#'   the header are always lost.
+#' @param doc_start If `TRUE`, write a document start marker (`---`) after the
+#'   comment header (or at the start of a file with no header). If `FALSE`,
+#'   don't. If `NULL` (default), write the marker only if the existing file
+#'   has one (with `merge = TRUE`).
 #' @export
 write_sp_list_yaml <- function(
   x,
@@ -1004,12 +1034,14 @@ write_sp_list_yaml <- function(
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
+  doc_start = NULL,
   call = caller_env()
 ) {
   check_dots_empty()
   check_installed("yaml12", call = call)
   check_string(path, call = call)
   check_bool(merge, call = call)
+  check_bool(doc_start, allow_null = TRUE, call = call)
 
   if (inherits(x, "ms_list")) {
     x <- get_sp_list_definition(
@@ -1024,9 +1056,12 @@ write_sp_list_yaml <- function(
   }
 
   header <- NULL
+  existing_doc_start <- FALSE
 
   if (merge && file.exists(path)) {
     header <- read_yaml_header(path, call = call)
+    existing_doc_start <- attr(header, "doc_start")
+    attr(header, "doc_start") <- NULL
     existing <- read_sp_list_yaml(path, call = call)
     x <- merge_sp_list_definition(x, existing, call = call)
   }
@@ -1034,8 +1069,16 @@ write_sp_list_yaml <- function(
   x[["columns"]] <- purrr::map(x[["columns"]], order_column_keys)
   yaml <- yaml12::format_yaml(as_yaml_list(x))
 
+  doc_start <- doc_start %||% existing_doc_start
+
+  # The document start marker ends the header, so it's written with no blank
+  # line before it
   writeLines(
-    c(header, if (length(header) > 0) "", yaml),
+    c(
+      header,
+      if (doc_start) "---" else if (length(header) > 0) "",
+      yaml
+    ),
     path
   )
 
@@ -1048,8 +1091,11 @@ write_sp_list_yaml <- function(
 
 #' Merge a definition with an existing definition
 #'
-#' Uses `x` for column definitions and keeps `custom` metadata, column order,
-#' and columns with a type the Graph API doesn't return from `existing`.
+#' Uses `x` for column definitions and keeps column order and columns with a
+#' type the Graph API doesn't return from `existing`. `custom` metadata (for
+#' the list and each column) comes from `x` if it has any (e.g. an edited
+#' definition) and is otherwise kept from `existing` (e.g. for a definition
+#' from a list, which never has `custom` metadata).
 #' @noRd
 merge_sp_list_definition <- function(x, existing, call = caller_env()) {
   new_cols <- set_names(x[["columns"]], purrr::map_chr(x[["columns"]], "name"))
@@ -1095,7 +1141,7 @@ merge_sp_list_definition <- function(x, existing, call = caller_env()) {
       }
 
       col <- new_cols[[nm]]
-      custom <- old_cols[[nm]][["custom"]] %||% col[["custom"]]
+      custom <- col[["custom"]] %||% old_cols[[nm]][["custom"]]
       col[["custom"]] <- NULL
       col[["custom"]] <- custom
       col
@@ -1116,8 +1162,10 @@ merge_sp_list_definition <- function(x, existing, call = caller_env()) {
 
 #' Read the comment header from a YAML file
 #'
-#' Returns the comment and blank lines before the first key and warns if the
-#' file has comments after the header.
+#' Returns the comment and blank lines before the first key (or before a
+#' document start marker, `---`, if the file has one) and warns if the file
+#' has comments after the header. The `doc_start` attribute is `TRUE` if the
+#' header ends with a document start marker.
 #' @noRd
 read_yaml_header <- function(path, call = caller_env()) {
   lines <- readLines(path, warn = FALSE)
@@ -1125,8 +1173,10 @@ read_yaml_header <- function(path, call = caller_env()) {
   first_key <- match(FALSE, is_header)
 
   if (is.na(first_key)) {
-    return(lines)
+    return(structure(lines, doc_start = FALSE))
   }
+
+  doc_start <- grepl("^---\\s*(#.*)?$", lines[[first_key]])
 
   header <- lines[seq_len(first_key - 1)]
   # Drop trailing blank lines
@@ -1134,7 +1184,8 @@ read_yaml_header <- function(path, call = caller_env()) {
     header <- header[-length(header)]
   }
 
-  body <- lines[first_key:length(lines)]
+  # The body starts after the document start marker, if the file has one
+  body <- lines[(first_key + doc_start):length(lines)]
   # Remove quoted strings before looking for comments
   unquoted <- gsub("\"([^\"\\\\]|\\\\.)*\"|'[^']*'", "", body)
 
@@ -1142,13 +1193,14 @@ read_yaml_header <- function(path, call = caller_env()) {
     cli_warn(
       c(
         "{.file {path}} has comments after the header.",
-        "!" = "Only the comments before the first key are kept."
+        "!" = "Only the comments before the first key (or before a
+        {.code ---} document start marker) are kept."
       ),
       call = call
     )
   }
 
-  header
+  structure(header, doc_start = doc_start)
 }
 
 #' Convert a definition to a list for writing YAML
@@ -1179,7 +1231,7 @@ as_yaml_list <- function(x) {
     }
   )
 
-  purrr::compact(
+  yaml <- purrr::compact(
     c(
       list(
         format_version = x[["format_version"]] %||% 1L,
@@ -1188,13 +1240,21 @@ as_yaml_list <- function(x) {
         list = x[["list"]]
       ),
       sp_list_definition_read_only(x),
-      list(
-        custom = x[["custom"]],
-        columns = columns,
-        views = purrr::map(x[["views"]], as_yaml_view)
-      )
+      list(custom = x[["custom"]])
     )
   )
+
+  # `columns` is required, so a definition with no columns (e.g. a list with
+  # only the default Title column) is written as `columns: []`
+  yaml[["columns"]] <- columns
+
+  views <- purrr::map(x[["views"]], as_yaml_view)
+
+  if (length(views) > 0) {
+    yaml[["views"]] <- views
+  }
+
+  yaml
 }
 
 #' Convert a view definition to a list for writing YAML

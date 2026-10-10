@@ -327,6 +327,23 @@ test_that("write_sp_list_yaml round trips a definition", {
   expect_snapshot(cat(readLines(path), sep = "\n"))
 })
 
+test_that("write_sp_list_yaml round trips a definition with no columns", {
+  # e.g. a list with only the default Title column, which
+  # get_sp_list_definition() leaves out
+  definition <- as_sp_list_definition(
+    list(displayName = "Empty List", columns = list())
+  )
+  path <- withr::local_tempfile(fileext = ".yaml")
+
+  suppressMessages(write_sp_list_yaml(definition, path))
+  expect_true("columns: []" %in% readLines(path))
+  expect_identical(read_sp_list_yaml(path)[["columns"]], list())
+
+  # Merging with the existing file also works
+  suppressMessages(write_sp_list_yaml(definition, path))
+  expect_identical(read_sp_list_yaml(path)[["columns"]], list())
+})
+
 test_that("write_sp_list_yaml keeps the header and custom metadata from an existing file", {
   path <- local_yaml(c(
     "# A header comment",
@@ -373,6 +390,118 @@ test_that("write_sp_list_yaml keeps the header and custom metadata from an exist
   write_sp_list_yaml(live, path, merge = FALSE) |>
     suppressMessages()
   expect_identical(readLines(path)[1], "format_version: 1")
+})
+
+test_that("write_sp_list_yaml keeps a document start marker after the header", {
+  path <- local_yaml(c(
+    "# A header comment",
+    "",
+    "---",
+    "displayName: Test",
+    "columns:",
+    "  - name: First",
+    "    text: {}"
+  ))
+  definition <- read_sp_list_yaml(path)
+
+  # doc_start = NULL keeps the marker
+  suppressMessages(write_sp_list_yaml(definition, path))
+  expect_identical(
+    readLines(path)[1:3],
+    c("# A header comment", "---", "format_version: 1")
+  )
+  expect_identical(read_sp_list_yaml(path), definition)
+
+  # doc_start = FALSE removes it
+  suppressMessages(write_sp_list_yaml(definition, path, doc_start = FALSE))
+  expect_identical(
+    readLines(path)[1:3],
+    c("# A header comment", "", "format_version: 1")
+  )
+
+  # doc_start = TRUE adds it
+  suppressMessages(write_sp_list_yaml(definition, path, doc_start = TRUE))
+  expect_identical(readLines(path)[2], "---")
+
+  # Without a header (merge = FALSE)
+  suppressMessages(
+    write_sp_list_yaml(definition, path, merge = FALSE, doc_start = TRUE)
+  )
+  expect_identical(readLines(path)[1:2], c("---", "format_version: 1"))
+})
+
+test_that("write_sp_list_yaml warns about comments after the document start marker", {
+  path <- local_yaml(c(
+    "# A header comment",
+    "---",
+    "# Not part of the header",
+    "displayName: Test",
+    "columns: []"
+  ))
+
+  expect_warning(
+    write_sp_list_yaml(read_sp_list_yaml(path), path) |>
+      suppressMessages(),
+    "comments after the header"
+  )
+  expect_identical(readLines(path)[1:2], c("# A header comment", "---"))
+})
+
+test_that("read_sp_list_yaml errors on a file with more than one document", {
+  path <- local_yaml(c(
+    "---",
+    "displayName: Test",
+    "columns: []",
+    "---",
+    "displayName: Other",
+    "columns: []"
+  ))
+
+  expect_error(read_sp_list_yaml(path), "must have one YAML document, not 2")
+})
+
+test_that("write_sp_list_yaml uses custom metadata from a definition", {
+  path <- local_yaml(c(
+    "# Header",
+    "",
+    "displayName: Test",
+    "custom:",
+    "  owner: Planning",
+    "columns:",
+    "  - name: First",
+    "    text: {}",
+    "    custom:",
+    "      form_order: 1",
+    "  - name: Second",
+    "    text: {}",
+    "    custom:",
+    "      form_order: 2"
+  ))
+
+  # An edited definition: new custom metadata for the list and First, and no
+  # custom metadata for Second (kept from the existing file)
+  definition <- read_sp_list_yaml(path)
+  definition[["custom"]] <- list(owner = "DOP")
+  definition[["columns"]][[1]][["custom"]] <- list(
+    form_order = 1L,
+    todo = "Check this"
+  )
+  definition[["columns"]][[2]][["custom"]] <- NULL
+
+  written <- write_sp_list_yaml(definition, path) |>
+    suppressMessages()
+
+  expect_identical(readLines(path)[1], "# Header")
+  expect_identical(written[["custom"]], list(owner = "DOP"))
+  expect_identical(
+    written[["columns"]][[1]][["custom"]],
+    list(form_order = 1L, todo = "Check this")
+  )
+  expect_identical(
+    written[["columns"]][[2]][["custom"]],
+    list(form_order = 2L)
+  )
+  expect_identical(read_sp_list_yaml(path), written)
 })
 
 test_that("sp_list_definition_table converts a definition to a data frame", {

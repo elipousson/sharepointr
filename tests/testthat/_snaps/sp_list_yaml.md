@@ -225,7 +225,7 @@
     Condition
       Warning:
       <path> has comments after the header.
-      ! Only the comments before the first key are kept.
+      ! Only the comments before the first key (or before a `---` document start marker) are kept.
     Message
       ! Dropping 1 column not found in the list: Removed.
       v Wrote 3 columns to <path>.

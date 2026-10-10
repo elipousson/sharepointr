@@ -91,10 +91,7 @@ update_sp_list_person_items <- function(
 
   if (is.null(user_info_data)) {
     user_info_data <- list_sp_site_user_info(
-      sp_site = get_sp_site(
-        site_id = sp_list_site_id(sp_list),
-        call = call
-      ),
+      sp_site = sp_list_site(sp_list),
       user_type = if (allow_hidden) "all" else "visible",
       call = call
     )

@@ -707,7 +707,7 @@ test_that("get_sp_lookup_list gets lookup lists from the same site", {
   get_args <- list()
 
   local_mocked_bindings(
-    get_sp_site = function(site_id, ...) paste0("site:", site_id),
+    get_sp_site = function(...) stop("The site should not be requested"),
     get_sp_list = function(list_name, ..., site = NULL) {
       get_args <<- list(list_name = list_name, site = site)
       new_ms_list(list_name, if (list_name == "Other") "site-2" else "site-1")
@@ -723,7 +723,8 @@ test_that("get_sp_lookup_list gets lookup lists from the same site", {
     get_sp_lookup_list("Projects", sp_list = sp_list)$properties$name,
     "Projects"
   )
-  expect_identical(get_args$site, "site:site-1")
+  expect_s3_class(get_args$site, "ms_site")
+  expect_identical(get_args$site$properties$id, "site-1")
 
   # Lists from a different site are an error
   expect_error(
@@ -840,5 +841,42 @@ test_that("get_sp_list_column() and update_sp_list_column() use list metadata fo
   expect_error(
     get_sp_list_column(sp_list = sp_list, column_name = "Missing"),
     "must be one of"
+  )
+})
+
+test_that("get_sp_list() returns the matching site list for a list name", {
+  new_ms_list <- function(name, id) {
+    sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
+    sp_list$properties <- list(name = name, id = id)
+    sp_list
+  }
+
+  site <- structure(new.env(), class = c("ms_site", "ms_object"))
+  get_list_args <- list()
+  site$get_list <- function(list_name = NULL, list_id = NULL) {
+    get_list_args <<- c(get_list_args, list(list(list_name, list_id)))
+    new_ms_list(list_name, list_id)
+  }
+
+  local_mocked_bindings(
+    get_ms_list_obj = function(...) site,
+    list_sp_lists = function(...) {
+      list(new_ms_list("Items", "list-1"), new_ms_list("Projects", "list-2"))
+    }
+  )
+
+  # A list name is matched to the site lists without getting the list again
+  sp_list <- get_sp_list("Projects", as_data_frame = FALSE)
+  expect_identical(sp_list$properties$id, "list-2")
+  expect_length(get_list_args, 0)
+
+  expect_error(get_sp_list("Missing", as_data_frame = FALSE), "must be one of")
+
+  # A list id or hidden list name still uses the get_list method
+  get_sp_list(list_id = "list-3", as_data_frame = FALSE)
+  get_sp_list("User Information List", as_data_frame = FALSE)
+  expect_identical(
+    get_list_args,
+    list(list(NULL, "list-3"), list("User Information List", NULL))
   )
 })

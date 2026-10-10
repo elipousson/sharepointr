@@ -135,6 +135,12 @@ get_sp_list <- function(
 
   hidden_lists <- "User Information List"
 
+  cli::cli_progress_step(
+    "Getting list from SharePoint"
+  )
+
+  sp_list <- NULL
+
   if (!is.null(list_name) && !(list_name %in% hidden_lists)) {
     # FIXME: This is a work around to handle lists that have been renamed
 
@@ -164,44 +170,21 @@ get_sp_list <- function(
       )
     }
 
-    sp_list_id_pairs <- purrr::map(
-      sp_lists,
-      \(x) {
-        list(
-          name = x$properties$name,
-          id = x$properties$id
-        )
-      }
-    )
-
-    nm_values <- purrr::map_chr(
-      sp_list_id_pairs,
-      \(x) {
-        x[["name"]]
-      }
-    )
+    nm_values <- purrr::map_chr(sp_lists, \(x) x$properties$name)
 
     list_name <- arg_match(list_name, values = nm_values, error_call = call)
 
-    list_ids <- purrr::map_chr(
-      sp_list_id_pairs,
-      \(x) {
-        x[["id"]]
-      }
-    )
-
-    list_id <- list_ids[nm_values == list_name]
-    list_name <- NULL
+    # Use the matching list from the site lists (with the same properties as
+    # the get_list method) instead of getting the list again
+    sp_list <- sp_lists[[match(list_name, nm_values)]]
   }
 
-  cli::cli_progress_step(
-    "Getting list from SharePoint"
-  )
-
-  sp_list <- ms_list_obj$get_list(
-    list_name = list_name,
-    list_id = list_id
-  )
+  if (is.null(sp_list)) {
+    sp_list <- ms_list_obj$get_list(
+      list_name = list_name,
+      list_id = list_id
+    )
+  }
 
   # TODO: Consider removing the metadata argument
   if (metadata) {
@@ -1325,10 +1308,7 @@ get_sp_lookup_list <- function(
     if (!is.null(sp_list) && !is_url(lookup_list)) {
       lookup_list <- get_sp_list(
         list_name = lookup_list,
-        site = get_sp_site(
-          site_id = sp_list_site_id(sp_list),
-          call = call
-        ),
+        site = sp_list_site(sp_list),
         as_data_frame = FALSE,
         call = call
       )
@@ -1362,6 +1342,21 @@ get_sp_lookup_list <- function(
 #' @noRd
 sp_list_site_id <- function(sp_list) {
   sp_list[["properties"]][["parentReference"]][["siteId"]]
+}
+
+#' Get the site for a `ms_list` object without a request
+#'
+#' A `ms_site` only needs the site ID to get lists (or other site resources),
+#' so this avoids getting the site again with [get_sp_site()]. The returned
+#' site only has an `id` property.
+#' @returns A `ms_site` object for the site of `sp_list`.
+#' @noRd
+sp_list_site <- function(sp_list) {
+  Microsoft365R::ms_site$new(
+    sp_list[["token"]],
+    sp_list[["tenant"]],
+    properties = list(id = sp_list_site_id(sp_list))
+  )
 }
 
 #' [update_sp_list_lookup_items()] provides an easy way to update item lookup

@@ -26,12 +26,9 @@ test_that("update_sp_list_person_items matches users from the User Information L
   user_types <- character(0)
 
   local_mocked_bindings(
-    get_sp_site = function(site_id, ...) {
-      site_ids <<- c(site_ids, site_id)
-      "site"
-    },
+    get_sp_site = function(...) stop("The site should not be requested"),
     list_sp_site_user_info = function(..., sp_site = NULL, user_type = "all") {
-      force(sp_site)
+      site_ids <<- c(site_ids, sp_site$properties$id)
       user_types <<- c(user_types, user_type)
       user_info <- data.frame(
         id = c("7", "8", "9"),

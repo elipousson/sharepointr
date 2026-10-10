@@ -66,12 +66,63 @@ test_that("sp_url_parse works", {
   expect_identical(parsed_drive_url[["file_path"]], "/")
 })
 
+test_that("sp_url_parse works with list URLs with no view", {
+  urls <- c(
+    "https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms",
+    "https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms/",
+    "https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms?e=abc",
+    "https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms/Custom%20View.aspx"
+  )
+
+  expect_identical(is_sp_webview_list_url(urls), rep(TRUE, 4))
+
+  for (url in urls) {
+    parsed <- sp_url_parse(url)
+    expect_identical(parsed[["list_name"]], "DOP Rooms")
+    expect_identical(
+      parsed[["site_url"]],
+      "https://bmore.sharepoint.com/sites/DOP-ALL"
+    )
+  }
+
+  expect_false(is_sp_webview_list_url(
+    "https://bmore.sharepoint.com/sites/DOP-ALL/Lists/DOP%20Rooms/Folder/Item"
+  ))
+})
+
 test_that("sp_url_parse_path works with regex metacharacters in drive_name", {
-  test_path <- "/:f:/r/sites/DOP-CPR/Shared%20Documents%20(1)/Data/file.csv"
+  test_path <- "/:f:/r/sites/DOP-CPR/Shared Documents (1)/Data/file.csv"
 
   parsed_path <- sp_url_parse_path(test_path)
 
   expect_identical(parsed_path[["drive_name"]], "Documents (1)")
 
   expect_identical(parsed_path[["file_path"]], "Data/file.csv")
+})
+
+test_that("sp_url_parse decodes URL paths once", {
+  parsed <- sp_url_parse(
+    "https://bmore.sharepoint.com/:x:/r/sites/DOP-CPR/Shared%20Documents/C%23%20Notes%20100%25.xlsx?d=wabc"
+  )
+  expect_identical(parsed[["file"]], "C# Notes 100%.xlsx")
+  expect_identical(parsed[["file_path"]], "/C# Notes 100%.xlsx")
+
+  parsed <- sp_url_parse(
+    "https://bmore.sharepoint.com/sites/DOP-ALL/Lists/Rooms%20%2525%20Done/AllItems.aspx"
+  )
+  expect_identical(parsed[["list_name"]], "Rooms %25 Done")
+
+  parsed <- sp_url_parse(
+    "https://bmore.sharepoint.com/sites/DOP-CPR/Shared%20Documents%20%2525/Forms/AllItems.aspx"
+  )
+  expect_identical(parsed[["drive_name"]], "Documents %25")
+})
+
+test_that("sp_url_parse errors if a URL has no site name", {
+  expect_snapshot(error = TRUE, {
+    sp_url_parse(
+      "https://bmore.sharepoint.com/sites/DOP-CPR/Shared%20Documents/file.csv"
+    )
+    sp_url_parse("https://contoso.sharepoint.us/sites/Team/Lists/Tasks")
+  })
 })

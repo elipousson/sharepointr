@@ -127,7 +127,6 @@ importFrom(stringr,
   str_remove_all,
   str_split_i
 )
-importFrom(utils,URLdecode)
 importFrom(vctrs,
   list_sizes,
   vec_rbind,

@@ -21,6 +21,9 @@
 #' https://\[tenant\].sharepoint.com/sites/\[site name\]/Lists/\[list
 #' name\]/AllItems.aspx?env=WebViewList
 #'
+#' https://\[tenant\].sharepoint.com/sites/\[site name\]/Lists/\[list
+#' name\]
+#'
 #' https://\[tenant\].sharepoint.com/:l:/r/sites/\[site name\]/Lists/\[list
 #' name\]
 #'
@@ -57,7 +60,7 @@ sp_url_parse <- function(url, call = caller_env()) {
   }
 
   if (is_sp_webview_list_url(url)) {
-    return(sp_webview_list_url_parse(url))
+    return(sp_webview_list_url_parse(url, call = call))
   }
 
   if (is_sp_site_url(url)) {
@@ -65,7 +68,7 @@ sp_url_parse <- function(url, call = caller_env()) {
   }
 
   if (is_sp_drive_url(url)) {
-    return(sp_drive_url_parse(url))
+    return(sp_drive_url_parse(url, call = call))
   }
 
   parts <- httr2::url_parse(url)
@@ -81,16 +84,39 @@ sp_url_parse <- function(url, call = caller_env()) {
     )
   )
 
-  sp_url_parts[["site_url"]] <- sp_site_url_build(sp_url_parts)
+  sp_url_parts[["site_url"]] <- sp_site_url_build(
+    sp_url_parts,
+    url = url,
+    call = call
+  )
 
   sp_url_parts
 }
 
 #' @returns A string with the site URL built from `x[["base_url"]]` and
-#'   `x[["site_name"]]`.
+#'   `x[["site_name"]]`. Errors if `x` has no tenant or site name (e.g. a URL
+#'   that isn't for a SharePoint site or a URL format that can't be parsed).
 #' @noRd
-sp_site_url_build <- function(x) {
-  paste0(x[["base_url"]], "/sites/", x[["site_name"]])
+sp_site_url_build <- function(x, url = NULL, call = caller_env()) {
+  site_name <- x[["site_name"]]
+
+  if (
+    !is_string(x[["tenant"]]) ||
+      !is_string(site_name) ||
+      is.na(site_name) ||
+      site_name == ""
+  ) {
+    cli_abort(
+      c(
+        "Can't find a SharePoint site in {.url {url}}.",
+        "i" = "Use a site URL, a link from {.str Copy link} in SharePoint, or a
+        list or document library URL."
+      ),
+      call = call
+    )
+  }
+
+  paste0(x[["base_url"]], "/sites/", site_name)
 }
 
 #' @description
@@ -122,7 +148,9 @@ sp_url_parse_hostname <- function(
 
 #' @description
 #' [sp_url_parse_path()] parses the path into a URL type, permissions, drive
-#' name, file path, and file name.
+#' name, file path, and file name. `path` must already be decoded (as returned
+#' by [httr2::url_parse()]), e.g. `"/:f:/r/sites/site-name/Shared
+#' Documents/Folder"`.
 #'
 #' @rdname sp_url_parse
 #' @name sp_url_parse_path
@@ -153,8 +181,6 @@ sp_url_parse_path <- function(
 
   parts[["drive_name"]] <- parts[["file_path"]] |>
     str_split_i(pattern = "/", i = 1)
-
-  parts[["drive_name"]] <- utils::URLdecode(parts[["drive_name"]])
 
   parts[["file_path"]] <- parts[["file_path"]] |>
     str_remove(stringr::fixed(paste0(parts[["drive_name"]], "/"))) |>
@@ -198,10 +224,10 @@ sp_url_parse_query <- function(query) {
 }
 
 #' Helper to get matches from the path of a SharePoint URL
+#' @param path A decoded URL path.
 #' @returns A named list of matched path components (`nm`), with unmatched
 #'   groups as `NULL`.
 #' @noRd
-#' @importFrom utils URLdecode
 str_match_sp_url_path <- function(
   path,
   url_type = "w|x|p|o|b|t|i|v|f|u|li",
@@ -216,7 +242,7 @@ str_match_sp_url_path <- function(
   )
 ) {
   str_match_list(
-    utils::URLdecode(path),
+    path,
     # regex created with support from GPT-3.5 on 2023-09-21
     # https://chat.openai.com/share/a7885919-bbbe-489a-9fd7-37d71567a1f7
     pattern = glue(
@@ -232,8 +258,8 @@ str_match_sp_url_path <- function(
 #'   `site_url` elements parsed from `url`.
 #' @noRd
 #' @importFrom stringr str_extract
-#' @importFrom utils URLdecode
-sp_webview_list_url_parse <- function(url) {
+sp_webview_list_url_parse <- function(url, call = caller_env()) {
+  # httr2::url_parse() decodes the path
   parts <- httr2::url_parse(url)
 
   sp_url_parts <- sp_url_parse_hostname(parts[["hostname"]])
@@ -245,12 +271,14 @@ sp_webview_list_url_parse <- function(url) {
 
   sp_url_parts[["list_name"]] <- stringr::str_extract(
     parts[["path"]],
-    "(?<=/Lists/).+(?=/([^/]+)\\.aspx)"
+    "(?<=/Lists/)[^/]+"
   )
 
-  sp_url_parts[["list_name"]] <- utils::URLdecode(sp_url_parts[["list_name"]])
-
-  sp_url_parts[["site_url"]] <- sp_site_url_build(sp_url_parts)
+  sp_url_parts[["site_url"]] <- sp_site_url_build(
+    sp_url_parts,
+    url = url,
+    call = call
+  )
 
   sp_url_parts
 }
@@ -289,17 +317,17 @@ sp_site_url_parse <- function(url) {
 sp_drive_url_parse <- function(
   url,
   drive_name_prefix = "Shared ",
-  default_drive_name = "Documents"
+  default_drive_name = "Documents",
+  call = caller_env()
 ) {
+  # httr2::url_parse() decodes the path
   parts <- httr2::url_parse(url)
 
   parts <- c(
     sp_url_parse_hostname(parts[["hostname"]], scheme = parts[["scheme"]]),
     set_names(
       as.list(
-        utils::URLdecode(
-          stringr::str_extract_all(parts[["path"]], "[^/]+")[[1]][c(2, 3)]
-        )
+        stringr::str_extract_all(parts[["path"]], "[^/]+")[[1]][c(2, 3)]
       ),
       c("site_name", "drive_name")
     )
@@ -315,7 +343,7 @@ sp_drive_url_parse <- function(
     list(
       "file_path" = "/",
       "drive_url" = url,
-      "site_url" = sp_site_url_build(parts)
+      "site_url" = sp_site_url_build(parts, url = url, call = call)
     )
   )
 }

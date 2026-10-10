@@ -63,13 +63,15 @@ is_sp_folder_url <- function(x) {
 }
 
 #' @returns A logical vector the same length as `x`, `TRUE` for elements that
-#'   are SharePoint list "webview" URLs (a list URL that isn't already
-#'   matched by [is_sp_type_url()]).
+#'   are SharePoint list "webview" URLs (a list URL, with or without a view
+#'   page, that isn't already matched by [is_sp_type_url()]).
 #' @noRd
 is_sp_webview_list_url <- function(x) {
+  # A view URL (e.g. "/Lists/{list name}/AllItems.aspx") or a list URL with no
+  # view (e.g. "/Lists/{list name}")
   is_webview_list <- !is_sp_type_url(x, type = "l") &
-    (grepl("/Lists/.+AllItems\\.aspx", x) |
-      grepl("/Lists/.+\\.aspx", x))
+    (grepl("/Lists/.+\\.aspx", x) |
+      grepl("/Lists/[^/?#]+/?([?#].*)?$", x))
 
   is_sp_url(x) & is_webview_list
 }

@@ -41,6 +41,9 @@
 
 ## Fixes
 
+* Fix `sp_url_parse()` decoding URL paths twice with `{httr2}` 1.1.0 or later, which changed file, folder, list, or library names that include a `%` character (e.g. `"100%.xlsx"`). `sp_url_parse_path()` now expects a decoded path (as returned by `httr2::url_parse()`). Requires `{httr2}` 1.1.0 or later. (2026-10-10)
+* Fix `sp_url_parse()` (and functions that accept a SharePoint URL) for list URLs with no view page (e.g. `"https://contoso.sharepoint.com/sites/site-name/Lists/list-name"`). (2026-10-10)
+* `sp_url_parse()` now errors if a site name can't be found in a URL, instead of returning a site URL with no site name that caused a "not found" error from the Graph API. (2026-10-10)
 * Fix `compare_sp_list()` and `sync_sp_list()` reporting a `locale` change for a column that was just created from the same definition (SharePoint returns locales like `"en-US"` for `"en-us"`). Locales are now compared ignoring case. (2026-10-10)
 * Fix item id handling for `update_sp_list_items()`, `delete_sp_list_item()`, and `delete_sp_list_items()`: item ids from a data frame, list of records, or vector are now checked (as whole numbers or non-empty strings) before any items are changed, so a missing or invalid id no longer stops a batch partway through. Item ids are sent as strings. `delete_sp_list_item()` errors for more than one item id or for unused arguments, and `delete_sp_list_items()` errors if both `item_id` and `filter` are supplied. (2026-10-10)
 * Fix `update_sp_list_item()` sending an empty update when only the `.id` field is left after dropping `NA` values (with `.id` other than `"id"`) and erroring when no fields are supplied. (2026-10-10)

@@ -27,7 +27,8 @@ sp_url_parse_query(query)
 \code{\link[=sp_url_parse_hostname]{sp_url_parse_hostname()}} parses the hostname into a tenant and base_url.
 
 \code{\link[=sp_url_parse_path]{sp_url_parse_path()}} parses the path into a URL type, permissions, drive
-name, file path, and file name.
+name, file path, and file name. \code{path} must already be decoded (as returned
+by \code{\link[httr2:url_parse]{httr2::url_parse()}}), e.g. \code{"/:f:/r/sites/site-name/Shared Documents/Folder"}.
 
 \code{\link[=sp_url_parse_query]{sp_url_parse_query()}} parses the item ID from a query.
 }
@@ -49,6 +50,9 @@ SharePoint List URL:
 
 https://[tenant].sharepoint.com/sites/[site name]/Lists/[list
 name]/AllItems.aspx?env=WebViewList
+
+https://[tenant].sharepoint.com/sites/[site name]/Lists/[list
+name]
 
 https://[tenant].sharepoint.com/:l:/r/sites/[site name]/Lists/[list
 name]

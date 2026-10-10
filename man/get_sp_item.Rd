@@ -103,6 +103,15 @@ the \code{get_item_properties} method (also available by setting \code{propertie
 Additional parameters in \code{...} are passed to \code{\link[=get_sp_drive]{get_sp_drive()}} by
 \code{\link[=get_sp_item]{get_sp_item()}} or to \code{\link[=get_sp_item]{get_sp_item()}} by \code{\link[=get_sp_item_properties]{get_sp_item_properties()}} or
 \code{\link[=delete_sp_item]{delete_sp_item()}}.
+
+If \code{path} or \code{item_url} is a SharePoint URL for a file or folder (e.g. a
+link from "Copy link" in SharePoint, a document URL, or a document library
+URL) and \code{item_id}, \code{drive_name}, \code{drive_id}, and \code{drive} aren't supplied,
+\code{\link[=get_sp_item]{get_sp_item()}} gets the item with the \href{https://learn.microsoft.com/en-us/graph/api/shares-get}{Microsoft Graph shares API}. This works for
+items in any document library and for links to items that have been moved.
+The Microsoft Graph login uses \code{site}, \code{site_url}, or the site in the URL.
+If the shares API request fails, the site, drive, and path or item ID are
+parsed from the URL instead.
 }
 \examples{
 sp_item_url <- "<SharePoint item url>"

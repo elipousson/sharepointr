@@ -10,6 +10,16 @@
 #' [get_sp_item()] or to [get_sp_item()] by [get_sp_item_properties()] or
 #' [delete_sp_item()].
 #'
+#' If `path` or `item_url` is a SharePoint URL for a file or folder (e.g. a
+#' link from "Copy link" in SharePoint, a document URL, or a document library
+#' URL) and `item_id`, `drive_name`, `drive_id`, and `drive` aren't supplied,
+#' [get_sp_item()] gets the item with the [Microsoft Graph shares
+#' API](https://learn.microsoft.com/en-us/graph/api/shares-get). This works for
+#' items in any document library and for links to items that have been moved.
+#' The Microsoft Graph login uses `site`, `site_url`, or the site in the URL.
+#' If the shares API request fails, the site, drive, and path or item ID are
+#' parsed from the URL instead.
+#'
 #' @param path A SharePoint file URL or the relative path to a file located in a
 #'   SharePoint drive. If input is a relative path, the string should *not*
 #'   include the drive name. If input is a shared file URL, the text "Shared "
@@ -64,10 +74,41 @@ get_sp_item <- function(
       path <- NULL
     }
 
+    # Use the Graph shares API to get the item from the URL. If the request
+    # fails, fall back to the site, drive, and path or item ID parsed from the
+    # URL.
+    shares_cnd <- NULL
+
+    if (
+      is_null(c(item_id, drive_name, drive_id)) && is_sp_shares_url(item_url)
+    ) {
+      item <- try_fetch(
+        sp_shares_get_item(item_url, ..., site_url = site_url, call = call),
+        error = function(cnd) {
+          shares_cnd <<- cnd
+          NULL
+        }
+      )
+
+      if (!is.null(item)) {
+        return(sp_item_as_output(item, properties, as_data_frame, call = call))
+      }
+    }
+
     if (is_url(item_url)) {
-      sp_url_parts <- sp_url_parse(
-        url = item_url,
-        call = call
+      sp_url_parts <- try_fetch(
+        sp_url_parse(url = item_url, call = call),
+        error = function(cnd) {
+          if (is.null(shares_cnd)) {
+            cnd_signal(cnd)
+          }
+
+          cli_abort(
+            "Can't get a SharePoint item from {.url {item_url}}.",
+            parent = shares_cnd,
+            call = call
+          )
+        }
       )
 
       if (is_null(item_id) && is_null(sp_url_parts[["item_id"]])) {
@@ -93,11 +134,24 @@ get_sp_item <- function(
   check_ms_drive(drive, call = call)
   check_exclusive_strings(path, item_id, call = call)
 
+  item <- drive$get_item(path = path, itemid = item_id)
+
+  sp_item_as_output(item, properties, as_data_frame, call = call)
+}
+
+#' Return a drive item, its properties, or a data frame
+#'
+#' @returns `item`, `item$properties` if `properties = TRUE`, or a 1 row data
+#'   frame if `as_data_frame = TRUE`.
+#' @noRd
+sp_item_as_output <- function(
+  item,
+  properties = FALSE,
+  as_data_frame = FALSE,
+  call = caller_env()
+) {
   if (properties) {
-    item_properties <- drive$get_item_properties(
-      path = path,
-      itemid = item_id
-    )
+    item_properties <- item$properties
 
     if (!as_data_frame) {
       return(item_properties)
@@ -112,8 +166,6 @@ get_sp_item <- function(
 
     return(item_properties)
   }
-
-  item <- drive$get_item(path = path, itemid = item_id)
 
   if (!as_data_frame) {
     return(item)

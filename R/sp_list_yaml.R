@@ -7,7 +7,7 @@
 #' Microsoft Graph list and columnDefinition property names. Definitions can
 #' be stored as YAML files, used to create a list with
 #' `create_sp_list(definition = )`, and compared or synced with an existing
-#' list using [compare_sp_list_columns()] and [sync_sp_list_columns()].
+#' list using [compare_sp_list()] and [sync_sp_list()].
 #'
 #' - [read_sp_list_yaml()] reads and validates a YAML file.
 #' - [write_sp_list_yaml()] writes a definition or an existing list to a YAML
@@ -77,7 +77,7 @@
 #' existing list: `id`, `name`, `webUrl`, `createdDateTime`, `createdBy`,
 #' `lastModifiedDateTime`, `lastModifiedBy`, `eTag`, `parentReference`,
 #' `sharepointIds`, and `system`. These properties are never sent to
-#' SharePoint. [compare_sp_list_columns()] and [sync_sp_list_columns()] use
+#' SharePoint. [compare_sp_list()] and [sync_sp_list()] use
 #' `id` and `parentReference.siteId` to get the list if `sp_list` isn't
 #' supplied, and error if a supplied list has a different `id`.
 #' [create_sp_list()] ignores them.
@@ -136,7 +136,7 @@
 #' applications (e.g. form order or app-enforced choices).
 #'
 #' Properties that aren't included in a column definition aren't compared or
-#' changed by [sync_sp_list_columns()]. Removing a property from a file
+#' changed by [sync_sp_list()]. Removing a property from a file
 #' doesn't reset it to the default value.
 #'
 #' @details List views
@@ -170,9 +170,9 @@
 #'
 #' `create_sp_list(definition = )` creates views after creating the columns. A
 #' view titled `All Items` updates the default view of a new `genericList`
-#' list. Views aren't compared or changed by [compare_sp_list_columns()] or
-#' [sync_sp_list_columns()]. Views are only written by [write_sp_list_yaml()]
-#' if `include_views = TRUE`.
+#' list. [compare_sp_list()] and [sync_sp_list()] compare and update views
+#' only if the definition has a `views` element. Views are only written by
+#' [write_sp_list_yaml()] if `include_views = TRUE`.
 #'
 #' @param path Path to a YAML file.
 #' @param x For [write_sp_list_yaml()], a `sp_list_definition` object or a
@@ -712,7 +712,7 @@ as_column_body <- function(col) {
 #' @param keep_defaults If `FALSE` (default), drop properties with the default
 #'   value returned by the Graph API (e.g. `required: false`) to keep
 #'   definitions short. Properties that aren't included aren't compared by
-#'   [compare_sp_list_columns()].
+#'   [compare_sp_list()].
 #' @param read_only Read-only list properties to include as a reference to
 #'   the existing list. One of `"stable"` (default) for properties that don't
 #'   change after a list is created (`id`, `name`, `webUrl`, `createdDateTime`,

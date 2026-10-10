@@ -187,7 +187,7 @@ code.
 \code{\link[=delete_sp_list_column]{delete_sp_list_column()}} removes a column to a SharePoint list.
 \code{\link[=update_sp_list_column]{update_sp_list_column()}} updates a column definition for an existing column
 in a SharePoint list. Only properties that differ from the existing column
-are sent. Use \code{\link[=sync_sp_list_columns]{sync_sp_list_columns()}} for changes the Graph API can't make,
+are sent. Use \code{\link[=sync_sp_list]{sync_sp_list()}} for changes the Graph API can't make,
 such as switching a text column to multiple lines.
 }
 \details{

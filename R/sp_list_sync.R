@@ -1,14 +1,14 @@
-#' Compare or sync list column definitions with an existing SharePoint list
+#' Compare or sync a list definition with an existing SharePoint list
 #'
 #' @description
 #' `r lifecycle::badge("experimental")`
 #'
-#' [compare_sp_list_columns()] compares column definitions (e.g. from a YAML
-#' file read with [read_sp_list_yaml()]) with the columns of an existing
-#' SharePoint list and returns the columns to add, update, or delete.
+#' [compare_sp_list()] compares a list definition (e.g. from a YAML file read
+#' with [read_sp_list_yaml()]) with an existing SharePoint list and returns the
+#' list settings, columns, and views to add, update, or delete.
 #'
-#' [sync_sp_list_columns()] applies those changes. By default, it only prints
-#' the planned changes (`dry_run = TRUE`) and doesn't delete columns
+#' [sync_sp_list()] applies those changes. By default, it only prints the
+#' planned changes (`dry_run = TRUE`) and doesn't delete columns or views
 #' (`delete = FALSE`).
 #'
 #' @details Comparing columns
@@ -23,28 +23,46 @@
 #'
 #' Each change has one of these actions:
 #'
-#' - `"add"`: the column isn't in the list.
+#' - `"add"`: the column or view isn't in the list.
 #' - `"update"`: a property is different.
-#' - `"delete"`: the column isn't in the definitions.
+#' - `"delete"`: the column or view isn't in the definitions.
 #' - `"blocked"`: the change can't be made. This includes changing the column
-#'   type (e.g. text to number), changing a lookup column's source list, and
-#'   adding a column type the Graph API can't create.
+#'   type (e.g. text to number), changing a lookup column's source list,
+#'   adding a column type the Graph API can't create, changing the list
+#'   template, and removing the default view without setting another default
+#'   view.
 #' - `"unverified"`: the current value can't be read with the Graph API. This
-#'   includes `validation` (which [sync_sp_list_columns()] applies every time)
-#'   and columns where the Graph API doesn't return the column type
-#'   (hyperlink, picture, thumbnail, and term columns).
+#'   includes `validation` (which [sync_sp_list()] applies every time) and
+#'   columns where the Graph API doesn't return the column type (hyperlink,
+#'   picture, thumbnail, and term columns).
 #'
 #' A column's internal name can't be changed. A renamed column is returned as
 #' a column to add and a column to delete.
 #'
-#' List views in a definition aren't compared or changed. Use
-#' [update_sp_list_view()] to change a view.
-#'
 #' If `sp_list` is a `ms_list` object and `definitions` is a list definition,
 #' the list `displayName`, `description`, and `list` settings (`hidden` and
-#' `contentTypesEnabled`) are also compared. These changes have a missing
-#' `name`. A different `template` is blocked since the template can't be
-#' changed after a list is created.
+#' `contentTypesEnabled`) are also compared. A different `template` is blocked
+#' since the template can't be changed after a list is created.
+#'
+#' @details Comparing views
+#'
+#' Views are only compared if the definition has a `views` element and `views
+#' = TRUE`. A definition without views never adds, changes, or deletes views.
+#'
+#' Views are matched by `Id` (if included in the definition) or `Title`, so a
+#' view with an `Id` can be renamed. Only the properties included in a view
+#' definition are compared. Hidden and personal views are excluded, and views
+#' in the list that aren't in the definition are returned with `action =
+#' "delete"`.
+#'
+#' Setting `DefaultView: true` makes a view the default view (and the current
+#' default view is no longer the default). The current default view can't be
+#' removed from the default or deleted unless another view is set as the
+#' default view. Changes are applied in this order: new views, updated views,
+#' the default view, and then deleted views.
+#'
+#' Views are read and changed with the SharePoint REST API. Use `views =
+#' FALSE` to skip views (e.g. if the SharePoint REST API isn't available).
 #'
 #' @details Changes that use the SharePoint REST API
 #'
@@ -60,11 +78,12 @@
 #'   values from items with more than one choice, so it is skipped unless
 #'   `allow_data_loss = TRUE`.
 #' - `validation`: the Graph API can't create or update column validation.
+#' - All view changes.
 #'
 #' The SharePoint REST API requires a delegated (user) login with a refresh
 #' token, such as the default Microsoft365R login.
 #'
-#' @param definitions Column definitions: a `sp_list_definition` object (see
+#' @param definitions A list definition: a `sp_list_definition` object (see
 #'   [read_sp_list_yaml()]), a path to a YAML file, or a list of column
 #'   definitions created with [create_column_definition()] or
 #'   [create_column_definition_list()].
@@ -73,54 +92,60 @@
 #'   `parentReference.siteId` or from additional arguments passed to `...`)
 #'   or, if the definition has no `id`, the definition `displayName` and any
 #'   additional arguments passed to `...`. If the definition has an `id`, it
-#'   must match the `id` of `sp_list`. For [compare_sp_list_columns()],
-#'   `sp_list` can also be a list of column metadata from
-#'   `get_sp_list_metadata(as_data_frame = FALSE)`.
+#'   must match the `id` of `sp_list`. For [compare_sp_list()], `sp_list` can
+#'   also be a list of column metadata from
+#'   `get_sp_list_metadata(as_data_frame = FALSE)` (only columns are
+#'   compared).
 #' @param ... Additional parameters passed to [get_sp_list()] if `sp_list` is
 #'   `NULL`.
+#' @param views If `TRUE` (default), compare views if the definition has a
+#'   `views` element. If `FALSE`, views are skipped.
 #' @inheritParams rlang::args_error_context
-#' @returns [compare_sp_list_columns()] returns a data frame with one row per
-#'   added or deleted column and one row per changed property, with columns:
+#' @returns [compare_sp_list()] returns a data frame with one row per added or
+#'   deleted column or view and one row per changed property, with columns:
 #'
-#'   - `name`: internal column name (or `NA` for list settings).
-#'   - `column_id`: column ID for existing columns.
+#'   - `object`: `"list"`, `"column"`, or `"view"`.
+#'   - `name`: list display name, internal column name, or view title.
+#'   - `id`: column or view ID for existing columns and views.
 #'   - `action`: one of `"add"`, `"update"`, `"delete"`, `"blocked"`, or
 #'     `"unverified"`.
 #'   - `property`: changed property, e.g. `"displayName"`,
-#'     `"text.allowMultipleLines"`, or `"list.hidden"`.
+#'     `"text.allowMultipleLines"`, `"list.hidden"`, or `"RowLimit"`.
 #'   - `current`, `proposed`: list columns with the current and proposed
 #'     values.
 #'   - `method`: `"graph"` or `"rest"` for changes that can be applied.
 #'   - `data_loss`: `TRUE` if the change may cause data loss.
 #'   - `note`: explanation for blocked, unverified, or data loss changes.
 #'
-#'   [sync_sp_list_columns()] invisibly returns the same data frame with a
-#'   `status` column: `"planned"` (for a dry run), `"applied"`, `"skipped"`,
+#'   [sync_sp_list()] invisibly returns the same data frame with a `status`
+#'   column: `"planned"` (for a dry run), `"applied"`, `"skipped"`,
 #'   `"blocked"`, or `"failed"`.
 #' @keywords lists
 #' @examples
 #' \dontrun{
 #' definition <- read_sp_list_yaml("list-fields/capital-project.yaml")
 #'
-#' compare_sp_list_columns(definition, site_url = "<SharePoint site url>")
+#' compare_sp_list(definition, site_url = "<SharePoint site url>")
 #'
 #' # Print planned changes
-#' sync_sp_list_columns(definition, site_url = "<SharePoint site url>")
+#' sync_sp_list(definition, site_url = "<SharePoint site url>")
 #'
 #' # Apply changes
-#' sync_sp_list_columns(
+#' sync_sp_list(
 #'   definition,
 #'   site_url = "<SharePoint site url>",
 #'   dry_run = FALSE
 #' )
 #' }
 #' @export
-compare_sp_list_columns <- function(
+compare_sp_list <- function(
   definitions,
   sp_list = NULL,
   ...,
+  views = TRUE,
   call = caller_env()
 ) {
+  check_bool(views, call = call)
   definitions <- as_sync_definitions(definitions, call = call)
   columns <- definitions[["columns"]]
   declared <- purrr::map_chr(columns, "name")
@@ -191,14 +216,26 @@ compare_sp_list_columns <- function(
       delete_names,
       \(name) {
         new_change_row(
+          object = "column",
           name = name,
-          column_id = live_ids[[name]],
+          id = live_ids[[name]],
           action = "delete",
           current = column_type_key(live[[name]])
         )
       }
     )
   )
+
+  # Compare views only if the definition has views
+  if (views && !is.null(definitions[["views"]]) && inherits(sp_list, "ms_list")) {
+    rows <- c(
+      rows,
+      list(view_change_rows(
+        definitions[["views"]],
+        get_sync_live_views(sp_list, call = call)
+      ))
+    )
+  }
 
   rows <- purrr::compact(rows)
 
@@ -276,16 +313,16 @@ get_definition_sp_list <- function(
 #' Create change rows for list settings
 #'
 #' Compares `displayName`, `description`, and `list` (listInfo) properties of
-#' a definition with the properties of a `ms_list` object. Rows use `name =
-#' NA` to distinguish them from column changes.
+#' a definition with the properties of a `ms_list` object.
 #' @noRd
 list_change_rows <- function(definitions, properties) {
   rows <- list()
+  list_name <- properties[["displayName"]] %||% NA_character_
 
   add_row <- function(property, current, proposed, action = "update") {
     rows[[length(rows) + 1]] <<- new_change_row(
-      name = NA_character_,
-      column_id = NA_character_,
+      object = "list",
+      name = list_name,
       action = action,
       property = property,
       current = current,
@@ -371,11 +408,12 @@ as_sync_definitions <- function(definitions, call = caller_env()) {
   new_sp_list_definition(display_name = NULL, columns = columns)
 }
 
-#' Create a data frame with one row for a column change
+#' Create a data frame with one row for a list, column, or view change
 #' @noRd
 new_change_row <- function(
+  object = "column",
   name = character(),
-  column_id = NA_character_,
+  id = NA_character_,
   action = character(),
   property = NA_character_,
   current = NULL,
@@ -387,8 +425,9 @@ new_change_row <- function(
   if (length(name) == 0) {
     return(
       vctrs::data_frame(
+        object = character(),
         name = character(),
-        column_id = character(),
+        id = character(),
         action = character(),
         property = character(),
         current = list(),
@@ -401,8 +440,9 @@ new_change_row <- function(
   }
 
   vctrs::data_frame(
+    object = object,
     name = name,
-    column_id = column_id,
+    id = id,
     action = action,
     property = property,
     current = list(current),
@@ -454,7 +494,7 @@ column_change_rows <- function(col, current, column_id = NA_character_) {
       change <- classify_column_change(diff)
       new_change_row(
         name = col[["name"]],
-        column_id = column_id,
+        id = column_id,
         action = change[["action"]],
         property = diff[["property"]],
         current = diff[["current"]],
@@ -465,6 +505,151 @@ column_change_rows <- function(col, current, column_id = NA_character_) {
       )
     }
   )
+
+  vctrs::vec_rbind(!!!rows)
+}
+
+#' Get the views of a list for compare and sync
+#'
+#' Excludes hidden and personal views. Adds a hint to use `views = FALSE` if
+#' the SharePoint REST API isn't available.
+#' @noRd
+get_sync_live_views <- function(sp_list, call = caller_env()) {
+  views <- try_fetch(
+    list_sp_list_views(sp_list, as_data_frame = FALSE, call = call),
+    error = function(cnd) {
+      cli_abort(
+        c(
+          "Can't read the list views to compare them with the definition.",
+          "i" = "Use {.code views = FALSE} to skip views."
+        ),
+        parent = cnd,
+        call = call
+      )
+    }
+  )
+
+  purrr::discard(views, \(view) isTRUE(view[["PersonalView"]]))
+}
+
+#' Create change rows for views
+#'
+#' @param views View definitions from a list definition.
+#' @param live Views from `list_sp_list_views(as_data_frame = FALSE)`.
+#' @noRd
+view_change_rows <- function(views, live) {
+  live_ids <- purrr::map_chr(live, \(view) view[["Id"]] %||% NA_character_)
+  live_titles <- purrr::map_chr(live, "Title")
+  matched <- character(0)
+  rows <- list()
+
+  new_default <- purrr::detect(views, \(view) isTRUE(view[["DefaultView"]]))
+  current_default <- purrr::detect(live, \(view) isTRUE(view[["DefaultView"]]))
+
+  # The current default view is replaced if another view is set as the default
+  replaces_default <- !is.null(new_default) &&
+    !is.null(current_default) &&
+    !identical(new_default[["Id"]] %||% new_default[["Title"]], current_default[["Id"]]) &&
+    !identical(new_default[["Title"]], current_default[["Title"]])
+
+  for (view in views) {
+    idx <- if (!is.null(view[["Id"]])) {
+      match(view[["Id"]], live_ids)
+    } else {
+      match(view[["Title"]], live_titles)
+    }
+
+    if (is.na(idx)) {
+      rows <- c(rows, list(new_change_row(
+        object = "view",
+        name = view[["Title"]],
+        action = "add",
+        proposed = "view",
+        method = "rest",
+        note = if (!is.null(view[["Id"]])) {
+          "The view Id isn't in the list, so a new view is created."
+        } else {
+          NA_character_
+        }
+      )))
+      next
+    }
+
+    current <- live[[idx]]
+    matched <- c(matched, current[["Id"]])
+    props <- intersect(names(view), names(sp_view_props))
+
+    for (prop in props) {
+      proposed <- view[[prop]]
+      value <- current[[prop]]
+
+      compare_value <- if (prop == "CustomFormatter" && is.list(proposed)) {
+        as_view_json(proposed)
+      } else {
+        proposed
+      }
+
+      if (same_view_value(compare_value, value, prop)) {
+        next
+      }
+
+      if (prop == "DefaultView" && isFALSE(proposed)) {
+        # Another view becoming the default view replaces this one
+        if (replaces_default) {
+          next
+        }
+
+        rows <- c(rows, list(new_change_row(
+          object = "view",
+          name = current[["Title"]],
+          id = current[["Id"]],
+          action = "blocked",
+          property = prop,
+          current = value,
+          proposed = proposed,
+          note = "Set another view as the default view instead."
+        )))
+        next
+      }
+
+      rows <- c(rows, list(new_change_row(
+        object = "view",
+        name = current[["Title"]],
+        id = current[["Id"]],
+        action = "update",
+        property = prop,
+        current = value,
+        proposed = proposed,
+        method = "rest"
+      )))
+    }
+  }
+
+  for (view in live) {
+    if (view[["Id"]] %in% matched) {
+      next
+    }
+
+    blocked <- isTRUE(view[["DefaultView"]]) && !replaces_default
+
+    rows <- c(rows, list(new_change_row(
+      object = "view",
+      name = view[["Title"]],
+      id = view[["Id"]],
+      action = if (blocked) "blocked" else "delete",
+      current = "view",
+      method = if (blocked) NA_character_ else "rest",
+      note = if (blocked) {
+        "The default view can't be deleted unless another view is set as the default view."
+      } else {
+        NA_character_
+      }
+    )))
+  }
+
+  if (length(rows) == 0) {
+    return(NULL)
+  }
 
   vctrs::vec_rbind(!!!rows)
 }
@@ -714,21 +899,22 @@ classify_column_change <- function(diff) {
   change
 }
 
-#' @rdname compare_sp_list_columns
+#' @rdname compare_sp_list
 #' @param dry_run If `TRUE` (default), print the planned changes without
 #'   changing the list.
-#' @param delete If `TRUE`, delete columns that aren't in the definitions.
-#'   Defaults to `FALSE`.
+#' @param delete If `TRUE`, delete columns and views that aren't in the
+#'   definitions. Defaults to `FALSE`.
 #' @param allow_data_loss If `TRUE`, apply changes that may cause data loss
 #'   (see details). Defaults to `FALSE`.
 #' @export
-sync_sp_list_columns <- function(
+sync_sp_list <- function(
   definitions,
   sp_list = NULL,
   ...,
   dry_run = TRUE,
   delete = FALSE,
   allow_data_loss = FALSE,
+  views = TRUE,
   call = caller_env()
 ) {
   check_bool(dry_run, call = call)
@@ -739,7 +925,12 @@ sync_sp_list_columns <- function(
 
   sp_list <- get_definition_sp_list(definitions, sp_list, ..., call = call)
 
-  changes <- compare_sp_list_columns(definitions, sp_list = sp_list, call = call)
+  changes <- compare_sp_list(
+    definitions,
+    sp_list = sp_list,
+    views = views,
+    call = call
+  )
   changes[["status"]] <- plan_change_status(
     changes,
     delete = delete,
@@ -759,6 +950,12 @@ sync_sp_list_columns <- function(
   )
 
   changes <- apply_column_changes(changes, columns, sp_list, call = call)
+  changes <- apply_view_changes(
+    changes,
+    views = definitions[["views"]],
+    sp_list = sp_list,
+    call = call
+  )
 
   failed <- changes[["status"]] == "failed"
 
@@ -768,7 +965,9 @@ sync_sp_list_columns <- function(
         "{sum(failed)} change{?s} failed:",
         set_names(
           paste0(
-            label_list_changes(changes[["name"]][failed]),
+            changes[["object"]][failed],
+            " ",
+            changes[["name"]][failed],
             ": ",
             changes[["note"]][failed]
           ),
@@ -779,20 +978,18 @@ sync_sp_list_columns <- function(
     )
   }
 
-  applied <- unique(changes[["name"]][changes[["status"]] == "applied"])
-  applied <- applied[!is.na(applied)]
+  applied <- changes[changes[["status"]] == "applied", ]
+  n_columns <- length(unique(applied[["name"]][applied[["object"]] == "column"]))
+  n_views <- length(unique(applied[["name"]][applied[["object"]] == "view"]))
+
   cli_inform(
-    c("v" = "Updated {length(applied)} column{?s} in {.val {list_name}}.")
+    c(
+      "v" = "Updated {.val {list_name}}: {n_columns} column{?s} and
+      {n_views} view{?s}{if (any(applied[['object']] == 'list')) ' and list settings' else ''}."
+    )
   )
 
   invisible(changes)
-}
-
-#' Label list-level changes (with a missing name) as "list"
-#' @noRd
-label_list_changes <- function(x) {
-  x[is.na(x)] <- "list"
-  x
 }
 
 #' @noRd
@@ -835,7 +1032,7 @@ print_column_changes <- function(changes, list_name, dry_run = TRUE) {
   skipped <- changes[["status"]] == "skipped"
 
   if (any(skipped & changes[["action"]] == "delete")) {
-    cli::cli_text("Set {.code delete = TRUE} to delete columns.")
+    cli::cli_text("Set {.code delete = TRUE} to delete columns and views.")
   }
 
   if (any(skipped & changes[["data_loss"]])) {
@@ -863,18 +1060,23 @@ match_value <- function(x, values, default) {
 #' Format a single column change for printing
 #' @noRd
 format_column_change <- function(change) {
-  name <- if (is.na(change[["name"]])) {
-    "list"
-  } else {
+  name <- switch(
+    change[["object"]],
+    list = "list",
+    view = paste0("view ", cli::format_inline("{.val {change[['name']]}}")),
     cli::format_inline("{.field {change[['name']]}}")
-  }
+  )
   action <- change[["action"]]
   property <- change[["property"]]
   note <- change[["note"]]
 
   text <- switch(
     action,
-    add = paste0("add ", name, " (", change[["proposed"]][[1]], ")"),
+    add = if (change[["object"]] == "view") {
+      paste0("add ", name)
+    } else {
+      paste0("add ", name, " (", change[["proposed"]][[1]], ")")
+    },
     delete = paste0("delete ", name),
     paste0(
       action,
@@ -892,7 +1094,7 @@ format_column_change <- function(change) {
     )
   )
 
-  if (identical(change[["method"]], "rest")) {
+  if (identical(change[["method"]], "rest") && change[["object"]] != "view") {
     text <- paste0(text, " [REST]")
   }
 
@@ -933,7 +1135,7 @@ apply_column_changes <- function(changes, columns, sp_list, call = caller_env())
 
   # Update list settings in one request
   list_rows <- which(
-    planned & is.na(changes[["name"]]) & changes[["action"]] == "update"
+    planned & changes[["object"]] == "list" & changes[["action"]] == "update"
   )
 
   if (length(list_rows) > 0) {
@@ -957,7 +1159,7 @@ apply_column_changes <- function(changes, columns, sp_list, call = caller_env())
     )
   }
 
-  planned <- planned & !is.na(changes[["name"]])
+  planned <- planned & changes[["object"]] == "column"
 
   # Add columns (calculated columns last since formulas may reference them)
   add_names <- changes[["name"]][planned & changes[["action"]] == "add"]
@@ -1006,7 +1208,98 @@ apply_column_changes <- function(changes, columns, sp_list, call = caller_env())
       idx,
       delete_sp_list_column(
         sp_list = sp_list,
-        column_id = changes[["column_id"]][[idx]],
+        column_id = changes[["id"]][[idx]],
+        call = call
+      )
+    )
+  }
+
+  changes
+}
+
+#' Apply planned view changes
+#'
+#' Applies new views, updated views, the default view, and then deleted views.
+#' @noRd
+apply_view_changes <- function(changes, views, sp_list, call = caller_env()) {
+  planned <- changes[["status"]] == "planned" & changes[["object"]] == "view"
+
+  if (!any(planned)) {
+    return(changes)
+  }
+
+  views <- set_names(views, purrr::map_chr(views, "Title"))
+  default_view <- purrr::detect(views, \(view) isTRUE(view[["DefaultView"]]))
+
+  # Add views (without setting the default view)
+  for (idx in which(planned & changes[["action"]] == "add")) {
+    view <- views[[changes[["name"]][[idx]]]]
+    view <- view[setdiff(names(view), c(sp_view_read_only_props, "DefaultView"))]
+
+    changes <- try_column_change(
+      changes,
+      idx,
+      create_sp_list_view(sp_list, view_definition = view, call = call)
+    )
+  }
+
+  # Update views (without setting the default view)
+  update_rows <- planned &
+    changes[["action"]] %in% "update" &
+    !changes[["property"]] %in% "DefaultView"
+
+  for (view_id in unique(changes[["id"]][update_rows])) {
+    idx <- which(update_rows & changes[["id"]] %in% view_id)
+    props <- set_names(changes[["proposed"]][idx], changes[["property"]][idx])
+
+    changes <- try_column_change(
+      changes,
+      idx,
+      update_sp_list_view(
+        sp_list,
+        view_id = view_id,
+        view_definition = props,
+        call = call
+      )
+    )
+  }
+
+  # Set the default view after all views exist
+  default_rows <- which(
+    planned & changes[["action"]] == "update" & changes[["property"]] %in% "DefaultView"
+  )
+  added_default <- !is.null(default_view) &&
+    any(planned & changes[["action"]] == "add" & changes[["name"]] == default_view[["Title"]])
+
+  if (length(default_rows) > 0 || added_default) {
+    idx <- c(
+      default_rows,
+      if (added_default) which(changes[["action"]] == "add" & changes[["name"]] == default_view[["Title"]])
+    )
+
+    if (all(changes[["status"]][idx] != "failed")) {
+      changes <- try_column_change(
+        changes,
+        idx,
+        update_sp_list_view(
+          sp_list,
+          view_title = default_view[["Title"]],
+          default_view = TRUE,
+          call = call
+        )
+      )
+    }
+  }
+
+  # Delete views
+  for (idx in which(planned & changes[["action"]] == "delete")) {
+    changes <- try_column_change(
+      changes,
+      idx,
+      delete_sp_list_view(
+        sp_list,
+        view_id = changes[["id"]][[idx]],
+        confirm = FALSE,
         call = call
       )
     )
@@ -1043,7 +1336,7 @@ try_column_change <- function(changes, idx, expr) {
 #' @noRd
 apply_column_updates <- function(rows, column, sp_list, call = caller_env()) {
   name <- column[["name"]]
-  column_id <- rows[["column_id"]][[1]]
+  column_id <- rows[["id"]][[1]]
   type <- column_type_key(column)
   rest_fields <- list()
   graph_body <- list()

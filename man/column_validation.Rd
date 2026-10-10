@@ -30,7 +30,7 @@ evaluate to \code{TRUE} for a value to be saved.
 \details{
 The Graph API doesn't support creating or updating a list column with a
 \code{validation} property, so \code{\link[=create_sp_list_column]{create_sp_list_column()}} and
-\code{\link[=sync_sp_list_columns]{sync_sp_list_columns()}} apply validation with the SharePoint REST API
+\code{\link[=sync_sp_list]{sync_sp_list()}} apply validation with the SharePoint REST API
 instead. Validation isn't returned when reading list columns with the Graph
 API, so it can't be compared to an existing column.
 }

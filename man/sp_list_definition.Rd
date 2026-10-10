@@ -56,7 +56,7 @@ parameters passed to \code{...} are all ignored.}
 \item{keep_defaults}{If \code{FALSE} (default), drop properties with the default
 value returned by the Graph API (e.g. \code{required: false}) to keep
 definitions short. Properties that aren't included aren't compared by
-\code{\link[=compare_sp_list_columns]{compare_sp_list_columns()}}.}
+\code{\link[=compare_sp_list]{compare_sp_list()}}.}
 
 \item{read_only}{Read-only list properties to include as a reference to
 the existing list. One of \code{"stable"} (default) for properties that don't
@@ -92,7 +92,7 @@ A SharePoint list definition describes a list and its columns using
 Microsoft Graph list and columnDefinition property names. Definitions can
 be stored as YAML files, used to create a list with
 \code{create_sp_list(definition = )}, and compared or synced with an existing
-list using \code{\link[=compare_sp_list_columns]{compare_sp_list_columns()}} and \code{\link[=sync_sp_list_columns]{sync_sp_list_columns()}}.
+list using \code{\link[=compare_sp_list]{compare_sp_list()}} and \code{\link[=sync_sp_list]{sync_sp_list()}}.
 \itemize{
 \item \code{\link[=read_sp_list_yaml]{read_sp_list_yaml()}} reads and validates a YAML file.
 \item \code{\link[=write_sp_list_yaml]{write_sp_list_yaml()}} writes a definition or an existing list to a YAML
@@ -164,7 +164,7 @@ Read-only list properties can also be included as a reference to an
 existing list: \code{id}, \code{name}, \code{webUrl}, \code{createdDateTime}, \code{createdBy},
 \code{lastModifiedDateTime}, \code{lastModifiedBy}, \code{eTag}, \code{parentReference},
 \code{sharepointIds}, and \code{system}. These properties are never sent to
-SharePoint. \code{\link[=compare_sp_list_columns]{compare_sp_list_columns()}} and \code{\link[=sync_sp_list_columns]{sync_sp_list_columns()}} use
+SharePoint. \code{\link[=compare_sp_list]{compare_sp_list()}} and \code{\link[=sync_sp_list]{sync_sp_list()}} use
 \code{id} and \code{parentReference.siteId} to get the list if \code{sp_list} isn't
 supplied, and error if a supplied list has a different \code{id}.
 \code{\link[=create_sp_list]{create_sp_list()}} ignores them.
@@ -225,7 +225,7 @@ doesn't send it to SharePoint, so it can hold metadata used by other
 applications (e.g. form order or app-enforced choices).
 
 Properties that aren't included in a column definition aren't compared or
-changed by \code{\link[=sync_sp_list_columns]{sync_sp_list_columns()}}. Removing a property from a file
+changed by \code{\link[=sync_sp_list]{sync_sp_list()}}. Removing a property from a file
 doesn't reset it to the default value.
 
 List views
@@ -259,9 +259,9 @@ definition or built-in fields (e.g. \code{LinkTitle}, \code{ID}, or \code{Modifi
 
 \code{create_sp_list(definition = )} creates views after creating the columns. A
 view titled \verb{All Items} updates the default view of a new \code{genericList}
-list. Views aren't compared or changed by \code{\link[=compare_sp_list_columns]{compare_sp_list_columns()}} or
-\code{\link[=sync_sp_list_columns]{sync_sp_list_columns()}}. Views are only written by \code{\link[=write_sp_list_yaml]{write_sp_list_yaml()}}
-if \code{include_views = TRUE}.
+list. \code{\link[=compare_sp_list]{compare_sp_list()}} and \code{\link[=sync_sp_list]{sync_sp_list()}} compare and update views
+only if the definition has a \code{views} element. Views are only written by
+\code{\link[=write_sp_list_yaml]{write_sp_list_yaml()}} if \code{include_views = TRUE}.
 }
 \examples{
 path <- system.file("extdata", "example-list.yaml", package = "sharepointr")

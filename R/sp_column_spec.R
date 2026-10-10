@@ -655,7 +655,7 @@ column_type_key <- function(x) {
 #'
 #' The Graph API doesn't support creating or updating a list column with a
 #' `validation` property, so [create_sp_list_column()] and
-#' [sync_sp_list_columns()] apply validation with the SharePoint REST API
+#' [sync_sp_list()] apply validation with the SharePoint REST API
 #' instead. Validation isn't returned when reading list columns with the Graph
 #' API, so it can't be compared to an existing column.
 #'

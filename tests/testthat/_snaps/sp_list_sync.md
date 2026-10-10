@@ -1,4 +1,4 @@
-# compare_sp_list_columns finds added, updated, deleted, and blocked columns
+# compare_sp_list finds added, updated, deleted, and blocked columns
 
     Code
       print(changes[c("name", "action", "property", "method", "data_loss", "note")])
@@ -26,11 +26,10 @@
       9           The Graph API can't create this column type.
       10                                                  <NA>
 
-# compare_sp_list_columns errors for data frame metadata
+# compare_sp_list errors for data frame metadata
 
     Code
-      compare_sp_list_columns(list(create_text_column("A")), sp_list = data.frame(
-        name = "A"))
+      compare_sp_list(list(create_text_column("A")), sp_list = data.frame(name = "A"))
     Condition
       Error:
       ! `sp_list` must be a <ms_list> object or a list of column metadata from `get_sp_list_metadata(as_data_frame = FALSE)`.
@@ -47,7 +46,7 @@
       ! delete Status
       ! delete Link
       ! delete OldColumn
-      Set `delete = TRUE` to delete columns.
+      Set `delete = TRUE` to delete columns and views.
       Dry run: no changes made. Set `dry_run = FALSE` to apply.
 
 # get_definition_sp_list uses and checks the definition id
@@ -60,4 +59,26 @@
       i Definition id: "list-1".
       i List "Other" id: "list-2".
       i Remove id from a definition copied from another list.
+
+# view_change_rows finds added, updated, and deleted views
+
+    Code
+      print(rows[c("name", "id", "action", "property", "note")])
+    Output
+           name   id action   property note
+      1 Working   v2 update      Title <NA>
+      2 Working   v2 update ViewFields <NA>
+      3  Active <NA>    add       <NA> <NA>
+      4     Old   v3 delete       <NA> <NA>
+
+# compare_sp_list explains how to skip views if they can't be read
+
+    Code
+      compare_sp_list(definition, sp_list = sp_list)
+    Condition
+      Error:
+      ! Can't read the list views to compare them with the definition.
+      i Use `views = FALSE` to skip views.
+      Caused by error in `list_sp_list_views()`:
+      ! No REST token.
 

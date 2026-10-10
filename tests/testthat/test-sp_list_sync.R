@@ -39,7 +39,7 @@ live_meta <- list(
   list(id = "id-old", name = "OldColumn", displayName = "Old Column", boolean = list())
 )
 
-test_that("compare_sp_list_columns returns no changes for matching definitions", {
+test_that("compare_sp_list returns no changes for matching definitions", {
   definitions <- list(
     create_text_column("Notes"),
     create_choice_column("Status", c("a", "b")),
@@ -47,14 +47,14 @@ test_that("compare_sp_list_columns returns no changes for matching definitions",
     create_boolean_column("OldColumn")
   )
 
-  changes <- compare_sp_list_columns(definitions, sp_list = live_meta)
+  changes <- compare_sp_list(definitions, sp_list = live_meta)
 
   # Only the hyperlink column (no type in the definitions) is a delete
   expect_identical(changes[["name"]], "Link")
   expect_identical(changes[["action"]], "delete")
 })
 
-test_that("compare_sp_list_columns finds added, updated, deleted, and blocked columns", {
+test_that("compare_sp_list finds added, updated, deleted, and blocked columns", {
   definitions <- list(
     create_text_column("Notes", multiple_lines = TRUE, display_name = "Project Notes"),
     create_choice_column("Status", c("a", "b", "c"), display_as = "checkBoxes"),
@@ -65,7 +65,7 @@ test_that("compare_sp_list_columns finds added, updated, deleted, and blocked co
     create_thumbnail_column("NewThumbnail")
   )
 
-  changes <- compare_sp_list_columns(definitions, sp_list = live_meta)
+  changes <- compare_sp_list(definitions, sp_list = live_meta)
 
   expect_snapshot(
     print(changes[c("name", "action", "property", "method", "data_loss", "note")])
@@ -74,7 +74,8 @@ test_that("compare_sp_list_columns finds added, updated, deleted, and blocked co
   notes <- changes[changes[["name"]] == "Notes", ]
   expect_identical(notes[["property"]], c("displayName", "text.allowMultipleLines"))
   expect_identical(notes[["method"]], c("graph", "rest"))
-  expect_identical(notes[["column_id"]], c("id-notes", "id-notes"))
+  expect_identical(notes[["id"]], c("id-notes", "id-notes"))
+  expect_true(all(changes[["object"]] == "column"))
 
   expect_identical(
     changes[["action"]][changes[["name"]] == "Amount"],
@@ -86,7 +87,7 @@ test_that("compare_sp_list_columns finds added, updated, deleted, and blocked co
   )
 })
 
-test_that("compare_sp_list_columns flags changes that may cause data loss", {
+test_that("compare_sp_list flags changes that may cause data loss", {
   meta <- list(
     list(
       id = "id-notes",
@@ -100,7 +101,7 @@ test_that("compare_sp_list_columns flags changes that may cause data loss", {
     )
   )
 
-  changes <- compare_sp_list_columns(
+  changes <- compare_sp_list(
     list(
       create_text_column("Notes", multiple_lines = FALSE),
       create_choice_column("Status", c("a", "b"), display_as = "radioButtons")
@@ -121,9 +122,9 @@ test_that("compare_sp_list_columns flags changes that may cause data loss", {
   )
 })
 
-test_that("compare_sp_list_columns treats missing properties as default values", {
+test_that("compare_sp_list treats missing properties as default values", {
   # Graph doesn't return textType for single line text columns
-  changes <- compare_sp_list_columns(
+  changes <- compare_sp_list(
     list(create_text_column("Notes", text_type = "plain", required = FALSE)),
     sp_list = live_meta[3]
   )
@@ -131,8 +132,8 @@ test_that("compare_sp_list_columns treats missing properties as default values",
   expect_identical(nrow(changes), 0L)
 })
 
-test_that("compare_sp_list_columns includes Title only if it is in the definitions", {
-  changes <- compare_sp_list_columns(
+test_that("compare_sp_list includes Title only if it is in the definitions", {
+  changes <- compare_sp_list(
     list(create_text_column("Title", display_name = "Name")),
     sp_list = live_meta[1:2]
   )
@@ -140,19 +141,19 @@ test_that("compare_sp_list_columns includes Title only if it is in the definitio
   expect_identical(changes[["property"]], "displayName")
 })
 
-test_that("compare_sp_list_columns accepts a YAML file path", {
+test_that("compare_sp_list accepts a YAML file path", {
   skip_if_not_installed("yaml12")
 
   path <- system.file("extdata", "example-list.yaml", package = "sharepointr")
-  changes <- compare_sp_list_columns(path, sp_list = list())
+  changes <- compare_sp_list(path, sp_list = list())
 
   expect_identical(unique(changes[["action"]]), "add")
   expect_length(changes[["name"]], 9)
 })
 
-test_that("compare_sp_list_columns errors for data frame metadata", {
+test_that("compare_sp_list errors for data frame metadata", {
   expect_snapshot(
-    compare_sp_list_columns(
+    compare_sp_list(
       list(create_text_column("A")),
       sp_list = data.frame(name = "A")
     ),
@@ -161,7 +162,7 @@ test_that("compare_sp_list_columns errors for data frame metadata", {
 })
 
 test_that("print_column_changes summarizes planned changes", {
-  changes <- compare_sp_list_columns(
+  changes <- compare_sp_list(
     list(
       create_text_column("Notes", multiple_lines = TRUE),
       create_text_column("Amount"),
@@ -222,6 +223,173 @@ test_that("get_definition_sp_list uses and checks the definition id", {
   )
 })
 
+# Views as returned by list_sp_list_views(as_data_frame = FALSE)
+live_views <- list(
+  list(
+    Id = "v1",
+    Title = "All Items",
+    DefaultView = TRUE,
+    ViewFields = c("LinkTitle", "Notes"),
+    RowLimit = 30L,
+    ViewQuery = "<OrderBy><FieldRef Name=\"ID\" /></OrderBy>"
+  ),
+  list(
+    Id = "v2",
+    Title = "Working",
+    DefaultView = FALSE,
+    ViewFields = c("LinkTitle", "Amount"),
+    RowLimit = 30L
+  ),
+  list(Id = "v3", Title = "Old", DefaultView = FALSE, ViewFields = "LinkTitle")
+)
+
+test_that("view_change_rows finds added, updated, and deleted views", {
+  views <- list(
+    # Matched by Id and renamed
+    list(Title = "Working Renamed", Id = "v2", ViewFields = c("Amount", "LinkTitle")),
+    # Matched by Title; the saved query has a space before "/>"
+    list(Title = "All Items", ViewQuery = "<OrderBy><FieldRef Name=\"ID\"/></OrderBy>"),
+    list(Title = "Active", DefaultView = TRUE, CustomFormatter = list(a = 1L))
+  )
+
+  rows <- view_change_rows(views, live_views)
+
+  expect_true(all(rows[["object"]] == "view"))
+  expect_snapshot(print(rows[c("name", "id", "action", "property", "note")]))
+
+  # Views that aren't in the definition are deleted
+  expect_identical(
+    rows[["action"]][rows[["name"]] == "Old"],
+    "delete"
+  )
+})
+
+test_that("view_change_rows protects the default view", {
+  rows <- view_change_rows(
+    list(
+      list(Title = "All Items", DefaultView = FALSE),
+      list(Title = "Working")
+    ),
+    live_views
+  )
+
+  expect_identical(
+    rows[["action"]][rows[["name"]] == "All Items"],
+    "blocked"
+  )
+
+  # Deleting the current default view is blocked without a new default
+  rows <- view_change_rows(list(list(Title = "Working")), live_views)
+  expect_identical(
+    rows[["action"]][rows[["name"]] == "All Items"],
+    "blocked"
+  )
+  expect_identical(rows[["action"]][rows[["name"]] == "Old"], "delete")
+
+  # A view that is already the default isn't changed
+  expect_null(view_change_rows(
+    list(
+      list(Title = "All Items", DefaultView = TRUE),
+      list(Title = "Working"),
+      list(Title = "Old")
+    ),
+    live_views
+  ))
+})
+
+test_that("apply_view_changes applies views in order", {
+  calls <- list()
+  record <- function(fn, ...) {
+    calls[[length(calls) + 1]] <<- c(list(fn = fn), list(...))
+    invisible(NULL)
+  }
+
+  local_mocked_bindings(
+    create_sp_list_view = function(sp_list, ..., view_definition = NULL, call = NULL) {
+      record("create", view_definition = view_definition)
+    },
+    update_sp_list_view = function(sp_list, view_title = NULL, view_id = NULL, ..., default_view = NULL, view_definition = NULL, call = NULL) {
+      record("update", view_title = view_title, view_id = view_id, default_view = default_view, view_definition = view_definition)
+    },
+    delete_sp_list_view = function(sp_list, view_title = NULL, view_id = NULL, ..., confirm = TRUE, call = NULL) {
+      record("delete", view_id = view_id, confirm = confirm)
+    }
+  )
+
+  views <- list(
+    list(Title = "Working Renamed", Id = "v2", RowLimit = 50L),
+    list(Title = "Active", DefaultView = TRUE, ViewFields = "LinkTitle")
+  )
+
+  changes <- view_change_rows(views, live_views)
+  changes[["status"]] <- plan_change_status(changes, delete = TRUE, allow_data_loss = FALSE)
+
+  changes <- apply_view_changes(changes, views, sp_list = NULL)
+
+  expect_identical(
+    purrr::map_chr(calls, "fn"),
+    c("create", "update", "update", "delete", "delete")
+  )
+  # New views are created without DefaultView, then set as the default
+  expect_identical(calls[[1]][["view_definition"]], list(Title = "Active", ViewFields = "LinkTitle"))
+  expect_identical(
+    calls[[2]][["view_definition"]],
+    list(Title = "Working Renamed", RowLimit = 50L)
+  )
+  expect_identical(calls[[3]][["view_title"]], "Active")
+  expect_true(calls[[3]][["default_view"]])
+  expect_identical(purrr::map_chr(calls[4:5], "view_id"), c("v1", "v3"))
+  expect_true(all(changes[["status"]] == "applied"))
+})
+
+test_that("compare_sp_list only compares views if the definition has views", {
+  sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
+  sp_list$properties <- list(id = "list-1", displayName = "Projects")
+  read_views <- 0
+
+  local_mocked_bindings(
+    get_sp_list_metadata = function(...) live_meta[3],
+    list_sp_list_views = function(...) {
+      read_views <<- read_views + 1
+      live_views
+    }
+  )
+
+  columns_only <- new_sp_list_definition(
+    display_name = "Projects",
+    columns = list(create_text_column("Notes"))
+  )
+  expect_identical(nrow(compare_sp_list(columns_only, sp_list = sp_list)), 0L)
+  expect_identical(read_views, 0)
+
+  with_views <- columns_only
+  with_views[["views"]] <- list(list(Title = "All Items"), list(Title = "Working"))
+  changes <- compare_sp_list(with_views, sp_list = sp_list)
+  expect_identical(changes[["name"]], "Old")
+  expect_identical(read_views, 1)
+
+  # views = FALSE skips views
+  expect_identical(nrow(compare_sp_list(with_views, sp_list = sp_list, views = FALSE)), 0L)
+  expect_identical(read_views, 1)
+})
+
+test_that("compare_sp_list explains how to skip views if they can't be read", {
+  sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
+  sp_list$properties <- list(id = "list-1", displayName = "Projects")
+
+  local_mocked_bindings(
+    get_sp_list_metadata = function(...) list(),
+    list_sp_list_views = function(...) cli_abort("No REST token.")
+  )
+
+  definition <- new_sp_list_definition(
+    display_name = "Projects",
+    views = list(list(Title = "All Items"))
+  )
+
+  expect_snapshot(compare_sp_list(definition, sp_list = sp_list), error = TRUE)
+})
+
 test_that("normalize_sp_formula matches formulas saved by SharePoint", {
   pairs <- list(
     c('=TEXT([Amount],"0.00")', '=TEXT(Amount,"0.00")'),
@@ -264,7 +432,8 @@ test_that("list_change_rows compares list settings", {
 
   expect_identical(rows[["property"]], c("description", "list.template", "list.hidden"))
   expect_identical(rows[["action"]], c("update", "blocked", "update"))
-  expect_true(all(is.na(rows[["name"]])))
+  expect_true(all(rows[["object"]] == "list"))
+  expect_true(all(rows[["name"]] == "Projects"))
 
   expect_null(
     list_change_rows(
@@ -299,7 +468,7 @@ test_that("diff_column_definition returns only changed properties", {
   )
 })
 
-test_that("sync_sp_list_columns updates a live list", {
+test_that("sync_sp_list updates a live list", {
   skip_if_not_installed("yaml12")
   test_site_url <- "https://bmore.sharepoint.com/sites/DOP-CIP/"
   skip_if_no_ms_site(test_site_url)
@@ -344,7 +513,7 @@ test_that("sync_sp_list_columns updates a live list", {
   # A new list matches its definition (including the Title display name and
   # the calculated column) except for validation, which can't be read with
   # the Graph API
-  changes <- compare_sp_list_columns(definition, sp_list = sp_list)
+  changes <- compare_sp_list(definition, sp_list = sp_list)
   expect_identical(changes[["action"]], "unverified")
   expect_identical(changes[["property"]], "validation")
 
@@ -370,11 +539,11 @@ test_that("sync_sp_list_columns updates a live list", {
   updated[["columns"]][[3]][["choice"]][["displayAs"]] <- "checkBoxes"
   updated[["columns"]][[4]][["number"]][["decimalPlaces"]] <- "none"
 
-  planned <- suppressMessages(sync_sp_list_columns(updated, sp_list = sp_list))
+  planned <- suppressMessages(sync_sp_list(updated, sp_list = sp_list))
   expect_true(all(planned[["status"]] == "planned"))
 
   applied <- suppressMessages(
-    sync_sp_list_columns(updated, sp_list = sp_list, dry_run = FALSE)
+    sync_sp_list(updated, sp_list = sp_list, dry_run = FALSE)
   )
   expect_true(all(applied[["status"]] == "applied"))
 
@@ -406,12 +575,12 @@ test_that("sync_sp_list_columns updates a live list", {
   # Refresh list properties before comparing list settings again
   sp_list <- get_sp_list(list_id = sp_list$properties$id, site_url = test_site_url) |>
     suppressMessages()
-  remaining <- compare_sp_list_columns(updated, sp_list = sp_list)
+  remaining <- compare_sp_list(updated, sp_list = sp_list)
   expect_identical(remaining[["property"]], "validation")
 
   # Switching back to a single line is skipped without allow_data_loss
   skipped <- suppressMessages(
-    sync_sp_list_columns(
+    sync_sp_list(
       list(create_text_column("Notes", multiple_lines = FALSE)),
       sp_list = sp_list,
       dry_run = FALSE
@@ -438,7 +607,7 @@ test_that("sync_sp_list_columns updates a live list", {
 
   # The written file can find the list without sp_list or site_url and
   # matches the list (validation isn't written since Graph doesn't return it)
-  expect_identical(nrow(compare_sp_list_columns(path)), 0L)
+  expect_identical(nrow(compare_sp_list(path)), 0L)
 
   # Creating a list from a definition with an id warns that the id is ignored
   expect_warning(
@@ -456,4 +625,71 @@ test_that("sync_sp_list_columns updates a live list", {
     ),
     "unchanged"
   )
+})
+
+test_that("sync_sp_list updates views on a live list", {
+  test_site_url <- "https://bmore.sharepoint.com/sites/DOP-CIP/"
+  skip_if_no_ms_site(test_site_url)
+
+  definition <- as_sp_list_definition(list(
+    displayName = sp_test_marker("sync-views"),
+    description = "Temporary list created by sharepointr tests",
+    columns = list(
+      list(name = "Status", choice = list(choices = c("Active", "Closed"))),
+      list(name = "Amount", number = list())
+    ),
+    views = list(
+      list(Title = "All Items", ViewFields = c("LinkTitle", "Status")),
+      list(Title = "Working", ViewFields = c("LinkTitle", "Amount"))
+    )
+  ))
+
+  sp_list <- suppressMessages(
+    create_sp_list(definition = definition, site_url = test_site_url)
+  )
+
+  withr::defer(
+    try(
+      suppressMessages(delete_sp_list(sp_list = sp_list, confirm = FALSE)),
+      silent = TRUE
+    )
+  )
+
+  expect_identical(nrow(compare_sp_list(definition, sp_list = sp_list)), 0L)
+
+  working_id <- get_sp_list_view(sp_list, view_title = "Working")[["Id"]]
+
+  updated <- definition
+  updated[["views"]] <- list(
+    # Renamed using the view Id, with a new field order and row limit
+    list(
+      Title = "Working Renamed",
+      Id = working_id,
+      ViewFields = c("Amount", "LinkTitle"),
+      RowLimit = 50L
+    ),
+    # A new default view; All Items is deleted
+    list(
+      Title = "Active",
+      DefaultView = TRUE,
+      ViewFields = c("LinkTitle", "Status", "Amount"),
+      ViewQuery = "<Where><Eq><FieldRef Name=\"Status\"/><Value Type=\"Choice\">Active</Value></Eq></Where>"
+    )
+  )
+
+  applied <- suppressMessages(
+    sync_sp_list(updated, sp_list = sp_list, dry_run = FALSE, delete = TRUE)
+  )
+  expect_true(all(applied[["status"]] == "applied"))
+
+  views <- list_sp_list_views(sp_list)
+  expect_setequal(views[["Title"]], c("Working Renamed", "Active"))
+  expect_identical(views[["Title"]][views[["DefaultView"]]], "Active")
+
+  renamed <- get_sp_list_view(sp_list, view_id = working_id)
+  expect_identical(renamed[["Title"]], "Working Renamed")
+  expect_identical(renamed[["ViewFields"]], c("Amount", "LinkTitle"))
+  expect_identical(renamed[["RowLimit"]], 50L)
+
+  expect_identical(nrow(compare_sp_list(updated, sp_list = sp_list)), 0L)
 })

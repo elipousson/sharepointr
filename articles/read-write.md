@@ -5,6 +5,20 @@
 library(sharepointr)
 ```
 
+sharepointr builds on the `ms_site`, `ms_drive`, and `ms_drive_item`
+objects from [`{Microsoft365R}`](https://github.com/Azure/Microsoft365R)
+and the [Microsoft Graph API for
+files](https://learn.microsoft.com/en-us/graph/api/resources/onedrive)
+(SharePoint document libraries are “drives” and files and folders are
+[“drive
+items”](https://learn.microsoft.com/en-us/graph/api/resources/driveitem)).
+Most functions accept a SharePoint URL in place of these objects. See
+the Microsoft365R article on [OneDrive and
+SharePoint](https://cran.r-project.org/web/packages/Microsoft365R/vignettes/od_sp.html)
+for more on the underlying methods and the Microsoft365R article on
+[authentication](https://cran.r-project.org/web/packages/Microsoft365R/vignettes/auth.html)
+if you have trouble logging in.
+
 ## Downloading and reading files from SharePoint
 
 You can use
@@ -12,6 +26,7 @@ You can use
 to download files or folders from SharePoint:
 
 ``` r
+
 docx_url <- "https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernance/Policy%20Documents/Data%20Classification%20Standard.docx?d=w54a9ae7eaa894e94b6d6d14516f3aaa4&csf=1&web=1&e=ee7ZSX"
 
 download_sp_item(
@@ -19,44 +34,32 @@ download_sp_item(
   new_path = tempdir()
 )
 #> Loading Microsoft Graph login for default tenant
-#> 
-ℹ Downloading SharePoint item to
-#> ' ]8;;file://C:\Users\ELI~1.POU\AppData\Local\Temp\Rtmp80Xill/Data
-#> Classification Standard.docxC:\Users\ELI~1.POU\AppData\Loc ]8;;…
-
-
-#> Error:
-#> ! Path exists and overwrite is FALSE
-#> 
-✖ Downloading SharePoint item to ' ]8;;file://C:\Users\ELI~1.POU\AppData\Local\Temp\Rtmp80Xill/Data Classification Standard.docxC:\Users\ELI~1.POU\AppData\Loc ]8;;…
 ```
 
 For files on SharePoint,
 [`read_sharepoint()`](https://elipousson.github.io/sharepointr/reference/read_sharepoint.md)
 extends
 [`download_sp_item()`](https://elipousson.github.io/sharepointr/reference/download_sp_item.md)
-by downloading the selected item to a temporary folder by default and,
-depending on the file extension, tries to read the file using
-[readr](https://readr.tidyverse.org),
-[readxl](https://readxl.tidyverse.org),
-[officer](https://ardata-fr.github.io/officeverse/), or
-[sf](https://r-spatial.github.io/sf/).
+by downloading the selected item to a temporary folder and reading the
+file based on the file extension:
+
+- csv, csv2, or tsv files with
+  [`readr::read_delim()`](https://readr.tidyverse.org/reference/read_delim.html)
+  and xlsx or xls files with
+  [`readxl::read_excel()`](https://readxl.tidyverse.org/reference/read_excel.html)
+- rds files with
+  [`readr::read_rds()`](https://readr.tidyverse.org/reference/read_rds.html)
+- docx or pptx files with
+  [`officer::read_docx()`](https://davidgohel.github.io/officer/reference/read_docx.html)
+  or
+  [`officer::read_pptx()`](https://davidgohel.github.io/officer/reference/read_pptx.html)
+- gpkg, geojson, kml, gdb, or zip (shapefile) files with
+  [`sf::read_sf()`](https://r-spatial.github.io/sf/reference/st_read.html)
 
 ``` r
+
 docx <- read_sharepoint(docx_url)
 #> Loading Microsoft Graph login for default tenant
-#> 
-ℹ Downloading SharePoint item to ' ]8;;file://C:\Users\ELI~1.POU\AppData\Local\Temp\Rtmp80Xill/Data Classification Standard.docxC:\Users\ELI~1.POU\AppData\Loc ]8;;…
-
-✔ Downloading SharePoint item to ' ]8;;file://C:\Users\ELI~1.POU\AppData\Local\Temp\Rtmp80Xill/Data Classification Standard.docxC:\Users\ELI~1.POU\AppData\Loc ]8;;…
-
-
-#> 
-ℹ Reading item with ` ]8;;x-r-help:officer::read_docxofficer::read_docx ]8;;()`
-
-✔ Reading item with ` ]8;;x-r-help:officer::read_docxofficer::read_docx ]8;;()` [125ms]
-
-
 
 docx
 #> rdocx document with 62 element(s)
@@ -108,32 +111,14 @@ docx
 #>            "character"
 ```
 
-By default,
-[`read_sharepoint()`](https://elipousson.github.io/sharepointr/reference/read_sharepoint.md)
-checks the file extension the provided item and uses the appropriate
-function from [readr](https://readr.tidyverse.org),
-[officer](https://ardata-fr.github.io/officeverse/), or
-[sf](https://r-spatial.github.io/sf/). Using the `.f` argument,
-[`read_sharepoint()`](https://elipousson.github.io/sharepointr/reference/read_sharepoint.md)
-also allows a user provided function to read the input:
+Use the `.f` argument to read the file with a different function:
 
 ``` r
+
 wb_url <- "https://bmore.sharepoint.com/:x:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/Data%20Governance/Agency%20Naming%20Conventions.xlsx?d=w98ecba59d1f84c23862c6ad71e7f8695&csf=1&web=1&e=sSuZYo"
 
 wb <- read_sharepoint(wb_url, .f = openxlsx2::wb_load)
 #> Loading Microsoft Graph login for default tenant
-#> 
-ℹ Downloading SharePoint item to ' ]8;;file://C:\Users\ELI~1.POU\AppData\Local\Temp\Rtmp80Xill/Agency Naming Conventions.xlsxC:\Users\ELI~1.POU\AppData\Loc ]8;;…
-
-✔ Downloading SharePoint item to ' ]8;;file://C:\Users\ELI~1.POU\AppData\Local\Temp\Rtmp80Xill/Agency Naming Conventions.xlsxC:\Users\ELI~1.POU\AppData\Loc ]8;;…
-
-
-#> 
-ℹ Reading item with ` ]8;;x-r-help:openxlsx2::wb_loadopenxlsx2::wb_load ]8;;()`
-
-✔ Reading item with ` ]8;;x-r-help:openxlsx2::wb_loadopenxlsx2::wb_load ]8;;()` [222ms]
-
-
 
 wb
 #> A Workbook object.
@@ -145,8 +130,8 @@ wb
 
 As a convenience,
 [`read_sharepoint()`](https://elipousson.github.io/sharepointr/reference/read_sharepoint.md)
-also supports reading SharePoint lists as a wrapper for
-[`get_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md):
+also reads the items from a SharePoint list URL using
+[`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md):
 
 ``` r
 
@@ -159,22 +144,25 @@ list_items <- read_sharepoint(list_url)
 #>   Message: The provided path does not exist, or does not
 #>   represent a site.
 
-list_items
+head(list_items[, 1:4])
 #> Error:
 #> ! object 'list_items' not found
 ```
 
 See the [Reading and writing to SharePoint
-Lists](https://elipousson.github.io/articles/sp-lists.md) article for
-more information.
+Lists](https://elipousson.github.io/sharepointr/articles/sp-lists.md)
+article for more information.
 
 ## Writing and uploading files to SharePoint
 
 You can use
 [`upload_sp_item()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)
-to upload a local file to a SharePoint folder or document library.
+to upload a local file to a SharePoint folder or document library (or
+[`upload_sp_items()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)
+to upload multiple files).
 
 ``` r
+
 folder_url <- "https://bmore.sharepoint.com/:f:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/RStats?csf=1&web=1&e=S1XxVU"
 
 upload_sp_item(
@@ -182,10 +170,6 @@ upload_sp_item(
   dest = folder_url
 )
 #> Loading Microsoft Graph login for default tenant
-#> 
-ℹ Uploading file ' ]8;;file://c:/Users/Eli.Pousson/OneDrive - City Of Baltimore/Projects/sharepointr/vignettes/nc.gpkgnc.gpkg ]8;;' to SharePoint drive
-
-✔ File upload complete [1.6s]                 
 ```
 
 Using
@@ -193,6 +177,7 @@ Using
 we can confirm that the file has been uploaded:
 
 ``` r
+
 sp_drive <- get_sp_drive(folder_url)
 #> Loading Microsoft Graph login for default tenant
 
@@ -200,21 +185,6 @@ nc <- read_sharepoint(
   "RStats/nc.gpkg",
   drive = sp_drive
 )
-#> 
-ℹ Downloading SharePoint item to
-#> ' ]8;;file://C:\Users\ELI~1.POU\AppData\Local\Temp\Rtmp80Xill/nc.gpkgC:\Users\ELI~1.POU\AppData\Loc ]8;;…
-
-
-#> 
-✔ Downloading SharePoint item to ' ]8;;file://C:\Users\ELI~1.POU\AppData\Local\Temp\Rtmp80Xill/nc.gpkgC:\Users\ELI~1.POU\AppData\Loc ]8;;…
-
-
-#> 
-ℹ Reading item with ` ]8;;x-r-help:sf::read_sfsf::read_sf ]8;;()`
-
-✔ Reading item with ` ]8;;x-r-help:sf::read_sfsf::read_sf ]8;;()` [16ms]
-
-
 
 plot(nc["AREA"])
 ```
@@ -226,24 +196,28 @@ plot of chunk nc_plot
 [`write_sharepoint()`](https://elipousson.github.io/sharepointr/reference/write_sharepoint.md)
 extends
 [`upload_sp_item()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)
-by allowing you to pass an R object instead of a file path. Like
+by allowing you to pass an R object instead of a file path. Just as
 [`read_sharepoint()`](https://elipousson.github.io/sharepointr/reference/read_sharepoint.md)
-tries to guess the appropriate input function,
+picks a function to read a file,
 [`write_sharepoint()`](https://elipousson.github.io/sharepointr/reference/write_sharepoint.md)
-tries to guess the appropriate output function based on the object
-class.
+picks a function to write the object based on its class
+(e.g. [`sf::write_sf()`](https://r-spatial.github.io/sf/reference/st_write.html)
+for sf objects,
+[`readr::write_csv()`](https://readr.tidyverse.org/reference/write_delim.html)
+or
+[`openxlsx2::write_xlsx()`](https://janmarvin.github.io/openxlsx2/reference/write_xlsx.html)
+for data frames, and
+[`readr::write_rds()`](https://readr.tidyverse.org/reference/read_rds.html)
+for other objects). Use `.f` to supply your own function.
 
 ``` r
+
 write_sharepoint(
   mtcars,
   file = "mtcars.csv",
   dest = folder_url
 )
 #> Loading Microsoft Graph login for default tenant
-#> 
-ℹ Uploading file ' ]8;;file://c:/Users/Eli.Pousson/OneDrive - City Of Baltimore/Projects/sharepointr/vignettes/mtcars.csvmtcars.csv ]8;;' to SharePoint drive
-
-✔ File upload complete [1.4s]                    
 ```
 
 To wrap up this example, we need to remove the uploaded files from
@@ -272,15 +246,19 @@ delete_sp_item(
 
 ## Listing files
 
-If you do not know the URL or file path for an item on SharePoint you
-can also use the directory info functions to list items typically using
-the
+If you do not know the URL or file path for an item on SharePoint, use
 [`sp_dir_info()`](https://elipousson.github.io/sharepointr/reference/sp_dir_info.md)
-function. This function supports recursive listings but this can be slow
-depending on the number of items in the SharePoint library.
+to get a data frame of the items in a folder or
+[`sp_dir_ls()`](https://elipousson.github.io/sharepointr/reference/sp_dir_info.md)
+to get the item names.
+[`sp_dir_info()`](https://elipousson.github.io/sharepointr/reference/sp_dir_info.md)
+supports recursive listings but this can be slow depending on the number
+of items in the SharePoint library.
 
 This last example is not computed but it shows how to list and remove
-empty nested directories left over from a failed manual import:
+empty nested directories left over from a failed manual import (using
+[dplyr](https://dplyr.tidyverse.org) and
+[stringr](https://stringr.tidyverse.org)):
 
 ``` r
 
@@ -289,11 +267,11 @@ dir_info <- sp_dir_info("<SharePoint Folder URL>", type = "directory", recurse =
 
 # Filter to empty directories and sort by depth
 empty_dirs <- dir_info |>
-  filter(size == 0) |>
-  mutate(
-    path_depth = str_count(name, "/")
+  dplyr::filter(size == 0) |>
+  dplyr::mutate(
+    path_depth = stringr::str_count(name, "/")
   ) |>
-  arrange(desc(path_depth))
+  dplyr::arrange(dplyr::desc(path_depth))
 
 # Get drive
 drive <- get_sp_drive(

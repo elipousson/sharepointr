@@ -22,6 +22,7 @@ create_sp_list_items(
   sync_fields = FALSE,
   create_list = FALSE,
   strict = FALSE,
+  .batch = getOption("sharepointr.batch", TRUE),
   .progress = TRUE,
   call = caller_env()
 )
@@ -38,6 +39,7 @@ update_sp_list_items(
   strict = FALSE,
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
+  .batch = getOption("sharepointr.batch", TRUE),
   .progress = TRUE,
   call = caller_env()
 )
@@ -160,6 +162,23 @@ update_sp_list_item(
   of records) must match field names in the supplied SharePoint list. If
   `FALSE` (default), unmatched names are dropped with a message. Only
   used if `check_fields = TRUE`.
+
+- .batch:
+
+  If `TRUE` (default), items are sent with Microsoft Graph `$batch`
+  requests (up to 20 items per request), which is much faster than a
+  separate request for each item. Requests throttled by the Graph API
+  are retried after the requested delay. If any items fail, the
+  remaining items are still sent and the error lists the failed items.
+  If `FALSE`, a separate request is sent for each item and the first
+  failed item is an error. Use `options(sharepointr.batch = FALSE)` to
+  change the default for the session. In either case, requests are sent
+  in parallel if `mirai::daemons()` are set (see
+  [`purrr::in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html)).
+  For `create_sp_list_items()`, items sent in a `$batch` request (or in
+  parallel) may be created in a different order than `data`, so new item
+  IDs may not follow the order of `data`. Use `.batch = FALSE` (without
+  daemons) if item IDs must follow the order of `data`.
 
 - .progress:
 

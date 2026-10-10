@@ -28,6 +28,7 @@ delete_sp_list_items(
   sp_list = NULL,
   filter = NULL,
   confirm = TRUE,
+  .batch = getOption("sharepointr.batch", TRUE),
   .progress = TRUE,
   call = caller_env()
 )
@@ -101,6 +102,25 @@ delete_sp_list_items(
   items to delete if `item_id` is `NULL`. Can't be supplied with
   `item_id`. See
   [`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md).
+
+- .batch:
+
+  If `TRUE` (default), items are sent with Microsoft Graph `$batch`
+  requests (up to 20 items per request), which is much faster than a
+  separate request for each item. Requests throttled by the Graph API
+  are retried after the requested delay. If any items fail, the
+  remaining items are still sent and the error lists the failed items.
+  If `FALSE`, a separate request is sent for each item and the first
+  failed item is an error. Use `options(sharepointr.batch = FALSE)` to
+  change the default for the session. In either case, requests are sent
+  in parallel if `mirai::daemons()` are set (see
+  [`purrr::in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html)).
+  For
+  [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  items sent in a `$batch` request (or in parallel) may be created in a
+  different order than `data`, so new item IDs may not follow the order
+  of `data`. Use `.batch = FALSE` (without daemons) if item IDs must
+  follow the order of `data`.
 
 - .progress:
 

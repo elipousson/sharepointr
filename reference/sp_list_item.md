@@ -147,7 +147,9 @@ get_sp_list_item(
   If `TRUE`, the returned data frame will contain extended metadata as
   separate columns, while the data fields will be in a nested data frame
   named fields. This is always set to `FALSE` if `n = NULL` or
-  `as_data_frame = FALSE`.
+  `as_data_frame = FALSE`. The `"@odata.etag"` value the Graph API
+  returns with the fields of each item is only included if
+  `all_metadata = TRUE`.
 
 - as_data_frame:
 

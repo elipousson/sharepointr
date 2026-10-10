@@ -72,6 +72,7 @@ confirm = FALSE to use without interactive confirmation."></head><body>
 <span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  filter <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  confirm <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  .batch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sharepointr.batch"</span>, <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  .progress <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -145,6 +146,22 @@ mentioned in error messages as the source of the error. See the
 <dd><p>Optional. A string with an OData filter expression used to
 find the items to delete if <code>item_id</code> is <code>NULL</code>. Can't be supplied with
 <code>item_id</code>. See <code><a href="sp_list_item.html">list_sp_list_items()</a></code>.</p></dd>
+
+
+<dt id="arg--batch">.batch<a class="anchor" aria-label="anchor" href="#arg--batch"></a></dt>
+<dd><p>If <code>TRUE</code> (default), items are sent with Microsoft Graph
+<code>$batch</code> requests (up to 20 items per request), which is much faster than
+a separate request for each item. Requests throttled by the Graph API are
+retried after the requested delay. If any items fail, the remaining items
+are still sent and the error lists the failed items. If <code>FALSE</code>, a
+separate request is sent for each item and the first failed item is an
+error. Use <code>options(sharepointr.batch = FALSE)</code> to change the default for
+the session. In either case, requests are sent in parallel if
+<code>mirai::daemons()</code> are set (see <code><a href="https://purrr.tidyverse.org/reference/in_parallel.html" class="external-link">purrr::in_parallel()</a></code>). For
+<code><a href="create_sp_list_items.html">create_sp_list_items()</a></code>, items sent in a <code>$batch</code> request (or in
+parallel) may be created in a different order than <code>data</code>, so new item IDs
+may not follow the order of <code>data</code>. Use <code>.batch = FALSE</code> (without daemons)
+if item IDs must follow the order of <code>data</code>.</p></dd>
 
 
 <dt id="arg--progress">.progress<a class="anchor" aria-label="anchor" href="#arg--progress"></a></dt>

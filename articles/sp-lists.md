@@ -13,10 +13,9 @@ SharePoint site or created for a single user. This package assumes you
 are working with lists within a SharePoint site. This article covers:
 
 - Reading lists and list items
-- Creating lists and list items
-
-The package also supports updating and deleting lists and list items
-which should be added to this article in the future.
+- Creating lists from column definitions or a YAML file
+- Updating a list to match a YAML file
+- Creating, updating, and deleting list items
 
 ## Reading lists and list items
 
@@ -56,20 +55,13 @@ head(site_lists[, c(2:7)])
 #> 4 "7c6b3bac-4962-4285-980e-127e36583ffc,22"
 #> 5 "9c518bac-ef99-4ae8-ab27-1453f68c87e1,15"
 #> 6 "d216b2d5-7cae-491f-abf4-1474628a0982,15"
-#>                                     id
-#> 1 531a153d-b9d4-4d04-93cd-0d49d9bac705
-#> 2 bdd11473-562b-43bc-b498-0f235aef9e4a
-#> 3 0d7df1be-e6de-474b-88ea-0f56689ca3e9
-#> 4 7c6b3bac-4962-4285-980e-127e36583ffc
-#> 5 9c518bac-ef99-4ae8-ab27-1453f68c87e1
-#> 6 d216b2d5-7cae-491f-abf4-1474628a0982
-#>   lastModifiedDateTime
-#> 1 2026-05-13T11:42:10Z
-#> 2 2026-05-22T13:37:34Z
-#> 3 2024-10-02T03:22:07Z
-#> 4 2026-05-01T14:17:23Z
-#> 5 2024-10-02T03:22:07Z
-#> 6 2024-10-02T03:22:06Z
+#>                                     id lastModifiedDateTime
+#> 1 531a153d-b9d4-4d04-93cd-0d49d9bac705 2026-10-07T19:07:23Z
+#> 2 bdd11473-562b-43bc-b498-0f235aef9e4a 2026-10-08T18:51:33Z
+#> 3 0d7df1be-e6de-474b-88ea-0f56689ca3e9 2024-10-02T03:22:07Z
+#> 4 7c6b3bac-4962-4285-980e-127e36583ffc 2026-10-07T19:07:24Z
+#> 5 9c518bac-ef99-4ae8-ab27-1453f68c87e1 2024-10-02T03:22:07Z
+#> 6 d216b2d5-7cae-491f-abf4-1474628a0982 2024-10-02T03:22:06Z
 #>                                                 name
 #> 1                 DOP Internal  Interagency Meetings
 #> 2                    DOP Grants Management Resources
@@ -95,8 +87,6 @@ sp_site <- get_sp_site(
 )
 #> Loading Microsoft Graph login for default tenant
 
-site_lists <- list_sp_lists(site = sp_site)
-
 room_list <- get_sp_list(list_name = "DOP Rooms", site = sp_site)
 
 room_list
@@ -107,17 +97,14 @@ room_list
 #> ---
 #>   Methods:
 #>     bulk_import, create_item, delete,
-#>     delete_item, do_operation,
-#>     get_column_info, get_item,
-#>     get_list_pager, list_items, sync_fields,
-#>     update, update_item
+#>     delete_item, do_operation, get_column_info,
+#>     get_item, get_list_pager, list_items,
+#>     sync_fields, update, update_item
 ```
 
-To get the *items* from a list as a data frame, you need to use the
-[`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md)
-function. This function allows you to pass a site and list name, a list
-URL in place of a list name with no site, or to pass a list object
-directly:
+To get the *items* from a list as a data frame, use
+[`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md).
+You can pass a list name and site, a list URL, or a list object:
 
 ``` r
 
@@ -130,29 +117,63 @@ rooms <- list_sp_list_items(
 
 rooms <- list_sp_list_items(sp_list = room_list)
 
-head(rooms[ , c(2:8)])
-#>      Title LinkTitle   RoomType
-#> 1 08-COM02  08-COM02   CORRIDOR
-#> 2 08-COM01  08-COM01   CORRIDOR
-#> 3 08-SRV01  08-SRV01    UTILITY
-#> 4 08-SRV02  08-SRV02 TELE/COMMS
-#> 5 08-SRV03  08-SRV03        MEN
-#> 6 08-SRV04  08-SRV04      WOMEN
-#>                         Location RoomCategory    UsedBy
-#> 1        Hallway to plotter area       COMMON DOP Staff
-#> 2                 elevator lobby       COMMON    Public
-#> 3 interior hallway west of lobby      SERVICE   Service
-#> 4                 public hallway      SERVICE   Service
-#> 5                public restroom      SERVICE    Public
-#> 6                public restroom      SERVICE    Public
-#>            ArchibusAvailability
-#> 1 Not available for reservation
-#> 2 Not available for reservation
-#> 3 Not available for reservation
-#> 4 Not available for reservation
-#> 5 Not available for reservation
-#> 6 Not available for reservation
+head(rooms[, c(1:7)])
+#>      Title LinkTitle _ColorTag ComplianceAssetId   RoomType
+#> 1 08-COM02  08-COM02        NA                NA   CORRIDOR
+#> 2 08-COM01  08-COM01        NA                NA   CORRIDOR
+#> 3 08-SRV01  08-SRV01        NA                NA    UTILITY
+#> 4 08-SRV02  08-SRV02        NA                NA TELE/COMMS
+#> 5 08-SRV03  08-SRV03        NA                NA        MEN
+#> 6 08-SRV04  08-SRV04        NA                NA      WOMEN
+#>                         Location RoomCategory
+#> 1        Hallway to plotter area       COMMON
+#> 2                 elevator lobby       COMMON
+#> 3 interior hallway west of lobby      SERVICE
+#> 4                 public hallway      SERVICE
+#> 5                public restroom      SERVICE
+#> 6                public restroom      SERVICE
 ```
+
+Use `select` to return only some columns and `display_nm = "replace"` to
+use the column display names (the names shown in SharePoint) in place of
+the internal column names.
+
+Use `filter` to return only matching items. A filter is an [OData
+`$filter`
+expression](https://learn.microsoft.com/en-us/graph/filter-query-parameter)
+passed to the Microsoft Graph API:
+
+- Prefix column names with `fields/` and use the internal column name,
+  e.g. `fields/RoomCategory` (not the display name).
+- Put text values in single quotes,
+  e.g. `fields/RoomCategory eq 'SERVICE'`.
+- Use comparison operators (`eq`, `ne`, `gt`, `ge`, `lt`, `le`), combine
+  conditions with `and` or `or`, and match text with `startswith()`.
+
+``` r
+
+service_rooms <- list_sp_list_items(
+  sp_list = room_list,
+  filter = "fields/RoomCategory eq 'SERVICE' and startswith(fields/Title, '08')",
+  select = c("id", "Title", "RoomType", "RoomCategory")
+)
+
+head(service_rooms)
+#>      Title   RoomType RoomCategory id
+#> 1 08-SRV01    UTILITY      SERVICE 28
+#> 2 08-SRV02 TELE/COMMS      SERVICE 29
+#> 3 08-SRV03        MEN      SERVICE 30
+#> 4 08-SRV04      WOMEN      SERVICE 31
+#> 5 08-SRV05 ELECTRICAL      SERVICE 32
+#> 6 08-SRV06     TOILET      SERVICE 33
+```
+
+Filtering on a column that isn’t indexed works on smaller lists, but may
+fail on lists with more than 5,000 items, so index any columns you
+filter on often (e.g. with `indexed: true` in a YAML definition). See
+the Microsoft Graph documentation on [listing
+items](https://learn.microsoft.com/en-us/graph/api/listitem-list) for
+more examples.
 
 You can get a single list item as a
 [`Microsoft365R::ms_list_item`](https://rdrr.io/pkg/Microsoft365R/man/ms_list_item.html)
@@ -173,195 +194,368 @@ get_sp_list_item(id = 26, sp_list = room_list)
 #>     sync_fields, update
 ```
 
-## Creating lists and list items
+## Creating lists
 
 A list name and site (or site URL) are the only requirements to create a
-list:
+list. However, a list created using the default
+`template = "genericList"` has only one column: Title. Columns can be
+added when the list is created or afterwards with
+[`create_sp_list_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_column.md).
+
+Creating a column requires a column definition. Create one using
+[`create_column_definition()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
+or one of the column type-specific variations:
+
+``` r
+
+create_text_column("TextColumn", multiple_lines = TRUE)
+#> $name
+#> [1] "TextColumn"
+#> 
+#> $text
+#> $text$allowMultipleLines
+#> [1] TRUE
+
+create_number_column("NumberColumn", decimal_places = "none")
+#> $name
+#> [1] "NumberColumn"
+#> 
+#> $number
+#> $number$decimalPlaces
+#> [1] "none"
+
+create_choice_column("ChoiceColumn", choices = c("Apple", "Pear", "Orange"))
+#> $name
+#> [1] "ChoiceColumn"
+#> 
+#> $choice
+#> $choice$choices
+#> [1] "Apple"  "Pear"   "Orange"
+```
+
+If you are creating a list for an existing data frame,
+[`data_as_column_definition_list()`](https://elipousson.github.io/sharepointr/reference/data_as_column_definition_list.md)
+creates a column definition for each column. Data frames with character,
+numeric, datetime, and factor values are supported but list columns are
+not.
+
+``` r
+
+penguins_columns <- data_as_column_definition_list(penguins)
+
+str(penguins_columns[1:2])
+#> List of 2
+#>  $ :List of 2
+#>   ..$ name  : chr "species"
+#>   ..$ choice:List of 1
+#>   .. ..$ choices: chr [1:3] "Adelie" "Chinstrap" "Gentoo"
+#>  $ :List of 2
+#>   ..$ name  : chr "island"
+#>   ..$ choice:List of 1
+#>   .. ..$ choices: chr [1:3] "Biscoe" "Dream" "Torgersen"
+```
+
+Pass the column definitions to the `columns` argument of
+[`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md)
+to create the columns with the list:
 
 ``` r
 
 penguins_list <- create_sp_list(
   list_name = "penguins",
   description = "Measurements of Penguins near Palmer Station, Antarctica",
+  columns = penguins_columns,
   site = sp_site
 )
 
 penguins_list
 #> <Sharepoint list 'penguins'>
-#>   directory id: 54e0e2ec-8507-4780-bb7d-771916324d3e 
+#>   directory id: ae2a836c-ad18-40f0-a667-06f83665f4cd 
 #>   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/penguins 
 #>   description: Measurements of Penguins near Palmer Station, Antarctica 
 #> ---
 #>   Methods:
 #>     bulk_import, create_item, delete,
-#>     delete_item, do_operation,
-#>     get_column_info, get_item,
-#>     get_list_pager, list_items, sync_fields,
-#>     update, update_item
+#>     delete_item, do_operation, get_column_info,
+#>     get_item, get_list_pager, list_items,
+#>     sync_fields, update, update_item
 ```
 
-However, a list created using the default `template = "genericList"` has
-only one column: Title. You can add column to a list before or after it
-is created. Creating columns required a column definition which can be
-created using the
-[`create_column_definition()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
-function or one of the column type-specific variations:
+### Defining a list with YAML
+
+A list and its columns can also be defined in a YAML file (an
+experimental feature). The YAML format uses the same property names as
+the Microsoft Graph API
+[list](https://learn.microsoft.com/en-us/graph/api/resources/list) and
+[columnDefinition](https://learn.microsoft.com/en-us/graph/api/resources/columndefinition)
+resources, and a `custom` key can hold any other metadata you want to
+keep with the definition. The package includes an example:
 
 ``` r
-
-create_text_column("Text Column", multiple_lines = TRUE)
-#> $name
-#> [1] "Text Column"
-#> 
-#> $hidden
-#> [1] FALSE
-#> 
-#> $text
-#> $text$allowMultipleLines
-#> [1] TRUE
-#> 
-#> $text$textType
-#> [1] "plain"
-
-create_number_column("Number Column", decimals = 0)
-#> $name
-#> [1] "Number Column"
-#> 
-#> $hidden
-#> [1] FALSE
-#> 
-#> $number
-#> $number$decimalPlaces
-#> [1] "none"
-
-create_choice_column("Choice Column", choices = c("Apple", "Pear", "Orange"))
-#> $name
-#> [1] "Choice Column"
-#> 
-#> $hidden
-#> [1] FALSE
-#> 
-#> $choice
-#> $choice$allowTextEntry
-#> [1] TRUE
-#> 
-#> $choice$choices
-#> [1] "Apple"  "Pear"   "Orange"
-#> 
-#> $choice$displayAs
-#> [1] "dropDownMenu"
-```
-
-[`create_sp_list_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_column.md)
-takes a column definition and a Microsoft List object and adds a column
-to the list.
-
-You can specify multiple columns at once using a list or data frame of
-parameters (leaving blank values where a parameter is not applicable):
-
-``` r
-
-create_column_definition_list(
-  definitions = data.frame(
-    name = c("Text Column", "Number Column"),
-    type = c("text", "number"),
-    decimals = c(NA, 0)
-  )
+example_yaml <- system.file(
+  "extdata", "example-list.yaml",
+  package = "sharepointr"
 )
-#> [[1]]
-#> [[1]]$name
-#> [1] "Text Column"
-#> 
-#> [[1]]$hidden
-#> [1] FALSE
-#> 
-#> [[1]]$text
-#> [[1]]$text$textType
-#> [1] "plain"
-#> 
-#> 
-#> 
-#> [[2]]
-#> [[2]]$name
-#> [1] "Number Column"
-#> 
-#> [[2]]$hidden
-#> [1] FALSE
-#> 
-#> [[2]]$number
-#> [[2]]$number$decimalPlaces
-#> [1] "none"
+
+writeLines(readLines(example_yaml))
+# Example SharePoint list definition for sharepointr.
+# See ?read_sp_list_yaml for the format.
+
+format_version: 1
+displayName: Example Projects
+description: Example list of projects.
+list:
+  template: genericList
+custom:
+  owner: Planning
+columns:
+  - name: Title
+    displayName: Project Name
+    required: true
+    text: {}
+  - name: ProjectID
+    displayName: Project ID
+    description: Project reference ID
+    required: true
+    enforceUniqueValues: true
+    indexed: true
+    text:
+      maxLength: 20
+    custom:
+      form_order: 1
+      section: Summary
+  - name: ProjectNotes
+    displayName: Project Notes
+    text:
+      allowMultipleLines: true
+    custom:
+      form_order: 2
+      section: Summary
+  - name: ProjectStatus
+    displayName: Status
+    choice:
+      choices:
+        - Planning
+        - Active
+        - Closed
+      displayAs: radioButtons
+    custom:
+      form_order: 3
+  - name: StartDate
+    displayName: Start Date
+    dateTime:
+      format: dateOnly
+  - name: Budget
+    displayName: Budget
+    currency:
+      locale: en-us
+    custom:
+      decimals: none
+  - name: Phases
+    displayName: Number of Phases
+    number:
+      decimalPlaces: none
+      minimum: 0
+  - name: IsActive
+    displayName: Active
+    boolean: {}
+  - name: BudgetText
+    displayName: Budget ($)
+    calculated:
+      formula: "=IF(ISBLANK([Budget]),\"\",USDOLLAR([Budget],0))"
+      outputType: text
 ```
 
-If you are creating column definitions based on an existing data frame
-you can alternatively use
-[`data_as_column_definition_list()`](https://elipousson.github.io/sharepointr/reference/data_as_column_definition_list.md):
+[`read_sp_list_yaml()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md)
+reads and validates the file. Use
+[`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) to get a
+table with one row per column:
 
 ``` r
 
-penguins_column_defintions <- data_as_column_definition_list(penguins)
+projects_definition <- read_sp_list_yaml(example_yaml)
 
-str(penguins_column_defintions)
-#> List of 8
-#>  $ :List of 3
-#>   ..$ name  : chr "species"
-#>   ..$ hidden: logi FALSE
-#>   ..$ choice:List of 3
-#>   .. ..$ allowTextEntry: logi TRUE
-#>   .. ..$ choices       : chr [1:3] "Adelie" "Chinstrap" "Gentoo"
-#>   .. ..$ displayAs     : chr "dropDownMenu"
-#>  $ :List of 3
-#>   ..$ name  : chr "island"
-#>   ..$ hidden: logi FALSE
-#>   ..$ choice:List of 3
-#>   .. ..$ allowTextEntry: logi TRUE
-#>   .. ..$ choices       : chr [1:3] "Biscoe" "Dream" "Torgersen"
-#>   .. ..$ displayAs     : chr "dropDownMenu"
-#>  $ :List of 3
-#>   ..$ name  : chr "bill_len"
-#>   ..$ hidden: logi FALSE
-#>   ..$ number:List of 1
-#>   .. ..$ decimalPlaces: chr "automatic"
-#>  $ :List of 3
-#>   ..$ name  : chr "bill_dep"
-#>   ..$ hidden: logi FALSE
-#>   ..$ number:List of 1
-#>   .. ..$ decimalPlaces: chr "automatic"
-#>  $ :List of 3
-#>   ..$ name  : chr "flipper_len"
-#>   ..$ hidden: logi FALSE
-#>   ..$ number:List of 1
-#>   .. ..$ decimalPlaces: chr "none"
-#>  $ :List of 3
-#>   ..$ name  : chr "body_mass"
-#>   ..$ hidden: logi FALSE
-#>   ..$ number:List of 1
-#>   .. ..$ decimalPlaces: chr "none"
-#>  $ :List of 3
-#>   ..$ name  : chr "sex"
-#>   ..$ hidden: logi FALSE
-#>   ..$ choice:List of 3
-#>   .. ..$ allowTextEntry: logi TRUE
-#>   .. ..$ choices       : chr [1:2] "female" "male"
-#>   .. ..$ displayAs     : chr "dropDownMenu"
-#>  $ :List of 3
-#>   ..$ name  : chr "year"
-#>   ..$ hidden: logi FALSE
-#>   ..$ number:List of 1
-#>   .. ..$ decimalPlaces: chr "none"
+as.data.frame(projects_definition)[, c("name", "displayName", "type", "required")]
+#>            name      displayName       type required
+#> 1         Title     Project Name       text     TRUE
+#> 2     ProjectID       Project ID       text     TRUE
+#> 3  ProjectNotes    Project Notes       text       NA
+#> 4 ProjectStatus           Status     choice       NA
+#> 5     StartDate       Start Date   dateTime       NA
+#> 6        Budget           Budget   currency       NA
+#> 7        Phases Number of Phases     number       NA
+#> 8      IsActive           Active    boolean       NA
+#> 9    BudgetText       Budget ($) calculated       NA
 ```
 
-At present, data frames with character, numeric, datetime, and factor
-values are supported but list columns are not.
+Pass the definition (or the path to the file) to the `definition`
+argument of
+[`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md).
+The definition sets the list name, description, template, and columns:
 
-These column definition lists should be provided as the `columns`
-argument for
-[`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md)
-to create the columns at the same time as the list.
+``` r
+
+projects_list <- create_sp_list(
+  definition = projects_definition,
+  site = sp_site
+)
+
+projects_list
+#> <Sharepoint list 'Example Projects'>
+#>   directory id: a5ffe3f5-c881-4739-89eb-534f31b6d36c 
+#>   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/Example%20Projects 
+#>   description: Example list of projects. 
+#> ---
+#>   Methods:
+#>     bulk_import, create_item, delete,
+#>     delete_item, do_operation, get_column_info,
+#>     get_item, get_list_pager, list_items,
+#>     sync_fields, update, update_item
+```
+
+You can also go the other way:
+[`get_sp_list_definition()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md)
+returns the definition for an existing list, and
+[`write_sp_list_yaml()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md)
+writes it to a file. This is a convenient way to start a YAML file for a
+list you created in SharePoint.
+
+``` r
+
+write_sp_list_yaml(projects_list, "projects.yaml")
+```
+
+## Updating a list to match a YAML file
+
+Keeping a list definition in a YAML file makes it possible to track
+changes to a list in version control. After you edit the definition (in
+the file or, as in this example, in R),
+[`compare_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+shows the differences from the existing list:
+
+``` r
+
+# Add a choice and a new column
+projects_definition$columns[[4]]$choice$choices <- c(
+  "Planning", "Active", "On Hold", "Closed"
+)
+
+projects_definition$columns <- c(
+  projects_definition$columns,
+  list(create_text_column("ProjectLead", display_name = "Project Lead"))
+)
+
+projects_changes <- compare_sp_list(
+  projects_definition,
+  sp_list = projects_list
+)
+
+projects_changes[, c("object", "name", "action", "property", "method")]
+#>   object          name action       property method
+#> 1 column ProjectStatus update choice.choices  graph
+#> 2 column   ProjectLead    add           <NA>  graph
+```
+
+[`sync_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+makes the changes. By default, it only reports the planned changes
+(`dry_run = TRUE`) and doesn’t delete columns or views that are missing
+from the definition (`delete = FALSE`). Changes that may cause data loss
+(such as switching a column from multiple lines of text to a single
+line) are skipped unless `allow_data_loss = TRUE`, and changes that
+SharePoint doesn’t allow (such as changing a column type) are reported
+as blocked.
+
+``` r
+
+sync_sp_list(
+  projects_definition,
+  sp_list = projects_list,
+  dry_run = FALSE
+)
+#> ✔ Updated "Example Projects": 2 columns and 0 views.
+```
+
+A definition can also include list views using an optional `views` key.
+See
+[`read_sp_list_yaml()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md)
+for details on the format.
+
+## Creating, updating, and deleting list items
 
 [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
-also allows users to create a list and populate the list with items in a
-single function call by setting `create_list = TRUE`:
+adds the rows of a data frame (or a list of records) to a list. Column
+names must match the internal column names for the list (or set
+`allow_display_nm = TRUE` to also match display names):
+
+``` r
+
+projects <- data.frame(
+  Title = c("Main Street Plan", "Harbor Park", "Library Renovation"),
+  ProjectID = c("P-001", "P-002", "P-003"),
+  ProjectStatus = c("Planning", "Active", "On Hold"),
+  StartDate = as.Date(c("2026-01-15", "2025-06-01", "2026-03-01")),
+  Budget = c(250000, 1200000, 800000),
+  IsActive = c(FALSE, TRUE, FALSE)
+)
+
+create_sp_list_items(projects, sp_list = projects_list)
+
+project_items <- list_sp_list_items(
+  sp_list = projects_list,
+  select = c("id", "Title", "ProjectID", "ProjectStatus")
+)
+
+project_items
+#>                Title ProjectID ProjectStatus id
+#> 1   Main Street Plan     P-001      Planning  1
+#> 2 Library Renovation     P-003       On Hold  2
+#> 3        Harbor Park     P-002        Active  3
+```
+
+To update items, include the item id in an `id` column (or set `.id` to
+use another column name). If you use `select` when reading items,
+include `"id"` to keep the id column. Columns that aren’t included are
+left unchanged, and `NA` values are skipped unless
+`na_fields = "replace"`:
+
+``` r
+
+project_updates <- project_items[, c("id", "ProjectID", "ProjectStatus")]
+project_updates$ProjectStatus[project_updates$ProjectID == "P-001"] <- "Active"
+project_updates$ProjectStatus[project_updates$ProjectID == "P-003"] <- "Active"
+
+update_sp_list_items(
+  project_updates[, c("id", "ProjectStatus")],
+  sp_list = projects_list
+)
+```
+
+[`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
+takes a vector of item ids, a data frame with an `id` column, or a
+`filter`:
+
+``` r
+
+delete_sp_list_items(
+  project_items[project_items$ProjectID == "P-002", ],
+  sp_list = projects_list,
+  confirm = FALSE
+)
+
+list_sp_list_items(
+  sp_list = projects_list,
+  select = c("id", "Title", "ProjectStatus")
+)
+#>                Title ProjectStatus id
+#> 1   Main Street Plan        Active  1
+#> 2 Library Renovation        Active  2
+```
+
+[`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+can also create a list and populate it with items in a single function
+call by setting `create_list = TRUE`. The column definitions are created
+from the data with
+[`data_as_column_definition_list()`](https://elipousson.github.io/sharepointr/reference/data_as_column_definition_list.md):
 
 ``` r
 
@@ -374,40 +568,59 @@ create_sp_list_items(
 )
 ```
 
-You can use this same function with `create_list = FALSE` (the default)
-to add multiple items to a list. Create individual items using
-[`create_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_item.md).
+### Batch requests
+
+By default,
+[`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+[`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+and
+[`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
+send items with Microsoft Graph [`$batch`
+requests](https://learn.microsoft.com/en-us/graph/json-batching) that
+combine up to 20 items in each request. This is much faster than sending
+a request for each item. If you set the number of daemons (persistent
+background processes) using `mirai::daemons()`, the batch requests are
+also sent in parallel with
+[`purrr::in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html):
+
+``` r
+
+mirai::daemons(4)
+
+create_sp_list_items(penguins, sp_list = penguins_list)
+
+mirai::daemons(0)
+```
+
+If the Graph API throttles a request, it is sent again after the
+requested delay. If some items fail, the other items are still created,
+updated, or deleted and the error lists the items that failed.
+
+Items created in the same batch request may not get ids in the same
+order as the rows in your data. If the order of ids matters, set
+`.batch = FALSE` (or `options(sharepointr.batch = FALSE)`) to send a
+request for each item.
+
+### Spatial data
 
 [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
-offers special handling for the sfc list columns. If `data` is an sf
-object, the geometry column is converted to well-known text using
+offers special handling for sf objects: the geometry column is converted
+to well-known text using
 [`sf::st_as_text()`](https://r-spatial.github.io/sf/reference/st_as_text.html).
 The CRS is not stored as part of the list so the CRS must be specified
 when reading the data back into a sf object.
 
 ``` r
 
-nc <- sf::st_read(system.file("shape/nc.shp", package="sf"))
-#> Reading layer `nc' from data source 
-#>   `C:\Users\Eli.Pousson\AppData\Local\Programs\R\R-4.5.1\library\sf\shape\nc.shp' 
-#>   using driver `ESRI Shapefile'
-#> Simple feature collection with 100 features and 14 fields
-#> Geometry type: MULTIPOLYGON
-#> Dimension:     XY
-#> Bounding box:  xmin: -84.32385 ymin: 33.88199 xmax: -75.45698 ymax: 36.58965
-#> Geodetic CRS:  NAD27
+nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
 
 create_sp_list_items(
   list_name = "North Carolina SIDS data",
   description = "Sudden Infant Death Syndrome (SIDS) sample data for North Carolina counties, two time periods (1974-78 and 1979-84).",
   create_list = TRUE,
-  data = nc,
+  data = nc[, c(1, 2, 3)],
   site = sp_site
 )
-#> ! All column names in `data` must match field names in
-#>   the supplied list.
-#> ℹ Columns "BIR74", "SID74", "BIR79", and "SID79" dropped
-#>   from `data`
 
 nc_sp_list <- get_sp_list(
   list_name = "North Carolina SIDS data",
@@ -421,100 +634,78 @@ sf::st_as_sf(
   crs = sf::st_crs(nc),
   wkt = "geometry"
 )
-#> Simple feature collection with 100 features and 28 fields
+#> Simple feature collection with 100 features and 27 fields
 #> Geometry type: MULTIPOLYGON
 #> Dimension:     XY
 #> Bounding box:  xmin: -84.32385 ymin: 33.88199 xmax: -75.45698 ymax: 36.58965
 #> Geodetic CRS:  NAD27
 #> First 10 features:
-#>                                 @odata.etag  AREA
-#> 1  "e05c3fb4-6cda-4145-9a67-c573bc60a84e,1" 0.114
-#> 2  "c9a71d83-c08d-4a97-a0d4-0bc90d79ddab,1" 0.061
-#> 3  "e4b83774-9603-4806-b99c-51c9a104fd4a,1" 0.143
-#> 4  "e2cd1891-9daa-4976-aba3-ad6623cda57a,1" 0.070
-#> 5  "f2cb4850-b0e7-49a7-9c22-c453752d7ef9,1" 0.153
-#> 6  "80f4c556-132e-4470-bda8-75e32fe07360,1" 0.097
-#> 7  "92e451c3-0ffe-4659-a31d-210895c88514,1" 0.062
-#> 8  "01db5e8d-4e5a-4f98-bb84-d1ec0659d305,1" 0.091
-#> 9  "63b1c806-7530-445f-b0d1-97f29f01e0df,1" 0.118
-#> 10 "4270a773-ddc4-4b8e-ba87-fd093f910583,1" 0.124
-#>    PERIMETER CNTY_ CNTY_ID        NAME  FIPS FIPSNO
-#> 1      1.442  1825    1825        Ashe 37009  37009
-#> 2      1.231  1827    1827   Alleghany 37005  37005
-#> 3      1.630  1828    1828       Surry 37171  37171
-#> 4      2.968  1831    1831   Currituck 37053  37053
-#> 5      2.206  1832    1832 Northampton 37131  37131
-#> 6      1.670  1833    1833    Hertford 37091  37091
-#> 7      1.547  1834    1834      Camden 37029  37029
-#> 8      1.284  1835    1835       Gates 37073  37073
-#> 9      1.421  1836    1836      Warren 37185  37185
-#> 10     1.428  1837    1837      Stokes 37169  37169
-#>    CRESS_ID NWBIR74 NWBIR79 id ContentType
-#> 1         5      10      19  1        Item
-#> 2         3      10      12  2        Item
-#> 3        86     208     260  3        Item
-#> 4        27     123     145  4        Item
-#> 5        66    1066    1197  5        Item
-#> 6        46     954    1237  6        Item
-#> 7        15     115     139  7        Item
-#> 8        37     254     371  8        Item
-#> 9        93     748     844  9        Item
-#> 10       85     160     176 10        Item
-#>                Modified              Created
-#> 1  2026-05-27T16:52:04Z 2026-05-27T16:52:04Z
-#> 2  2026-05-27T16:52:05Z 2026-05-27T16:52:05Z
-#> 3  2026-05-27T16:52:05Z 2026-05-27T16:52:05Z
-#> 4  2026-05-27T16:52:05Z 2026-05-27T16:52:05Z
-#> 5  2026-05-27T16:52:06Z 2026-05-27T16:52:06Z
-#> 6  2026-05-27T16:52:06Z 2026-05-27T16:52:06Z
-#> 7  2026-05-27T16:52:06Z 2026-05-27T16:52:06Z
-#> 8  2026-05-27T16:52:06Z 2026-05-27T16:52:06Z
-#> 9  2026-05-27T16:52:07Z 2026-05-27T16:52:07Z
-#> 10 2026-05-27T16:52:07Z 2026-05-27T16:52:07Z
-#>    AuthorLookupId EditorLookupId _UIVersionString
-#> 1             280            280              1.0
-#> 2             280            280              1.0
-#> 3             280            280              1.0
-#> 4             280            280              1.0
-#> 5             280            280              1.0
-#> 6             280            280              1.0
-#> 7             280            280              1.0
-#> 8             280            280              1.0
-#> 9             280            280              1.0
-#> 10            280            280              1.0
-#>    Attachments Edit ItemChildCount FolderChildCount
-#> 1        FALSE                   0                0
-#> 2        FALSE                   0                0
-#> 3        FALSE                   0                0
-#> 4        FALSE                   0                0
-#> 5        FALSE                   0                0
-#> 6        FALSE                   0                0
-#> 7        FALSE                   0                0
-#> 8        FALSE                   0                0
-#> 9        FALSE                   0                0
-#> 10       FALSE                   0                0
-#>    _ComplianceFlags _ComplianceTag
-#> 1                                 
-#> 2                                 
-#> 3                                 
-#> 4                                 
-#> 5                                 
-#> 6                                 
-#> 7                                 
-#> 8                                 
-#> 9                                 
-#> 10                                
-#>    _ComplianceTagWrittenTime _ComplianceTagUserId
-#> 1                                                
-#> 2                                                
-#> 3                                                
-#> 4                                                
-#> 5                                                
-#> 6                                                
-#> 7                                                
-#> 8                                                
-#> 9                                                
-#> 10                                               
+#>    Title _ColorTag ComplianceAssetId  AREA PERIMETER CNTY_ id
+#> 1   <NA>        NA                NA 0.118     1.421  1836  1
+#> 2   <NA>        NA                NA 0.061     1.231  1827  2
+#> 3   <NA>        NA                NA 0.190     2.204  1846  3
+#> 4   <NA>        NA                NA 0.143     1.630  1828  4
+#> 5   <NA>        NA                NA 0.063     1.000  1881  5
+#> 6   <NA>        NA                NA 0.153     2.206  1832  6
+#> 7   <NA>        NA                NA 0.053     1.171  1848  7
+#> 8   <NA>        NA                NA 0.062     1.547  1834  8
+#> 9   <NA>        NA                NA 0.199     1.984  1874  9
+#> 10  <NA>        NA                NA 0.143     1.663  1840 10
+#>    ContentType             Modified              Created
+#> 1         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
+#> 2         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
+#> 3         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
+#> 4         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
+#> 5         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
+#> 6         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
+#> 7         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
+#> 8         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
+#> 9         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
+#> 10        Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
+#>    AuthorLookupId EditorLookupId _UIVersionString Attachments
+#> 1             280            280              1.0       FALSE
+#> 2             280            280              1.0       FALSE
+#> 3             280            280              1.0       FALSE
+#> 4             280            280              1.0       FALSE
+#> 5             280            280              1.0       FALSE
+#> 6             280            280              1.0       FALSE
+#> 7             280            280              1.0       FALSE
+#> 8             280            280              1.0       FALSE
+#> 9             280            280              1.0       FALSE
+#> 10            280            280              1.0       FALSE
+#>    Edit LinkTitleNoMenu LinkTitle DocIcon ItemChildCount
+#> 1                    NA        NA      NA              0
+#> 2                    NA        NA      NA              0
+#> 3                    NA        NA      NA              0
+#> 4                    NA        NA      NA              0
+#> 5                    NA        NA      NA              0
+#> 6                    NA        NA      NA              0
+#> 7                    NA        NA      NA              0
+#> 8                    NA        NA      NA              0
+#> 9                    NA        NA      NA              0
+#> 10                   NA        NA      NA              0
+#>    FolderChildCount _ComplianceFlags _ComplianceTag
+#> 1                 0                                
+#> 2                 0                                
+#> 3                 0                                
+#> 4                 0                                
+#> 5                 0                                
+#> 6                 0                                
+#> 7                 0                                
+#> 8                 0                                
+#> 9                 0                                
+#> 10                0                                
+#>    _ComplianceTagWrittenTime _ComplianceTagUserId _IsRecord
+#> 1                                                        NA
+#> 2                                                        NA
+#> 3                                                        NA
+#> 4                                                        NA
+#> 5                                                        NA
+#> 6                                                        NA
+#> 7                                                        NA
+#> 8                                                        NA
+#> 9                                                        NA
+#> 10                                                       NA
 #>    AppAuthorLookupId AppEditorLookupId
 #> 1                 61                61
 #> 2                 61                61
@@ -527,23 +718,14 @@ sf::st_as_sf(
 #> 9                 61                61
 #> 10                61                61
 #>                          geometry
-#> 1  MULTIPOLYGON (((-81.47276 3...
+#> 1  MULTIPOLYGON (((-78.30876 3...
 #> 2  MULTIPOLYGON (((-81.23989 3...
-#> 3  MULTIPOLYGON (((-80.45634 3...
-#> 4  MULTIPOLYGON (((-76.00897 3...
-#> 5  MULTIPOLYGON (((-77.21767 3...
-#> 6  MULTIPOLYGON (((-76.74506 3...
-#> 7  MULTIPOLYGON (((-76.00897 3...
-#> 8  MULTIPOLYGON (((-76.56251 3...
-#> 9  MULTIPOLYGON (((-78.30876 3...
-#> 10 MULTIPOLYGON (((-80.02567 3...
+#> 3  MULTIPOLYGON (((-77.33221 3...
+#> 4  MULTIPOLYGON (((-80.45634 3...
+#> 5  MULTIPOLYGON (((-76.48053 3...
+#> 6  MULTIPOLYGON (((-77.21767 3...
+#> 7  MULTIPOLYGON (((-76.29893 3...
+#> 8  MULTIPOLYGON (((-76.00897 3...
+#> 9  MULTIPOLYGON (((-81.02057 3...
+#> 10 MULTIPOLYGON (((-78.74912 3...
 ```
-
-Creating or updating large numbers of items can be very slow. If you are
-creating a large number of items, you can use the parallelization
-feature built-in to the pakage via
-[`purrr::in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html).
-Set the number of daemons, or persistent background processes, to handle
-the requests in parallel using `mirai::daemons()` before calling
-[`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
-and the process should speed up.

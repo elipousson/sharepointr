@@ -4,6 +4,21 @@
 
 ### Added
 
+- Add a `.batch` argument to
+  [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  and
+  [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md).
+  By default, items are now sent with Microsoft Graph `$batch` requests
+  (up to 20 items per request), which was 7 to 9 times faster than a
+  request per item in testing (and 10 to 15 times faster with
+  `mirai::daemons()` set). Throttled requests are retried after the
+  delay requested by the API. If any items fail, the other items are
+  still sent and the error lists the failed items. Use `.batch = FALSE`
+  or `options(sharepointr.batch = FALSE)` to send a request per item.
+  Items created in a `$batch` request may not get IDs in the same order
+  as the input data (use `.batch = FALSE` if the order of IDs matters).
+  (2026-10-10)
 - Add
   [`upload_sp_items()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)
   function (2024-06-24).
@@ -270,6 +285,13 @@
 
 ### Fixes
 
+- Fix
+  [`compare_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+  and
+  [`sync_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+  reporting a `locale` change for a column that was just created from
+  the same definition (SharePoint returns locales like `"en-US"` for
+  `"en-us"`). Locales are now compared ignoring case. (2026-10-10)
 - Fix item id handling for
   [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
   [`delete_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md),
@@ -384,6 +406,10 @@
 
 ### Changes
 
+- [`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md)
+  no longer includes the `"@odata.etag"` column, which the Graph API
+  returns with the fields of each item, unless `all_metadata = TRUE`.
+  (2026-10-10)
 - Revise
   [`read_sharepoint()`](https://elipousson.github.io/sharepointr/reference/read_sharepoint.md)
   to support zipped shapefiles. (2024-07-25)

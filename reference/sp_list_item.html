@@ -182,7 +182,8 @@ from the list.</p></dd>
 <dd><p>If <code>TRUE</code>, the returned data frame will contain extended
 metadata as separate columns, while the data fields will be in a nested
 data frame named fields. This is always set to <code>FALSE</code> if <code>n = NULL</code> or
-<code>as_data_frame = FALSE</code>.</p></dd>
+<code>as_data_frame = FALSE</code>. The <code>"@odata.etag"</code> value the Graph API returns
+with the fields of each item is only included if <code>all_metadata = TRUE</code>.</p></dd>
 
 
 <dt id="arg-as-data-frame">as_data_frame<a class="anchor" aria-label="anchor" href="#arg-as-data-frame"></a></dt>

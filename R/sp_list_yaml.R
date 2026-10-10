@@ -223,8 +223,10 @@ read_sp_list_yaml <- function(path, call = caller_env()) {
   }
 
   # Read every document so a second document (e.g. after a stray `---`)
-  # isn't silently ignored
-  docs <- yaml12::read_yaml(path, multi = TRUE)
+  # isn't silently ignored. Sequences aren't simplified so a single-element
+  # sequence in a view `CustomFormatter` is still sent as a JSON array.
+  # Validation converts other sequences (e.g. `choices`) to vectors.
+  docs <- yaml12::read_yaml(path, multi = TRUE, simplify = FALSE)
 
   if (length(docs) > 1) {
     cli_abort(

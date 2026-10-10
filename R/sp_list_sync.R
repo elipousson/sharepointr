@@ -465,6 +465,16 @@ new_change_row <- function(
 column_add_row <- function(col, template = NULL) {
   type <- column_type_key(col)
 
+  # Column definitions supplied as a list (not a list definition) don't
+  # require a column type
+  if (is.null(type)) {
+    return(new_change_row(
+      name = col[["name"]],
+      action = "blocked",
+      note = "A column type is required to add a column."
+    ))
+  }
+
   if (type %in% sp_column_types_create_unsupported) {
     return(new_change_row(
       name = col[["name"]],

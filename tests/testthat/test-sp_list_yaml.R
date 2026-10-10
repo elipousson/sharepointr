@@ -200,6 +200,33 @@ test_that("read_sp_list_yaml reads and validates views", {
   expect_true(any(grepl("^      - LinkTitle$", written)))
 })
 
+test_that("write_sp_list_yaml keeps single-element sequences in view formatting", {
+  # Formatter operands and children must be JSON arrays, even with one element
+  formatter <- paste0(
+    '{"additionalRowClass":{"operator":"?","operands":["@me"]},',
+    '"rowFormatter":{"elmType":"div","children":[{"elmType":"span"}]}}'
+  )
+  view <- as_definition_view(list(Title = "Formatted", CustomFormatter = formatter))
+  definition <- as_sp_list_definition(
+    list(
+      displayName = "Test",
+      columns = list(list(name = "Status", choice = list(choices = "Active"))),
+      views = list(view)
+    )
+  )
+
+  out <- withr::local_tempfile(fileext = ".yaml")
+  suppressMessages(write_sp_list_yaml(definition, out))
+  read <- read_sp_list_yaml(out)
+  read_formatter <- read[["views"]][[1]][["CustomFormatter"]]
+
+  expect_identical(read_formatter[["additionalRowClass"]][["operands"]], list("@me"))
+  expect_true(same_view_value(as_view_json(read_formatter), formatter, "CustomFormatter"))
+
+  # Other single-element sequences are still read as vectors
+  expect_identical(read[["columns"]][[1]][["choice"]][["choices"]], "Active")
+})
+
 test_that("read_sp_list_yaml errors and warns for invalid views", {
   base <- c("displayName: Test", "columns:", "  - name: Status", "    text: {}", "views:")
 

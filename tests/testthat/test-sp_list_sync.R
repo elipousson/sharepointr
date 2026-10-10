@@ -723,3 +723,20 @@ test_that("compare_sp_list blocks adding a list column with a long name", {
     "add"
   )
 })
+
+test_that("compare_sp_list blocks adding a column without a column type", {
+  definitions <- list(
+    create_text_column("Notes"),
+    list(name = "NoType", displayName = "No Type")
+  )
+
+  changes <- compare_sp_list(definitions, sp_list = live_meta)
+  added <- changes[changes[["name"]] == "NoType", ]
+
+  expect_identical(added[["action"]], "blocked")
+  expect_identical(added[["note"]], "A column type is required to add a column.")
+  expect_identical(
+    plan_change_status(added, delete = FALSE, allow_data_loss = FALSE),
+    "blocked"
+  )
+})

@@ -31,19 +31,21 @@ knitr::knit(
 library(sharepointr)
 ```
 
+Most sharepointr functions accept a SharePoint URL in place of a site, drive, list, or item object. This makes it possible to use a link copied from SharePoint (using the "Copy link" option described in Microsoft's guide to [sharing SharePoint files or folders](https://support.microsoft.com/en-us/office/share-sharepoint-files-or-folders-1fe37332-0f9a-4719-970e-d2578da4941c)) or from your browser address bar.
+
 This is a folder URL. It is a shared link where people with existing access can use the link.
 
 ```{r}
 dir_url <- "https://bmore.sharepoint.com/:f:/r/sites/DOP-CPR/Shared%20Documents/INSPIRE%20Program%20%F0%9F%8F%AB%F0%9F%9A%B8%F0%9F%8C%B3?csf=1&web=1&e=W5dbYz"
 ```
 
-There are a bunch of different types of URLs that SharePoint uses so they don't all work with this package yet. You can parse a URL into smaller parts:
+SharePoint uses many types of URLs and they don't all work with this package yet. Use `sp_url_parse()` to see how a URL is parsed into smaller parts:
 
 ```{r}
 sp_url_parse(dir_url)
 ```
 
-These parts can be used as the `path`, `site_url`, and other parameters can be used to get sites, drives, lists, and items from SharePoint:
+These parts are used to get the site, drive (document library), list, or item from SharePoint:
 
 ```{r}
 get_sp_site(dir_url)
@@ -71,7 +73,7 @@ But you can't use that URL to get a list:
 get_sp_list(dir_url)
 ```
 
-SharePoint lists have two different styles of URLs (that I've seen) and they both work:
+SharePoint list URLs come in a few different styles and they all work. A shared link for a list includes `:l:`:
 
 ```{r}
 list_url <- "https://bmore.sharepoint.com/:l:/r/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker?e=0P1fFX"
@@ -79,24 +81,32 @@ list_url <- "https://bmore.sharepoint.com/:l:/r/sites/MayorsOffice-DataGovernanc
 get_sp_list(list_url)
 ```
 
-The second styles includes the query parameter `env=WebViewList`:
+The URL in your browser address bar when viewing a list includes the name of the list view page (e.g. `AllItems.aspx`) and may include the query parameter `env=WebViewList`. A URL with the list name but no view page also works:
 
 ```{r}
-"https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"
+list_view_url <- "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker/AllItems.aspx?env=WebViewList"
+
+sp_url_parse(list_view_url)[c("site_url", "list_name")]
+
+sp_url_parse(
+  "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker"
+)[c("site_url", "list_name")]
 ```
 
 Shared URLs for files work with `get_sp_item()` and `get_sp_item_properties()`:
 
 ```{r}
-file_url <- "https://bmore.sharepoint.com/:w:/r/sites/DOP-CPR/Shared%20Documents/INSPIRE%20Program%20%F0%9F%8F%AB%F0%9F%9A%B8%F0%9F%8C%B3/INSPIRE%20Plans%20In%20Progress%20%E2%9C%8F%EF%B8%8F/Govans%20ES/Govans%20Final%20Planning%20Document%20and%20related%20materials/Govans%20INSPIRE%20Plan%20-%20Final%20draft%20before%20layout.docx?d=w3408fbc67fa2462187409eb240eb4df2&csf=1&web=1&e=4dcgze"
+file_url <- "https://bmore.sharepoint.com/:w:/r/sites/DOP-CPR/Shared%20Documents/INSPIRE%20Program%20%F0%9F%8F%AB%F0%9F%9A%B8%F0%9F%8C%B3/INSPIRE%20Plans%20Adopted%20%E2%9C%85/Govans%20ES/Govans%20Final%20Planning%20Document%20and%20related%20materials/Govans%20INSPIRE%20Plan%20-%20Final%20draft%20before%20layout.docx?d=w3408fbc67fa2462187409eb240eb4df2&csf=1&web=1&e=4dcgze"
 
 get_sp_item(file_url)
 ```
 
-Or you can also use a document URL (as long as the default library is set to match the document library of the supplied URL):
+A shared link like this one includes the path to the file, so it stops working if the file is moved or renamed. A document URL (the URL in your browser address bar when a file is open in Word, Excel, or PowerPoint online) uses the item id instead, so it keeps working after a file is moved. It works as long as the default library is set to match the document library of the supplied URL:
 
 ```{r}
 document_url <- "https://bmore.sharepoint.com/:w:/r/sites/DOP-CPR/_layouts/15/Doc.aspx?sourcedoc=%7B3408FBC6-7FA2-4621-8740-9EB240EB4DF2%7D&file=Govans%20INSPIRE%20Plan%20-%20Final%20draft%20before%20layout.docx&action=default&mobileredirect=true"
 
 get_sp_item(document_url)
 ```
+
+The `is_sp_url()` family of functions (e.g. `is_sp_folder_url()`) can be used to check what type of URL you have before using it.

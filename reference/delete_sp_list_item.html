@@ -83,10 +83,12 @@ confirm = FALSE to use without interactive confirmation."></head><body>
 
 <dl><dt id="arg-item-id">item_id<a class="anchor" aria-label="anchor" href="#arg-item-id"></a></dt>
 <dd><p>ID value for list item or items to delete. <code>item_id</code> can also
-be a data frame with a column named with the <code>.id</code> value. For
-<code>delete_sp_list_items()</code>, <code>item_id</code> can also be a list of named lists (one
-per item) or a single named list record where each record includes an
-element named with the <code>.id</code> value.</p></dd>
+be a data frame with a column named with the <code>.id</code> value, a single named
+list record, or (for <code>delete_sp_list_items()</code>) a list of named lists (one
+per item) where each record includes an element named with the <code>.id</code>
+value. Item IDs must be whole numbers or non-empty strings and are checked
+before any items are deleted. <code>delete_sp_list_item()</code> requires a single
+item ID.</p></dd>
 
 
 <dt id="arg-sp-list-item">sp_list_item<a class="anchor" aria-label="anchor" href="#arg-sp-list-item"></a></dt>
@@ -94,8 +96,9 @@ element named with the <code>.id</code> value.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional parameters passed to <code><a href="sp_site.html">get_sp_site()</a></code> or
-<code><a href="https://rdrr.io/pkg/Microsoft365R/man/client.html" class="external-link">Microsoft365R::get_sharepoint_site()</a></code>.</p></dd>
+<dd><p>For <code>delete_sp_list_item()</code>, must be empty. For
+<code>delete_sp_list_items()</code>, additional parameters passed to <code><a href="sp_list.html">get_sp_list()</a></code>
+if <code>sp_list</code> is <code>NULL</code>.</p></dd>
 
 
 <dt id="arg--id">.id<a class="anchor" aria-label="anchor" href="#arg--id"></a></dt>
@@ -139,9 +142,9 @@ mentioned in error messages as the source of the error. See the
 
 
 <dt id="arg-filter">filter<a class="anchor" aria-label="anchor" href="#arg-filter"></a></dt>
-<dd><p>A string with <a href="https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter" class="external-link">an OData expression</a>
-apply as a filter to the results. Learn more in the <a href="https://learn.microsoft.com/en-us/graph/filter-query-parameter" class="external-link">Microsoft Graph API documentation</a>
-on using filter query parameters.</p></dd>
+<dd><p>Optional. A string with an OData filter expression used to
+find the items to delete if <code>item_id</code> is <code>NULL</code>. Can't be supplied with
+<code>item_id</code>. See <code><a href="sp_list_item.html">list_sp_list_items()</a></code>.</p></dd>
 
 
 <dt id="arg--progress">.progress<a class="anchor" aria-label="anchor" href="#arg--progress"></a></dt>

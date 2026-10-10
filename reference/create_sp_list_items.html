@@ -75,6 +75,7 @@
 <span>  .id <span class="op">=</span> <span class="st">"id"</span>,</span>
 <span>  allow_display_nm <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  check_fields <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  strict <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  na_fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drop"</span>, <span class="st">"replace"</span><span class="op">)</span>,</span>
 <span>  drop_fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ContentType"</span>, <span class="st">"Attachments"</span><span class="op">)</span>,</span>
 <span>  .progress <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -108,13 +109,15 @@
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>Required. A data frame to import as items to the supplied or
-identified SharePoint list. If data is an sf object, the geometry column is
-coerced to text using <code><a href="https://r-spatial.github.io/sf/reference/st_as_text.html" class="external-link">sf::st_as_text()</a></code>. For <code>update_sp_list_items()</code>,
-<code>data</code> can also be a list of named lists (one per item) where each record
-includes an <code>.id</code> element, or a single named list record for one item.
-Unlike a data frame, any field missing from a record is left unchanged,
-even when <code>na_fields = "replace"</code>.</p></dd>
+<dd><p>Required. A data frame or a list of named lists (one record per
+item) to import as items to the supplied or identified SharePoint list. If
+data is an sf object, the geometry column is coerced to text using
+<code><a href="https://r-spatial.github.io/sf/reference/st_as_text.html" class="external-link">sf::st_as_text()</a></code>. For <code>update_sp_list_items()</code>, each record must include
+an <code>.id</code> element and <code>data</code> can also be a single named list record for one
+item. Unlike a data frame, any field missing from a record is left
+unchanged, even when <code>na_fields = "replace"</code>. For
+<code>create_sp_list_items()</code>, wrap a single record in a list (e.g.
+<code>list(record)</code>) and <code>data</code> must be a data frame if <code>create_list = TRUE</code>.</p></dd>
 
 
 <dt id="arg-list-name-list-id">list_name, list_id<a class="anchor" aria-label="anchor" href="#arg-list-name-list-id"></a></dt>
@@ -139,9 +142,13 @@ result in a slower request. Default <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg--id">.id<a class="anchor" aria-label="anchor" href="#arg--id"></a></dt>
-<dd><p>Column or element name with <code>item_item</code> value in <code>data</code>. Allows
-users to pass a modified version of the list item data with the id column and
-any updated columns.</p></dd>
+<dd><p>Name of the column in <code>data</code> (or the element in each record if
+<code>data</code> is a list) with item ID values. Defaults to <code>"id"</code>. Item IDs must be
+whole numbers or non-empty strings and are checked before any items are
+updated. For <code>create_sp_list_items()</code>, <code>.id</code> is only used to keep the ID
+column name from being replaced when <code>allow_display_nm = TRUE</code>. For
+<code>update_sp_list_item()</code>, <code>.id</code> is used to get <code>item_id</code> from <code>.data</code> if
+<code>item_id</code> isn't supplied.</p></dd>
 
 
 <dt id="arg-site-url">site_url<a class="anchor" aria-label="anchor" href="#arg-site-url"></a></dt>
@@ -167,10 +174,10 @@ method for SharePoint site object.</p></dd>
 
 
 <dt id="arg-check-fields">check_fields<a class="anchor" aria-label="anchor" href="#arg-check-fields"></a></dt>
-<dd><p>If <code>TRUE</code> (default), column names for the input data are
-matched to the fields of the list object. If <code>FALSE</code>, the function will
-error if any column names can't be matched to a field in the supplied
-SharePoint list.</p></dd>
+<dd><p>If <code>TRUE</code> (default), column names (or record field
+names) for the input data are matched to the fields of the list object.
+If <code>FALSE</code>, names aren't checked and the Graph API errors for any name
+that isn't a list field.</p></dd>
 
 
 <dt id="arg-sync-fields">sync_fields<a class="anchor" aria-label="anchor" href="#arg-sync-fields"></a></dt>
@@ -186,10 +193,10 @@ definitions for the list.</p></dd>
 
 
 <dt id="arg-strict">strict<a class="anchor" aria-label="anchor" href="#arg-strict"></a></dt>
-<dd><p>Not yet implemented as of 2024-08-12. If <code>TRUE</code>, all column
-names in data must be matched to field names in the supplied SharePoint
-list. If <code>FALSE</code> (default), unmatched columns will be dropped with a
-warning.</p></dd>
+<dd><p>If <code>TRUE</code>, all column names in a data frame (or field names
+in a list of records) must match field names in the supplied SharePoint
+list. If <code>FALSE</code> (default), unmatched names are dropped with a message.
+Only used if <code>check_fields = TRUE</code>.</p></dd>
 
 
 <dt id="arg--progress">.progress<a class="anchor" aria-label="anchor" href="#arg--progress"></a></dt>
@@ -241,7 +248,8 @@ with a length other than 1 are treated as multi-value fields.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Invisibly returns the input <code>data</code>, unmodified.</p>
+    <p><code>create_sp_list_items()</code> and <code>update_sp_list_items()</code> invisibly
+return the input <code>data</code>, unmodified (even if <code>data</code> is empty).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

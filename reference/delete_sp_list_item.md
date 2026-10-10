@@ -38,10 +38,12 @@ delete_sp_list_items(
 - item_id:
 
   ID value for list item or items to delete. `item_id` can also be a
-  data frame with a column named with the `.id` value. For
-  `delete_sp_list_items()`, `item_id` can also be a list of named lists
-  (one per item) or a single named list record where each record
-  includes an element named with the `.id` value.
+  data frame with a column named with the `.id` value, a single named
+  list record, or (for `delete_sp_list_items()`) a list of named lists
+  (one per item) where each record includes an element named with the
+  `.id` value. Item IDs must be whole numbers or non-empty strings and
+  are checked before any items are deleted. `delete_sp_list_item()`
+  requires a single item ID.
 
 - sp_list_item:
 
@@ -49,10 +51,10 @@ delete_sp_list_items(
 
 - ...:
 
-  Additional parameters passed to
-  [`get_sp_site()`](https://elipousson.github.io/sharepointr/reference/sp_site.md)
-  or
-  [`Microsoft365R::get_sharepoint_site()`](https://rdrr.io/pkg/Microsoft365R/man/client.html).
+  For `delete_sp_list_item()`, must be empty. For
+  `delete_sp_list_items()`, additional parameters passed to
+  [`get_sp_list()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
+  if `sp_list` is `NULL`.
 
 - .id:
 
@@ -95,12 +97,10 @@ delete_sp_list_items(
 
 - filter:
 
-  A string with [an OData
-  expression](https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter)
-  apply as a filter to the results. Learn more in the [Microsoft Graph
-  API
-  documentation](https://learn.microsoft.com/en-us/graph/filter-query-parameter)
-  on using filter query parameters.
+  Optional. A string with an OData filter expression used to find the
+  items to delete if `item_id` is `NULL`. Can't be supplied with
+  `item_id`. See
+  [`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md).
 
 - .progress:
 

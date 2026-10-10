@@ -123,8 +123,8 @@ delete_sp_list_view(
 
 - as_data_frame:
 
-  If `TRUE` (default), return a data frame with one row per view and a
-  `ViewFields` list column. If `FALSE`, return a list of views.
+  If `TRUE` (default), return a data frame with one row per view. If
+  `FALSE`, return a list of views.
 
 - list_name:
 
@@ -205,7 +205,7 @@ delete_sp_list_view(
 
   Optional. A named list of SP.View properties (e.g.
   `list(Title = "Active", RowLimit = 50)`). Used in place of the other
-  view arguments.
+  view arguments, which can't be supplied with `view_definition`.
 
 - confirm:
 
@@ -213,11 +213,17 @@ delete_sp_list_view(
 
 ## Value
 
-`list_sp_list_views()` returns a data frame or a list of views.
-`get_sp_list_view()`, `create_sp_list_view()`, and
-`update_sp_list_view()` return a named list of SP.View properties (`Id`,
+`list_sp_list_views()` returns a data frame or a list of views. The data
+frame always has the same columns (`Id`, `Title`, `DefaultView`,
+`Hidden`, `ViewFields`, `ViewQuery`, `RowLimit`, `Paged`, `Scope`,
+`CustomFormatter`, `MobileView`, `MobileDefaultView`,
+`ServerRelativeUrl`, `ViewType`, and `PersonalView`), even if the list
+has no views. `ViewFields` is a list column and missing values are `NA`.
+`get_sp_list_view()` returns a named list of SP.View properties (`Id`,
 `Title`, `ViewFields`, `ViewQuery`, `RowLimit`, `DefaultView`, and other
-properties). `delete_sp_list_view()` invisibly returns `NULL`.
+properties). `create_sp_list_view()` and `update_sp_list_view()`
+invisibly return the created or updated view in the same format.
+`delete_sp_list_view()` invisibly returns `NULL`.
 
 ## Details
 

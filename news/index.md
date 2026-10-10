@@ -91,6 +91,25 @@
   and
   [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
   to set the id column or element name. (2026-10-01)
+- Allow
+  [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  to accept a list of named lists (one record per item) as well as a
+  data frame.
+  [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md),
+  [`update_sp_list_lookup_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md),
+  and
+  [`fmt_sp_list_lookup_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
+  now accept the same list inputs (a single record, where supported, or
+  a named or unnamed list of records) with the same error message.
+  (2026-10-10)
+- Add a `strict` argument to
+  [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  (matching
+  [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md))
+  to error if any column or record field name doesn’t match a list
+  field. (2026-10-10)
 - Add
   [`update_sp_list_person_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_lookup_column.md)
   for updating person or group columns (matched by email address using
@@ -251,6 +270,35 @@
 
 ### Fixes
 
+- Fix item id handling for
+  [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  [`delete_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md),
+  and
+  [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md):
+  item ids from a data frame, list of records, or vector are now checked
+  (as whole numbers or non-empty strings) before any items are changed,
+  so a missing or invalid id no longer stops a batch partway through.
+  Item ids are sent as strings.
+  [`delete_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
+  errors for more than one item id or for unused arguments, and
+  [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
+  errors if both `item_id` and `filter` are supplied. (2026-10-10)
+- Fix
+  [`update_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  sending an empty update when only the `.id` field is left after
+  dropping `NA` values (with `.id` other than `"id"`) and erroring when
+  no fields are supplied. (2026-10-10)
+- Fix
+  [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  returning modified `data` (and both
+  [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  and
+  [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  returning empty `data` visibly): the input is now always returned
+  invisibly and unmodified.
+  [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  also checks `data` before any API calls or creating a list.
+  (2026-10-10)
 - Fix
   [`update_sp_list_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_column.md)
   sending the whole column definition: only properties that differ from

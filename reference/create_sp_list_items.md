@@ -35,6 +35,7 @@ update_sp_list_items(
   .id = "id",
   allow_display_nm = FALSE,
   check_fields = TRUE,
+  strict = FALSE,
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
   .progress = TRUE,
@@ -67,15 +68,17 @@ update_sp_list_item(
 
 - data:
 
-  Required. A data frame to import as items to the supplied or
-  identified SharePoint list. If data is an sf object, the geometry
-  column is coerced to text using
+  Required. A data frame or a list of named lists (one record per item)
+  to import as items to the supplied or identified SharePoint list. If
+  data is an sf object, the geometry column is coerced to text using
   [`sf::st_as_text()`](https://r-spatial.github.io/sf/reference/st_as_text.html).
-  For `update_sp_list_items()`, `data` can also be a list of named lists
-  (one per item) where each record includes an `.id` element, or a
-  single named list record for one item. Unlike a data frame, any field
-  missing from a record is left unchanged, even when
-  `na_fields = "replace"`.
+  For `update_sp_list_items()`, each record must include an `.id`
+  element and `data` can also be a single named list record for one
+  item. Unlike a data frame, any field missing from a record is left
+  unchanged, even when `na_fields = "replace"`. For
+  `create_sp_list_items()`, wrap a single record in a list (e.g.
+  `list(record)`) and `data` must be a data frame if
+  `create_list = TRUE`.
 
 - list_name, list_id:
 
@@ -102,9 +105,13 @@ update_sp_list_item(
 
 - .id:
 
-  Column or element name with `item_item` value in `data`. Allows users
-  to pass a modified version of the list item data with the id column
-  and any updated columns.
+  Name of the column in `data` (or the element in each record if `data`
+  is a list) with item ID values. Defaults to `"id"`. Item IDs must be
+  whole numbers or non-empty strings and are checked before any items
+  are updated. For `create_sp_list_items()`, `.id` is only used to keep
+  the ID column name from being replaced when `allow_display_nm = TRUE`.
+  For `update_sp_list_item()`, `.id` is used to get `item_id` from
+  `.data` if `item_id` isn't supplied.
 
 - site_url:
 
@@ -130,10 +137,10 @@ update_sp_list_item(
 
 - check_fields:
 
-  If `TRUE` (default), column names for the input data are matched to
-  the fields of the list object. If `FALSE`, the function will error if
-  any column names can't be matched to a field in the supplied
-  SharePoint list.
+  If `TRUE` (default), column names (or record field names) for the
+  input data are matched to the fields of the list object. If `FALSE`,
+  names aren't checked and the Graph API errors for any name that isn't
+  a list field.
 
 - sync_fields:
 
@@ -149,10 +156,10 @@ update_sp_list_item(
 
 - strict:
 
-  Not yet implemented as of 2024-08-12. If `TRUE`, all column names in
-  data must be matched to field names in the supplied SharePoint list.
-  If `FALSE` (default), unmatched columns will be dropped with a
-  warning.
+  If `TRUE`, all column names in a data frame (or field names in a list
+  of records) must match field names in the supplied SharePoint list. If
+  `FALSE` (default), unmatched names are dropped with a message. Only
+  used if `check_fields = TRUE`.
 
 - .progress:
 
@@ -206,7 +213,8 @@ update_sp_list_item(
 
 ## Value
 
-Invisibly returns the input `data`, unmodified.
+`create_sp_list_items()` and `update_sp_list_items()` invisibly return
+the input `data`, unmodified (even if `data` is empty).
 
 ## Details
 

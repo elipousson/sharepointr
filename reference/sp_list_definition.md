@@ -67,9 +67,10 @@ write_sp_list_yaml(
 - x:
 
   For `write_sp_list_yaml()`, a `sp_list_definition` object or a
-  `ms_list` object. For `as_sp_list_definition()`, a named list with the
-  same structure as a YAML file or an unnamed list of column
-  definitions.
+  `ms_list` object. `keep_defaults`, `read_only`, and `include_views`
+  are only used for a `ms_list` object. For `as_sp_list_definition()`, a
+  named list with the same structure as a YAML file or an unnamed list
+  of column definitions.
 
 - ...:
 

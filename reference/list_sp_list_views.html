@@ -188,8 +188,7 @@ the view. SP.View property: <code>Hidden</code>.</p></dd>
 
 <dt id="arg-as-data-frame">as_data_frame<a class="anchor" aria-label="anchor" href="#arg-as-data-frame"></a></dt>
 <dd><p>If <code>TRUE</code> (default), return a data frame with one row
-per view and a <code>ViewFields</code> list column. If <code>FALSE</code>, return a list of
-views.</p></dd>
+per view. If <code>FALSE</code>, return a list of views.</p></dd>
 
 
 <dt id="arg-list-name">list_name<a class="anchor" aria-label="anchor" href="#arg-list-name"></a></dt>
@@ -270,7 +269,7 @@ SP.View property: <code>CustomFormatter</code>.</p></dd>
 <dt id="arg-view-definition">view_definition<a class="anchor" aria-label="anchor" href="#arg-view-definition"></a></dt>
 <dd><p>Optional. A named list of SP.View properties (e.g.
 <code>list(Title = "Active", RowLimit = 50)</code>). Used in place of the other view
-arguments.</p></dd>
+arguments, which can't be supplied with <code>view_definition</code>.</p></dd>
 
 
 <dt id="arg-confirm">confirm<a class="anchor" aria-label="anchor" href="#arg-confirm"></a></dt>
@@ -281,10 +280,16 @@ view.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code>list_sp_list_views()</code> returns a data frame or a list of views.
-<code>get_sp_list_view()</code>, <code>create_sp_list_view()</code>, and
-<code>update_sp_list_view()</code> return a named list of SP.View properties
-(<code>Id</code>, <code>Title</code>, <code>ViewFields</code>, <code>ViewQuery</code>, <code>RowLimit</code>, <code>DefaultView</code>,
-and other properties). <code>delete_sp_list_view()</code> invisibly returns <code>NULL</code>.</p>
+The data frame always has the same columns (<code>Id</code>, <code>Title</code>,
+<code>DefaultView</code>, <code>Hidden</code>, <code>ViewFields</code>, <code>ViewQuery</code>, <code>RowLimit</code>, <code>Paged</code>,
+<code>Scope</code>, <code>CustomFormatter</code>, <code>MobileView</code>, <code>MobileDefaultView</code>,
+<code>ServerRelativeUrl</code>, <code>ViewType</code>, and <code>PersonalView</code>), even if the list
+has no views. <code>ViewFields</code> is a list column and missing values are <code>NA</code>.
+<code>get_sp_list_view()</code> returns a named list of SP.View properties (<code>Id</code>,
+<code>Title</code>, <code>ViewFields</code>, <code>ViewQuery</code>, <code>RowLimit</code>, <code>DefaultView</code>, and other
+properties). <code>create_sp_list_view()</code> and <code>update_sp_list_view()</code>
+invisibly return the created or updated view in the same format.
+<code>delete_sp_list_view()</code> invisibly returns <code>NULL</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

@@ -362,16 +362,18 @@ Graph property: <code>displayAs</code>.</p></dd>
 
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>Optional. A data frame or an unnamed list of named lists (one
-record per item) with item ID values (<code>.id</code>) and join values
-(<code>join_column</code>) for the items to update. If <code>NULL</code>, items are retrieved
+<dd><p>Optional. A data frame, a list of named lists (one record per
+item), or a single named list record with item ID values (<code>.id</code>) and join
+values (<code>join_column</code>) for the items to update. A single record or a named
+list of records is returned by <code>fmt_sp_list_lookup_items()</code> as an unnamed
+list of records. If <code>NULL</code>, items are retrieved
 from <code>sp_list</code>. Required for <code>fmt_sp_list_lookup_items()</code> where <code>data</code>
 must include all <code>column_name</code> values as column (or record element) names.</p></dd>
 
 
 <dt id="arg-lookup-list-data">lookup_list_data<a class="anchor" aria-label="anchor" href="#arg-lookup-list-data"></a></dt>
-<dd><p>Optional. A data frame or an unnamed list of named
-lists with item ID values (<code>.id</code>) and unique join values
+<dd><p>Optional. A data frame or a list of named lists
+with item ID values (<code>.id</code>) and unique join values
 (<code>lookup_join_column</code>) for the lookup list items. If <code>NULL</code>, items are
 retrieved from <code>lookup_list</code>.</p></dd>
 

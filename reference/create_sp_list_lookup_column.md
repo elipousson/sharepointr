@@ -361,17 +361,19 @@ update_sp_list_person_items(
 
 - data:
 
-  Optional. A data frame or an unnamed list of named lists (one record
-  per item) with item ID values (`.id`) and join values (`join_column`)
-  for the items to update. If `NULL`, items are retrieved from
+  Optional. A data frame, a list of named lists (one record per item),
+  or a single named list record with item ID values (`.id`) and join
+  values (`join_column`) for the items to update. A single record or a
+  named list of records is returned by `fmt_sp_list_lookup_items()` as
+  an unnamed list of records. If `NULL`, items are retrieved from
   `sp_list`. Required for `fmt_sp_list_lookup_items()` where `data` must
   include all `column_name` values as column (or record element) names.
 
 - lookup_list_data:
 
-  Optional. A data frame or an unnamed list of named lists with item ID
-  values (`.id`) and unique join values (`lookup_join_column`) for the
-  lookup list items. If `NULL`, items are retrieved from `lookup_list`.
+  Optional. A data frame or a list of named lists with item ID values
+  (`.id`) and unique join values (`lookup_join_column`) for the lookup
+  list items. If `NULL`, items are retrieved from `lookup_list`.
 
 - join_column:
 

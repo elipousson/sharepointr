@@ -1361,13 +1361,15 @@ sp_list_site_id <- function(sp_list) {
 #' Values in `data` that can't be matched to a lookup list item are listed in a
 #' message and replaced with `NA` values. Missing values are never matched.
 #'
-#' @param data Optional. A data frame or an unnamed list of named lists (one
-#'   record per item) with item ID values (`.id`) and join values
-#'   (`join_column`) for the items to update. If `NULL`, items are retrieved
+#' @param data Optional. A data frame, a list of named lists (one record per
+#'   item), or a single named list record with item ID values (`.id`) and join
+#'   values (`join_column`) for the items to update. A single record or a named
+#'   list of records is returned by [fmt_sp_list_lookup_items()] as an unnamed
+#'   list of records. If `NULL`, items are retrieved
 #'   from `sp_list`. Required for [fmt_sp_list_lookup_items()] where `data`
 #'   must include all `column_name` values as column (or record element) names.
-#' @param lookup_list_data Optional. A data frame or an unnamed list of named
-#'   lists with item ID values (`.id`) and unique join values
+#' @param lookup_list_data Optional. A data frame or a list of named lists
+#'   with item ID values (`.id`) and unique join values
 #'   (`lookup_join_column`) for the lookup list items. If `NULL`, items are
 #'   retrieved from `lookup_list`.
 #' @param join_column Name of column (or record element) in `data` to match
@@ -1507,15 +1509,11 @@ fmt_sp_list_lookup_items <- function(
     call = call
   )
 
-  is_records <- !is.data.frame(data) && is_list_of_records(data)
-
-  if (!is.data.frame(data) && !is_records) {
-    cli_abort(
-      "{.arg data} must be a data frame or an unnamed list of named lists,
-      not {.obj_type_friendly {data}}.",
-      call = call
-    )
+  if (!is.data.frame(data)) {
+    data <- as_sp_item_records(data, .id = .id, call = call)
   }
+
+  is_records <- !is.data.frame(data)
 
   if (is.null(lookup_list_data)) {
     lookup_list_data <- get_sp_list_items(
@@ -1689,22 +1687,17 @@ pull_lookup_keys <- function(
       )
     }
 
-    return(list(ids = data[[.id]], keys = data[[join_column]]))
+    return(list(
+      ids = as_sp_item_ids(data, .id = .id, arg = arg, call = call),
+      keys = data[[join_column]]
+    ))
   }
 
-  if (!is_list_of_records(data)) {
-    cli_abort(
-      "{.arg {arg}} must be a data frame or an unnamed list of named lists,
-      not {.obj_type_friendly {data}}.",
-      call = call
-    )
-  }
-
-  ids <- pull_record_ids(data, .id = .id, call = call)
+  records <- as_sp_item_records(data, .id = .id, arg = arg, call = call)
 
   list(
-    ids = vctrs::list_unchop(ids),
-    keys = pull_record_values(data, join_column, arg = arg, call = call)
+    ids = as_sp_item_ids(records, .id = .id, arg = arg, call = call),
+    keys = pull_record_values(records, join_column, arg = arg, call = call)
   )
 }
 

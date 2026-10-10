@@ -214,14 +214,16 @@ Graph property: \code{displayAs}.}
 \code{\link[=create_term_column]{create_term_column()}} or \code{allow_multiple_selection} for
 \code{\link[=create_person_column]{create_person_column()}} and \code{\link[=create_group_column]{create_group_column()}}.}
 
-\item{data}{Optional. A data frame or an unnamed list of named lists (one
-record per item) with item ID values (\code{.id}) and join values
-(\code{join_column}) for the items to update. If \code{NULL}, items are retrieved
+\item{data}{Optional. A data frame, a list of named lists (one record per
+item), or a single named list record with item ID values (\code{.id}) and join
+values (\code{join_column}) for the items to update. A single record or a named
+list of records is returned by \code{\link[=fmt_sp_list_lookup_items]{fmt_sp_list_lookup_items()}} as an unnamed
+list of records. If \code{NULL}, items are retrieved
 from \code{sp_list}. Required for \code{\link[=fmt_sp_list_lookup_items]{fmt_sp_list_lookup_items()}} where \code{data}
 must include all \code{column_name} values as column (or record element) names.}
 
-\item{lookup_list_data}{Optional. A data frame or an unnamed list of named
-lists with item ID values (\code{.id}) and unique join values
+\item{lookup_list_data}{Optional. A data frame or a list of named lists
+with item ID values (\code{.id}) and unique join values
 (\code{lookup_join_column}) for the lookup list items. If \code{NULL}, items are
 retrieved from \code{lookup_list}.}
 

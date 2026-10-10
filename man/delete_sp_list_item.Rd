@@ -32,15 +32,18 @@ delete_sp_list_items(
 }
 \arguments{
 \item{item_id}{ID value for list item or items to delete. \code{item_id} can also
-be a data frame with a column named with the \code{.id} value. For
-\code{\link[=delete_sp_list_items]{delete_sp_list_items()}}, \code{item_id} can also be a list of named lists (one
-per item) or a single named list record where each record includes an
-element named with the \code{.id} value.}
+be a data frame with a column named with the \code{.id} value, a single named
+list record, or (for \code{\link[=delete_sp_list_items]{delete_sp_list_items()}}) a list of named lists (one
+per item) where each record includes an element named with the \code{.id}
+value. Item IDs must be whole numbers or non-empty strings and are checked
+before any items are deleted. \code{\link[=delete_sp_list_item]{delete_sp_list_item()}} requires a single
+item ID.}
 
 \item{sp_list_item}{Optional. A SharePoint list item object to delete.}
 
-\item{...}{Additional parameters passed to \code{\link[=get_sp_site]{get_sp_site()}} or
-\code{\link[Microsoft365R:get_sharepoint_site]{Microsoft365R::get_sharepoint_site()}}.}
+\item{...}{For \code{\link[=delete_sp_list_item]{delete_sp_list_item()}}, must be empty. For
+\code{\link[=delete_sp_list_items]{delete_sp_list_items()}}, additional parameters passed to \code{\link[=get_sp_list]{get_sp_list()}}
+if \code{sp_list} is \code{NULL}.}
 
 \item{.id}{Name of column (if \code{item_id} is a data frame) or element (if
 \code{item_id} is a list of records) to use for item ID values. Defaults to
@@ -68,9 +71,9 @@ running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
-\item{filter}{A string with \href{https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter}{an OData expression}
-apply as a filter to the results. Learn more in the \href{https://learn.microsoft.com/en-us/graph/filter-query-parameter}{Microsoft Graph API documentation}
-on using filter query parameters.}
+\item{filter}{Optional. A string with an OData filter expression used to
+find the items to delete if \code{item_id} is \code{NULL}. Can't be supplied with
+\code{item_id}. See \code{\link[=list_sp_list_items]{list_sp_list_items()}}.}
 
 \item{.progress}{Whether to show a progress bar. Use \code{TRUE} to turn on
 a basic progress bar, use a string to give it a name, or see

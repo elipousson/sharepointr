@@ -65,13 +65,15 @@ update_sp_list_item(
 )
 }
 \arguments{
-\item{data}{Required. A data frame to import as items to the supplied or
-identified SharePoint list. If data is an sf object, the geometry column is
-coerced to text using \code{\link[sf:st_as_text]{sf::st_as_text()}}. For \code{\link[=update_sp_list_items]{update_sp_list_items()}},
-\code{data} can also be a list of named lists (one per item) where each record
-includes an \code{.id} element, or a single named list record for one item.
-Unlike a data frame, any field missing from a record is left unchanged,
-even when \code{na_fields = "replace"}.}
+\item{data}{Required. A data frame or a list of named lists (one record per
+item) to import as items to the supplied or identified SharePoint list. If
+data is an sf object, the geometry column is coerced to text using
+\code{\link[sf:st_as_text]{sf::st_as_text()}}. For \code{\link[=update_sp_list_items]{update_sp_list_items()}}, each record must include
+an \code{.id} element and \code{data} can also be a single named list record for one
+item. Unlike a data frame, any field missing from a record is left
+unchanged, even when \code{na_fields = "replace"}. For
+\code{\link[=create_sp_list_items]{create_sp_list_items()}}, wrap a single record in a list (e.g.
+\code{list(record)}) and \code{data} must be a data frame if \code{create_list = TRUE}.}
 
 \item{list_name, list_id}{SharePoint List name or ID string.}
 
@@ -86,9 +88,13 @@ parameters passed to \code{...} are all ignored.}
 instead of standard names. Note this requires a separate API call so may
 result in a slower request. Default \code{FALSE}.}
 
-\item{.id}{Column or element name with \code{item_item} value in \code{data}. Allows
-users to pass a modified version of the list item data with the id column and
-any updated columns.}
+\item{.id}{Name of the column in \code{data} (or the element in each record if
+\code{data} is a list) with item ID values. Defaults to \code{"id"}. Item IDs must be
+whole numbers or non-empty strings and are checked before any items are
+updated. For \code{\link[=create_sp_list_items]{create_sp_list_items()}}, \code{.id} is only used to keep the ID
+column name from being replaced when \code{allow_display_nm = TRUE}. For
+\code{\link[=update_sp_list_item]{update_sp_list_item()}}, \code{.id} is used to get \code{item_id} from \code{.data} if
+\code{item_id} isn't supplied.}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
@@ -154,7 +160,8 @@ names are found from the list column definitions. Otherwise, only fields
 with a length other than 1 are treated as multi-value fields.}
 }
 \value{
-Invisibly returns the input \code{data}, unmodified.
+\code{\link[=create_sp_list_items]{create_sp_list_items()}} and \code{\link[=update_sp_list_items]{update_sp_list_items()}} invisibly
+return the input \code{data}, unmodified (even if \code{data} is empty).
 }
 \description{
 Create or update list items

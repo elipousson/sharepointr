@@ -524,7 +524,7 @@ test_that("update_sp_list_lookup_items matches items to lookup list items", {
       column_name = "Project",
       lookup_list_data = lookup_list_data
     ),
-    "must be a data frame or an unnamed list of named lists"
+    "a named list for a single item, or a list of named lists"
   )
 })
 
@@ -649,6 +649,16 @@ test_that("fmt_sp_list_lookup_items formats lookup columns in a data frame or li
       list(Name = "x", ProjectLookupId = "10"),
       list(Name = "y")
     )
+  )
+
+  # A single record (with an id) is accepted like update_sp_list_items()
+  expect_identical(
+    fmt_sp_list_lookup_items(
+      list(id = "1", Project = "A"),
+      column_name = "Project",
+      lookup_list_data = list(list(id = "10", Project = "A"))
+    ),
+    list(list(id = "1", ProjectLookupId = "10"))
   )
 
   expect_error(

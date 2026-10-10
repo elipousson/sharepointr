@@ -167,7 +167,7 @@ test_that("drop_na_fields() drops NA and empty fields", {
   )
 })
 
-test_that("is_list_of_records() and pull_record_ids() handle list of records inputs", {
+test_that("is_list_of_records() and as_sp_item_ids() handle list of records inputs", {
   records <- list(
     list(id = "1", Title = "A"),
     list(id = "2", Choices = c("B", "C"))
@@ -179,10 +179,10 @@ test_that("is_list_of_records() and pull_record_ids() handle list of records inp
   expect_false(is_list_of_records(data.frame(id = "1")))
   expect_false(is_list_of_records(list(list("1", "A"))))
 
-  expect_identical(pull_record_ids(records), list("1", "2"))
+  expect_identical(as_sp_item_ids(records), c("1", "2"))
   expect_error(
-    pull_record_ids(list(list(id = "1"), list(Title = "B"), list(id = NA))),
-    "Records with a missing or invalid value: 2 and 3"
+    as_sp_item_ids(list(list(id = "1"), list(Title = "B"), list(id = NA))),
+    "Items with a missing or invalid .*id.* value: 2 and 3"
   )
 })
 
@@ -471,15 +471,15 @@ test_that("delete_sp_list_items() accepts ids, a data frame, or a list of record
 
   expect_error(
     delete_ids(list(list(id = "1"), list(Title = "B"))),
-    "Record with a missing or invalid value: 2"
+    "Item with a missing or invalid .*id.* value: 2"
   )
   expect_error(
     delete_ids(list(Title = "A", Status = "B")),
-    "can't be a named list"
+    "a named list for a single item"
   )
   expect_error(
     delete_ids(list(id = c("1", "2"))),
-    "can't be a named list"
+    "a named list for a single item"
   )
 
   # Alternate id column or element names are supported with `.id`
@@ -552,6 +552,221 @@ test_that("delete_sp_list_item() gets the item id from a data frame first", {
     ),
     "must have a column named"
   )
+})
+
+# Minimal stand-in for a Microsoft365R::ms_list that records item requests
+local_fake_item_list <- function(env = parent.frame()) {
+  requests <- new.env()
+  requests$updates <- list()
+  requests$creates <- list()
+  requests$deletes <- character(0)
+  requests$n_get_list <- 0
+  requests$n_metadata <- 0
+
+  sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
+  sp_list$update_item <- function(id, ...) {
+    requests$updates <- c(requests$updates, list(list(id = id, fields = list(...))))
+  }
+  sp_list$do_operation <- function(op, body = NULL, http_verb = "GET") {
+    if (http_verb == "DELETE") {
+      requests$deletes <- c(requests$deletes, op)
+    } else {
+      requests$creates <- c(requests$creates, list(body[["fields"]]))
+    }
+  }
+
+  local_mocked_bindings(
+    get_sp_list = function(...) {
+      requests$n_get_list <- requests$n_get_list + 1
+      sp_list
+    },
+    get_sp_list_metadata = function(...) {
+      requests$n_metadata <- requests$n_metadata + 1
+      list(
+        list(name = "Title", text = list()),
+        list(name = "Choices", choice = list(displayAs = "checkBoxes"))
+      )
+    },
+    .env = env
+  )
+
+  requests$sp_list <- sp_list
+  requests
+}
+
+test_that("as_sp_item_ids() validates and returns character item ids", {
+  expect_identical(as_sp_item_ids(c(1, 2)), c("1", "2"))
+  expect_identical(as_sp_item_ids(1e6), "1000000")
+  expect_identical(as_sp_item_ids(data.frame(id = 3:4)), c("3", "4"))
+  expect_identical(as_sp_item_ids(list(id = "5", Title = "A")), "5")
+  expect_identical(as_sp_item_ids(list("6", 7L)), c("6", "7"))
+
+  expect_error(as_sp_item_ids(c("1", NA)), "Item with a missing or invalid")
+  expect_error(as_sp_item_ids(data.frame(id = c(1, NA))), "value: 2")
+  expect_error(as_sp_item_ids(c(1.5, 2)), "value: 1")
+  expect_error(as_sp_item_ids(""), "value: 1")
+  expect_error(
+    as_sp_item_ids(list(list(id = TRUE), list(id = c("1", "2")))),
+    "value: 1 and 2"
+  )
+})
+
+test_that("update_sp_list_items() checks item ids before updating any items", {
+  requests <- local_fake_item_list()
+
+  expect_error(
+    update_sp_list_items(
+      data.frame(id = c("1", NA), Title = c("A", "B")),
+      sp_list = requests$sp_list,
+      .progress = FALSE
+    ),
+    "value: 2"
+  )
+  expect_error(
+    update_sp_list_items(
+      list(list(id = 1.5, Title = "A")),
+      sp_list = requests$sp_list,
+      .progress = FALSE
+    ),
+    "value: 1"
+  )
+
+  expect_length(requests$updates, 0)
+  expect_identical(requests$n_metadata, 0)
+
+  # Numeric ids are sent as strings
+  update_sp_list_items(
+    data.frame(id = c(1, 2), Title = c("A", "B")),
+    sp_list = requests$sp_list,
+    .progress = FALSE
+  )
+  expect_identical(purrr::map_chr(requests$updates, "id"), c("1", "2"))
+})
+
+test_that("update_sp_list_items() and create_sp_list_items() return the input invisibly", {
+  requests <- local_fake_item_list()
+  data <- data.frame(id = "1", Title = "A", Other = "dropped")
+
+  expect_invisible(
+    out <- suppressMessages(
+      update_sp_list_items(data, sp_list = requests$sp_list, .progress = FALSE)
+    )
+  )
+  expect_identical(out, data)
+
+  expect_invisible(
+    out <- suppressMessages(
+      create_sp_list_items(data[-1], sp_list = requests$sp_list, .progress = FALSE)
+    )
+  )
+  expect_identical(out, data[-1])
+
+  # Empty input is also returned invisibly
+  empty <- data[0, ]
+  expect_invisible(
+    out <- suppressMessages(update_sp_list_items(empty, sp_list = requests$sp_list))
+  )
+  expect_identical(out, empty)
+  expect_invisible(
+    out <- suppressMessages(create_sp_list_items(empty, sp_list = requests$sp_list))
+  )
+  expect_identical(out, empty)
+})
+
+test_that("create_sp_list_items() creates items from a list of records", {
+  requests <- local_fake_item_list()
+
+  records <- list(
+    list(Title = "A", Choices = c("C", "D"), Other = "dropped"),
+    list(Title = "B")
+  )
+
+  expect_message(
+    out <- create_sp_list_items(records, sp_list = requests$sp_list, .progress = FALSE),
+    "Other"
+  )
+  expect_identical(out, records)
+  expect_identical(
+    requests$creates,
+    list(
+      list(
+        Title = "A",
+        Choices = list("C", "D"),
+        `Choices@odata.type` = "Collection(Edm.String)"
+      ),
+      list(Title = "B")
+    )
+  )
+
+  # Invalid input errors before any API calls
+  expect_error(
+    create_sp_list_items(list(Title = "A"), list_name = "Test"),
+    "Use `list\\(record\\)` for a single item"
+  )
+  expect_error(
+    create_sp_list_items(records, list_name = "Test", create_list = TRUE),
+    "must be a data frame when `create_list = TRUE`"
+  )
+  expect_identical(requests$n_get_list, 0)
+})
+
+test_that("update_sp_list_item() uses `.id` to check for empty data", {
+  requests <- local_fake_item_list()
+
+  expect_message(
+    update_sp_list_item(
+      .data = list(ID = "5", Title = NA),
+      .id = "ID",
+      sp_list = requests$sp_list,
+      check_fields = FALSE
+    ),
+    "empty after dropping"
+  )
+
+  # No fields at all
+  expect_message(
+    update_sp_list_item(item_id = "5", sp_list = requests$sp_list),
+    "empty after dropping"
+  )
+
+  expect_length(requests$updates, 0)
+})
+
+test_that("delete_sp_list_item() and delete_sp_list_items() check arguments", {
+  requests <- local_fake_item_list()
+
+  expect_error(
+    delete_sp_list_item(item_id = "1", sp_list = requests$sp_list, cofirm = FALSE),
+    "must be empty"
+  )
+  expect_error(
+    delete_sp_list_item(
+      data.frame(id = c("1", "2")),
+      sp_list = requests$sp_list,
+      confirm = FALSE
+    ),
+    "must be a single item id, not 2"
+  )
+  expect_error(
+    delete_sp_list_items(
+      "1",
+      sp_list = requests$sp_list,
+      filter = "fields/Title eq 'A'",
+      confirm = FALSE
+    ),
+    "not both"
+  )
+  expect_error(
+    delete_sp_list_items(
+      c("1", NA),
+      sp_list = requests$sp_list,
+      confirm = FALSE,
+      .progress = FALSE
+    ),
+    "value: 2"
+  )
+
+  expect_length(requests$deletes, 0)
 })
 
 test_that("pull_sp_list_multi_cols() finds multi-value columns", {

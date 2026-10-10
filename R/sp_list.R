@@ -615,6 +615,8 @@ create_sp_list_definition_views <- function(
   call = caller_env()
 ) {
   default_title <- NULL
+  # Ids of created or updated views (used to set the default view)
+  view_ids <- list()
 
   for (view in views) {
     if (isTRUE(view[["DefaultView"]])) {
@@ -624,22 +626,27 @@ create_sp_list_definition_views <- function(
     view <- as_view_to_create(view)
 
     if (template == "genericList" && identical(view[["Title"]], "All Items")) {
-      update_sp_list_view(
+      updated <- update_sp_list_view(
         sp_list,
         view_title = "All Items",
         view_definition = view,
         call = call
       )
+
+      view_ids[[view[["Title"]]]] <- updated[["Id"]]
     } else {
-      create_sp_list_view(sp_list, view_definition = view, call = call)
+      view <- validate_view_definition(view, call = call)
+      view_ids[[view[["Title"]]]] <- add_sp_list_view(sp_list, view, call = call)
     }
   }
 
   if (!is.null(default_title)) {
-    update_sp_list_view(
+    cli_progress_step("Setting {.val {default_title}} as the default view")
+
+    set_sp_list_view_props(
       sp_list,
-      view_title = default_title,
-      default_view = TRUE,
+      view_ids[[default_title]],
+      list(DefaultView = TRUE),
       call = call
     )
   }

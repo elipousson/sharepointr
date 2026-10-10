@@ -299,17 +299,22 @@ test_that("create_sp_list_definition_views creates views and sets the default vi
   calls <- list()
 
   local_mocked_bindings(
-    update_sp_list_view = function(sp_list, view_title = NULL, ..., view_definition = NULL, default_view = NULL, call = NULL) {
+    update_sp_list_view = function(sp_list, view_title = NULL, ..., view_definition = NULL, call = NULL) {
       calls[[length(calls) + 1]] <<- list(
         fn = "update",
         view_title = view_title,
-        view_definition = view_definition,
-        default_view = default_view
+        view_definition = view_definition
       )
+      invisible(list(Id = "all-items-id"))
     },
-    create_sp_list_view = function(sp_list, ..., view_definition = NULL, call = NULL) {
-      calls[[length(calls) + 1]] <<- list(fn = "create", view_definition = view_definition)
-    }
+    add_sp_list_view = function(sp_list, view, call = NULL) {
+      calls[[length(calls) + 1]] <<- list(fn = "create", view_definition = view)
+      "new-view-id"
+    },
+    set_sp_list_view_props = function(sp_list, view_id, props, call = NULL) {
+      calls[[length(calls) + 1]] <<- list(fn = "update", view_id = view_id, props = props)
+    },
+    get_sp_list_view = function(...) stop("Views shouldn't be requested again.")
   )
 
   create_sp_list_definition_views(
@@ -326,9 +331,10 @@ test_that("create_sp_list_definition_views creates views and sets the default vi
   expect_identical(calls[[1]][["view_definition"]], list(Title = "Active", RowLimit = 50L))
   expect_identical(calls[[2]][["view_title"]], "All Items")
 
-  # The default view is set after all views are created
-  expect_identical(calls[[3]][["view_title"]], "Active")
-  expect_true(calls[[3]][["default_view"]])
+  # The default view is set after all views are created (using the Id of the
+  # created view)
+  expect_identical(calls[[3]][["view_id"]], "new-view-id")
+  expect_identical(calls[[3]][["props"]], list(DefaultView = TRUE))
 })
 
 test_that("list view functions work with a live list", {

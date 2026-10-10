@@ -570,6 +570,18 @@ create_sp_list_view <- function(
     call = call
   )
 
+  view_id <- add_sp_list_view(sp_list, view, call = call)
+
+  invisible(get_sp_list_view(sp_list, view_id = view_id, call = call))
+}
+
+#' Add a view without getting the new view
+#'
+#' Used by [create_sp_list_view()] and [sync_sp_list()].
+#' @param view A validated view definition without read-only properties.
+#' @returns The `Id` of the new view.
+#' @noRd
+add_sp_list_view <- function(sp_list, view, call = caller_env()) {
   if (is.null(view[["ViewFields"]])) {
     view[["ViewFields"]] <- get_sp_list_view(sp_list, call = call)[["ViewFields"]]
   }
@@ -610,7 +622,7 @@ create_sp_list_view <- function(
     )
   }
 
-  invisible(get_sp_list_view(sp_list, view_id = resp[["Id"]], call = call))
+  resp[["Id"]]
 }
 
 #' @rdname list_sp_list_views
@@ -679,24 +691,42 @@ update_sp_list_view <- function(
 
   cli_progress_step("Updating view {.val {current[['Title']]}}")
 
-  props <- proposed[setdiff(changed, "ViewFields")]
+  set_sp_list_view_props(sp_list, view_id, proposed[changed], call = call)
 
-  if (length(props) > 0) {
+  invisible(get_sp_list_view(sp_list, view_id = view_id, call = call))
+}
+
+#' Set view properties without getting the view
+#'
+#' Used by [update_sp_list_view()] and [sync_sp_list()] (which have already
+#' compared the view with the proposed properties).
+#' @param props A named list of validated SP.View properties to set.
+#' @returns Invisibly returns `sp_list`.
+#' @noRd
+set_sp_list_view_props <- function(
+  sp_list,
+  view_id,
+  props,
+  call = caller_env()
+) {
+  merge_props <- props[setdiff(names(props), "ViewFields")]
+
+  if (length(merge_props) > 0) {
     sp_list_rest_request(
       sp_list,
       sp_view_path(view_id = view_id),
       method = "POST",
-      body = props,
+      body = merge_props,
       merge = TRUE,
       call = call
     )
   }
 
-  if ("ViewFields" %in% changed) {
-    set_sp_list_view_fields(sp_list, view_id, proposed[["ViewFields"]], call = call)
+  if (has_name(props, "ViewFields")) {
+    set_sp_list_view_fields(sp_list, view_id, props[["ViewFields"]], call = call)
   }
 
-  invisible(get_sp_list_view(sp_list, view_id = view_id, call = call))
+  invisible(sp_list)
 }
 
 #' Replace the fields shown in a view

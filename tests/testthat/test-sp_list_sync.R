@@ -330,12 +330,14 @@ test_that("apply_view_changes applies views in order", {
   }
 
   local_mocked_bindings(
-    create_sp_list_view = function(sp_list, ..., view_definition = NULL, call = NULL) {
-      record("create", view_definition = view_definition)
+    add_sp_list_view = function(sp_list, view, call = NULL) {
+      record("create", view = view)
+      "new-view"
     },
-    update_sp_list_view = function(sp_list, view_title = NULL, view_id = NULL, ..., default_view = NULL, view_definition = NULL, call = NULL) {
-      record("update", view_title = view_title, view_id = view_id, default_view = default_view, view_definition = view_definition)
+    set_sp_list_view_props = function(sp_list, view_id, props, call = NULL) {
+      record("update", view_id = view_id, props = props)
     },
+    get_sp_list_view = function(...) stop("Views shouldn't be requested again."),
     delete_sp_list_view = function(sp_list, view_title = NULL, view_id = NULL, ..., confirm = TRUE, call = NULL) {
       record("delete", view_id = view_id, confirm = confirm)
     }
@@ -356,13 +358,16 @@ test_that("apply_view_changes applies views in order", {
     c("create", "update", "update", "delete", "delete")
   )
   # New views are created without DefaultView, then set as the default
-  expect_identical(calls[[1]][["view_definition"]], list(Title = "Active", ViewFields = "LinkTitle"))
+  expect_identical(calls[[1]][["view"]], list(Title = "Active", ViewFields = "LinkTitle"))
+  # Only changed properties are set
+  expect_identical(calls[[2]][["view_id"]], "v2")
   expect_identical(
-    calls[[2]][["view_definition"]],
+    calls[[2]][["props"]],
     list(Title = "Working Renamed", RowLimit = 50L)
   )
-  expect_identical(calls[[3]][["view_title"]], "Active")
-  expect_true(calls[[3]][["default_view"]])
+  # The new view is set as the default view using the Id of the added view
+  expect_identical(calls[[3]][["view_id"]], "new-view")
+  expect_identical(calls[[3]][["props"]], list(DefaultView = TRUE))
   expect_identical(purrr::map_chr(calls[4:5], "view_id"), c("v1", "v3"))
   expect_true(all(changes[["status"]] == "applied"))
 })
@@ -371,8 +376,8 @@ test_that("apply_view_changes sets an existing default view by Id", {
   calls <- list()
 
   local_mocked_bindings(
-    update_sp_list_view = function(sp_list, view_title = NULL, view_id = NULL, ..., default_view = NULL, view_definition = NULL, call = NULL) {
-      calls[[length(calls) + 1]] <<- list(view_title = view_title, view_id = view_id, default_view = default_view)
+    set_sp_list_view_props = function(sp_list, view_id, props, call = NULL) {
+      calls[[length(calls) + 1]] <<- list(view_id = view_id, props = props)
       invisible(NULL)
     }
   )
@@ -385,14 +390,14 @@ test_that("apply_view_changes sets an existing default view by Id", {
   changes <- apply_view_changes(changes, views, sp_list = NULL)
 
   expect_length(calls, 2)
-  expect_identical(calls[[2]], list(view_title = NULL, view_id = "v2", default_view = TRUE))
+  expect_identical(calls[[2]], list(view_id = "v2", props = list(DefaultView = TRUE)))
   expect_true(all(changes[["status"]] %in% c("applied", "skipped")))
 })
 
 test_that("apply_view_changes doesn't set a default view that failed to be created", {
   local_mocked_bindings(
-    create_sp_list_view = function(...) cli::cli_abort("Can't create view."),
-    update_sp_list_view = function(...) stop("Shouldn't be called.")
+    add_sp_list_view = function(...) cli::cli_abort("Can't create view."),
+    set_sp_list_view_props = function(...) stop("Shouldn't be called.")
   )
 
   views <- list(list(Title = "Active", DefaultView = TRUE))

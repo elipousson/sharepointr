@@ -1288,6 +1288,9 @@ apply_view_changes <- function(changes, views, sp_list, call = caller_env()) {
   views <- set_names(views, purrr::map_chr(views, "Title"))
   default_view <- purrr::detect(views, \(view) isTRUE(view[["DefaultView"]]))
 
+  # Ids of added views (used to set a new view as the default view)
+  new_view_ids <- list()
+
   # Add views (without setting the default view)
   for (idx in which(planned & changes[["action"]] == "add")) {
     view <- as_view_to_create(views[[changes[["name"]][[idx]]]])
@@ -1295,7 +1298,14 @@ apply_view_changes <- function(changes, views, sp_list, call = caller_env()) {
     changes <- try_change(
       changes,
       idx,
-      create_sp_list_view(sp_list, view_definition = view, call = call)
+      {
+        view <- validate_view_definition(view, call = call)
+        new_view_ids[[view[["Title"]]]] <- add_sp_list_view(
+          sp_list,
+          view,
+          call = call
+        )
+      }
     )
   }
 
@@ -1307,16 +1317,21 @@ apply_view_changes <- function(changes, views, sp_list, call = caller_env()) {
   for (view_id in unique(changes[["id"]][update_rows])) {
     idx <- which(update_rows & changes[["id"]] %in% view_id)
     props <- set_names(changes[["proposed"]][idx], changes[["property"]][idx])
+    view_title <- changes[["name"]][[idx[[1]]]]
 
+    # Only changed properties are included so the view isn't compared again
     changes <- try_change(
       changes,
       idx,
-      update_sp_list_view(
-        sp_list,
-        view_id = view_id,
-        view_definition = props,
-        call = call
-      )
+      {
+        cli_progress_step("Updating view {.val {view_title}}")
+        set_sp_list_view_props(
+          sp_list,
+          view_id,
+          validate_view_definition(props, require_title = FALSE, call = call),
+          call = call
+        )
+      }
     )
   }
 
@@ -1330,19 +1345,28 @@ apply_view_changes <- function(changes, views, sp_list, call = caller_env()) {
   )
 
   if (length(default_idx) > 0 && all(changes[["status"]][default_idx] != "failed")) {
-    # Use the Id of an existing view in case it was renamed
+    # Use the Id of an existing view in case it was renamed (or the Id of the
+    # added view)
     view_id <- changes[["id"]][[default_idx[[1]]]]
 
     changes <- try_change(
       changes,
       default_idx,
-      update_sp_list_view(
-        sp_list,
-        view_title = if (is.na(view_id)) default_view[["Title"]],
-        view_id = if (!is.na(view_id)) view_id,
-        default_view = TRUE,
-        call = call
-      )
+      {
+        if (is.na(view_id)) {
+          view_id <- new_view_ids[[default_view[["Title"]]]]
+        }
+
+        cli_progress_step(
+          "Setting {.val {default_view[['Title']]}} as the default view"
+        )
+        set_sp_list_view_props(
+          sp_list,
+          view_id,
+          list(DefaultView = TRUE),
+          call = call
+        )
+      }
     )
   }
 

@@ -13,9 +13,9 @@ sp_url_as_src_dest <- function(url, src, call = caller_env()) {
 #' [write_sharepoint()] uses [upload_sp_item()] to upload an object created
 #' using:
 #'
-#' - [sf::write_sf()] if x is an `sf` object
-#' - [readr::write_csv()] if x is a `data.frame` and file does not include a xlsx extension
-#' - [openxlsx2::write_xlsx()] if x is a `data.frame` file does include a xlsx extension
+#' - [sf::write_sf()] if x is an `sf` object (shapefiles are not supported)
+#' - [readr::write_csv()] if x is a `data.frame` and file does not have a xlsx extension
+#' - [openxlsx2::write_xlsx()] if x is a `data.frame` and file has a xlsx extension
 #' - The [print()] method from `{officer}` if x is a `rdocx`, `rpptx`, or `rxlsx` object
 #' - [readr::write_rds()] if x is any other class
 #'
@@ -26,6 +26,9 @@ sp_url_as_src_dest <- function(url, src, call = caller_env()) {
 #' @param file File to write to. Passed to `file` parameter for
 #'   [readr::write_csv()] or [readr::write_rds()], `dsn` for `sf::write_sf()`,
 #'   or `target` for `print()` (when working with `{officer}` class objects).
+#'   A shapefile writes more than one file, so `file` can't use a "shp"
+#'   extension for `sf` objects. Use a single file format like GeoPackage
+#'   ("gpkg") or GeoJSON ("geojson") instead.
 #' @param .f Optional function to write the input data to disk before uploading
 #'   file to SharePoint.
 #' @param ... Additional parameters passed to write function.
@@ -40,7 +43,7 @@ sp_url_as_src_dest <- function(url, src, call = caller_env()) {
 write_sharepoint <- function(
   x,
   file,
-  dest,
+  dest = NULL,
   ...,
   .f = NULL,
   new_path = tempdir(),
@@ -57,22 +60,32 @@ write_sharepoint <- function(
 ) {
   check_string(file, call = call)
   file <- str_c_fsep(new_path, file)
+  file_ext <- tolower(fs::path_ext(file))
 
   if (!is.null(.f)) {
     .f <- as_function(.f, call = call)
     .f(x, file, ...)
   } else if (inherits(x, "sf")) {
+    if (file_ext == "shp") {
+      cli_abort(
+        c(
+          "{.arg file} can't be a shapefile.",
+          "i" = "Use a single file format like GeoPackage ({.file .gpkg}) or
+          GeoJSON ({.file .geojson}) instead."
+        ),
+        call = call
+      )
+    }
+
     check_installed("sf", call = call)
     sf::write_sf(x, dsn = file, ...)
-  } else if (
-    inherits(x, "data.frame") && !stringr::str_detect(file, ".xlsx$")
-  ) {
-    check_installed("readr", call = call)
-    readr::write_csv(x, file = file, ...)
-  } else if (inherits(x, "data.frame") && stringr::str_detect(file, ".xlsx$")) {
+  } else if (inherits(x, "data.frame") && file_ext == "xlsx") {
     check_installed("openxlsx2", call = call)
     openxlsx2::write_xlsx(x, file = file, ...)
-  } else if (inherits(x, c("rdocx", "rpptx", "rxslx"))) {
+  } else if (inherits(x, "data.frame")) {
+    check_installed("readr", call = call)
+    readr::write_csv(x, file = file, ...)
+  } else if (inherits(x, c("rdocx", "rpptx", "rxlsx"))) {
     check_installed("officer", call = call)
     print(x, target = file, ...)
   } else {

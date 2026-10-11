@@ -1,3 +1,12 @@
+# write_sharepoint() errors for a shapefile
+
+    Code
+      write_sharepoint(nc, "nc.shp", new_path = withr::local_tempdir())
+    Condition
+      Error:
+      ! `file` can't be a shapefile.
+      i Use a single file format like GeoPackage ('.gpkg') or GeoJSON ('.geojson') instead.
+
 # upload_sp_item() errors if `dest` is a file URL
 
     Code

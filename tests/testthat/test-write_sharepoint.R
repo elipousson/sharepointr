@@ -196,6 +196,43 @@ test_that("write_sharepoint writes an object to file, uploads it, and blocks ove
   )
 })
 
+test_that("write_sharepoint() picks a writer from the object class and file extension", {
+  uploads <- list()
+  local_mocked_bindings(
+    upload_sp_item = function(file, dest, ...) {
+      uploads[[basename(file)]] <<- list(file = file, dest = dest)
+    }
+  )
+
+  local_dir <- withr::local_tempdir()
+  data <- data.frame(id = 1:2, label = c("a", "b"))
+  zip_magic <- charToRaw("PK")
+  file_magic <- function(name) readBin(uploads[[name]][["file"]], "raw", 2)
+
+  write_sharepoint(data, "data.csv", new_path = local_dir)
+  expect_identical(read.csv(uploads[["data.csv"]][["file"]]), data)
+  expect_null(uploads[["data.csv"]][["dest"]])
+
+  write_sharepoint(data, "data.XLSX", new_path = local_dir)
+  expect_identical(file_magic("data.XLSX"), zip_magic)
+
+  write_sharepoint(data, "dataxlsx.csv", new_path = local_dir)
+  expect_identical(read.csv(uploads[["dataxlsx.csv"]][["file"]]), data)
+
+  skip_if_not_installed("officer")
+  write_sharepoint(officer::read_xlsx(), "workbook.xlsx", new_path = local_dir)
+  expect_identical(file_magic("workbook.xlsx"), zip_magic)
+})
+
+test_that("write_sharepoint() errors for a shapefile", {
+  skip_if_not_installed("sf")
+  nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+
+  expect_snapshot(error = TRUE, {
+    write_sharepoint(nc, "nc.shp", new_path = withr::local_tempdir())
+  })
+})
+
 test_that("upload_sp_item() uses the drive and folder from the shares API", {
   upload_args <- NULL
   drive <- structure(

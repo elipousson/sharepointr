@@ -20,7 +20,20 @@ upload_sp_item(
   call = caller_env()
 )
 
-upload_sp_items(file = NULL, dest, ..., src = NULL, call = caller_env())
+upload_sp_items(
+  file = NULL,
+  dest,
+  ...,
+  src = NULL,
+  overwrite = FALSE,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  blocksize = 327680000,
+  recursive = FALSE,
+  parallel = FALSE,
+  call = caller_env()
+)
 }
 \arguments{
 \item{file}{Path for file or directory to upload. Optional if \code{src} is
@@ -31,7 +44,13 @@ supplied.}
 \code{ms_drive_item} is provided and \code{drive_name} is \code{NULL}, the item URL is
 used to determine the drive. If \code{NULL}, the top level of the provided drive
 is used as the destination. If file is a directory, \code{dest} must be an
-\emph{existing} directory.}
+\emph{existing} directory. If \code{dest} is a SharePoint folder or document library
+URL and \code{drive_name}, \code{drive_id}, and \code{drive} aren't supplied, the drive and
+folder are found with the \href{https://learn.microsoft.com/en-us/graph/api/shares-get}{Microsoft Graph shares API} (see
+\code{\link[=get_sp_item]{get_sp_item()}}). If the request fails, the drive and folder path are parsed
+from the URL instead. For \code{\link[=upload_sp_items]{upload_sp_items()}}, \code{dest} can also be a
+character vector with one destination for each file. Destinations can be
+in different drives.}
 
 \item{...}{Additional parameters passed to \code{\link[=get_sp_site]{get_sp_site()}} or
 \code{\link[Microsoft365R:get_sharepoint_site]{Microsoft365R::get_sharepoint_site()}}.}

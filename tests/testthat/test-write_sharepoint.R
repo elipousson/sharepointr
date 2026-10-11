@@ -97,7 +97,9 @@ test_that("upload_sp_items uploads multiple files", {
   purrr::walk2(
     local_files,
     file_names,
-    \(path, name) writeLines(paste("sharepointr upload_sp_items() test", name), path)
+    \(path, name) {
+      writeLines(paste("sharepointr upload_sp_items() test", name), path)
+    }
   )
 
   dest_paths <- NULL
@@ -192,4 +194,97 @@ test_that("write_sharepoint writes an object to file, uploads it, and blocks ove
       overwrite = TRUE
     )
   )
+})
+
+test_that("upload_sp_item() uses the drive and folder from the shares API", {
+  upload_args <- NULL
+  drive <- structure(
+    list(
+      list_items = function(path, ...) {
+        data.frame(name = character(), size = numeric(), isdir = logical())
+      },
+      upload_file = function(src, dest, ...) upload_args <<- dest
+    ),
+    class = c("ms_drive", "ms_object")
+  )
+
+  local_mocked_bindings(
+    sp_shares_get_drive_path = function(url, ...) {
+      list(drive = drive, path = "Folder A/B", is_folder = TRUE)
+    },
+    get_sp_drive = function(...) stop("get_sp_drive() shouldn't be called")
+  )
+
+  local_file <- withr::local_tempfile(fileext = ".txt", lines = "test")
+
+  dest <- upload_sp_item(
+    local_file,
+    dest = "https://contoso.sharepoint.com/sites/Team/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FTeam%2FShared%20Documents%2FFolder%20A%2FB"
+  )
+
+  expect_identical(upload_args, paste0("Folder A/B/", basename(local_file)))
+  expect_identical(dest, upload_args)
+})
+
+test_that("upload_sp_item() errors if `dest` is a file URL", {
+  local_mocked_bindings(
+    sp_shares_get_drive_path = function(url, ...) {
+      list(drive = NULL, path = "Folder/A.csv", is_folder = FALSE)
+    }
+  )
+
+  local_file <- withr::local_tempfile(fileext = ".txt", lines = "test")
+
+  expect_snapshot(error = TRUE, {
+    upload_sp_item(
+      local_file,
+      dest = "https://contoso.sharepoint.com/sites/Team/Shared%20Documents/Folder/A.csv"
+    )
+  })
+})
+
+test_that("upload_sp_items() uploads to destinations in different drives", {
+  list_calls <- 0
+  local_upload_drive <- function() {
+    uploads <- character()
+    structure(
+      list(
+        list_items = function(path, ...) {
+          list_calls <<- list_calls + 1
+          data.frame(name = character(), size = numeric(), isdir = logical())
+        },
+        upload_file = function(src, dest, ...) uploads <<- c(uploads, dest),
+        uploads = function() uploads
+      ),
+      class = c("ms_drive", "ms_object")
+    )
+  }
+
+  drives <- list(a = local_upload_drive(), b = local_upload_drive())
+  shares_calls <- 0
+
+  local_mocked_bindings(
+    sp_shares_get_drive_path = function(url, ...) {
+      shares_calls <<- shares_calls + 1
+      drive <- if (grepl("TeamA", url)) "a" else "b"
+      list(drive = drives[[drive]], path = "Folder", is_folder = TRUE)
+    },
+    get_sp_drive = function(...) stop("get_sp_drive() shouldn't be called")
+  )
+
+  local_files <- c(
+    withr::local_tempfile(fileext = ".txt", lines = "a"),
+    withr::local_tempfile(fileext = ".txt", lines = "b"),
+    withr::local_tempfile(fileext = ".txt", lines = "c")
+  )
+  url_a <- "https://contoso.sharepoint.com/sites/TeamA/Shared%20Documents/Folder"
+  url_b <- "https://contoso.sharepoint.com/sites/TeamB/Shared%20Documents/Folder"
+
+  dest <- upload_sp_items(local_files, dest = c(url_a, url_b, url_a))
+
+  expect_identical(dest, paste0("Folder/", basename(local_files)))
+  expect_identical(shares_calls, 2)
+  expect_identical(list_calls, 2)
+  expect_identical(drives$a$uploads(), dest[c(1, 3)])
+  expect_identical(drives$b$uploads(), dest[2])
 })

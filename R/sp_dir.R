@@ -103,63 +103,17 @@ sp_dir_info <- function(
 
   # Use the Graph shares API to get the drive and folder path from the URL. If
   # the request fails, fall back to the drive and path parsed from the URL.
-  shares_cnd <- NULL
-
-  if (
-    is.null(c(drive_name, drive_id)) &&
-      is.null(drive) &&
-      is_sp_shares_url(path)
-  ) {
-    drive_path <- try_fetch(
-      sp_shares_get_drive_path(path, ..., call = call),
-      error = function(cnd) {
-        shares_cnd <<- cnd
-        NULL
-      }
-    )
-
-    if (!is.null(drive_path)) {
-      if (!drive_path[["is_folder"]]) {
-        cli_abort(
-          c(
-            "{.arg path} must be a folder or document library URL.",
-            "i" = "{.url {path}} is a file."
-          ),
-          call = call
-        )
-      }
-
-      drive <- drive_path[["drive"]]
-      path <- drive_path[["path"]]
-    }
-  }
-
-  url_parts <- NULL
   if (!is.null(path) && is_sp_url(path)) {
-    url <- path
-    url_parts <- try_fetch(
-      sp_url_parse(url, call = call),
-      error = function(cnd) {
-        if (is.null(shares_cnd)) {
-          cnd_signal(cnd)
-        }
-
-        cli_abort(
-          "Can't get a SharePoint folder from {.url {url}}.",
-          parent = shares_cnd,
-          call = call
-        )
-      }
+    folder <- sp_url_get_folder(
+      path,
+      ...,
+      shares = is.null(c(drive_name, drive_id)) && is.null(drive),
+      call = call
     )
 
-    # Handle for drive URLs that end in "Forms/AllItems.aspx"
-    if (is_sp_drive_url(path)) {
-      drive_name <- url_parts[["drive_url"]]
-    } else {
-      drive_name <- path
-    }
-
-    path <- str_remove_slash(url_parts[["file_path"]], before = TRUE)
+    drive <- drive %||% folder[["drive"]]
+    drive_name <- folder[["drive_name"]]
+    path <- folder[["path"]]
   }
 
   drive <- drive %||%

@@ -156,3 +156,82 @@ sp_drive_item_path <- function(properties) {
 
   paste0(parent_path, "/", properties[["name"]])
 }
+
+#' Get the drive and folder path for a SharePoint folder URL
+#'
+#' If `shares = TRUE` and `url` passes `is_sp_shares_url()`, the drive and
+#' folder path are found with the Graph shares API. If the request fails (or
+#' `shares = FALSE`), the drive and folder path are parsed from `url` instead.
+#'
+#' @inheritParams sp_shares_get_item
+#' @param shares If `TRUE`, try the Graph shares API before parsing `url`.
+#' @param arg Argument name used in the error if `url` is a file URL.
+#' @returns A list with `drive` (a `ms_drive` object, or `NULL` if `url` was
+#'   parsed), `drive_name` (a URL to pass to [get_sp_drive()] if `drive` is
+#'   `NULL`), and `path` (the folder path relative to the drive root). Errors if
+#'   `url` is for a file or if `url` can't be parsed.
+#' @noRd
+sp_url_get_folder <- function(
+  url,
+  ...,
+  shares = TRUE,
+  arg = caller_arg(url),
+  call = caller_env()
+) {
+  shares_cnd <- NULL
+
+  if (shares && is_sp_shares_url(url)) {
+    drive_path <- try_fetch(
+      sp_shares_get_drive_path(url, ..., call = call),
+      error = function(cnd) {
+        shares_cnd <<- cnd
+        NULL
+      }
+    )
+
+    if (!is.null(drive_path)) {
+      if (!drive_path[["is_folder"]]) {
+        cli_abort(
+          c(
+            "{.arg {arg}} must be a folder or document library URL.",
+            "i" = "{.url {url}} is a file."
+          ),
+          call = call
+        )
+      }
+
+      return(list(
+        drive = drive_path[["drive"]],
+        drive_name = NULL,
+        path = drive_path[["path"]]
+      ))
+    }
+  }
+
+  url_parts <- try_fetch(
+    sp_url_parse(url, call = call),
+    error = function(cnd) {
+      if (is.null(shares_cnd)) {
+        cnd_signal(cnd)
+      }
+
+      cli_abort(
+        "Can't get a SharePoint folder from {.url {url}}.",
+        parent = shares_cnd,
+        call = call
+      )
+    }
+  )
+
+  # Handle for drive URLs that end in "Forms/AllItems.aspx"
+  drive_name <- url
+  if (is_sp_drive_url(url)) {
+    drive_name <- url_parts[["drive_url"]]
+  }
+
+  list(
+    drive = NULL,
+    drive_name = drive_name,
+    path = str_remove_slash(url_parts[["file_path"]], before = TRUE)
+  )
+}

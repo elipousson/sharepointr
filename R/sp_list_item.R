@@ -280,11 +280,22 @@ get_sp_list_items <- function(
 #' regional settings), silently shifting the stored instant. Converting to an
 #' explicit `"%Y-%m-%dT%H:%M:%SZ"` UTC string before serialization avoids the
 #' ambiguity entirely. This is the write-side mirror of `.ms365_dttm()`.
-#' @returns If `x` is a `POSIXt` or `Date`, a string formatted as
-#'   `"%Y-%m-%dT%H:%M:%SZ"` in UTC. Otherwise, `x` unmodified.
+#'
+#' A `Date` is a calendar day, not an instant, so it is sent as
+#' `"%Y-%m-%d"` with no time or offset instead. SharePoint stores a date as
+#' midnight in the site's time zone, so sending midnight UTC shifted dates to
+#' the previous day for any site west of UTC (e.g. `"2026-10-13T00:00:00Z"`
+#' was stored as October 12 on a US Eastern site).
+#' @returns If `x` is a `POSIXt`, a string formatted as `"%Y-%m-%dT%H:%M:%SZ"`
+#'   in UTC. If `x` is a `Date`, a string formatted as `"%Y-%m-%d"`.
+#'   Otherwise, `x` unmodified.
 #' @noRd
 .sp_dttm_to_graph <- function(x) {
-  if (!inherits(x, c("POSIXt", "Date"))) {
+  if (inherits(x, "Date")) {
+    return(format(x, format = "%Y-%m-%d"))
+  }
+
+  if (!inherits(x, "POSIXt")) {
     return(x)
   }
 

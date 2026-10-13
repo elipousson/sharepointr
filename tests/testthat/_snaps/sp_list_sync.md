@@ -82,3 +82,13 @@
       Caused by error in `list_sp_list_views()`:
       ! No REST token.
 
+# folder_change_rows adds missing folders and blocks files
+
+    Code
+      print_changes(changes, list_name = "Test")
+    Message
+      Planned changes for list "Test":
+      * add folder "Contracts"
+      x blocked folder "Reports/2026" (A file with the same path exists.)
+      Dry run: no changes made. Set `dry_run = FALSE` to apply.
+

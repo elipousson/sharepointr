@@ -648,3 +648,95 @@ test_that("write_sp_list_yaml returns a definition in the same order as the file
   expect_identical(names(written[["views"]][[1]]), c("Title", "ViewFields", "RowLimit"))
   expect_identical(read_sp_list_yaml(out), written)
 })
+
+test_that("read_sp_list_yaml reads folders for a document library", {
+  path <- local_yaml(c(
+    "displayName: Project Files",
+    "list:",
+    "  template: documentLibrary",
+    "columns: []",
+    "folders:",
+    "  - /Contracts/",
+    "  - Reports/2026"
+  ))
+
+  definition <- read_sp_list_yaml(path)
+
+  expect_identical(definition[["folders"]], c("Contracts", "Reports/2026"))
+  expect_snapshot(print(definition))
+})
+
+test_that("read_sp_list_yaml errors for invalid folders", {
+  expect_snapshot(error = TRUE, {
+    read_sp_list_yaml(local_yaml(c(
+      "displayName: Test",
+      "columns: []",
+      "folders: [A]"
+    )))
+    read_sp_list_yaml(local_yaml(c(
+      "displayName: Test",
+      "list:",
+      "  template: documentLibrary",
+      "columns: []",
+      "folders: [A, A/]"
+    )))
+    read_sp_list_yaml(local_yaml(c(
+      "displayName: Test",
+      "list:",
+      "  template: documentLibrary",
+      "columns: []",
+      "folders: ['A//B', 'C:D', 'E.', ' F']"
+    )))
+    read_sp_list_yaml(local_yaml(c(
+      "displayName: Test",
+      "list:",
+      "  template: documentLibrary",
+      "columns: []",
+      "folders:",
+      "  name: A"
+    )))
+  })
+})
+
+test_that("write_sp_list_yaml round trips and keeps folders", {
+  definition <- as_sp_list_definition(list(
+    displayName = "Project Files",
+    list = list(template = "documentLibrary"),
+    columns = list(),
+    folders = "Contracts"
+  ))
+
+  path <- withr::local_tempfile(fileext = ".yaml")
+  suppressMessages(write_sp_list_yaml(definition, path))
+
+  expect_match(readLines(path), "^  - Contracts$", all = FALSE)
+  expect_identical(read_sp_list_yaml(path)[["folders"]], "Contracts")
+
+  # Folders are kept from an existing file if the definition has none
+  definition[["folders"]] <- NULL
+  written <- suppressMessages(write_sp_list_yaml(definition, path))
+  expect_identical(written[["folders"]], "Contracts")
+})
+
+test_that("as_sp_list_definition stores empty folders as NULL", {
+  definition <- as_sp_list_definition(list(
+    displayName = "Test",
+    columns = list(),
+    folders = list()
+  ))
+
+  expect_null(definition[["folders"]])
+})
+
+test_that("views in a document library can show library fields", {
+  expect_no_warning(
+    as_sp_list_definition(list(
+      displayName = "Project Files",
+      list = list(template = "documentLibrary"),
+      columns = list(),
+      views = list(
+        list(Title = "All Documents", ViewFields = c("DocIcon", "LinkFilename", "Modified"))
+      )
+    ))
+  )
+})

@@ -5,7 +5,8 @@
 #'
 #' [compare_sp_list()] compares a list definition (e.g. from a YAML file read
 #' with [read_sp_list_yaml()]) with an existing SharePoint list and returns the
-#' list settings, columns, and views to add, update, or delete.
+#' list settings, columns, and views to add, update, or delete, and the
+#' folders to add to a document library.
 #'
 #' [sync_sp_list()] applies those changes. By default, it only prints the
 #' planned changes (`dry_run = TRUE`) and doesn't delete columns or views
@@ -18,7 +19,9 @@
 #' text column. A property missing from a definition isn't changed.
 #'
 #' SharePoint internal columns and the `Title` column are excluded unless
-#' `Title` is included in the definitions. Columns in the list that aren't in
+#' `Title` is included in the definitions. The built-in columns of a document
+#' library (e.g. `FileLeafRef` or `_ExtendedDescription`) are also excluded
+#' unless they're included in the definitions. Columns in the list that aren't in
 #' the definitions are returned with `action = "delete"`.
 #'
 #' Each change has one of these actions:
@@ -65,6 +68,14 @@
 #' Views are read and changed with the SharePoint REST API. Use `views =
 #' FALSE` to skip views (e.g. if the SharePoint REST API isn't available).
 #'
+#' @details Comparing folders
+#'
+#' Folders are only compared if the definition has a `folders` element,
+#' `folders = TRUE`, and the list is a document library. Each folder path that
+#' doesn't exist is returned with `action = "add"`. A path that exists as a
+#' file is blocked. Folders that aren't in the definition are never deleted.
+#' Each folder path is checked with one request.
+#'
 #' @details Changes that use the SharePoint REST API
 #'
 #' SharePoint stores single and multiple lines of text and single and multiple
@@ -101,12 +112,15 @@
 #'   `NULL`.
 #' @param views If `TRUE` (default), compare views if the definition has a
 #'   `views` element. If `FALSE`, views are skipped.
+#' @param folders If `TRUE` (default), compare folders if the definition has a
+#'   `folders` element. If `FALSE`, folders are skipped.
 #' @inheritParams rlang::args_error_context
 #' @returns [compare_sp_list()] returns a data frame with one row per added or
 #'   deleted column or view and one row per changed property, with columns:
 #'
-#'   - `object`: `"list"`, `"column"`, or `"view"`.
-#'   - `name`: list display name, internal column name, or view title.
+#'   - `object`: `"list"`, `"column"`, `"view"`, or `"folder"`.
+#'   - `name`: list display name, internal column name, view title, or folder
+#'     path.
 #'   - `id`: column or view ID for existing columns and views.
 #'   - `action`: one of `"add"`, `"update"`, `"delete"`, `"blocked"`, or
 #'     `"unverified"`.
@@ -144,9 +158,11 @@ compare_sp_list <- function(
   sp_list = NULL,
   ...,
   views = TRUE,
+  folders = TRUE,
   call = caller_env()
 ) {
   check_bool(views, call = call)
+  check_bool(folders, call = call)
   definitions <- as_sync_definitions(definitions, call = call)
   columns <- definitions[["columns"]]
   declared <- purrr::map_chr(columns, "name")
@@ -154,7 +170,7 @@ compare_sp_list <- function(
   exclude <- c(
     "id",
     sp_list_internal_colnames,
-    if (!"Title" %in% declared) "Title"
+    setdiff(c("Title", sp_library_internal_colnames), declared)
   )
 
   if (is.list(sp_list) && !inherits(sp_list, "ms_list")) {
@@ -245,7 +261,51 @@ compare_sp_list <- function(
     )
   }
 
+  # Compare folders only if the definition has folders and the list is a
+  # document library
+  if (
+    folders &&
+      !is.null(definitions[["folders"]]) &&
+      identical(template, "documentLibrary")
+  ) {
+    rows <- c(
+      rows,
+      list(folder_change_rows(
+        sp_drive_missing_folders(sp_list_drive(sp_list), definitions[["folders"]])
+      ))
+    )
+  }
+
   bind_change_rows(rows) %||% change_rows_ptype()
+}
+
+#' Create change rows for folders
+#'
+#' @param missing A named character vector from `sp_drive_missing_folders()`.
+#' @noRd
+folder_change_rows <- function(missing) {
+  rows <- purrr::imap(
+    missing,
+    \(status, folder) {
+      if (status == "file") {
+        return(new_change_row(
+          object = "folder",
+          name = folder,
+          action = "blocked",
+          note = "A file with the same path exists."
+        ))
+      }
+
+      new_change_row(
+        object = "folder",
+        name = folder,
+        action = "add",
+        method = "graph"
+      )
+    }
+  )
+
+  bind_change_rows(unname(rows))
 }
 
 #' Get the list described by a definition
@@ -971,6 +1031,7 @@ sync_sp_list <- function(
   delete = FALSE,
   allow_data_loss = FALSE,
   views = TRUE,
+  folders = TRUE,
   call = caller_env()
 ) {
   check_bool(dry_run, call = call)
@@ -985,6 +1046,7 @@ sync_sp_list <- function(
     definitions,
     sp_list = sp_list,
     views = views,
+    folders = folders,
     call = call
   )
   changes[["status"]] <- plan_change_status(
@@ -1013,6 +1075,7 @@ sync_sp_list <- function(
     sp_list = sp_list,
     call = call
   )
+  changes <- apply_folder_changes(changes, sp_list)
 
   failed <- changes[["status"]] == "failed"
 
@@ -1038,11 +1101,12 @@ sync_sp_list <- function(
   applied <- changes[changes[["status"]] == "applied", ]
   n_columns <- length(unique(applied[["name"]][applied[["object"]] == "column"]))
   n_views <- length(unique(applied[["name"]][applied[["object"]] == "view"]))
+  n_folders <- sum(applied[["object"]] == "folder")
 
   cli_inform(
     c(
-      "v" = "Updated {.val {list_name}}: {n_columns} column{?s} and
-      {n_views} view{?s}{if (any(applied[['object']] == 'list')) ' and list settings' else ''}."
+      "v" = "Updated {.val {list_name}}: {n_columns} column{?s},
+      {n_views} view{?s}, and {n_folders} folder{?s}{if (any(applied[['object']] == 'list')) ' and list settings' else ''}."
     )
   )
 
@@ -1121,6 +1185,7 @@ format_change <- function(change) {
     change[["object"]],
     list = "list",
     view = paste0("view ", cli::format_inline("{.val {change[['name']]}}")),
+    folder = paste0("folder ", cli::format_inline("{.val {change[['name']]}}")),
     cli::format_inline("{.field {change[['name']]}}")
   )
   action <- change[["action"]]
@@ -1129,7 +1194,7 @@ format_change <- function(change) {
 
   text <- switch(
     action,
-    add = if (change[["object"]] == "view") {
+    add = if (change[["object"]] %in% c("view", "folder")) {
       paste0("add ", name)
     } else {
       paste0("add ", name, " (", change[["proposed"]][[1]], ")")
@@ -1218,6 +1283,32 @@ apply_list_changes <- function(changes, sp_list) {
   )
 }
 
+#' Apply planned folder changes
+#' @noRd
+apply_folder_changes <- function(changes, sp_list) {
+  folder_rows <- which(
+    changes[["status"]] == "planned" &
+      changes[["object"]] == "folder" &
+      changes[["action"]] == "add"
+  )
+
+  if (length(folder_rows) == 0) {
+    return(changes)
+  }
+
+  drive <- sp_list_drive(sp_list)
+
+  for (idx in folder_rows) {
+    changes <- try_change(
+      changes,
+      idx,
+      drive$create_folder(path = changes[["name"]][[idx]])
+    )
+  }
+
+  changes
+}
+
 #' Apply planned column changes
 #' @noRd
 apply_column_changes <- function(changes, columns, sp_list, call = caller_env()) {
@@ -1232,7 +1323,7 @@ apply_column_changes <- function(changes, columns, sp_list, call = caller_env())
   add_names <- c(add_names[!is_calculated], add_names[is_calculated])
 
   for (name in add_names) {
-    idx <- which(changes[["name"]] == name & changes[["action"]] == "add")
+    idx <- which(planned & changes[["name"]] == name & changes[["action"]] == "add")
     changes <- try_change(
       changes,
       idx,

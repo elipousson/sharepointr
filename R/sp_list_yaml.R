@@ -188,15 +188,45 @@
 #' only if the definition has a `views` element. Views are only written by
 #' [write_sp_list_yaml()] if `include_views = TRUE`.
 #'
+#' @details Document libraries
+#'
+#' A definition with `list.template: documentLibrary` describes a document
+#' library. Use [create_sp_drive()] (or [create_sp_list()]) to create a
+#' library from a definition. The built-in library columns (e.g.
+#' `FileLeafRef` for the file name or `_ExtendedDescription`) are left out of
+#' a definition from an existing library and aren't compared unless a
+#' definition includes them. A view titled `All Documents` updates the
+#' default view of a new library.
+#'
+#' An optional `folders` key holds a sequence of folder paths relative to the
+#' library root. Folders are only allowed for a document library.
+#'
+#' ```yaml
+#' list:
+#'   template: documentLibrary
+#' folders:
+#'   - Contracts
+#'   - Reports/2026
+#' ```
+#'
+#' - Separate folders with `/`. Parent folders are created as needed, so
+#'   `Reports/2026` also creates `Reports`.
+#' - Paths must be unique. A folder name can't be empty, start or end with a
+#'   space, end with a period, or include any of `" * : < > ? \ |`.
+#' - [compare_sp_list()] and [sync_sp_list()] add folders that are missing
+#'   from the library. Folders are never deleted or renamed.
+#' - Folders are only written by [write_sp_list_yaml()] if `include_folders =
+#'   TRUE`. Only the deepest folders of each path are written.
+#'
 #' @param path Path to a YAML file.
 #' @param x For [write_sp_list_yaml()], a `sp_list_definition` object or a
-#'   `ms_list` object. `keep_defaults`, `read_only`, and `include_views` are
-#'   only used for a `ms_list` object. For [as_sp_list_definition()], a named list with the
+#'   `ms_list` object. `keep_defaults`, `read_only`, `include_views`, and
+#'   `include_folders` are only used for a `ms_list` object. For [as_sp_list_definition()], a named list with the
 #'   same structure as a YAML file or an unnamed list of column definitions.
 #' @inheritParams rlang::args_error_context
 #' @returns A `sp_list_definition` object: a list with `format_version`,
 #'   `displayName`, `description`, `list`, any read-only list properties,
-#'   `custom`, and `columns` elements.
+#'   `custom`, `columns`, `views`, and `folders` elements.
 #'   [write_sp_list_yaml()] invisibly returns the definition that was written.
 #' @seealso [sp_list_definition_table()] to convert a definition to a data
 #'   frame.
@@ -279,7 +309,8 @@ as_sp_list_definition <- function(
     names(sp_list_read_only_props),
     "custom",
     "columns",
-    "views"
+    "views",
+    "folders"
   )
   unknown <- setdiff(names(x), allowed)
 
@@ -327,6 +358,21 @@ as_sp_list_definition <- function(
   )
 
   list_info <- check_sp_list_info(x[["list"]], call = call)
+  folders <- x[["folders"]]
+
+  if (!is.null(folders)) {
+    folders <- check_sp_drive_folders(folders, arg = "folders", call = call)
+
+    if (length(folders) > 0 && !identical(list_info[["template"]], "documentLibrary")) {
+      cli_abort(
+        c(
+          "{.field folders} are only allowed for a document library.",
+          "i" = "Set {.field list.template} to {.val documentLibrary}."
+        ),
+        call = call
+      )
+    }
+  }
   read_only <- check_sp_list_read_only(
     x[intersect(names(sp_list_read_only_props), names(x))],
     call = call
@@ -405,6 +451,7 @@ as_sp_list_definition <- function(
     read_only = read_only,
     custom = custom,
     views = views,
+    folders = folders,
     format_version = as.integer(format_version)
   )
 }
@@ -420,7 +467,8 @@ sp_view_builtin_fields <- c(
   "Modified",
   "Author",
   "Editor",
-  sp_list_internal_colnames
+  sp_list_internal_colnames,
+  sp_library_internal_colnames
 )
 
 #' Check the `views` element of a list definition
@@ -640,6 +688,7 @@ new_sp_list_definition <- function(
   read_only = NULL,
   custom = NULL,
   views = NULL,
+  folders = NULL,
   format_version = 1L
 ) {
   read_only <- read_only[intersect(names(sp_list_read_only_props), names(read_only))]
@@ -648,6 +697,10 @@ new_sp_list_definition <- function(
   # are only compared, synced, or kept from an existing file if there are any
   if (length(views) == 0) {
     views <- NULL
+  }
+
+  if (length(folders) == 0) {
+    folders <- NULL
   }
 
   structure(
@@ -662,7 +715,8 @@ new_sp_list_definition <- function(
       list(
         custom = custom,
         columns = columns,
-        views = views
+        views = views,
+        folders = folders
       )
     ),
     class = "sp_list_definition"
@@ -703,6 +757,12 @@ print.sp_list_definition <- function(x, ...) {
   if (length(x[["views"]]) > 0) {
     cli::cli_text(
       "{length(x[['views']])} view{?s}: {.val {purrr::map_chr(x[['views']], 'Title')}}"
+    )
+  }
+
+  if (length(x[["folders"]]) > 0) {
+    cli::cli_text(
+      "{length(x[['folders']])} folder{?s}: {.val {x[['folders']]}}"
     )
   }
 
@@ -762,6 +822,10 @@ as_column_body <- function(col) {
 #'   personal views). Defaults to `FALSE`. Views are read with the SharePoint
 #'   REST API, which requires a delegated (user) login. See
 #'   [list_sp_list_views()].
+#' @param include_folders If `TRUE`, include the folders of a document library.
+#'   Defaults to `FALSE`. Folders are listed recursively, which takes one
+#'   request for each folder. Only the deepest folders of each path are
+#'   included.
 #' @export
 get_sp_list_definition <- function(
   sp_list = NULL,
@@ -769,9 +833,11 @@ get_sp_list_definition <- function(
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
+  include_folders = FALSE,
   call = caller_env()
 ) {
   check_bool(include_views, call = call)
+  check_bool(include_folders, call = call)
   read_only <- resolve_read_only_props(read_only, call = call)
 
   sp_list <- sp_list %||%
@@ -783,7 +849,7 @@ get_sp_list_definition <- function(
     sp_list,
     keep_defaults = keep_defaults,
     keep_id = "id" %in% read_only,
-    exclude = c("id", sp_list_internal_colnames),
+    exclude = c("id", sp_list_internal_colnames, sp_library_internal_colnames),
     call = call
   )
 
@@ -826,6 +892,16 @@ get_sp_list_definition <- function(
     list_info <- purrr::discard(list_info, isFALSE)
   }
 
+  is_library <- identical(list_info[["template"]], "documentLibrary")
+
+  if (include_folders && !is_library) {
+    cli_warn(
+      "{.arg include_folders} is ignored since the list isn't a document
+      library.",
+      call = call
+    )
+  }
+
   new_sp_list_definition(
     display_name = sp_list[["properties"]][["displayName"]],
     columns = purrr::map(columns[!no_type], order_column_keys),
@@ -839,6 +915,9 @@ get_sp_list_definition <- function(
         keep_defaults = keep_defaults,
         call = call
       )
+    },
+    folders = if (include_folders && is_library) {
+      sort(list_sp_drive_folders(sp_list_drive(sp_list)))
     }
   )
 }
@@ -1033,9 +1112,10 @@ order_column_keys <- function(col) {
 #'   kept when `x` is a `ms_list` object). Read-only list properties
 #'   and column ids always come from `x`. Views come from `x` if it has views
 #'   (e.g. with `include_views = TRUE`) and are otherwise kept from the
-#'   existing file. Columns that are only in the existing file are dropped
-#'   (unless the Graph API doesn't return their column type). Comments after
-#'   the header are always lost.
+#'   existing file. Folders are kept from the existing file the same way.
+#'   Columns that are only in the existing file are dropped (unless the Graph
+#'   API doesn't return their column type). Comments after the header are
+#'   always lost.
 #' @param doc_start If `TRUE`, write a document start marker (`---`) after the
 #'   comment header (or at the start of a file with no header). If `FALSE`,
 #'   don't. If `NULL` (default), write the marker only if the existing file
@@ -1049,6 +1129,7 @@ write_sp_list_yaml <- function(
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
+  include_folders = FALSE,
   doc_start = NULL,
   call = caller_env()
 ) {
@@ -1064,13 +1145,15 @@ write_sp_list_yaml <- function(
       keep_defaults = keep_defaults,
       read_only = read_only,
       include_views = include_views,
+      include_folders = include_folders,
       call = call
     )
   } else {
     ignored <- c(
       "keep_defaults"[!missing(keep_defaults)],
       "read_only"[!missing(read_only)],
-      "include_views"[!missing(include_views)]
+      "include_views"[!missing(include_views)],
+      "include_folders"[!missing(include_folders)]
     )
 
     if (length(ignored) > 0) {
@@ -1194,6 +1277,7 @@ merge_sp_list_definition <- function(x, existing, call = caller_env()) {
     read_only = sp_list_definition_read_only(x),
     custom = x[["custom"]] %||% existing[["custom"]],
     views = x[["views"]] %||% existing[["views"]],
+    folders = x[["folders"]] %||% existing[["folders"]],
     format_version = x[["format_version"]]
   )
 }
@@ -1289,6 +1373,11 @@ as_yaml_list <- function(x) {
 
   if (length(views) > 0) {
     yaml[["views"]] <- views
+  }
+
+  # Write folders as a sequence even if there is a single folder
+  if (length(x[["folders"]]) > 0) {
+    yaml[["folders"]] <- as.list(x[["folders"]])
   }
 
   yaml

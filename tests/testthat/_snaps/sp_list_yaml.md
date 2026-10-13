@@ -20,7 +20,7 @@
     Condition
       Error:
       ! A list definition has unknown key: fields.
-      i Allowed keys: format_version, displayName, description, list, custom, columns, and views. Use custom for other metadata.
+      i Allowed keys: format_version, displayName, description, list, custom, columns, views, and folders. Use custom for other metadata.
       i Read-only list properties (e.g. id or webUrl) are also allowed.
     Code
       read_sp_list_yaml(local_yaml(c("columns: []")))
@@ -249,4 +249,43 @@
       i Use `get_sp_list_definition()` to get a definition from a list.
     Message
       v Wrote 9 columns to <path>.
+
+# read_sp_list_yaml reads folders for a document library
+
+    Code
+      print(definition)
+    Message
+      <sp_list_definition> Project Files (documentLibrary)
+      0 columns:
+      2 folders: "Contracts" and "Reports/2026"
+
+# read_sp_list_yaml errors for invalid folders
+
+    Code
+      read_sp_list_yaml(local_yaml(c("displayName: Test", "columns: []",
+        "folders: [A]")))
+    Condition
+      Error:
+      ! folders are only allowed for a document library.
+      i Set list.template to "documentLibrary".
+    Code
+      read_sp_list_yaml(local_yaml(c("displayName: Test", "list:",
+        "  template: documentLibrary", "columns: []", "folders: [A, A/]")))
+    Condition
+      Error:
+      ! folders must be unique. Duplicated: "A".
+    Code
+      read_sp_list_yaml(local_yaml(c("displayName: Test", "list:",
+        "  template: documentLibrary", "columns: []",
+        "folders: ['A//B', 'C:D', 'E.', ' F']")))
+    Condition
+      Error:
+      ! folders has invalid folder path: "A//B", "C:D", "E.", and " F".
+      i Separate folders with `/`. A folder name can't be empty, start or end with a space, end with a period, or include any of `" * : < > ? \ |`.
+    Code
+      read_sp_list_yaml(local_yaml(c("displayName: Test", "list:",
+        "  template: documentLibrary", "columns: []", "folders:", "  name: A")))
+    Condition
+      Error:
+      ! folders must be a character vector of folder paths (a YAML sequence of strings).
 

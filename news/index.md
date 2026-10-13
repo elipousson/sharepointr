@@ -285,6 +285,16 @@
 
 ### Fixes
 
+- Fix `Date` values written to list date columns (e.g. with
+  [`create_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_item.md)
+  or
+  [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md))
+  being stored as the previous day on SharePoint sites with a time zone
+  west of UTC. `Date` values were sent as midnight UTC
+  (e.g. `"2026-10-13T00:00:00Z"`) and are now sent as a date with no
+  time or offset (e.g. `"2026-10-13"`), which SharePoint stores using
+  the site’s time zone. `POSIXct` values are still sent as UTC
+  date-times. (2026-10-13)
 - Fix
   [`sp_url_parse()`](https://elipousson.github.io/sharepointr/reference/sp_url_parse.md)
   decoding URL paths twice with [httr2](https://httr2.r-lib.org) 1.1.0

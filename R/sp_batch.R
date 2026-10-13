@@ -8,16 +8,27 @@
 # Maximum number of requests in a single $batch request
 sp_batch_size <- 20L
 
-# Statuses for throttled requests that can be sent again
-sp_batch_retry_status <- c(429L, 503L)
+# Statuses for throttled or temporarily unavailable requests that can be sent
+# again. A 500 status isn't retried since a create request may have succeeded.
+sp_batch_retry_status <- c(429L, 503L, 504L)
+
+# Error messages for requests that can be sent again with any status. SharePoint
+# returns "Database is read only" when the site content database briefly
+# refuses writes (e.g. during heavy write load from bulk deletes).
+sp_batch_retry_message <- "database is read[- ]only"
+
+# Maximum number of seconds to wait before retrying when there isn't a
+# Retry-After header
+sp_batch_max_backoff <- 60
 
 #' Send Graph API requests with $batch requests
 #'
 #' Splits `requests` into $batch requests of up to 20 requests each. The
 #' $batch requests are sent with [purrr::in_parallel()] (so they are sent in
-#' parallel if the user has set [mirai::daemons()]). Throttled requests (status
-#' 429 or 503) are sent again after the delay from the `Retry-After` header, up
-#' to `max_retries` times.
+#' parallel if the user has set [mirai::daemons()]). Throttled or temporarily
+#' unavailable requests (see `sp_batch_is_retryable()`) are sent again after
+#' the delay from the `Retry-After` header (or an exponential backoff), up to
+#' `max_retries` times.
 #'
 #' AzureGraph::call_batch_endpoint() isn't used since it errors if any request
 #' fails (dropping the responses to the other requests) and orders responses by
@@ -26,14 +37,14 @@ sp_batch_retry_status <- c(429L, 503L)
 #' @param requests A list of requests, each a list with `method`, `url` (a
 #'   path relative to the Graph API version, e.g. `"/sites/..."`), and
 #'   optionally `headers` and `body`.
-#' @param max_retries Maximum number of times to send throttled requests again.
+#' @param max_retries Maximum number of times to send retryable requests again.
 #' @returns A list of responses (each with `id`, `status`, and optionally
 #'   `headers` and `body`) in the same order as `requests`.
 #' @noRd
 sp_graph_batch_requests <- function(
   token,
   requests,
-  max_retries = 3,
+  max_retries = 5,
   .progress = TRUE,
   call = caller_env()
 ) {
@@ -55,20 +66,19 @@ sp_graph_batch_requests <- function(
 
     responses[pending] <- purrr::list_flatten(chunk_responses)
 
-    status <- purrr::map_int(responses[pending], \(x) as.integer(x[["status"]]))
-    throttled <- status %in% sp_batch_retry_status
+    retryable <- purrr::map_lgl(responses[pending], sp_batch_is_retryable)
 
-    if (!any(throttled) || attempt == max_retries) {
+    if (!any(retryable) || attempt == max_retries) {
       break
     }
 
-    pending <- pending[throttled]
+    pending <- pending[retryable]
     wait <- sp_batch_retry_after(responses[pending], attempt = attempt)
 
     cli::cli_inform(
       c(
-        "!" = "{length(pending)} request{?s} {?was/were} throttled by the
-        Microsoft Graph API.",
+        "!" = "{length(pending)} request{?s} {?was/were} throttled or
+        temporarily unavailable from the Microsoft Graph API.",
         "i" = "Retrying in {wait} second{?s}."
       )
     )
@@ -103,10 +113,28 @@ sp_graph_batch <- function(token, requests) {
   responses[order(ids)]
 }
 
-#' Get the number of seconds to wait before retrying throttled requests
+#' Check if a batch response can be sent again
+#'
+#' A response is retryable if the status is in `sp_batch_retry_status` or the
+#' error message matches `sp_batch_retry_message` (a "Database is read only"
+#' error isn't documented by Microsoft, so it is matched with any status).
+#' @returns `TRUE` or `FALSE`.
+#' @noRd
+sp_batch_is_retryable <- function(response) {
+  if (as.integer(response[["status"]]) %in% sp_batch_retry_status) {
+    return(TRUE)
+  }
+
+  message <- response[["body"]][["error"]][["message"]]
+
+  is_string(message) &&
+    grepl(sp_batch_retry_message, message, ignore.case = TRUE)
+}
+
+#' Get the number of seconds to wait before retrying requests
 #'
 #' Uses the longest `Retry-After` header value or, if there isn't one, an
-#' exponential backoff (1, 2, 4, ... seconds).
+#' exponential backoff (2, 4, 8, ... seconds, up to `sp_batch_max_backoff`).
 #' @returns A number of seconds.
 #' @noRd
 sp_batch_retry_after <- function(responses, attempt = 0) {
@@ -123,7 +151,7 @@ sp_batch_retry_after <- function(responses, attempt = 0) {
   retry_after <- retry_after[!is.na(retry_after)]
 
   if (length(retry_after) == 0) {
-    return(2^attempt)
+    return(min(2^(attempt + 1), sp_batch_max_backoff))
   }
 
   max(retry_after)
@@ -137,7 +165,9 @@ sp_batch_retry_after <- function(responses, attempt = 0) {
 #' @param action Description of the action for the error message (e.g. "be
 #'   created").
 #' @returns `responses` invisibly. Errors if any response has a status of 300
-#'   or higher, after reporting how many requests succeeded.
+#'   or higher, after reporting how many requests succeeded. Each failed
+#'   request is listed with the error message, HTTP status, and Graph error
+#'   code (if any).
 #' @noRd
 check_sp_batch_responses <- function(
   responses,
@@ -155,7 +185,18 @@ check_sp_batch_responses <- function(
   messages <- purrr::map_chr(
     responses[failed],
     \(x) {
-      x[["body"]][["error"]][["message"]] %||% paste("HTTP", x[["status"]])
+      error <- x[["body"]][["error"]]
+      status <- paste("HTTP", x[["status"]])
+
+      if (is_string(error[["code"]])) {
+        status <- paste0(status, " ", error[["code"]])
+      }
+
+      if (!is_string(error[["message"]])) {
+        return(status)
+      }
+
+      paste0(error[["message"]], " (", status, ")")
     }
   )
 

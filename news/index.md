@@ -282,6 +282,52 @@
   reports adding a column with a long name as `"blocked"`, so
   [`sync_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
   skips it. (2026-10-09)
+- Add
+  [`create_sp_drive()`](https://elipousson.github.io/sharepointr/reference/create_sp_drive.md)
+  (experimental) to create a document library and return its drive as a
+  `ms_drive` object. It wraps
+  `create_sp_list(template = "documentLibrary")` and accepts the same
+  list definitions, plus a `folders` argument. It doesn’t create
+  SharePoint Embedded containers (Graph `fileStorageContainer`), which
+  need an app that owns a registered container type. (2026-10-13)
+- Add
+  [`update_sp_drive()`](https://elipousson.github.io/sharepointr/reference/update_sp_drive.md)
+  and
+  [`delete_sp_drive()`](https://elipousson.github.io/sharepointr/reference/update_sp_drive.md)
+  (experimental) to change the display name or description of a document
+  library or delete it. Renaming a library changes the drive name but
+  not the library URL.
+  [`delete_sp_drive()`](https://elipousson.github.io/sharepointr/reference/update_sp_drive.md)
+  asks for confirmation by default and won’t delete the site’s default
+  document library.
+- List definitions for a document library support an optional `folders`
+  key: a sequence of folder paths relative to the library root (parent
+  folders are created as needed).
+  [`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md)
+  and
+  [`create_sp_drive()`](https://elipousson.github.io/sharepointr/reference/create_sp_drive.md)
+  create the folders,
+  [`compare_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+  and
+  [`sync_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+  add missing folders (never deleting any; skip them with
+  `folders = FALSE`), and
+  [`get_sp_list_definition()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md)
+  and
+  [`write_sp_list_yaml()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md)
+  include folders if `include_folders = TRUE` (default `FALSE`).
+  (2026-10-13)
+- List definitions work better for document libraries: the built-in
+  library columns (e.g. `FileLeafRef` and `_ExtendedDescription`) are
+  left out of
+  [`get_sp_list_definition()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md)
+  and only compared by
+  [`compare_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+  if a definition includes them, a `Title` column updates the default
+  title column of a new library, a view titled “All Documents” updates
+  the default view of a new library, and library fields
+  (e.g. `LinkFilename`) can be shown in a view without a warning.
+  (2026-10-13)
 
 ### Fixes
 

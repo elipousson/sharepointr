@@ -6,7 +6,8 @@
 read with
 [`read_sp_list_yaml()`](https://elipousson.github.io/sharepointr/reference/sp_list_definition.md))
 with an existing SharePoint list and returns the list settings, columns,
-and views to add, update, or delete.
+and views to add, update, or delete, and the folders to add to a
+document library.
 
 `sync_sp_list()` applies those changes. By default, it only prints the
 planned changes (`dry_run = TRUE`) and doesn't delete columns or views
@@ -20,6 +21,7 @@ compare_sp_list(
   sp_list = NULL,
   ...,
   views = TRUE,
+  folders = TRUE,
   call = caller_env()
 )
 
@@ -31,6 +33,7 @@ sync_sp_list(
   delete = FALSE,
   allow_data_loss = FALSE,
   views = TRUE,
+  folders = TRUE,
   call = caller_env()
 )
 ```
@@ -69,6 +72,11 @@ sync_sp_list(
   If `TRUE` (default), compare views if the definition has a `views`
   element. If `FALSE`, views are skipped.
 
+- folders:
+
+  If `TRUE` (default), compare folders if the definition has a `folders`
+  element. If `FALSE`, folders are skipped.
+
 - call:
 
   The execution environment of a currently running function, e.g.
@@ -97,9 +105,10 @@ sync_sp_list(
 `compare_sp_list()` returns a data frame with one row per added or
 deleted column or view and one row per changed property, with columns:
 
-- `object`: `"list"`, `"column"`, or `"view"`.
+- `object`: `"list"`, `"column"`, `"view"`, or `"folder"`.
 
-- `name`: list display name, internal column name, or view title.
+- `name`: list display name, internal column name, view title, or folder
+  path.
 
 - `id`: column or view ID for existing columns and views.
 
@@ -132,8 +141,10 @@ matches any text column. A property missing from a definition isn't
 changed.
 
 SharePoint internal columns and the `Title` column are excluded unless
-`Title` is included in the definitions. Columns in the list that aren't
-in the definitions are returned with `action = "delete"`.
+`Title` is included in the definitions. The built-in columns of a
+document library (e.g. `FileLeafRef` or `_ExtendedDescription`) are also
+excluded unless they're included in the definitions. Columns in the list
+that aren't in the definitions are returned with `action = "delete"`.
 
 Each change has one of these actions:
 
@@ -185,6 +196,14 @@ updated views, the default view, and then deleted views.
 Views are read and changed with the SharePoint REST API. Use
 `views = FALSE` to skip views (e.g. if the SharePoint REST API isn't
 available).
+
+Comparing folders
+
+Folders are only compared if the definition has a `folders` element,
+`folders = TRUE`, and the list is a document library. Each folder path
+that doesn't exist is returned with `action = "add"`. A path that exists
+as a file is blocked. Folders that aren't in the definition are never
+deleted. Each folder path is checked with one request.
 
 Changes that use the SharePoint REST API
 

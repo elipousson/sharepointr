@@ -91,6 +91,7 @@ YAML file.</p></li>
 <span>  keep_defaults <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  read_only <span class="op">=</span> <span class="st">"stable"</span>,</span>
 <span>  include_views <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  include_folders <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -102,6 +103,7 @@ YAML file.</p></li>
 <span>  keep_defaults <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  read_only <span class="op">=</span> <span class="st">"stable"</span>,</span>
 <span>  include_views <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  include_folders <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  doc_start <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -124,8 +126,8 @@ mentioned in error messages as the source of the error. See the
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>For <code>write_sp_list_yaml()</code>, a <code>sp_list_definition</code> object or a
-<code>ms_list</code> object. <code>keep_defaults</code>, <code>read_only</code>, and <code>include_views</code> are
-only used for a <code>ms_list</code> object. For <code>as_sp_list_definition()</code>, a named list with the
+<code>ms_list</code> object. <code>keep_defaults</code>, <code>read_only</code>, <code>include_views</code>, and
+<code>include_folders</code> are only used for a <code>ms_list</code> object. For <code>as_sp_list_definition()</code>, a named list with the
 same structure as a YAML file or an unnamed list of column definitions.</p></dd>
 
 
@@ -168,6 +170,13 @@ REST API, which requires a delegated (user) login. See
 <code><a href="list_sp_list_views.html">list_sp_list_views()</a></code>.</p></dd>
 
 
+<dt id="arg-include-folders">include_folders<a class="anchor" aria-label="anchor" href="#arg-include-folders"></a></dt>
+<dd><p>If <code>TRUE</code>, include the folders of a document library.
+Defaults to <code>FALSE</code>. Folders are listed recursively, which takes one
+request for each folder. Only the deepest folders of each path are
+included.</p></dd>
+
+
 <dt id="arg-merge">merge<a class="anchor" aria-label="anchor" href="#arg-merge"></a></dt>
 <dd><p>If <code>TRUE</code> (default) and <code>path</code> exists, keep the comment header
 and column order from the existing file. <code>custom</code> metadata for the list
@@ -176,9 +185,10 @@ the existing file (a list never has <code>custom</code> metadata, so it's always
 kept when <code>x</code> is a <code>ms_list</code> object). Read-only list properties
 and column ids always come from <code>x</code>. Views come from <code>x</code> if it has views
 (e.g. with <code>include_views = TRUE</code>) and are otherwise kept from the
-existing file. Columns that are only in the existing file are dropped
-(unless the Graph API doesn't return their column type). Comments after
-the header are always lost.</p></dd>
+existing file. Folders are kept from the existing file the same way.
+Columns that are only in the existing file are dropped (unless the Graph
+API doesn't return their column type). Comments after the header are
+always lost.</p></dd>
 
 
 <dt id="arg-doc-start">doc_start<a class="anchor" aria-label="anchor" href="#arg-doc-start"></a></dt>
@@ -192,7 +202,7 @@ has one (with <code>merge = TRUE</code>).</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>sp_list_definition</code> object: a list with <code>format_version</code>,
 <code>displayName</code>, <code>description</code>, <code>list</code>, any read-only list properties,
-<code>custom</code>, and <code>columns</code> elements.
+<code>custom</code>, <code>columns</code>, <code>views</code>, and <code>folders</code> elements.
 <code>write_sp_list_yaml()</code> invisibly returns the definition that was written.</p>
     </div>
     <div class="section level2">
@@ -326,7 +336,28 @@ view titled <code>All Items</code> updates the default view of a new <code>gener
 list. <code><a href="compare_sp_list.html">compare_sp_list()</a></code> and <code><a href="compare_sp_list.html">sync_sp_list()</a></code> compare and update views
 only if the definition has a <code>views</code> element. Views are only written by
 <code>write_sp_list_yaml()</code> if <code>include_views = TRUE</code>.</p>
-    </div>
+<p>Document libraries</p>
+<p>A definition with <code>list.template: documentLibrary</code> describes a document
+library. Use <code><a href="create_sp_drive.html">create_sp_drive()</a></code> (or <code><a href="create_sp_list.html">create_sp_list()</a></code>) to create a
+library from a definition. The built-in library columns (e.g.
+<code>FileLeafRef</code> for the file name or <code>_ExtendedDescription</code>) are left out of
+a definition from an existing library and aren't compared unless a
+definition includes them. A view titled <code>All Documents</code> updates the
+default view of a new library.</p>
+<p>An optional <code>folders</code> key holds a sequence of folder paths relative to the
+library root. Folders are only allowed for a document library.</p>
+<p></p><div class="sourceCode yaml"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">list</span><span class="kw">:</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="at">  </span><span class="fu">template</span><span class="kw">:</span><span class="at"> documentLibrary</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">folders</span><span class="kw">:</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> Contracts</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> Reports/2026</span></span></code></pre><p></p></div><ul><li><p>Separate folders with <code>/</code>. Parent folders are created as needed, so
+<code>Reports/2026</code> also creates <code>Reports</code>.</p></li>
+<li><p>Paths must be unique. A folder name can't be empty, start or end with a
+space, end with a period, or include any of <code>" * : &lt; &gt; ? \ |</code>.</p></li>
+<li><p><code><a href="compare_sp_list.html">compare_sp_list()</a></code> and <code><a href="compare_sp_list.html">sync_sp_list()</a></code> add folders that are missing
+from the library. Folders are never deleted or renamed.</p></li>
+<li><p>Folders are only written by <code>write_sp_list_yaml()</code> if <code>include_folders = TRUE</code>. Only the deepest folders of each path are written.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="sp_list_definition_table.html">sp_list_definition_table()</a></code> to convert a definition to a data

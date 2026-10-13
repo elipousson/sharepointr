@@ -18,10 +18,15 @@ Column validation is applied with the SharePoint REST API after the list
 is created since the Graph API doesn't support it.
 A &quot;Title&quot; column in columns or definition updates the default
 &quot;Title&quot; column of a &quot;genericList&quot; list (combined with
-title_definition) instead of adding a new column.
+title_definition) or a &quot;documentLibrary&quot; library instead of adding a
+new column.
 Views in definition are created with the SharePoint REST API after the
 columns are created. A view titled &quot;All Items&quot; updates the default view
-of a &quot;genericList&quot; list.
+of a &quot;genericList&quot; list and a view titled &quot;All Documents&quot; updates the
+default view of a &quot;documentLibrary&quot; library.
+Folders in definition are created after the views for a
+&quot;documentLibrary&quot; library. Use create_sp_drive() to create a document
+library and return the ms_drive object.
 
 
 Notes on updating a SharePoint list:
@@ -47,10 +52,15 @@ Column validation is applied with the SharePoint REST API after the list
 is created since the Graph API doesn't support it.
 A &quot;Title&quot; column in columns or definition updates the default
 &quot;Title&quot; column of a &quot;genericList&quot; list (combined with
-title_definition) instead of adding a new column.
+title_definition) or a &quot;documentLibrary&quot; library instead of adding a
+new column.
 Views in definition are created with the SharePoint REST API after the
 columns are created. A view titled &quot;All Items&quot; updates the default view
-of a &quot;genericList&quot; list.
+of a &quot;genericList&quot; list and a view titled &quot;All Documents&quot; updates the
+default view of a &quot;documentLibrary&quot; library.
+Folders in definition are created after the views for a
+&quot;documentLibrary&quot; library. Use create_sp_drive() to create a document
+library and return the ms_drive object.
 
 
 Notes on updating a SharePoint list:
@@ -116,10 +126,15 @@ may reference other columns.</p></li>
 is created since the Graph API doesn't support it.</p></li>
 <li><p>A <code>"Title"</code> column in <code>columns</code> or <code>definition</code> updates the default
 <code>"Title"</code> column of a <code>"genericList"</code> list (combined with
-<code>title_definition</code>) instead of adding a new column.</p></li>
+<code>title_definition</code>) or a <code>"documentLibrary"</code> library instead of adding a
+new column.</p></li>
 <li><p>Views in <code>definition</code> are created with the SharePoint REST API after the
 columns are created. A view titled <code>"All Items"</code> updates the default view
-of a <code>"genericList"</code> list.</p></li>
+of a <code>"genericList"</code> list and a view titled <code>"All Documents"</code> updates the
+default view of a <code>"documentLibrary"</code> library.</p></li>
+<li><p>Folders in <code>definition</code> are created after the views for a
+<code>"documentLibrary"</code> library. Use <code><a href="create_sp_drive.html">create_sp_drive()</a></code> to create a document
+library and return the <code>ms_drive</code> object.</p></li>
 </ul><p>Notes on updating a SharePoint list:</p><ul><li><p>The <code>"Title"</code> column type is always a "text" type column and can't be
 changed.</p></li>
 </ul></div>
@@ -223,7 +238,8 @@ a path to a YAML file. The definition <code>displayName</code>, <code>descriptio
 <code>contentTypesEnabled</code>) are used unless the matching argument is supplied.
 Read-only list properties (e.g. <code>id</code>) and column ids are ignored.
 <code>definition</code> can't be combined with <code>columns</code>. Views in the definition are
-also created (see <code><a href="list_sp_list_views.html">list_sp_list_views()</a></code>).</p></dd>
+also created (see <code><a href="list_sp_list_views.html">list_sp_list_views()</a></code>), and so are folders for a
+document library.</p></dd>
 
 
 <dt id="arg-site-url">site_url<a class="anchor" aria-label="anchor" href="#arg-site-url"></a></dt>

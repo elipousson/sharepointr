@@ -36,6 +36,8 @@
   SharePoint lists
 - [`create_column_definition_list()`](https://elipousson.github.io/sharepointr/reference/create_column_definition_list.md)
   : Create a list of column definitions
+- [`create_sp_drive()`](https://elipousson.github.io/sharepointr/reference/create_sp_drive.md)
+  **\[experimental\]** : Create a SharePoint document library
 - [`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md)
   [`update_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md)
   [`delete_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md)
@@ -131,6 +133,9 @@
 - [`get_sp_task()`](https://elipousson.github.io/sharepointr/reference/sp_tasks.md)
   [`list_sp_tasks()`](https://elipousson.github.io/sharepointr/reference/sp_tasks.md)
   : Get a SharePoint task or list tasks from a planner
+- [`update_sp_drive()`](https://elipousson.github.io/sharepointr/reference/update_sp_drive.md)
+  [`delete_sp_drive()`](https://elipousson.github.io/sharepointr/reference/update_sp_drive.md)
+  **\[experimental\]** : Update or delete a SharePoint document library
 - [`upload_sp_item()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)
   [`upload_sp_items()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)
   : Upload a file or folder to a SharePoint Drive

@@ -29,11 +29,19 @@ Notes on creating a SharePoint list:
 
 - A `"Title"` column in `columns` or `definition` updates the default
   `"Title"` column of a `"genericList"` list (combined with
-  `title_definition`) instead of adding a new column.
+  `title_definition`) or a `"documentLibrary"` library instead of adding
+  a new column.
 
 - Views in `definition` are created with the SharePoint REST API after
   the columns are created. A view titled `"All Items"` updates the
-  default view of a `"genericList"` list.
+  default view of a `"genericList"` list and a view titled
+  `"All Documents"` updates the default view of a `"documentLibrary"`
+  library.
+
+- Folders in `definition` are created after the views for a
+  `"documentLibrary"` library. Use
+  [`create_sp_drive()`](https://elipousson.github.io/sharepointr/reference/create_sp_drive.md)
+  to create a document library and return the `ms_drive` object.
 
 Notes on updating a SharePoint list:
 
@@ -144,7 +152,8 @@ delete_sp_list(
   supplied. Read-only list properties (e.g. `id`) and column ids are
   ignored. `definition` can't be combined with `columns`. Views in the
   definition are also created (see
-  [`list_sp_list_views()`](https://elipousson.github.io/sharepointr/reference/list_sp_list_views.md)).
+  [`list_sp_list_views()`](https://elipousson.github.io/sharepointr/reference/list_sp_list_views.md)),
+  and so are folders for a document library.
 
 - site_url:
 

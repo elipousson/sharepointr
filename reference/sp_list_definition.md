@@ -34,6 +34,7 @@ get_sp_list_definition(
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
+  include_folders = FALSE,
   call = caller_env()
 )
 
@@ -45,6 +46,7 @@ write_sp_list_yaml(
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
+  include_folders = FALSE,
   doc_start = NULL,
   call = caller_env()
 )
@@ -67,10 +69,10 @@ write_sp_list_yaml(
 - x:
 
   For `write_sp_list_yaml()`, a `sp_list_definition` object or a
-  `ms_list` object. `keep_defaults`, `read_only`, and `include_views`
-  are only used for a `ms_list` object. For `as_sp_list_definition()`, a
-  named list with the same structure as a YAML file or an unnamed list
-  of column definitions.
+  `ms_list` object. `keep_defaults`, `read_only`, `include_views`, and
+  `include_folders` are only used for a `ms_list` object. For
+  `as_sp_list_definition()`, a named list with the same structure as a
+  YAML file or an unnamed list of column definitions.
 
 - ...:
 
@@ -112,6 +114,12 @@ write_sp_list_yaml(
   API, which requires a delegated (user) login. See
   [`list_sp_list_views()`](https://elipousson.github.io/sharepointr/reference/list_sp_list_views.md).
 
+- include_folders:
+
+  If `TRUE`, include the folders of a document library. Defaults to
+  `FALSE`. Folders are listed recursively, which takes one request for
+  each folder. Only the deepest folders of each path are included.
+
 - merge:
 
   If `TRUE` (default) and `path` exists, keep the comment header and
@@ -121,9 +129,10 @@ write_sp_list_yaml(
   always kept when `x` is a `ms_list` object). Read-only list properties
   and column ids always come from `x`. Views come from `x` if it has
   views (e.g. with `include_views = TRUE`) and are otherwise kept from
-  the existing file. Columns that are only in the existing file are
-  dropped (unless the Graph API doesn't return their column type).
-  Comments after the header are always lost.
+  the existing file. Folders are kept from the existing file the same
+  way. Columns that are only in the existing file are dropped (unless
+  the Graph API doesn't return their column type). Comments after the
+  header are always lost.
 
 - doc_start:
 
@@ -136,8 +145,9 @@ write_sp_list_yaml(
 
 A `sp_list_definition` object: a list with `format_version`,
 `displayName`, `description`, `list`, any read-only list properties,
-`custom`, and `columns` elements. `write_sp_list_yaml()` invisibly
-returns the definition that was written.
+`custom`, `columns`, `views`, and `folders` elements.
+`write_sp_list_yaml()` invisibly returns the definition that was
+written.
 
 ## Details
 
@@ -340,6 +350,44 @@ and
 compare and update views only if the definition has a `views` element.
 Views are only written by `write_sp_list_yaml()` if
 `include_views = TRUE`.
+
+Document libraries
+
+A definition with `list.template: documentLibrary` describes a document
+library. Use
+[`create_sp_drive()`](https://elipousson.github.io/sharepointr/reference/create_sp_drive.md)
+(or
+[`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md))
+to create a library from a definition. The built-in library columns
+(e.g. `FileLeafRef` for the file name or `_ExtendedDescription`) are
+left out of a definition from an existing library and aren't compared
+unless a definition includes them. A view titled `All Documents` updates
+the default view of a new library.
+
+An optional `folders` key holds a sequence of folder paths relative to
+the library root. Folders are only allowed for a document library.
+
+    list:
+      template: documentLibrary
+    folders:
+      - Contracts
+      - Reports/2026
+
+- Separate folders with `/`. Parent folders are created as needed, so
+  `Reports/2026` also creates `Reports`.
+
+- Paths must be unique. A folder name can't be empty, start or end with
+  a space, end with a period, or include any of `" * : < > ? \ |`.
+
+- [`compare_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+  and
+  [`sync_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
+  add folders that are missing from the library. Folders are never
+  deleted or renamed.
+
+- Folders are only written by `write_sp_list_yaml()` if
+  `include_folders = TRUE`. Only the deepest folders of each path are
+  written.
 
 ## See also
 

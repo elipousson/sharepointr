@@ -1,4 +1,4 @@
-test_that(".sp_dttm_to_graph() formats POSIXct/Date as unambiguous UTC strings", {
+test_that(".sp_dttm_to_graph() formats POSIXct as UTC strings and Date as dates", {
   x <- as.POSIXct(1659276319, origin = "1970-01-01", tz = "UTC")
 
   withr::with_envvar(
@@ -7,7 +7,7 @@ test_that(".sp_dttm_to_graph() formats POSIXct/Date as unambiguous UTC strings",
       expect_identical(.sp_dttm_to_graph(x), "2022-07-31T14:05:19Z")
       expect_identical(
         .sp_dttm_to_graph(as.Date("2026-08-05")),
-        "2026-08-05T00:00:00Z"
+        "2026-08-05"
       )
     }
   )
@@ -18,7 +18,7 @@ test_that(".sp_dttm_to_graph() formats POSIXct/Date as unambiguous UTC strings",
       expect_identical(.sp_dttm_to_graph(x), "2022-07-31T14:05:19Z")
       expect_identical(
         .sp_dttm_to_graph(as.Date("2026-08-05")),
-        "2026-08-05T00:00:00Z"
+        "2026-08-05"
       )
     }
   )

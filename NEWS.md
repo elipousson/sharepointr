@@ -41,6 +41,7 @@
 
 ## Fixes
 
+* Fix `Date` values written to list date columns (e.g. with `create_sp_list_item()` or `update_sp_list_items()`) being stored as the previous day on SharePoint sites with a time zone west of UTC. `Date` values were sent as midnight UTC (e.g. `"2026-10-13T00:00:00Z"`) and are now sent as a date with no time or offset (e.g. `"2026-10-13"`), which SharePoint stores using the site's time zone. `POSIXct` values are still sent as UTC date-times. (2026-10-13)
 * Fix `sp_url_parse()` decoding URL paths twice with `{httr2}` 1.1.0 or later, which changed file, folder, list, or library names that include a `%` character (e.g. `"100%.xlsx"`). `sp_url_parse_path()` now expects a decoded path (as returned by `httr2::url_parse()`). Requires `{httr2}` 1.1.0 or later. (2026-10-10)
 * Fix `sp_url_parse()` (and functions that accept a SharePoint URL) for list URLs with no view page (e.g. `"https://contoso.sharepoint.com/sites/site-name/Lists/list-name"`). (2026-10-10)
 * `sp_url_parse()` now errors if a site name can't be found in a URL, instead of returning a site URL with no site name that caused a "not found" error from the Graph API. (2026-10-10)

@@ -107,9 +107,11 @@ delete_sp_list_items(
 
   If `TRUE` (default), items are sent with Microsoft Graph `$batch`
   requests (up to 20 items per request), which is much faster than a
-  separate request for each item. Requests throttled by the Graph API
-  are retried after the requested delay. If any items fail, the
-  remaining items are still sent and the error lists the failed items.
+  separate request for each item. Requests throttled by the Graph API or
+  failing with a temporary error (e.g. "Database is read only") are
+  retried up to 5 times after the requested delay (or an increasing
+  delay of up to 60 seconds). If any items fail, the remaining items are
+  still sent and the error lists the failed items with the HTTP status.
   If `FALSE`, a separate request is sent for each item and the first
   failed item is an error. Use `options(sharepointr.batch = FALSE)` to
   change the default for the session. In either case, requests are sent

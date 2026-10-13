@@ -331,6 +331,19 @@
 
 ### Fixes
 
+- Fix
+  [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md),
+  [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  and
+  [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  failing for items with a temporary “Database is read only” error from
+  SharePoint when sending many items with `$batch` requests. These
+  requests, and requests with a 504 status, are now retried along with
+  throttled requests (status 429 or 503). Requests without a
+  `Retry-After` header are retried after an increasing delay (2, 4, 8, …
+  seconds, up to 60 seconds) and up to 5 times (instead of 3). The error
+  for failed items now includes the HTTP status and Graph error code.
+  (2026-10-13)
 - Fix `Date` values written to list date columns (e.g. with
   [`create_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_item.md)
   or

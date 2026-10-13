@@ -88,6 +88,7 @@ create_sp_drive(
 }
 }
 \seealso{
-\code{\link[=create_sp_list]{create_sp_list()}}, \code{\link[=get_sp_drive]{get_sp_drive()}}
+\code{\link[=update_sp_drive]{update_sp_drive()}}, \code{\link[=delete_sp_drive]{delete_sp_drive()}}, \code{\link[=create_sp_list]{create_sp_list()}},
+\code{\link[=get_sp_drive]{get_sp_drive()}}
 }
 \keyword{drives}

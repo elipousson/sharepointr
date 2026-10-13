@@ -38,6 +38,29 @@
       ! folders has invalid folder path: "A:B".
       i Separate folders with `/`. A folder name can't be empty, start or end with a space, end with a period, or include any of `" * : < > ? \ |`.
 
+# update_sp_drive and delete_sp_drive check their inputs
+
+    Code
+      update_sp_drive(drive = onedrive)
+    Condition
+      Error:
+      ! `display_name` or `description` must be supplied.
+    Code
+      update_sp_drive(drive = onedrive, display_name = "New")
+    Condition
+      Error:
+      ! `drive` must be a SharePoint document library, not a "business" drive.
+    Code
+      delete_sp_drive(drive = onedrive)
+    Condition
+      Error:
+      ! `drive` must be a SharePoint document library, not a "business" drive.
+    Code
+      delete_sp_drive(drive = "Documents")
+    Condition
+      Error:
+      ! `drive` must be ms_drive, not the string "Documents".
+
 # create_sp_list errors for folders in a list definition
 
     Code

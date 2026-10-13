@@ -25,6 +25,20 @@ test_that("create_sp_drive errors for a template or a list definition", {
   })
 })
 
+test_that("update_sp_drive and delete_sp_drive check their inputs", {
+  onedrive <- structure(
+    list(properties = list(driveType = "business")),
+    class = c("ms_drive", "ms_object")
+  )
+
+  expect_snapshot(error = TRUE, {
+    update_sp_drive(drive = onedrive)
+    update_sp_drive(drive = onedrive, display_name = "New")
+    delete_sp_drive(drive = onedrive)
+    delete_sp_drive(drive = "Documents")
+  })
+})
+
 test_that("create_sp_list errors for folders in a list definition", {
   definition <- as_sp_list_definition(list(
     displayName = "Test",
@@ -63,14 +77,7 @@ test_that("create_sp_drive creates a library with columns, views, and folders", 
     create_sp_drive(definition = definition, site_url = test_site_url)
   )
 
-  # The list name is set from the display name, so get the list by id
-  sp_list <- suppressMessages(
-    get_sp_list(
-      list_id = drive$do_operation("list")[["id"]],
-      site_url = test_site_url,
-      as_data_frame = FALSE
-    )
-  )
+  sp_list <- sp_drive_list(drive)
 
   withr::defer(
     try(
@@ -115,4 +122,38 @@ test_that("create_sp_drive creates a library with columns, views, and folders", 
   )
   expect_identical(applied[["status"]], "applied")
   expect_identical(nrow(compare_sp_list(updated, sp_list = sp_list)), 0L)
+
+  # Renaming a library changes the drive name but not the URL
+  web_url <- drive[["properties"]][["webUrl"]]
+  renamed <- suppressMessages(
+    update_sp_drive(
+      drive = drive,
+      display_name = paste0(definition[["displayName"]], "-renamed"),
+      description = "Updated by sharepointr tests"
+    )
+  )
+  expect_s3_class(renamed, "ms_drive")
+  expect_identical(
+    renamed[["properties"]][["name"]],
+    paste0(definition[["displayName"]], "-renamed")
+  )
+  expect_identical(renamed[["properties"]][["description"]], "Updated by sharepointr tests")
+  expect_identical(renamed[["properties"]][["webUrl"]], web_url)
+
+  suppressMessages(delete_sp_drive(drive = drive, confirm = FALSE))
+  expect_error(
+    suppressMessages(get_sp_drive(drive_id = drive[["properties"]][["id"]], site_url = test_site_url))
+  )
+})
+
+test_that("delete_sp_drive won't delete the default library", {
+  test_site_url <- "https://bmore.sharepoint.com/sites/DOP-CIP/"
+  skip_if_no_ms_site(test_site_url)
+
+  drive <- suppressMessages(get_sp_drive(drive_name = "Documents", site_url = test_site_url))
+
+  expect_error(
+    delete_sp_drive(drive = drive, confirm = FALSE),
+    "default document library"
+  )
 })

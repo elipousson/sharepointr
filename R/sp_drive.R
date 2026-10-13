@@ -248,7 +248,8 @@ list_sp_drives <- function(
 #' @inheritParams get_sp_site
 #' @returns A `ms_drive` object for the new library, or the drive properties
 #'   as a named list if `properties = TRUE`.
-#' @seealso [create_sp_list()], [get_sp_drive()]
+#' @seealso [update_sp_drive()], [delete_sp_drive()], [create_sp_list()],
+#'   [get_sp_drive()]
 #' @keywords drives
 #' @examples
 #' \dontrun{
@@ -331,6 +332,203 @@ create_sp_drive <- function(
   }
 
   drive
+}
+
+#' Update or delete a SharePoint document library
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
+#' [update_sp_drive()] updates the display name or description of a document
+#' library. Changing the display name changes the drive name but not the
+#' library URL.
+#'
+#' [delete_sp_drive()] deletes a document library and all of its files and
+#' folders. It requires confirmation by default and can't delete the default
+#' document library of a site (usually named "Documents").
+#'
+#' Both functions get the library's list from the drive and use
+#' [update_sp_list()] or [delete_sp_list()].
+#'
+#' @inheritParams get_sp_drive
+#' @param drive A `ms_drive` object. If `drive` is supplied, `drive_name`,
+#'   `drive_id`, and `drive_url` are ignored.
+#' @param display_name New display name for the library. Optional.
+#' @param description New description for the library. Optional.
+#' @param ... Additional parameters passed to [get_sp_drive()] if `drive` is
+#'   `NULL`.
+#' @param properties For [update_sp_drive()], if `TRUE`, return the drive
+#'   properties instead of the `ms_drive` object. Defaults to `FALSE`.
+#' @param confirm If `TRUE` (default), confirm deletion of the library before
+#'   proceeding.
+#' @returns For [update_sp_drive()], the updated `ms_drive` object or its
+#'   properties if `properties = TRUE`. For [delete_sp_drive()], invisibly
+#'   returns `NULL`.
+#' @seealso [create_sp_drive()]
+#' @keywords drives
+#' @examples
+#' \dontrun{
+#' drive <- update_sp_drive(
+#'   "Project Files",
+#'   description = "Files for active projects",
+#'   site_url = "<SharePoint site url>"
+#' )
+#'
+#' delete_sp_drive(drive = drive)
+#' }
+#' @export
+update_sp_drive <- function(
+  drive_name = NULL,
+  drive_id = NULL,
+  drive_url = NULL,
+  drive = NULL,
+  display_name = NULL,
+  description = NULL,
+  ...,
+  properties = FALSE,
+  site_url = NULL,
+  site = NULL,
+  call = caller_env()
+) {
+  check_string(display_name, allow_null = TRUE, call = call)
+  check_string(description, allow_null = TRUE, call = call)
+  check_bool(properties, call = call)
+
+  if (is.null(display_name) && is.null(description)) {
+    cli_abort(
+      "{.arg display_name} or {.arg description} must be supplied.",
+      call = call
+    )
+  }
+
+  drive <- drive %||%
+    get_sp_drive(
+      drive_name = drive_name,
+      drive_id = drive_id,
+      drive_url = drive_url,
+      ...,
+      site_url = site_url,
+      site = site,
+      call = call
+    )
+
+  check_sp_library_drive(drive, call = call)
+
+  update_sp_list(
+    sp_list = sp_drive_list(drive),
+    display_name = display_name,
+    description = description,
+    call = call
+  )
+
+  drive$sync_fields()
+
+  if (properties) {
+    return(drive[["properties"]])
+  }
+
+  drive
+}
+
+#' @rdname update_sp_drive
+#' @export
+delete_sp_drive <- function(
+  drive_name = NULL,
+  drive_id = NULL,
+  drive_url = NULL,
+  drive = NULL,
+  confirm = TRUE,
+  ...,
+  site_url = NULL,
+  site = NULL,
+  call = caller_env()
+) {
+  check_bool(confirm, call = call)
+
+  drive <- drive %||%
+    get_sp_drive(
+      drive_name = drive_name,
+      drive_id = drive_id,
+      drive_url = drive_url,
+      ...,
+      site_url = site_url,
+      site = site,
+      call = call
+    )
+
+  check_sp_library_drive(drive, call = call)
+
+  sp_list <- sp_drive_list(drive)
+  site_id <- sp_list[["properties"]][["parentReference"]][["siteId"]]
+  nm <- drive[["properties"]][["name"]]
+
+  if (identical(sp_site_default_drive_id(drive, site_id), drive[["properties"]][["id"]])) {
+    cli_abort(
+      "{.val {nm}} is the default document library of the site and can't be
+      deleted.",
+      call = call
+    )
+  }
+
+  if (confirm) {
+    n_items <- drive$get_item("/")[["properties"]][["folder"]][["childCount"]]
+
+    check_yes(
+      cli::format_inline(
+        "Do you want to delete the library {.val {nm}} and all of its files
+        and folders ({n_items %||% 0} top-level item{?s})?"
+      ),
+      call = call
+    )
+  }
+
+  cli_progress_step("Deleting library {.val {nm}}")
+
+  sp_list$delete(confirm = FALSE)
+
+  invisible(NULL)
+}
+
+#' Check that a drive is a SharePoint document library
+#' @noRd
+check_sp_library_drive <- function(
+  drive,
+  arg = caller_arg(drive),
+  call = caller_env()
+) {
+  check_ms_drive(drive, arg = arg, call = call)
+
+  drive_type <- drive[["properties"]][["driveType"]]
+
+  if (!identical(drive_type, "documentLibrary")) {
+    cli_abort(
+      "{.arg {arg}} must be a SharePoint document library, not a
+      {.val {drive_type}} drive.",
+      call = call
+    )
+  }
+
+  invisible(NULL)
+}
+
+#' Get the list for a document library drive
+#' @noRd
+sp_drive_list <- function(drive) {
+  Microsoft365R::ms_list$new(
+    drive[["token"]],
+    drive[["tenant"]],
+    drive$do_operation("list")
+  )
+}
+
+#' Get the id of the default drive of a site
+#' @noRd
+sp_site_default_drive_id <- function(drive, site_id) {
+  AzureGraph::call_graph_endpoint(
+    drive[["token"]],
+    file.path("sites", site_id, "drive"),
+    options = list(`$select` = "id")
+  )[["id"]]
 }
 
 #' Get the drive for a document library list

@@ -346,10 +346,15 @@ get_sp_list_metadata <- function(
 #'   is created since the Graph API doesn't support it.
 #' - A `"Title"` column in `columns` or `definition` updates the default
 #'   `"Title"` column of a `"genericList"` list (combined with
-#'   `title_definition`) instead of adding a new column.
+#'   `title_definition`) or a `"documentLibrary"` library instead of adding a
+#'   new column.
 #' - Views in `definition` are created with the SharePoint REST API after the
 #'   columns are created. A view titled `"All Items"` updates the default view
-#'   of a `"genericList"` list.
+#'   of a `"genericList"` list and a view titled `"All Documents"` updates the
+#'   default view of a `"documentLibrary"` library.
+#' - Folders in `definition` are created after the views for a
+#'   `"documentLibrary"` library. Use [create_sp_drive()] to create a document
+#'   library and return the `ms_drive` object.
 #'
 #' Notes on updating a SharePoint list:
 #'
@@ -375,7 +380,8 @@ get_sp_list_metadata <- function(
 #'   `contentTypesEnabled`) are used unless the matching argument is supplied.
 #'   Read-only list properties (e.g. `id`) and column ids are ignored.
 #'   `definition` can't be combined with `columns`. Views in the definition are
-#'   also created (see [list_sp_list_views()]).
+#'   also created (see [list_sp_list_views()]), and so are folders for a
+#'   document library.
 #' @inheritParams get_sp_site
 #' @returns For [create_sp_list()], invisibly returns a `ms_list` object for
 #'   the newly created list. For [update_sp_list()], the updated `ms_list`
@@ -455,6 +461,15 @@ create_sp_list <- function(
   check_string(list_name, call = call)
   template <- template %||% "genericList"
   views <- if (!is.null(definition)) definition[["views"]]
+  folders <- if (!is.null(definition)) definition[["folders"]]
+
+  if (length(folders) > 0 && template != "documentLibrary") {
+    cli_abort(
+      "Folders can only be created for a {.val documentLibrary} library, not
+      a {.val {template}} list.",
+      call = call
+    )
+  }
 
   # Check column names before connecting to the site
   if (!is.null(columns)) {
@@ -482,6 +497,10 @@ create_sp_list <- function(
   validations <- list()
   calculated_columns <- list()
   n_columns <- 0
+  # A Title column definition is only applied to a library if supplied
+  if (template != "genericList") {
+    title_definition <- NULL
+  }
 
   if (!is.null(columns)) {
     if (is_named(columns) && has_name(columns, "name")) {
@@ -492,7 +511,7 @@ create_sp_list <- function(
     col_names <- purrr::map_chr(columns, "name")
 
     # A Title column updates the default Title column
-    if (template == "genericList" && "Title" %in% col_names) {
+    if (has_default_title(template) && "Title" %in% col_names) {
       title_column <- columns[[match("Title", col_names)]]
       title_definition <- utils::modifyList(
         title_definition %||% list(),
@@ -575,7 +594,7 @@ create_sp_list <- function(
 
   # Update default Title column definition
   # Title is set up as required when using `"genericList"` template
-  if (template == "genericList" && !is.null(title_definition)) {
+  if (has_default_title(template) && !is.null(title_definition)) {
     suppressMessages(
       update_sp_list_column(
         sp_list = sp_list,
@@ -604,13 +623,37 @@ create_sp_list <- function(
     )
   }
 
+  if (length(folders) > 0) {
+    create_sp_drive_folders(sp_list_drive(sp_list), folders, call = call)
+  }
+
   invisible(sp_list)
+}
+
+#' Does a list template have a default Title column that a definition can
+#' update?
+#' @noRd
+has_default_title <- function(template) {
+  template %in% c("genericList", "documentLibrary")
+}
+
+#' Get the title of the default view for a list template
+#' @noRd
+sp_default_view_title <- function(template) {
+  switch(
+    template %||% "genericList",
+    genericList = "All Items",
+    documentLibrary = "All Documents",
+    NULL
+  )
 }
 
 #' Create the views from a list definition for a new list
 #'
 #' A view titled "All Items" updates the default view of a `"genericList"`
-#' list. The default view is set after all views are created.
+#' list and a view titled "All Documents" updates the default view of a
+#' `"documentLibrary"` library. The default view is set after all views are
+#' created.
 #' @noRd
 create_sp_list_definition_views <- function(
   sp_list,
@@ -629,10 +672,12 @@ create_sp_list_definition_views <- function(
 
     view <- as_view_to_create(view)
 
-    if (template == "genericList" && identical(view[["Title"]], "All Items")) {
+    default_view_title <- sp_default_view_title(template)
+
+    if (identical(view[["Title"]], default_view_title)) {
       updated <- update_sp_list_view(
         sp_list,
-        view_title = "All Items",
+        view_title = default_view_title,
         view_definition = view,
         call = call
       )
@@ -1991,6 +2036,28 @@ sp_list_internal_colnames <- c(
   "AppAuthorLookupId",
   "AppEditor",
   "AppEditorLookupId"
+)
+
+#' Built-in columns of a document library
+#'
+#' These columns are added to every `"documentLibrary"` library (in addition to
+#' `sp_list_internal_colnames` and `"Title"`), so they are excluded from list
+#' definitions and compared only if a definition includes them.
+#' @noRd
+sp_library_internal_colnames <- c(
+  "FileLeafRef",
+  "LinkFilename",
+  "LinkFilenameNoMenu",
+  "FileSizeDisplay",
+  "CheckoutUser",
+  "_CheckinComment",
+  "_CopySource",
+  "_CommentCount",
+  "_LikeCount",
+  "_DisplayName",
+  "ParentVersionString",
+  "ParentLeafName",
+  "_ExtendedDescription"
 )
 
 #' Internal fields modeled as lookup columns in list metadata that the Graph

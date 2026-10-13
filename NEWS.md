@@ -41,6 +41,7 @@
 
 ## Fixes
 
+* Fix `delete_sp_list_items()`, `create_sp_list_items()`, and `update_sp_list_items()` failing for items with a temporary "Database is read only" error from SharePoint when sending many items with `$batch` requests. These requests, and requests with a 504 status, are now retried along with throttled requests (status 429 or 503). Requests without a `Retry-After` header are retried after an increasing delay (2, 4, 8, ... seconds, up to 60 seconds) and up to 5 times (instead of 3). The error for failed items now includes the HTTP status and Graph error code. (2026-10-13)
 * Fix `sp_url_parse()` decoding URL paths twice with `{httr2}` 1.1.0 or later, which changed file, folder, list, or library names that include a `%` character (e.g. `"100%.xlsx"`). `sp_url_parse_path()` now expects a decoded path (as returned by `httr2::url_parse()`). Requires `{httr2}` 1.1.0 or later. (2026-10-10)
 * Fix `sp_url_parse()` (and functions that accept a SharePoint URL) for list URLs with no view page (e.g. `"https://contoso.sharepoint.com/sites/site-name/Lists/list-name"`). (2026-10-10)
 * `sp_url_parse()` now errors if a site name can't be found in a URL, instead of returning a site URL with no site name that caused a "not found" error from the Graph API. (2026-10-10)

@@ -23,7 +23,7 @@ Imports:
     jsonlite,
     lifecycle,
     Microsoft365R,
-    purrr (>= 1.1.0),
+    purrr (>= 1.2.0),
     rlang,
     stringr,
     utils,

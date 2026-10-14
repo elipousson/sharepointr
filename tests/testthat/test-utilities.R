@@ -48,3 +48,28 @@ test_that("ms_obj_list_as_data_frame keeps keep_list_cols consistent across size
   expect_identical(nrow(df), 3L)
   expect_type(df[["appliedCategories"]], "list")
 })
+
+test_that("sp_in_parallel() returns a plain function without daemons", {
+  local_mocked_bindings(sp_use_parallel = function() FALSE)
+
+  add <- function(x, y) x + y
+  f <- sp_in_parallel(\(i) fn(i, k), fn = add, k = 10)
+
+  expect_false(inherits(f, "crate"))
+  expect_identical(purrr::map_dbl(1:3, f), c(11, 12, 13))
+})
+
+test_that("sp_in_parallel() uses purrr::in_parallel() with daemons", {
+  skip_on_cran()
+  skip_if_not_installed("carrier", "0.3.0")
+  skip_if_not_installed("mirai", "2.5.1")
+
+  mirai::daemons(1)
+  withr::defer(mirai::daemons(0))
+
+  add <- function(x, y) x + y
+  f <- sp_in_parallel(\(i) fn(i, k), fn = add, k = 10)
+
+  expect_s3_class(f, "crate")
+  expect_identical(purrr::map_dbl(1:3, f), c(11, 12, 13))
+})

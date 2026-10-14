@@ -10,7 +10,7 @@
 * Add `download_sp_list()` (2024-10-10).
 * Add `create_column_definition()` and related functions for creating lists equivalent to columnDefinition objects. (2025-05-02)
 * Add `update_sp_list()` for limited updates to Microsoft List metadata. (2025-07-24)
-* Add `{purrr}` to imports to incorporate new `purrr::in_parallel()` function. Requires users have `{crate}` and `{mirai}` installed and set workers using `mirai::daemons()`. (2025-07-25)
+* Add `{purrr}` to imports to incorporate new `purrr::in_parallel()` function. Requires users have `{carrier}` and `{mirai}` installed and set workers using `mirai::daemons()`. (2025-07-25)
 * Add support for reading list items with `read_sharepoint()`. (2025-08-26)
 * Add `delete_sp_list_item()` and `delete_sp_list_items()`. (2025-08-26)
 * Add `copy_column_definition_list()` (2026-03-13)
@@ -45,6 +45,7 @@
 
 ## Fixes
 
+* Fix `create_sp_list_items()`, `update_sp_list_items()`, and `delete_sp_list_items()` requiring `{carrier}` and `{mirai}` (and erroring or prompting to install them) even when items aren't sent in parallel. Items are now only sent in parallel with `purrr::in_parallel()` if both packages are installed and `mirai::daemons()` are set; otherwise, items are sent sequentially. `{carrier}` and `{mirai}` are now listed in Suggests. (2026-10-13)
 * Fix `delete_sp_list_items()`, `create_sp_list_items()`, and `update_sp_list_items()` failing for items with a temporary "Database is read only" error from SharePoint when sending many items with `$batch` requests. These requests, and requests with a 504 status, are now retried along with throttled requests (status 429 or 503). Requests without a `Retry-After` header are retried after an increasing delay (2, 4, 8, ... seconds, up to 60 seconds) and up to 5 times (instead of 3). The error for failed items now includes the HTTP status and Graph error code. (2026-10-13)
 * Fix `Date` values written to list date columns (e.g. with `create_sp_list_item()` or `update_sp_list_items()`) being stored as the previous day on SharePoint sites with a time zone west of UTC. `Date` values were sent as midnight UTC (e.g. `"2026-10-13T00:00:00Z"`) and are now sent as a date with no time or offset (e.g. `"2026-10-13"`), which SharePoint stores using the site's time zone. `POSIXct` values are still sent as UTC date-times. (2026-10-13)
 * Fix `sp_url_parse()` decoding URL paths twice with `{httr2}` 1.1.0 or later, which changed file, folder, list, or library names that include a `%` character (e.g. `"100%.xlsx"`). `sp_url_parse_path()` now expects a decoded path (as returned by `httr2::url_parse()`). Requires `{httr2}` 1.1.0 or later. (2026-10-10)

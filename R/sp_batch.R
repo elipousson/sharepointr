@@ -24,8 +24,8 @@ sp_batch_max_backoff <- 60
 #' Send Graph API requests with $batch requests
 #'
 #' Splits `requests` into $batch requests of up to 20 requests each. The
-#' $batch requests are sent with [purrr::in_parallel()] (so they are sent in
-#' parallel if the user has set [mirai::daemons()]). Throttled or temporarily
+#' $batch requests are sent in parallel if `{carrier}` and `{mirai}` are
+#' installed and the user has set [mirai::daemons()] (see `sp_in_parallel()`). Throttled or temporarily
 #' unavailable requests (see `sp_batch_is_retryable()`) are sent again after
 #' the delay from the `Retry-After` header (or an exponential backoff), up to
 #' `max_retries` times.
@@ -56,7 +56,7 @@ sp_graph_batch_requests <- function(
 
     chunk_responses <- purrr::map(
       purrr::map(chunks, \(i) requests[i]),
-      purrr::in_parallel(
+      sp_in_parallel(
         \(chunk) fn(token, chunk),
         fn = sp_graph_batch,
         token = token

@@ -29,8 +29,10 @@ Imports:
     utils,
     vctrs
 Suggests:
+    carrier (>= 0.3.0),
     fs,
     knitr,
+    mirai (>= 2.5.1),
     officer,
     openxlsx2,
     rappdirs,

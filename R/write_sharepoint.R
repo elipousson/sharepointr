@@ -104,7 +104,10 @@ write_sharepoint <- function(
 #' Upload a file or folder to a SharePoint Drive
 #'
 #' [upload_sp_item()] wraps the `upload_folder` and `upload_file` method for
-#' `ms_drive` objects.
+#' `ms_drive` objects. [upload_sp_items()] uploads multiple files or folders.
+#' If `{carrier}` and `{mirai}` are installed and [mirai::daemons()] are set,
+#' [upload_sp_items()] uploads files in parallel (folders are always uploaded
+#' one at a time).
 #'
 #' @name upload_sp_item
 #' @param file Path for file or directory to upload. Optional if `src` is
@@ -283,18 +286,31 @@ upload_sp_items <- function(
     size = length(src)
   )
 
-  # TODO: Implement parallel option w/ in_parallel
+  check_installed("fs", call = call)
+
+  is_src_dir <- fs::dir_exists(src)
+  is_missing <- !is_src_dir & !fs::file_exists(src)
+
+  if (any(is_missing)) {
+    cli_abort(
+      "{.arg file} or {.arg src} must be existing files or directories, not
+      {.file {src[is_missing]}}.",
+      call = call
+    )
+  }
+
+  # Files are uploaded in parallel if mirai daemons are set. Directories aren't
+  # since they may create the same folders (use `parallel = TRUE` to upload the
+  # contents of each directory in parallel instead).
   dest_list <- purrr::map2_chr(
     src,
     dest,
-    \(x, y) {
-      upload_sp_src(
-        src = x,
-        dest = y,
-        ...,
-        call = call
-      )
-    }
+    sp_in_parallel(
+      \(x, y) do.call(fn, c(list(src = x, dest = y), dots)),
+      fn = upload_sp_src,
+      dots = list2(...),
+      .parallel = !any(is_src_dir)
+    )
   )
 
   invisible(dest_list)

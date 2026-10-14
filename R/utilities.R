@@ -532,12 +532,17 @@ check_interactive <- function(
 #' [mirai::daemons()] are set. Otherwise, `.f` is returned with the values in
 #' `...` added to its environment, so it works the same when called with
 #' [purrr::map()] in the current session.
+#'
+#' [purrr::in_parallel()] uses [rlang::inject()] on `.f`, so `.f` can't use
+#' injection operators (`!!`, `!!!`, or `!!name :=`). Use [do.call()] instead.
 #' @param .f A function passed to [purrr::in_parallel()].
 #' @param ... Named values used by `.f`, passed to [purrr::in_parallel()].
+#' @param .parallel If `FALSE`, `.f` is never sent to parallel workers (e.g.
+#'   for requests that must be sent in order).
 #' @returns A crated function or `.f` with an environment containing `...`.
 #' @noRd
-sp_in_parallel <- function(.f, ...) {
-  if (sp_use_parallel()) {
+sp_in_parallel <- function(.f, ..., .parallel = TRUE) {
+  if (.parallel && sp_use_parallel()) {
     return(inject(purrr::in_parallel(!!substitute(.f), ...)))
   }
 

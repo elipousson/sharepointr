@@ -72,4 +72,17 @@ test_that("sp_in_parallel() uses purrr::in_parallel() with daemons", {
 
   expect_s3_class(f, "crate")
   expect_identical(purrr::map_dbl(1:3, f), c(11, 12, 13))
+
+  # Values in a list are passed with do.call() (not `!!!`)
+  f <- sp_in_parallel(\(i) do.call(fn, c(list(i), dots)), fn = sum, dots = list(10))
+  expect_identical(purrr::map_dbl(1:3, f), c(11, 12, 13))
+})
+
+test_that("sp_in_parallel() returns a plain function if .parallel is FALSE", {
+  local_mocked_bindings(sp_use_parallel = function() TRUE)
+
+  f <- sp_in_parallel(\(i) i + k, k = 1, .parallel = FALSE)
+
+  expect_false(inherits(f, "crate"))
+  expect_identical(f(1), 2)
 })

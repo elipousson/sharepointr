@@ -1229,15 +1229,15 @@ update_sp_list_items <- function(
           sp_list = sp_list,
           # Fields are already validated (or skipped) for all items
           check_fields = FALSE,
-          .multi_fields = .multi_fields,
-          call = call
+          .multi_fields = .multi_fields
         )
       },
       fn = update_sp_list_item,
       na_fields = na_fields,
       sp_list = sp_list,
-      .multi_fields = multi_fields,
-      call = call
+      # `call` isn't passed since a crated function would copy the calling
+      # environment to every worker
+      .multi_fields = multi_fields
     ),
     .progress = .progress
   )

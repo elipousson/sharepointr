@@ -2,6 +2,7 @@
 
 ## Added
 
+* `download_sp_item()` (with multiple items) and `upload_sp_items()` now download or upload items in parallel if `{carrier}` and `{mirai}` are installed and `mirai::daemons()` are set. Folders are always uploaded one at a time. For batch downloads, the drive is now looked up once instead of for each item (unless items are SharePoint URLs). `upload_sp_items()` now checks that every `file` or `src` exists before uploading any files. (2026-10-13)
 * Add a `.batch` argument to `create_sp_list_items()`, `update_sp_list_items()`, and `delete_sp_list_items()`. By default, items are now sent with Microsoft Graph `$batch` requests (up to 20 items per request), which was 7 to 9 times faster than a request per item in testing (and 10 to 15 times faster with `mirai::daemons()` set). Throttled requests are retried after the delay requested by the API. If any items fail, the other items are still sent and the error lists the failed items. Use `.batch = FALSE` or `options(sharepointr.batch = FALSE)` to send a request per item. Items created in a `$batch` request may not get IDs in the same order as the input data (use `.batch = FALSE` if the order of IDs matters). (2026-10-10)
 * Add `upload_sp_items()` function (2024-06-24).
 * Add vignette for reading and writing items from SharePoint (#9; 2024-07-25).
@@ -45,6 +46,8 @@
 
 ## Fixes
 
+* Fix `update_sp_list_items()` copying the calling environment (and any objects in it) to every parallel worker when `mirai::daemons()` are set. (2026-10-13)
+* Fix `download_sp_item()` erroring for a list of items with no `dest` (each item is now downloaded using the item name). (2026-10-13)
 * Fix `create_sp_list_items()`, `update_sp_list_items()`, and `delete_sp_list_items()` requiring `{carrier}` and `{mirai}` (and erroring or prompting to install them) even when items aren't sent in parallel. Items are now only sent in parallel with `purrr::in_parallel()` if both packages are installed and `mirai::daemons()` are set; otherwise, items are sent sequentially. `{carrier}` and `{mirai}` are now listed in Suggests. (2026-10-13)
 * Fix `delete_sp_list_items()`, `create_sp_list_items()`, and `update_sp_list_items()` failing for items with a temporary "Database is read only" error from SharePoint when sending many items with `$batch` requests. These requests, and requests with a 504 status, are now retried along with throttled requests (status 429 or 503). Requests without a `Retry-After` header are retried after an increasing delay (2, 4, 8, ... seconds, up to 60 seconds) and up to 5 times (instead of 3). The error for failed items now includes the HTTP status and Graph error code. (2026-10-13)
 * Fix `Date` values written to list date columns (e.g. with `create_sp_list_item()` or `update_sp_list_items()`) being stored as the previous day on SharePoint sites with a time zone west of UTC. `Date` values were sent as midnight UTC (e.g. `"2026-10-13T00:00:00Z"`) and are now sent as a date with no time or offset (e.g. `"2026-10-13"`), which SharePoint stores using the site's time zone. `POSIXct` values are still sent as UTC date-times. (2026-10-13)

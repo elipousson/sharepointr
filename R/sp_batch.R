@@ -25,10 +25,10 @@ sp_batch_max_backoff <- 60
 #'
 #' Splits `requests` into $batch requests of up to 20 requests each. The
 #' $batch requests are sent in parallel if `{carrier}` and `{mirai}` are
-#' installed and the user has set [mirai::daemons()] (see `sp_in_parallel()`). Throttled or temporarily
-#' unavailable requests (see `sp_batch_is_retryable()`) are sent again after
-#' the delay from the `Retry-After` header (or an exponential backoff), up to
-#' `max_retries` times.
+#' installed and the user has set [mirai::daemons()] (see `sp_in_parallel()`).
+#' Throttled or temporarily unavailable requests (see `sp_batch_is_retryable()`)
+#' are sent again after the delay from the `Retry-After` header (or an
+#' exponential backoff), up to `max_retries` times.
 #'
 #' AzureGraph::call_batch_endpoint() isn't used since it errors if any request
 #' fails (dropping the responses to the other requests) and orders responses by

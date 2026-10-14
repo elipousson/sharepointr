@@ -173,7 +173,10 @@ folders. Make sure to supply a vector to <code>new_path</code> or <code>dest</co
 directory names or file names to use as a destination for the downloads. With
 either option, you must supply a <code>drive</code>, a <code>drive_name</code> and <code>site</code>, or a
 <code>drive_url</code>. You can also pass a bare list of items and the value for the
-<code>dest</code> can be inferred from the item properties.</p>
+<code>dest</code> can be inferred from the item properties. If <code>{carrier}</code> and
+<code>{mirai}</code> are installed and <code><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">mirai::daemons()</a></code> are set, items are downloaded
+in parallel. The <code>parallel</code> argument is separate: it is passed to the
+<code>download</code> method to download the contents of a folder in parallel.</p>
     </div>
 
     <div class="section level2">

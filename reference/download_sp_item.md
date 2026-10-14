@@ -132,7 +132,12 @@ folders. Make sure to supply a vector to `new_path` or `dest` vector
 with the directory names or file names to use as a destination for the
 downloads. With either option, you must supply a `drive`, a `drive_name`
 and `site`, or a `drive_url`. You can also pass a bare list of items and
-the value for the `dest` can be inferred from the item properties.
+the value for the `dest` can be inferred from the item properties. If
+`{carrier}` and `{mirai}` are installed and
+[`mirai::daemons()`](https://mirai.r-lib.org/reference/daemons.html) are
+set, items are downloaded in parallel. The `parallel` argument is
+separate: it is passed to the `download` method to download the contents
+of a folder in parallel.
 
 ## Examples
 

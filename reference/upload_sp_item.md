@@ -1,7 +1,11 @@
 # Upload a file or folder to a SharePoint Drive
 
 `upload_sp_item()` wraps the `upload_folder` and `upload_file` method
-for `ms_drive` objects.
+for `ms_drive` objects. `upload_sp_items()` uploads multiple files or
+folders. If `{carrier}` and `{mirai}` are installed and
+[`mirai::daemons()`](https://mirai.r-lib.org/reference/daemons.html) are
+set, `upload_sp_items()` uploads files in parallel (folders are always
+uploaded one at a time).
 
 ## Usage
 

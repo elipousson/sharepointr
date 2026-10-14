@@ -4,6 +4,19 @@
 
 ### Added
 
+- [`download_sp_item()`](https://elipousson.github.io/sharepointr/reference/download_sp_item.md)
+  (with multiple items) and
+  [`upload_sp_items()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)
+  now download or upload items in parallel if
+  [carrier](https://github.com/r-lib/carrier) and
+  [mirai](https://mirai.r-lib.org) are installed and
+  [`mirai::daemons()`](https://mirai.r-lib.org/reference/daemons.html)
+  are set. Folders are always uploaded one at a time. For batch
+  downloads, the drive is now looked up once instead of for each item
+  (unless items are SharePoint URLs).
+  [`upload_sp_items()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)
+  now checks that every `file` or `src` exists before uploading any
+  files. (2026-10-13)
 - Add a `.batch` argument to
   [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
   [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
@@ -12,12 +25,13 @@
   By default, items are now sent with Microsoft Graph `$batch` requests
   (up to 20 items per request), which was 7 to 9 times faster than a
   request per item in testing (and 10 to 15 times faster with
-  `mirai::daemons()` set). Throttled requests are retried after the
-  delay requested by the API. If any items fail, the other items are
-  still sent and the error lists the failed items. Use `.batch = FALSE`
-  or `options(sharepointr.batch = FALSE)` to send a request per item.
-  Items created in a `$batch` request may not get IDs in the same order
-  as the input data (use `.batch = FALSE` if the order of IDs matters).
+  [`mirai::daemons()`](https://mirai.r-lib.org/reference/daemons.html)
+  set). Throttled requests are retried after the delay requested by the
+  API. If any items fail, the other items are still sent and the error
+  lists the failed items. Use `.batch = FALSE` or
+  `options(sharepointr.batch = FALSE)` to send a request per item. Items
+  created in a `$batch` request may not get IDs in the same order as the
+  input data (use `.batch = FALSE` if the order of IDs matters).
   (2026-10-10)
 - Add
   [`upload_sp_items()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)
@@ -50,9 +64,11 @@
 - Add [purrr](https://purrr.tidyverse.org/) to imports to incorporate
   new
   [`purrr::in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html)
-  function. Requires users have `{crate}` and
+  function. Requires users have
+  [carrier](https://github.com/r-lib/carrier) and
   [mirai](https://mirai.r-lib.org) installed and set workers using
-  `mirai::daemons()`. (2025-07-25)
+  [`mirai::daemons()`](https://mirai.r-lib.org/reference/daemons.html).
+  (2025-07-25)
 - Add support for reading list items with
   [`read_sharepoint()`](https://elipousson.github.io/sharepointr/reference/read_sharepoint.md).
   (2025-08-26)
@@ -331,6 +347,33 @@
 
 ### Fixes
 
+- Fix
+  [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  copying the calling environment (and any objects in it) to every
+  parallel worker when
+  [`mirai::daemons()`](https://mirai.r-lib.org/reference/daemons.html)
+  are set. (2026-10-13)
+- Fix
+  [`download_sp_item()`](https://elipousson.github.io/sharepointr/reference/download_sp_item.md)
+  erroring for a list of items with no `dest` (each item is now
+  downloaded using the item name). (2026-10-13)
+- Fix
+  [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  and
+  [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
+  requiring [carrier](https://github.com/r-lib/carrier) and
+  [mirai](https://mirai.r-lib.org) (and erroring or prompting to install
+  them) even when items aren’t sent in parallel. Items are now only sent
+  in parallel with
+  [`purrr::in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html)
+  if both packages are installed and
+  [`mirai::daemons()`](https://mirai.r-lib.org/reference/daemons.html)
+  are set; otherwise, items are sent sequentially.
+  [carrier](https://github.com/r-lib/carrier) and
+  [mirai](https://mirai.r-lib.org) are now listed in Suggests and
+  [purrr](https://purrr.tidyverse.org/) 1.2.0 or later is now required.
+  (2026-10-13)
 - Fix
   [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md),
   [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),

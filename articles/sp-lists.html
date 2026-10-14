@@ -573,14 +573,14 @@ the data with <code><a href="../reference/data_as_column_definition_list.html">d
 requests</a> that combine up to 20 items in each request. This is much
 faster than sending a request for each item. If you set the number of
 daemons (persistent background processes) using
-<code>mirai::daemons()</code>, the batch requests are also sent in
+<code><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">mirai::daemons()</a></code>, the batch requests are also sent in
 parallel with <code><a href="https://purrr.tidyverse.org/reference/in_parallel.html" class="external-link">purrr::in_parallel()</a></code>:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">mirai</span><span class="fu">::</span><span class="fu">daemons</span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu">mirai</span><span class="fu">::</span><span class="fu"><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">daemons</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/create_sp_list_items.html">create_sp_list_items</a></span><span class="op">(</span><span class="va">penguins</span>, sp_list <span class="op">=</span> <span class="va">penguins_list</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">mirai</span><span class="fu">::</span><span class="fu">daemons</span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">mirai</span><span class="fu">::</span><span class="fu"><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">daemons</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span></code></pre></div>
 <p>If the Graph API throttles a request, it is sent again after the
 requested delay. If some items fail, the other items are still created,
 updated, or deleted and the error lists the items that failed.</p>

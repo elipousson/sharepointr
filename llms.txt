@@ -256,8 +256,8 @@ with `list_` return a data frame by default but can return a list of
 `ms_object` class objects if `as_data_frame = FALSE`.
 
 When creating, updating, or deleting a large number of list items, use
-`mirai::daemons()` to complete the operations in parallel. This feature
-uses the experimental
+[`mirai::daemons()`](https://mirai.r-lib.org/reference/daemons.html) to
+complete the operations in parallel. This feature uses the experimental
 [`purrr::in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html)
 function documented here:
 <https://purrr.tidyverse.org/reference/map.html>

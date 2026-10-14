@@ -579,8 +579,9 @@ send items with Microsoft Graph [`$batch`
 requests](https://learn.microsoft.com/en-us/graph/json-batching) that
 combine up to 20 items in each request. This is much faster than sending
 a request for each item. If you set the number of daemons (persistent
-background processes) using `mirai::daemons()`, the batch requests are
-also sent in parallel with
+background processes) using
+[`mirai::daemons()`](https://mirai.r-lib.org/reference/daemons.html),
+the batch requests are also sent in parallel with
 [`purrr::in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html):
 
 ``` r

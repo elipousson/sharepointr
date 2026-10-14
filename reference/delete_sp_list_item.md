@@ -115,7 +115,9 @@ delete_sp_list_items(
   If `FALSE`, a separate request is sent for each item and the first
   failed item is an error. Use `options(sharepointr.batch = FALSE)` to
   change the default for the session. In either case, requests are sent
-  in parallel if `mirai::daemons()` are set (see
+  in parallel if
+  [`mirai::daemons()`](https://mirai.r-lib.org/reference/daemons.html)
+  are set (see
   [`purrr::in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html)).
   For
   [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),

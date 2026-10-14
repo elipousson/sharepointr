@@ -212,7 +212,7 @@ error lists the failed items with the HTTP status. If <code>FALSE</code>, a
 separate request is sent for each item and the first failed item is an
 error. Use <code>options(sharepointr.batch = FALSE)</code> to change the default for
 the session. In either case, requests are sent in parallel if
-<code>mirai::daemons()</code> are set (see <code><a href="https://purrr.tidyverse.org/reference/in_parallel.html" class="external-link">purrr::in_parallel()</a></code>). For
+<code><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">mirai::daemons()</a></code> are set (see <code><a href="https://purrr.tidyverse.org/reference/in_parallel.html" class="external-link">purrr::in_parallel()</a></code>). For
 <code>create_sp_list_items()</code>, items sent in a <code>$batch</code> request (or in
 parallel) may be created in a different order than <code>data</code>, so new item IDs
 may not follow the order of <code>data</code>. Use <code>.batch = FALSE</code> (without daemons)

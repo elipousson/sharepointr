@@ -237,7 +237,7 @@
 <span><span class="co">#&gt; 17  618.2K FALSE 017P4HV6NWPAN6PTWC3FEJB3KRR2WDWXFM      file</span></span>
 <span><span class="co">#&gt; 18  19.43K FALSE 017P4HV6K2WP2LBTN6PFGLVY4PIWOY7IAR      file</span></span></code></pre></div>
 <p>Others functions use the <code>as_data_frame</code> parameter to convert a list into a data frame as a convenient alternative. Most functions that start with <code>list_</code> return a data frame by default but can return a list of <code>ms_object</code> class objects if <code>as_data_frame = FALSE</code>.</p>
-<p>When creating, updating, or deleting a large number of list items, use <code>mirai::daemons()</code> to complete the operations in parallel. This feature uses the experimental <code><a href="https://purrr.tidyverse.org/reference/in_parallel.html" class="external-link">purrr::in_parallel()</a></code> function documented here: <a href="https://purrr.tidyverse.org/reference/map.html" class="external-link uri">https://purrr.tidyverse.org/reference/map.html</a></p>
+<p>When creating, updating, or deleting a large number of list items, use <code><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">mirai::daemons()</a></code> to complete the operations in parallel. This feature uses the experimental <code><a href="https://purrr.tidyverse.org/reference/in_parallel.html" class="external-link">purrr::in_parallel()</a></code> function documented here: <a href="https://purrr.tidyverse.org/reference/map.html" class="external-link uri">https://purrr.tidyverse.org/reference/map.html</a></p>
 <p>See <code>vignette("sp-lists"")</code> for more on reading and writing SharePoint list items.</p>
 </div>
 <div class="section level3">

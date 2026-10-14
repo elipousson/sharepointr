@@ -887,7 +887,7 @@ create_sp_list_items <- function(
 
   purrr::map(
     records,
-    purrr::in_parallel(
+    sp_in_parallel(
       \(record) {
         fn(
           .sp_list = .sp_list,
@@ -1220,7 +1220,7 @@ update_sp_list_items <- function(
   purrr::map2(
     records,
     item_ids,
-    purrr::in_parallel(
+    sp_in_parallel(
       \(record, item_id) {
         fn(
           .data = record,
@@ -1229,15 +1229,15 @@ update_sp_list_items <- function(
           sp_list = sp_list,
           # Fields are already validated (or skipped) for all items
           check_fields = FALSE,
-          .multi_fields = .multi_fields,
-          call = call
+          .multi_fields = .multi_fields
         )
       },
       fn = update_sp_list_item,
       na_fields = na_fields,
       sp_list = sp_list,
-      .multi_fields = multi_fields,
-      call = call
+      # `call` isn't passed since a crated function would copy the calling
+      # environment to every worker
+      .multi_fields = multi_fields
     ),
     .progress = .progress
   )
@@ -2165,7 +2165,7 @@ delete_sp_list_items <- function(
 
   resp_list <- purrr::map(
     item_id,
-    purrr::in_parallel(
+    sp_in_parallel(
       \(i) {
         sp_list$do_operation(
           op = paste0("items/", i),

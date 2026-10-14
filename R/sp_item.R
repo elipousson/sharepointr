@@ -278,7 +278,10 @@ delete_sp_item <- function(
 #' directory names or file names to use as a destination for the downloads. With
 #' either option, you must supply a `drive`, a `drive_name` and `site`, or a
 #' `drive_url`. You can also pass a bare list of items and the value for the
-#' `dest` can be inferred from the item properties.
+#' `dest` can be inferred from the item properties. If `{carrier}` and
+#' `{mirai}` are installed and [mirai::daemons()] are set, items are downloaded
+#' in parallel. The `parallel` argument is separate: it is passed to the
+#' `download` method to download the contents of a folder in parallel.
 #'
 #' @examples
 #'
@@ -514,6 +517,8 @@ batch_download_sp_item <- function(
   # TODO: Should a list of item values just be unlists
   if (is_bare_list(item)) {
     size <- length(item)
+    # A NULL dest is set from the properties of each item
+    dest <- dest %||% rep(list(NULL), size)
   } else {
     size <- max(c(length(path), length(item_id)))
 
@@ -530,71 +535,65 @@ batch_download_sp_item <- function(
   }
 
   if (length(path) > 1) {
-    dest_list <- purrr::map2_chr(
-      path,
-      dest,
-      \(x, y) {
-        download_sp_item(
-          path = x,
-          dest = y,
-          ...,
-          drive_name = drive_name,
-          drive_id = drive_id,
-          drive = drive,
-          site_url = site_url,
-          overwrite = overwrite,
-          recursive = recursive,
-          parallel = parallel,
-          call = call
-        )
-      }
+    arg <- "path"
+    values <- path
+  } else if (length(item_id) > 1) {
+    arg <- "item_id"
+    values <- item_id
+  } else {
+    arg <- "item"
+    values <- item
+  }
+
+  # Get the drive once (instead of for each item) unless items are found from
+  # URLs (which may each refer to a different drive)
+  if (is.null(drive) && arg != "item" && !any(is_url(path))) {
+    drive <- get_sp_drive(
+      drive_name = drive_name,
+      drive_id = drive_id,
+      ...,
+      site_url = site_url,
+      call = call
     )
   }
 
-  if (length(item_id) > 1) {
-    dest_list <- purrr::map2_chr(
-      item_id,
-      dest,
+  dest_list <- purrr::map2_chr(
+    values,
+    dest,
+    sp_in_parallel(
       \(x, y) {
-        download_sp_item(
-          item_id = x,
-          dest = y,
-          ...,
-          drive_name = drive_name,
-          drive_id = drive_id,
-          drive = drive,
-          site_url = site_url,
-          overwrite = overwrite,
-          recursive = recursive,
-          parallel = parallel,
-          call = call
+        do.call(
+          fn,
+          c(
+            rlang::set_names(list(x), arg),
+            list(
+              dest = y,
+              new_path = new_path,
+              drive_name = drive_name,
+              drive_id = drive_id,
+              drive = drive,
+              site_url = site_url,
+              overwrite = overwrite,
+              recursive = recursive,
+              parallel = parallel
+            ),
+            dots
+          )
         )
-      }
+      },
+      fn = download_sp_item,
+      arg = arg,
+      dots = list2(...),
+      new_path = new_path,
+      drive_name = drive_name,
+      drive_id = drive_id,
+      drive = drive,
+      site_url = site_url,
+      overwrite = overwrite,
+      recursive = recursive,
+      parallel = parallel
     )
-  }
-
-  if (is_bare_list(item) && (length(item) > 1)) {
-    dest_list <- purrr::map2_chr(
-      item,
-      dest,
-      \(x, y) {
-        download_sp_item(
-          item = x,
-          dest = y,
-          new_path = new_path,
-          ...,
-          drive_name = drive_name,
-          drive_id = drive_id,
-          drive = drive,
-          site_url = site_url,
-          overwrite = overwrite,
-          recursive = recursive,
-          parallel = parallel,
-          call = call
-        )
-      }
-    )
-  }
+  )
 
   invisible(dest_list)
 }

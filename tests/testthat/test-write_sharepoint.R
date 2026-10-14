@@ -193,3 +193,36 @@ test_that("write_sharepoint writes an object to file, uploads it, and blocks ove
     )
   )
 })
+
+test_that("upload_sp_items() checks src and uploads each file", {
+  uploads <- list()
+
+  # The mocks can't record calls from parallel workers
+  local_mocked_bindings(
+    sp_use_parallel = function() FALSE,
+    upload_sp_src = function(src, dest, ...) {
+      uploads <<- c(uploads, list(list2(src = src, dest = dest, ...)))
+      dest
+    }
+  )
+
+  local_dir <- withr::local_tempdir()
+  local_files <- fs::path(local_dir, c("a.txt", "b.txt"))
+  fs::file_create(local_files)
+
+  expect_error(
+    upload_sp_items(file = c(local_files, fs::path(local_dir, "c.txt")), dest = "folder"),
+    "c.txt"
+  )
+  expect_length(uploads, 0)
+
+  dest <- upload_sp_items(
+    file = local_files,
+    dest = c("folder/a.txt", "folder/b.txt"),
+    drive = "drive"
+  )
+
+  expect_identical(dest, c("folder/a.txt", "folder/b.txt"))
+  expect_identical(purrr::map_chr(uploads, "src"), as.character(local_files))
+  expect_identical(uploads[[2]][["drive"]], "drive")
+})

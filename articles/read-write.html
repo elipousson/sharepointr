@@ -95,14 +95,17 @@ if you have trouble logging in.</p>
 </h2>
 <p>You can use <code><a href="../reference/download_sp_item.html">download_sp_item()</a></code> to download files or
 folders from SharePoint:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">docx_url</span> <span class="op">&lt;-</span> <span class="st">"https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernance/Policy%20Documents/Data%20Classification%20Standard.docx?d=w54a9ae7eaa894e94b6d6d14516f3aaa4&amp;csf=1&amp;web=1&amp;e=ee7ZSX"</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/download_sp_item.html">download_sp_item</a></span><span class="op">(</span></span>
-<span>  path <span class="op">=</span> <span class="va">docx_url</span>,</span>
-<span>  new_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>docx_url <span class="ot">&lt;-</span> <span class="st">"https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernance/Policy%20Documents/Data%20Classification%20Standard.docx?d=w54a9ae7eaa894e94b6d6d14516f3aaa4&amp;csf=1&amp;web=1&amp;e=ee7ZSX"</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">download_sp_item</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">path =</span> docx_url,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">new_path =</span> <span class="fu">tempdir</span>()</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>ℹ Downloading SharePoint item to <span class="st">' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13 ]8;;…</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="st">✔ Downloading SharePoint item to '</span> ]<span class="dv">8</span>;;file<span class="sc">:</span><span class="er">///</span>var<span class="sc">/</span>folders<span class="sc">/</span><span class="dv">3</span>f<span class="sc">/</span><span class="dv">50</span>m42dx1333_dfqb5772j6_40000gn<span class="sc">/</span>T<span class="sc">/</span><span class="er">/</span>RtmpIIrptB<span class="sc">/</span>Data Classification Standard.docx<span class="sc">/</span>var<span class="sc">/</span>folders<span class="sc">/</span><span class="dv">3</span>f<span class="sc">/</span><span class="dv">50</span>m42dx13 ]<span class="dv">8</span>;;…</span></code></pre></div>
 <p>For files on SharePoint, <code><a href="../reference/read_sharepoint.html">read_sharepoint()</a></code> extends
 <code><a href="../reference/download_sp_item.html">download_sp_item()</a></code> by downloading the selected item to a
 temporary folder and reading the file based on the file extension:</p>
@@ -119,87 +122,123 @@ xlsx or xls files with <code><a href="https://readxl.tidyverse.org/reference/rea
 <code><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">sf::read_sf()</a></code>
 </li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">docx</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_sharepoint.html">read_sharepoint</a></span><span class="op">(</span><span class="va">docx_url</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
-<span></span>
-<span><span class="va">docx</span></span>
-<span><span class="co">#&gt; rdocx document with 62 element(s)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; * styles:</span></span>
-<span><span class="co">#&gt;                 Normal              heading 1 </span></span>
-<span><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
-<span><span class="co">#&gt;              heading 2 Default Paragraph Font </span></span>
-<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
-<span><span class="co">#&gt;           Normal Table                No List </span></span>
-<span><span class="co">#&gt;                "table"            "numbering" </span></span>
-<span><span class="co">#&gt;         Heading 1 Char             Table Grid </span></span>
-<span><span class="co">#&gt;            "character"                "table" </span></span>
-<span><span class="co">#&gt;         List Paragraph         Heading 2 Char </span></span>
-<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
-<span><span class="co">#&gt;                  Title             Title Char </span></span>
-<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
-<span><span class="co">#&gt;           Normal (Web)                 header </span></span>
-<span><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
-<span><span class="co">#&gt;            Header Char                 footer </span></span>
-<span><span class="co">#&gt;            "character"            "paragraph" </span></span>
-<span><span class="co">#&gt;            Footer Char          markedcontent </span></span>
-<span><span class="co">#&gt;            "character"            "character" </span></span>
-<span><span class="co">#&gt;            TOC Heading                  toc 1 </span></span>
-<span><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
-<span><span class="co">#&gt;                  toc 2              Hyperlink </span></span>
-<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
-<span><span class="co">#&gt;                  toc 3                  toc 4 </span></span>
-<span><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
-<span><span class="co">#&gt;                  toc 5                  toc 6 </span></span>
-<span><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
-<span><span class="co">#&gt;                  toc 7                  toc 8 </span></span>
-<span><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
-<span><span class="co">#&gt;                  toc 9     Unresolved Mention </span></span>
-<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
-<span><span class="co">#&gt;      FollowedHyperlink               Revision </span></span>
-<span><span class="co">#&gt;            "character"            "paragraph" </span></span>
-<span><span class="co">#&gt;    Unresolved Mention1   annotation reference </span></span>
-<span><span class="co">#&gt;            "character"            "character" </span></span>
-<span><span class="co">#&gt;        annotation text      Comment Text Char </span></span>
-<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
-<span><span class="co">#&gt;     annotation subject   Comment Subject Char </span></span>
-<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
-<span><span class="co">#&gt;           Balloon Text      Balloon Text Char </span></span>
-<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
-<span><span class="co">#&gt;          footnote text     Footnote Text Char </span></span>
-<span><span class="co">#&gt;            "paragraph"            "character" </span></span>
-<span><span class="co">#&gt;     footnote reference </span></span>
-<span><span class="co">#&gt;            "character"</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>docx <span class="ot">&lt;-</span> <span class="fu">read_sharepoint</span>(docx_url)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>ℹ Downloading SharePoint item to <span class="st">' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13 ]8;;…</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="st">✔ Downloading SharePoint item to '</span> ]<span class="dv">8</span>;;file<span class="sc">:</span><span class="er">///</span>var<span class="sc">/</span>folders<span class="sc">/</span><span class="dv">3</span>f<span class="sc">/</span><span class="dv">50</span>m42dx1333_dfqb5772j6_40000gn<span class="sc">/</span>T<span class="sc">/</span><span class="er">/</span>RtmpIIrptB<span class="sc">/</span>Data Classification Standard.docx<span class="sc">/</span>var<span class="sc">/</span>folders<span class="sc">/</span><span class="dv">3</span>f<span class="sc">/</span><span class="dv">50</span>m42dx13 ]<span class="dv">8</span>;;…</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>ℹ Reading item with <span class="st">`</span><span class="at"> ]8;;x-r-help:officer::read_docxofficer::read_docx ]8;;()</span><span class="st">`</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>✔ Reading item with <span class="st">`</span><span class="at"> ]8;;x-r-help:officer::read_docxofficer::read_docx ]8;;()</span><span class="st">`</span> [<span class="dv">59</span>ms]</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>docx</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; rdocx document with 62 element(s)</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; * styles:</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt;                 Normal              heading 1 </span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt;              heading 2 Default Paragraph Font </span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt;           Normal Table                No List </span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt;                "table"            "numbering" </span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt;         Heading 1 Char             Table Grid </span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt;            "character"                "table" </span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt;         List Paragraph         Heading 2 Char </span></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt;                  Title             Title Char </span></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="co">#&gt;           Normal (Web)                 header </span></span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a><span class="co">#&gt;            Header Char                 footer </span></span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a><span class="co">#&gt;            "character"            "paragraph" </span></span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a><span class="co">#&gt;            Footer Char          markedcontent </span></span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a><span class="co">#&gt;            "character"            "character" </span></span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a><span class="co">#&gt;            TOC Heading                  toc 1 </span></span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
+<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a><span class="co">#&gt;                  toc 2              Hyperlink </span></span>
+<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a><span class="co">#&gt;                  toc 3                  toc 4 </span></span>
+<span id="cb3-39"><a href="#cb3-39" tabindex="-1"></a><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
+<span id="cb3-40"><a href="#cb3-40" tabindex="-1"></a><span class="co">#&gt;                  toc 5                  toc 6 </span></span>
+<span id="cb3-41"><a href="#cb3-41" tabindex="-1"></a><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
+<span id="cb3-42"><a href="#cb3-42" tabindex="-1"></a><span class="co">#&gt;                  toc 7                  toc 8 </span></span>
+<span id="cb3-43"><a href="#cb3-43" tabindex="-1"></a><span class="co">#&gt;            "paragraph"            "paragraph" </span></span>
+<span id="cb3-44"><a href="#cb3-44" tabindex="-1"></a><span class="co">#&gt;                  toc 9     Unresolved Mention </span></span>
+<span id="cb3-45"><a href="#cb3-45" tabindex="-1"></a><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span id="cb3-46"><a href="#cb3-46" tabindex="-1"></a><span class="co">#&gt;      FollowedHyperlink               Revision </span></span>
+<span id="cb3-47"><a href="#cb3-47" tabindex="-1"></a><span class="co">#&gt;            "character"            "paragraph" </span></span>
+<span id="cb3-48"><a href="#cb3-48" tabindex="-1"></a><span class="co">#&gt;    Unresolved Mention1   annotation reference </span></span>
+<span id="cb3-49"><a href="#cb3-49" tabindex="-1"></a><span class="co">#&gt;            "character"            "character" </span></span>
+<span id="cb3-50"><a href="#cb3-50" tabindex="-1"></a><span class="co">#&gt;        annotation text      Comment Text Char </span></span>
+<span id="cb3-51"><a href="#cb3-51" tabindex="-1"></a><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span id="cb3-52"><a href="#cb3-52" tabindex="-1"></a><span class="co">#&gt;     annotation subject   Comment Subject Char </span></span>
+<span id="cb3-53"><a href="#cb3-53" tabindex="-1"></a><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span id="cb3-54"><a href="#cb3-54" tabindex="-1"></a><span class="co">#&gt;           Balloon Text      Balloon Text Char </span></span>
+<span id="cb3-55"><a href="#cb3-55" tabindex="-1"></a><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span id="cb3-56"><a href="#cb3-56" tabindex="-1"></a><span class="co">#&gt;          footnote text     Footnote Text Char </span></span>
+<span id="cb3-57"><a href="#cb3-57" tabindex="-1"></a><span class="co">#&gt;            "paragraph"            "character" </span></span>
+<span id="cb3-58"><a href="#cb3-58" tabindex="-1"></a><span class="co">#&gt;     footnote reference </span></span>
+<span id="cb3-59"><a href="#cb3-59" tabindex="-1"></a><span class="co">#&gt;            "character"</span></span></code></pre></div>
 <p>Use the <code>.f</code> argument to read the file with a different
 function:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">wb_url</span> <span class="op">&lt;-</span> <span class="st">"https://bmore.sharepoint.com/:x:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/Data%20Governance/Agency%20Naming%20Conventions.xlsx?d=w98ecba59d1f84c23862c6ad71e7f8695&amp;csf=1&amp;web=1&amp;e=sSuZYo"</span></span>
-<span></span>
-<span><span class="va">wb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_sharepoint.html">read_sharepoint</a></span><span class="op">(</span><span class="va">wb_url</span>, .f <span class="op">=</span> <span class="fu">openxlsx2</span><span class="fu">::</span><span class="va"><a href="https://janmarvin.github.io/openxlsx2/reference/wb_load.html" class="external-link">wb_load</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
-<span></span>
-<span><span class="va">wb</span></span>
-<span><span class="co">#&gt; A Workbook object.</span></span>
-<span><span class="co">#&gt;  </span></span>
-<span><span class="co">#&gt; Worksheets:</span></span>
-<span><span class="co">#&gt;  Sheets: Sheet1 </span></span>
-<span><span class="co">#&gt;  Write order: 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>wb_url <span class="ot">&lt;-</span> <span class="st">"https://bmore.sharepoint.com/:x:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/Data%20Governance/Agency%20Naming%20Conventions.xlsx?d=w98ecba59d1f84c23862c6ad71e7f8695&amp;csf=1&amp;web=1&amp;e=sSuZYo"</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>wb <span class="ot">&lt;-</span> <span class="fu">read_sharepoint</span>(wb_url, <span class="at">.f =</span> openxlsx2<span class="sc">::</span>wb_load)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>ℹ Downloading SharePoint item to <span class="st">' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Agency Naming Conventions.xlsx/var/folders/3f/50m42dx13 ]8;;…</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="st">✔ Downloading SharePoint item to '</span> ]<span class="dv">8</span>;;file<span class="sc">:</span><span class="er">///</span>var<span class="sc">/</span>folders<span class="sc">/</span><span class="dv">3</span>f<span class="sc">/</span><span class="dv">50</span>m42dx1333_dfqb5772j6_40000gn<span class="sc">/</span>T<span class="sc">/</span><span class="er">/</span>RtmpIIrptB<span class="sc">/</span>Agency Naming Conventions.xlsx<span class="sc">/</span>var<span class="sc">/</span>folders<span class="sc">/</span><span class="dv">3</span>f<span class="sc">/</span><span class="dv">50</span>m42dx13 ]<span class="dv">8</span>;;…</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>ℹ Reading item with <span class="st">`</span><span class="at"> ]8;;x-r-help:openxlsx2::wb_loadopenxlsx2::wb_load ]8;;()</span><span class="st">`</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>✔ Reading item with <span class="st">`</span><span class="at"> ]8;;x-r-help:openxlsx2::wb_loadopenxlsx2::wb_load ]8;;()</span><span class="st">`</span> [<span class="dv">183</span>ms]</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>wb</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; A Workbook object.</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt;  </span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; Worksheets:</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt;  Sheets: Sheet1 </span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt;  Write order: 1</span></span></code></pre></div>
 <p>As a convenience, <code><a href="../reference/read_sharepoint.html">read_sharepoint()</a></code> also reads the items
 from a SharePoint list URL using <code><a href="../reference/sp_list_item.html">list_sp_list_items()</a></code>:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">list_url</span> <span class="op">&lt;-</span> <span class="st">"https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker"</span></span>
-<span></span>
-<span><span class="va">list_items</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_sharepoint.html">read_sharepoint</a></span><span class="op">(</span><span class="va">list_url</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
-<span><span class="co">#&gt; Error in `read_sharepoint()`:</span></span>
-<span><span class="co">#&gt; ! Not Found (HTTP 404). Failed to complete operation.</span></span>
-<span><span class="co">#&gt;   Message: The provided path does not exist, or does not</span></span>
-<span><span class="co">#&gt;   represent a site.</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">list_items</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error:</span></span>
-<span><span class="co">#&gt; ! object 'list_items' not found</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>list_url <span class="ot">&lt;-</span> <span class="st">"https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker"</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>list_items <span class="ot">&lt;-</span> <span class="fu">read_sharepoint</span>(list_url)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>ℹ Getting list from SharePoint</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>✔ Getting list from SharePoint [<span class="dv">292</span>ms]</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>ℹ Getting list items from SharePoint</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>✔ Getting list items from SharePoint [<span class="dv">368</span>ms]</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="fu">head</span>(list_items[, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>])</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt;   id ContentType</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; 1  1        Item</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; 2  2        Item</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; 3  3        Item</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; 4  4        Item</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; 5  5        Item</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; 6  6        Item</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt;                                                 Title</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; 1                      Baltimore City Fire Department</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; 2                    Baltimore City Health Department</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; 3 Baltimore City Office of Information and Technology</span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt; 4                 Baltimore City Recreation and Parks</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt; 5                               Department of Finance</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt; 6                      Department of General Services</span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt;               Modified</span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; 1 2022-07-22T14:26:20Z</span></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; 2 2022-09-22T21:16:22Z</span></span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt; 3 2022-07-22T14:10:49Z</span></span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt; 4 2022-07-22T14:11:19Z</span></span>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="co">#&gt; 5 2022-07-22T14:14:15Z</span></span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="co">#&gt; 6 2022-07-22T14:11:25Z</span></span></code></pre></div>
 <p>See the <a href="sp-lists.html">Reading and writing to SharePoint
 Lists</a> article for more information.</p>
 </div>
@@ -209,26 +248,37 @@ Lists</a> article for more information.</p>
 <p>You can use <code><a href="../reference/upload_sp_item.html">upload_sp_item()</a></code> to upload a local file to a
 SharePoint folder or document library (or <code><a href="../reference/upload_sp_item.html">upload_sp_items()</a></code>
 to upload multiple files).</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">folder_url</span> <span class="op">&lt;-</span> <span class="st">"https://bmore.sharepoint.com/:f:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/RStats?csf=1&amp;web=1&amp;e=S1XxVU"</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/upload_sp_item.html">upload_sp_item</a></span><span class="op">(</span></span>
-<span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"gpkg/nc.gpkg"</span>, package <span class="op">=</span> <span class="st">"sf"</span><span class="op">)</span>,</span>
-<span>  dest <span class="op">=</span> <span class="va">folder_url</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>folder_url <span class="ot">&lt;-</span> <span class="st">"https://bmore.sharepoint.com/:f:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/RStats?csf=1&amp;web=1&amp;e=S1XxVU"</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">upload_sp_item</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="at">file =</span> <span class="fu">system.file</span>(<span class="st">"gpkg/nc.gpkg"</span>, <span class="at">package =</span> <span class="st">"sf"</span>),</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="at">dest =</span> folder_url</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>ℹ Uploading file <span class="st">' ]8;;file:///Users/elipousson/Projects/01_rpackages/sharepointr/vignettes/nc.gpkgnc.gpkg ]8;;'</span> to SharePoint drive</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>✔ File upload complete [<span class="fl">2.4</span>s]                 </span></code></pre></div>
 <p>Using <code><a href="../reference/read_sharepoint.html">read_sharepoint()</a></code>, we can confirm that the file
 has been uploaded:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sp_drive</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sp_drive.html">get_sp_drive</a></span><span class="op">(</span><span class="va">folder_url</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
-<span></span>
-<span><span class="va">nc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_sharepoint.html">read_sharepoint</a></span><span class="op">(</span></span>
-<span>  <span class="st">"RStats/nc.gpkg"</span>,</span>
-<span>  drive <span class="op">=</span> <span class="va">sp_drive</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">nc</span><span class="op">[</span><span class="st">"AREA"</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>sp_drive <span class="ot">&lt;-</span> <span class="fu">get_sp_drive</span>(folder_url)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>nc <span class="ot">&lt;-</span> <span class="fu">read_sharepoint</span>(</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="st">"RStats/nc.gpkg"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="at">drive =</span> sp_drive</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>)</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>ℹ Downloading SharePoint item to</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/nc.gpkg/var/folders/3f/50m42dx13 ]8;;…</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>✔ Downloading SharePoint item to <span class="st">' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/nc.gpkg/var/folders/3f/50m42dx13 ]8;;…</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="st">#&gt; </span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="st">ℹ Reading item with ` ]8;;x-r-help:sf::read_sfsf::read_sf ]8;;()`</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="st">✔ Reading item with ` ]8;;x-r-help:sf::read_sfsf::read_sf ]8;;()` [48ms]</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="st">plot(nc["AREA"])</span></span></code></pre></div>
 <div class="float">
 <img src="articles/nc_plot-1.png" alt="plot of chunk nc_plot"><div class="figcaption">plot of chunk nc_plot</div>
 </div>
@@ -240,13 +290,16 @@ based on its class (e.g. <code><a href="https://r-spatial.github.io/sf/referenc
 <code><a href="https://readr.tidyverse.org/reference/write_delim.html" class="external-link">readr::write_csv()</a></code> or <code><a href="https://janmarvin.github.io/openxlsx2/reference/write_xlsx.html" class="external-link">openxlsx2::write_xlsx()</a></code>
 for data frames, and <code><a href="https://readr.tidyverse.org/reference/read_rds.html" class="external-link">readr::write_rds()</a></code> for other objects).
 Use <code>.f</code> to supply your own function.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/write_sharepoint.html">write_sharepoint</a></span><span class="op">(</span></span>
-<span>  <span class="va">mtcars</span>,</span>
-<span>  file <span class="op">=</span> <span class="st">"mtcars.csv"</span>,</span>
-<span>  dest <span class="op">=</span> <span class="va">folder_url</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">write_sharepoint</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  mtcars,</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">file =</span> <span class="st">"mtcars.csv"</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">dest =</span> folder_url</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>)</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>ℹ Uploading file <span class="st">' ]8;;file:///Users/elipousson/Projects/01_rpackages/sharepointr/vignettes/mtcars.csvmtcars.csv ]8;;'</span> to SharePoint drive</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>✔ File upload complete [<span class="fl">1.1</span>s]                    </span></code></pre></div>
 <p>To wrap up this example, we need to remove the uploaded files from
 SharePoint to keep a tidy shared file system.</p>
 <p><code><a href="../reference/delete_sp_item.html">delete_sp_item()</a></code> supports the option to use a shared

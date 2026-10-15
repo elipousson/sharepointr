@@ -26,7 +26,6 @@ You can use
 to download files or folders from SharePoint:
 
 ``` r
-
 docx_url <- "https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernance/Policy%20Documents/Data%20Classification%20Standard.docx?d=w54a9ae7eaa894e94b6d6d14516f3aaa4&csf=1&web=1&e=ee7ZSX"
 
 download_sp_item(
@@ -34,6 +33,10 @@ download_sp_item(
   new_path = tempdir()
 )
 #> Loading Microsoft Graph login for default tenant
+#> 
+ℹ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13 ]8;;…
+
+✔ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13 ]8;;…
 ```
 
 For files on SharePoint,
@@ -57,9 +60,16 @@ file based on the file extension:
   [`sf::read_sf()`](https://r-spatial.github.io/sf/reference/st_read.html)
 
 ``` r
-
 docx <- read_sharepoint(docx_url)
 #> Loading Microsoft Graph login for default tenant
+#> 
+ℹ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13 ]8;;…
+
+✔ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13 ]8;;…
+#> 
+ℹ Reading item with ` ]8;;x-r-help:officer::read_docxofficer::read_docx ]8;;()`
+
+✔ Reading item with ` ]8;;x-r-help:officer::read_docxofficer::read_docx ]8;;()` [59ms]
 
 docx
 #> rdocx document with 62 element(s)
@@ -114,11 +124,18 @@ docx
 Use the `.f` argument to read the file with a different function:
 
 ``` r
-
 wb_url <- "https://bmore.sharepoint.com/:x:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/Data%20Governance/Agency%20Naming%20Conventions.xlsx?d=w98ecba59d1f84c23862c6ad71e7f8695&csf=1&web=1&e=sSuZYo"
 
 wb <- read_sharepoint(wb_url, .f = openxlsx2::wb_load)
 #> Loading Microsoft Graph login for default tenant
+#> 
+ℹ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Agency Naming Conventions.xlsx/var/folders/3f/50m42dx13 ]8;;…
+
+✔ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Agency Naming Conventions.xlsx/var/folders/3f/50m42dx13 ]8;;…
+#> 
+ℹ Reading item with ` ]8;;x-r-help:openxlsx2::wb_loadopenxlsx2::wb_load ]8;;()`
+
+✔ Reading item with ` ]8;;x-r-help:openxlsx2::wb_loadopenxlsx2::wb_load ]8;;()` [183ms]
 
 wb
 #> A Workbook object.
@@ -134,19 +151,41 @@ also reads the items from a SharePoint list URL using
 [`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md):
 
 ``` r
-
 list_url <- "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/Lists/Data%20Governance%20Progress%20Tracker"
 
 list_items <- read_sharepoint(list_url)
 #> Loading Microsoft Graph login for default tenant
-#> Error in `read_sharepoint()`:
-#> ! Not Found (HTTP 404). Failed to complete operation.
-#>   Message: The provided path does not exist, or does not
-#>   represent a site.
+#> 
+ℹ Getting list from SharePoint
+
+✔ Getting list from SharePoint [292ms]
+#> 
+ℹ Getting list items from SharePoint
+
+✔ Getting list items from SharePoint [368ms]
 
 head(list_items[, 1:4])
-#> Error:
-#> ! object 'list_items' not found
+#>   id ContentType
+#> 1  1        Item
+#> 2  2        Item
+#> 3  3        Item
+#> 4  4        Item
+#> 5  5        Item
+#> 6  6        Item
+#>                                                 Title
+#> 1                      Baltimore City Fire Department
+#> 2                    Baltimore City Health Department
+#> 3 Baltimore City Office of Information and Technology
+#> 4                 Baltimore City Recreation and Parks
+#> 5                               Department of Finance
+#> 6                      Department of General Services
+#>               Modified
+#> 1 2022-07-22T14:26:20Z
+#> 2 2022-09-22T21:16:22Z
+#> 3 2022-07-22T14:10:49Z
+#> 4 2022-07-22T14:11:19Z
+#> 5 2022-07-22T14:14:15Z
+#> 6 2022-07-22T14:11:25Z
 ```
 
 See the [Reading and writing to SharePoint
@@ -162,7 +201,6 @@ to upload a local file to a SharePoint folder or document library (or
 to upload multiple files).
 
 ``` r
-
 folder_url <- "https://bmore.sharepoint.com/:f:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/RStats?csf=1&web=1&e=S1XxVU"
 
 upload_sp_item(
@@ -170,6 +208,10 @@ upload_sp_item(
   dest = folder_url
 )
 #> Loading Microsoft Graph login for default tenant
+#> 
+ℹ Uploading file ' ]8;;file:///Users/elipousson/Projects/01_rpackages/sharepointr/vignettes/nc.gpkgnc.gpkg ]8;;' to SharePoint drive
+
+✔ File upload complete [2.4s]                 
 ```
 
 Using
@@ -177,7 +219,6 @@ Using
 we can confirm that the file has been uploaded:
 
 ``` r
-
 sp_drive <- get_sp_drive(folder_url)
 #> Loading Microsoft Graph login for default tenant
 
@@ -185,6 +226,15 @@ nc <- read_sharepoint(
   "RStats/nc.gpkg",
   drive = sp_drive
 )
+#> 
+ℹ Downloading SharePoint item to
+#> ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/nc.gpkg/var/folders/3f/50m42dx13 ]8;;…
+#> 
+✔ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/nc.gpkg/var/folders/3f/50m42dx13 ]8;;…
+#> 
+ℹ Reading item with ` ]8;;x-r-help:sf::read_sfsf::read_sf ]8;;()`
+
+✔ Reading item with ` ]8;;x-r-help:sf::read_sfsf::read_sf ]8;;()` [48ms]
 
 plot(nc["AREA"])
 ```
@@ -211,13 +261,16 @@ for data frames, and
 for other objects). Use `.f` to supply your own function.
 
 ``` r
-
 write_sharepoint(
   mtcars,
   file = "mtcars.csv",
   dest = folder_url
 )
 #> Loading Microsoft Graph login for default tenant
+#> 
+ℹ Uploading file ' ]8;;file:///Users/elipousson/Projects/01_rpackages/sharepointr/vignettes/mtcars.csvmtcars.csv ]8;;' to SharePoint drive
+
+✔ File upload complete [1.1s]                    
 ```
 
 To wrap up this example, we need to remove the uploaded files from

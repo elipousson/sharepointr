@@ -57,7 +57,7 @@ head(site_lists[, c(2:7)])
 #> 6 "d216b2d5-7cae-491f-abf4-1474628a0982,15"
 #>                                     id lastModifiedDateTime
 #> 1 531a153d-b9d4-4d04-93cd-0d49d9bac705 2026-10-07T19:07:23Z
-#> 2 bdd11473-562b-43bc-b498-0f235aef9e4a 2026-10-08T18:51:33Z
+#> 2 bdd11473-562b-43bc-b498-0f235aef9e4a 2026-10-13T08:44:34Z
 #> 3 0d7df1be-e6de-474b-88ea-0f56689ca3e9 2024-10-02T03:22:07Z
 #> 4 7c6b3bac-4962-4285-980e-127e36583ffc 2026-10-07T19:07:24Z
 #> 5 9c518bac-ef99-4ae8-ab27-1453f68c87e1 2024-10-02T03:22:07Z
@@ -270,7 +270,7 @@ penguins_list <- create_sp_list(
 
 penguins_list
 #> <Sharepoint list 'penguins'>
-#>   directory id: ae2a836c-ad18-40f0-a667-06f83665f4cd 
+#>   directory id: 0c3cdaca-4a96-4931-b093-e7e203b20f59 
 #>   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/penguins 
 #>   description: Measurements of Penguins near Palmer Station, Antarctica 
 #> ---
@@ -402,7 +402,7 @@ projects_list <- create_sp_list(
 
 projects_list
 #> <Sharepoint list 'Example Projects'>
-#>   directory id: a5ffe3f5-c881-4739-89eb-534f31b6d36c 
+#>   directory id: d0c14ebe-eba8-4dbc-9223-d98937f997cc 
 #>   web link: https://bmore.sharepoint.com/sites/DOP-ALL/Lists/Example%20Projects 
 #>   description: Example list of projects. 
 #> ---
@@ -472,7 +472,8 @@ sync_sp_list(
   sp_list = projects_list,
   dry_run = FALSE
 )
-#> ✔ Updated "Example Projects": 2 columns and 0 views.
+#> ✔ Updated "Example Projects": 2 columns, 0 views, and 0
+#>   folders.
 ```
 
 A definition can also include list views using an optional `views` key.
@@ -507,9 +508,9 @@ project_items <- list_sp_list_items(
 
 project_items
 #>                Title ProjectID ProjectStatus id
-#> 1   Main Street Plan     P-001      Planning  1
-#> 2 Library Renovation     P-003       On Hold  2
-#> 3        Harbor Park     P-002        Active  3
+#> 1 Library Renovation     P-003       On Hold  1
+#> 2        Harbor Park     P-002        Active  2
+#> 3   Main Street Plan     P-001      Planning  3
 ```
 
 To update items, include the item id in an `id` column (or set `.id` to
@@ -547,8 +548,8 @@ list_sp_list_items(
   select = c("id", "Title", "ProjectStatus")
 )
 #>                Title ProjectStatus id
-#> 1   Main Street Plan        Active  1
-#> 2 Library Renovation        Active  2
+#> 1 Library Renovation        Active  1
+#> 2   Main Street Plan        Active  3
 ```
 
 [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
@@ -641,92 +642,92 @@ sf::st_as_sf(
 #> Bounding box:  xmin: -84.32385 ymin: 33.88199 xmax: -75.45698 ymax: 36.58965
 #> Geodetic CRS:  NAD27
 #> First 10 features:
-#>    Title _ColorTag ComplianceAssetId  AREA PERIMETER CNTY_ id
-#> 1   <NA>        NA                NA 0.118     1.421  1836  1
-#> 2   <NA>        NA                NA 0.061     1.231  1827  2
-#> 3   <NA>        NA                NA 0.190     2.204  1846  3
-#> 4   <NA>        NA                NA 0.143     1.630  1828  4
-#> 5   <NA>        NA                NA 0.063     1.000  1881  5
-#> 6   <NA>        NA                NA 0.153     2.206  1832  6
-#> 7   <NA>        NA                NA 0.053     1.171  1848  7
-#> 8   <NA>        NA                NA 0.062     1.547  1834  8
-#> 9   <NA>        NA                NA 0.199     1.984  1874  9
-#> 10  <NA>        NA                NA 0.143     1.663  1840 10
-#>    ContentType             Modified              Created
-#> 1         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
-#> 2         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
-#> 3         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
-#> 4         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
-#> 5         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
-#> 6         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
-#> 7         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
-#> 8         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
-#> 9         Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
-#> 10        Item 2026-10-10T18:29:39Z 2026-10-10T18:29:39Z
-#>    AuthorLookupId EditorLookupId _UIVersionString Attachments
-#> 1             280            280              1.0       FALSE
-#> 2             280            280              1.0       FALSE
-#> 3             280            280              1.0       FALSE
-#> 4             280            280              1.0       FALSE
-#> 5             280            280              1.0       FALSE
-#> 6             280            280              1.0       FALSE
-#> 7             280            280              1.0       FALSE
-#> 8             280            280              1.0       FALSE
-#> 9             280            280              1.0       FALSE
-#> 10            280            280              1.0       FALSE
-#>    Edit LinkTitleNoMenu LinkTitle DocIcon ItemChildCount
-#> 1                    NA        NA      NA              0
-#> 2                    NA        NA      NA              0
-#> 3                    NA        NA      NA              0
-#> 4                    NA        NA      NA              0
-#> 5                    NA        NA      NA              0
-#> 6                    NA        NA      NA              0
-#> 7                    NA        NA      NA              0
-#> 8                    NA        NA      NA              0
-#> 9                    NA        NA      NA              0
-#> 10                   NA        NA      NA              0
-#>    FolderChildCount _ComplianceFlags _ComplianceTag
-#> 1                 0                                
-#> 2                 0                                
-#> 3                 0                                
-#> 4                 0                                
-#> 5                 0                                
-#> 6                 0                                
-#> 7                 0                                
-#> 8                 0                                
-#> 9                 0                                
-#> 10                0                                
-#>    _ComplianceTagWrittenTime _ComplianceTagUserId _IsRecord
-#> 1                                                        NA
-#> 2                                                        NA
-#> 3                                                        NA
-#> 4                                                        NA
-#> 5                                                        NA
-#> 6                                                        NA
-#> 7                                                        NA
-#> 8                                                        NA
-#> 9                                                        NA
-#> 10                                                       NA
-#>    AppAuthorLookupId AppEditorLookupId
-#> 1                 61                61
-#> 2                 61                61
-#> 3                 61                61
-#> 4                 61                61
-#> 5                 61                61
-#> 6                 61                61
-#> 7                 61                61
-#> 8                 61                61
-#> 9                 61                61
-#> 10                61                61
-#>                          geometry
-#> 1  MULTIPOLYGON (((-78.30876 3...
-#> 2  MULTIPOLYGON (((-81.23989 3...
-#> 3  MULTIPOLYGON (((-77.33221 3...
-#> 4  MULTIPOLYGON (((-80.45634 3...
-#> 5  MULTIPOLYGON (((-76.48053 3...
-#> 6  MULTIPOLYGON (((-77.21767 3...
-#> 7  MULTIPOLYGON (((-76.29893 3...
-#> 8  MULTIPOLYGON (((-76.00897 3...
-#> 9  MULTIPOLYGON (((-81.02057 3...
-#> 10 MULTIPOLYGON (((-78.74912 3...
+#>    Title _ColorTag ComplianceAssetId  AREA PERIMETER CNTY_
+#> 1   <NA>        NA                NA 0.070     2.968  1831
+#> 2   <NA>        NA                NA 0.063     1.000  1881
+#> 3   <NA>        NA                NA 0.153     2.206  1832
+#> 4   <NA>        NA                NA 0.143     1.663  1840
+#> 5   <NA>        NA                NA 0.081     1.288  1880
+#> 6   <NA>        NA                NA 0.109     1.325  1841
+#> 7   <NA>        NA                NA 0.124     1.428  1837
+#> 8   <NA>        NA                NA 0.062     1.547  1834
+#> 9   <NA>        NA                NA 0.091     1.284  1835
+#> 10  <NA>        NA                NA 0.097     1.670  1833
+#>    id ContentType             Modified              Created
+#> 1   1        Item 2026-10-15T02:19:24Z 2026-10-15T02:19:24Z
+#> 2   2        Item 2026-10-15T02:19:24Z 2026-10-15T02:19:24Z
+#> 3   3        Item 2026-10-15T02:19:24Z 2026-10-15T02:19:24Z
+#> 4   4        Item 2026-10-15T02:19:24Z 2026-10-15T02:19:24Z
+#> 5   5        Item 2026-10-15T02:19:24Z 2026-10-15T02:19:24Z
+#> 6   6        Item 2026-10-15T02:19:24Z 2026-10-15T02:19:24Z
+#> 7   7        Item 2026-10-15T02:19:24Z 2026-10-15T02:19:24Z
+#> 8   8        Item 2026-10-15T02:19:24Z 2026-10-15T02:19:24Z
+#> 9   9        Item 2026-10-15T02:19:24Z 2026-10-15T02:19:24Z
+#> 10 10        Item 2026-10-15T02:19:24Z 2026-10-15T02:19:24Z
+#>    AuthorLookupId EditorLookupId _UIVersionString
+#> 1             280            280              1.0
+#> 2             280            280              1.0
+#> 3             280            280              1.0
+#> 4             280            280              1.0
+#> 5             280            280              1.0
+#> 6             280            280              1.0
+#> 7             280            280              1.0
+#> 8             280            280              1.0
+#> 9             280            280              1.0
+#> 10            280            280              1.0
+#>    Attachments Edit LinkTitleNoMenu LinkTitle DocIcon
+#> 1        FALSE                   NA        NA      NA
+#> 2        FALSE                   NA        NA      NA
+#> 3        FALSE                   NA        NA      NA
+#> 4        FALSE                   NA        NA      NA
+#> 5        FALSE                   NA        NA      NA
+#> 6        FALSE                   NA        NA      NA
+#> 7        FALSE                   NA        NA      NA
+#> 8        FALSE                   NA        NA      NA
+#> 9        FALSE                   NA        NA      NA
+#> 10       FALSE                   NA        NA      NA
+#>    ItemChildCount FolderChildCount _ComplianceFlags
+#> 1               0                0                 
+#> 2               0                0                 
+#> 3               0                0                 
+#> 4               0                0                 
+#> 5               0                0                 
+#> 6               0                0                 
+#> 7               0                0                 
+#> 8               0                0                 
+#> 9               0                0                 
+#> 10              0                0                 
+#>    _ComplianceTag _ComplianceTagWrittenTime
+#> 1                                          
+#> 2                                          
+#> 3                                          
+#> 4                                          
+#> 5                                          
+#> 6                                          
+#> 7                                          
+#> 8                                          
+#> 9                                          
+#> 10                                         
+#>    _ComplianceTagUserId _IsRecord AppAuthorLookupId
+#> 1                              NA                61
+#> 2                              NA                61
+#> 3                              NA                61
+#> 4                              NA                61
+#> 5                              NA                61
+#> 6                              NA                61
+#> 7                              NA                61
+#> 8                              NA                61
+#> 9                              NA                61
+#> 10                             NA                61
+#>    AppEditorLookupId                       geometry
+#> 1                 61 MULTIPOLYGON (((-76.00897 3...
+#> 2                 61 MULTIPOLYGON (((-76.48053 3...
+#> 3                 61 MULTIPOLYGON (((-77.21767 3...
+#> 4                 61 MULTIPOLYGON (((-78.74912 3...
+#> 5                 61 MULTIPOLYGON (((-81.80622 3...
+#> 6                 61 MULTIPOLYGON (((-78.8068 36...
+#> 7                 61 MULTIPOLYGON (((-80.02567 3...
+#> 8                 61 MULTIPOLYGON (((-76.00897 3...
+#> 9                 61 MULTIPOLYGON (((-76.56251 3...
+#> 10                61 MULTIPOLYGON (((-76.74506 3...
 ```

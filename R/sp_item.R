@@ -1,14 +1,14 @@
-#' Get a SharePoint item or item properties
+#' Get a SharePoint item
 #'
 #' @description
 #' [get_sp_item()] wraps the `get_item` method for `ms_drive` objects and
-#' returns a `ms_drive_item` object by default. [get_sp_item_properties()] uses
-#' the `get_item_properties` method (also available by setting `properties =
-#' TRUE` for [get_sp_item()]).
+#' returns a `ms_drive_item` object by default. Additional parameters in `...`
+#' are passed to [get_sp_drive()].
 #'
-#' Additional parameters in `...` are passed to [get_sp_drive()] by
-#' [get_sp_item()] or to [get_sp_item()] by [get_sp_item_properties()] or
-#' [delete_sp_item()].
+#' Use [get_sp_item_properties()] to get the item properties instead. Setting
+#' `properties = TRUE` returns the same properties, but only
+#' [get_sp_item_properties()] can include the document library column values
+#' (fields) for the item.
 #'
 #' @param path A SharePoint file URL or the relative path to a file located in a
 #'   SharePoint drive. If input is a relative path, the string should *not*
@@ -29,11 +29,9 @@
 #' @inheritParams get_sp_drive
 #' @param as_data_frame If `TRUE`, return a data frame. If `FALSE` (default),
 #'   return a `ms_item` or `ms_item_properties` object.
-#' @seealso [Microsoft365R::ms_drive_item]
-#' @returns For [get_sp_item()], a `ms_drive_item` object (or a `ms_item_properties`
-#'   object if `properties = TRUE`), or a 1 row data frame if
-#'   `as_data_frame = TRUE`. [get_sp_item_properties()] always uses
-#'   `properties = TRUE`.
+#' @seealso [get_sp_item_properties()], [Microsoft365R::ms_drive_item]
+#' @returns A `ms_drive_item` object (or a list of item properties if
+#'   `properties = TRUE`), or a 1 row data frame if `as_data_frame = TRUE`.
 #' @examples
 #' sp_item_url <- "<SharePoint item url>"
 #'
@@ -127,8 +125,67 @@ get_sp_item <- function(
   )
 }
 
-#' @rdname get_sp_item
-#' @name get_sp_item_properties
+#' Get or update the properties of a SharePoint file or folder
+#'
+#' @description
+#' [get_sp_item_properties()] gets the properties of a file or folder, such as
+#' the name, size, and creation date. Set `fields = TRUE` to also get the
+#' values of the document library columns (fields) for the item. To get the
+#' fields for many items, use [get_sp_list()] to get the document library as a
+#' list and use [list_sp_list_items()] or [get_sp_list_item()] instead.
+#'
+#' `r lifecycle::badge("experimental")`
+#'
+#' [update_sp_item_properties()] renames a file or folder or updates the values
+#' of document library columns for the item. Field values are updated with
+#' [update_sp_list_item()] using the list for the document library, so the
+#' same field name checks and formatting (e.g. for multi-choice columns) are
+#' used. To move an item to another folder, use [sp_item_move()] instead.
+#'
+#' @inheritParams get_sp_item
+#' @param ... For [get_sp_item_properties()], additional parameters passed to
+#'   [get_sp_drive()]. For [update_sp_item_properties()], named field values to
+#'   update, e.g. `Title = "Annual report"`. Names can be column names or
+#'   display names. Ignored if `.data` is supplied.
+#' @param fields If `TRUE`, add a `fields` element with the document library
+#'   column values for the item (a named list). The `id` field is the list
+#'   item id (not the drive item id). If `as_data_frame = TRUE`, `fields` is a
+#'   list column with a 1 row data frame of the field values (use
+#'   `tidyr::unnest(data, fields, names_sep = "_")` to add the fields as
+#'   columns). Defaults to `FALSE`. Fields are only available for items in a
+#'   SharePoint document library.
+#' @param as_data_frame If `TRUE`, return a 1 row data frame. If `FALSE`
+#'   (default), return a list of item properties.
+#' @param .data A named list or a single row data frame with field values to
+#'   update. Optional.
+#' @param name A new name for the item. Optional. `name` must not include a
+#'   folder path. An error is returned if an item with the same name already
+#'   exists in the folder.
+#' @param item A `ms_drive_item` object. If `item` is supplied, `path`,
+#'   `item_id`, `item_url`, and the drive arguments are ignored.
+#' @inheritParams update_sp_list_item
+#' @returns A list of item properties, or a 1 row data frame if
+#'   `as_data_frame = TRUE`. [update_sp_item_properties()] returns the
+#'   properties after the update.
+#' @seealso [get_sp_item()], [get_sp_list_item()]
+#' @examples
+#' sp_item_url <- "<SharePoint item url>"
+#'
+#' if (is_sp_url(sp_item_url)) {
+#'   get_sp_item_properties(sp_item_url, fields = TRUE)
+#'
+#'   update_sp_item_properties(
+#'     sp_item_url,
+#'     Title = "Annual report",
+#'     name = "annual-report-2026.docx"
+#'   )
+#' }
+#'
+#' @name sp_item_properties
+#' @keywords items
+NULL
+
+#' @rdname sp_item_properties
 #' @export
 get_sp_item_properties <- function(
   path = NULL,
@@ -139,10 +196,31 @@ get_sp_item_properties <- function(
   drive_name = NULL,
   drive_id = NULL,
   site_url = NULL,
+  fields = FALSE,
   as_data_frame = FALSE,
   call = caller_env()
 ) {
-  get_sp_item(
+  check_bool(fields, call = call)
+
+  if (!fields) {
+    return(
+      get_sp_item(
+        path = path,
+        item_id = item_id,
+        item_url = item_url,
+        ...,
+        drive = drive,
+        drive_name = drive_name,
+        drive_id = drive_id,
+        site_url = site_url,
+        properties = TRUE,
+        as_data_frame = as_data_frame,
+        call = call
+      )
+    )
+  }
+
+  item <- get_sp_item(
     path = path,
     item_id = item_id,
     item_url = item_url,
@@ -151,9 +229,208 @@ get_sp_item_properties <- function(
     drive_name = drive_name,
     drive_id = drive_id,
     site_url = site_url,
-    properties = TRUE,
+    call = call
+  )
+
+  sp_item_properties_output(
+    item,
+    fields = fields,
     as_data_frame = as_data_frame,
     call = call
+  )
+}
+
+#' Get the properties of a drive item, optionally with field values
+#'
+#' @returns A list of item properties or a 1 row data frame. If `fields =
+#'   TRUE`, a `fields` element is added (a named list or, for a data frame, a
+#'   list column with a 1 row data frame).
+#' @noRd
+sp_item_properties_output <- function(
+  item,
+  fields = FALSE,
+  as_data_frame = FALSE,
+  call = caller_env()
+) {
+  item_properties <- item[["properties"]]
+
+  if (fields) {
+    item_properties[["fields"]] <- sp_drive_item_fields(item, call = call)
+  }
+
+  if (!as_data_frame) {
+    return(item_properties)
+  }
+
+  item_properties_df <- ms_obj_as_data_frame(
+    item_properties,
+    obj_col = "ms_item_properties",
+    keep_list_cols = c("createdBy", "lastModifiedBy"),
+    .error_call = call
+  )
+
+  if (fields) {
+    fields_df <- ms_obj_as_data_frame(
+      item_properties[["fields"]],
+      obj_col = ".fields",
+      .error_call = call
+    )
+
+    fields_df[[".fields"]] <- NULL
+    item_properties_df[["fields"]] <- list(fields_df)
+  }
+
+  item_properties_df
+}
+
+#' Get the document library field values for a drive item
+#'
+#' @returns A named list of field values without the `"@odata"` annotations.
+#' @noRd
+sp_drive_item_fields <- function(item, call = caller_env()) {
+  item_fields <- tryCatch(
+    item$do_operation("listItem/fields"),
+    error = function(cnd) {
+      cli_abort(
+        c(
+          "Can't get fields for {.val {item[['properties']][['name']]}}.",
+          "i" = "Fields are only available for items in a SharePoint document
+          library."
+        ),
+        parent = cnd,
+        call = call
+      )
+    }
+  )
+
+  attr(item_fields, "status") <- NULL
+
+  item_fields[!startsWith(names(item_fields), "@odata.")]
+}
+
+#' @rdname sp_item_properties
+#' @export
+update_sp_item_properties <- function(
+  path = NULL,
+  ...,
+  .data = NULL,
+  name = NULL,
+  item_id = NULL,
+  item_url = NULL,
+  item = NULL,
+  check_fields = TRUE,
+  na_fields = c("drop", "replace"),
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  site_url = NULL,
+  fields = FALSE,
+  as_data_frame = FALSE,
+  call = caller_env()
+) {
+  .data <- .data %||% list2(...)
+  check_bool(fields, call = call)
+  check_string(name, allow_null = TRUE, call = call)
+  check_bool(as_data_frame, call = call)
+
+  if (is_empty(.data) && is.null(name)) {
+    cli_abort(
+      "Field values (with {.arg ...} or {.arg .data}) or {.arg name} must be
+      supplied.",
+      call = call
+    )
+  }
+
+  if (!is.null(name) && (!nzchar(name) || grepl("/", name, fixed = TRUE))) {
+    cli_abort(
+      c(
+        "{.arg name} must be a name without a folder path.",
+        "i" = "Use {.fn sp_item_move} to move an item to another folder."
+      ),
+      call = call
+    )
+  }
+
+  item <- item %||%
+    get_sp_item(
+      path = path,
+      item_id = item_id,
+      item_url = item_url,
+      drive_name = drive_name,
+      drive_id = drive_id,
+      drive = drive,
+      site_url = site_url,
+      call = call
+    )
+
+  check_ms_obj(item, "ms_drive_item", call = call)
+
+  if (!is_empty(.data)) {
+    update_sp_list_item(
+      .data = .data,
+      item_id = sp_drive_item_list_item_id(item, call = call),
+      sp_list = sp_drive_item_list(item),
+      check_fields = check_fields,
+      na_fields = na_fields,
+      call = call
+    )
+  }
+
+  if (!is.null(name)) {
+    resp <- item$do_operation(
+      body = list(name = name),
+      encode = "json",
+      http_verb = "PATCH",
+      options = sp_conflict_option(FALSE),
+      http_status_handler = "pass"
+    )
+
+    check_sp_transfer_response(resp, item, "rename", call = call)
+  }
+
+  item$sync_fields()
+
+  sp_item_properties_output(
+    item,
+    fields = fields,
+    as_data_frame = as_data_frame,
+    call = call
+  )
+}
+
+#' Get the list item id for a drive item
+#' @noRd
+sp_drive_item_list_item_id <- function(item, call = caller_env()) {
+  list_item <- tryCatch(
+    item$do_operation("listItem", options = list(`$select` = "id")),
+    error = function(cnd) {
+      cli_abort(
+        c(
+          "Can't update fields for {.val {item[['properties']][['name']]}}.",
+          "i" = "Fields can only be updated for items in a SharePoint document
+          library."
+        ),
+        parent = cnd,
+        call = call
+      )
+    }
+  )
+
+  list_item[["id"]]
+}
+
+#' Get the document library list for a drive item
+#' @noRd
+sp_drive_item_list <- function(item) {
+  drive_id <- item[["properties"]][["parentReference"]][["driveId"]]
+
+  Microsoft365R::ms_list$new(
+    item[["token"]],
+    item[["tenant"]],
+    AzureGraph::call_graph_endpoint(
+      item[["token"]],
+      file.path("drives", drive_id, "list")
+    )
   )
 }
 

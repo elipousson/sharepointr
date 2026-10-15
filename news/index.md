@@ -4,6 +4,37 @@
 
 ### Added
 
+- Add
+  [`update_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/sp_item_properties.md)
+  (experimental) to rename a file or folder or update the values of
+  document library columns for an item. Field values are updated with
+  [`update_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  so the same field name checks and formatting are used. (2026-10-14)
+- Add a `fields` argument to
+  [`get_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/sp_item_properties.md)
+  and
+  [`update_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/sp_item_properties.md).
+  If `fields = TRUE`, the document library column values for the item
+  are added as a `fields` element (a named list) or, if
+  `as_data_frame = TRUE`, a `fields` list column with a 1 row data
+  frame. (2026-10-14)
+- Add
+  [`sp_item_copy()`](https://elipousson.github.io/sharepointr/reference/sp_item_copy.md),
+  [`sp_item_move()`](https://elipousson.github.io/sharepointr/reference/sp_item_copy.md),
+  [`sp_dir_copy()`](https://elipousson.github.io/sharepointr/reference/sp_item_copy.md),
+  and
+  [`sp_dir_move()`](https://elipousson.github.io/sharepointr/reference/sp_item_copy.md)
+  (experimental) to copy and move SharePoint files and folders. The
+  interface is based on
+  [`fs::file_copy()`](https://fs.r-lib.org/reference/copy.html),
+  [`fs::file_move()`](https://fs.r-lib.org/reference/file_move.html),
+  and [`fs::dir_copy()`](https://fs.r-lib.org/reference/copy.html): if
+  `new_path` is an existing folder, items are placed inside it.
+  `new_path` can also be a SharePoint folder or library URL, and items
+  can be copied (but not moved) to another drive or site. Set
+  `overwrite = TRUE` to replace an existing item. By default, the copy
+  functions wait for each copy to finish (`wait = TRUE`) so that a
+  failed copy is reported. (2026-10-14)
 - [`download_sp_item()`](https://elipousson.github.io/sharepointr/reference/download_sp_item.md)
   (with multiple items) and
   [`upload_sp_items()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)

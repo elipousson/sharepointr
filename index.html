@@ -100,7 +100,7 @@
 <span><span class="co">#&gt; ✔ Downloading SharePoint item to '/var/folders/3f/50m42dx1333_dfqb5772j6_40000g…</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Reading item with `officer::read_docx()`</span></span>
-<span><span class="co">#&gt; ✔ Reading item with `officer::read_docx()` [28ms]</span></span>
+<span><span class="co">#&gt; ✔ Reading item with `officer::read_docx()` [40ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; rdocx document with 19 element(s)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -112,15 +112,7 @@
 <span><span class="co">#&gt;        annotation text      Comment Text Char     annotation subject </span></span>
 <span><span class="co">#&gt;            "paragraph"            "character"            "paragraph" </span></span>
 <span><span class="co">#&gt;   Comment Subject Char              Hyperlink     Unresolved Mention </span></span>
-<span><span class="co">#&gt;            "character"            "character"            "character" </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; * Content at cursor location:</span></span>
-<span><span class="co">#&gt;   level num_id</span></span>
-<span><span class="co">#&gt; 1    NA     NA</span></span>
-<span><span class="co">#&gt;                                                                                                                                                  text</span></span>
-<span><span class="co">#&gt; 1 If you have questions or feedback about the program, contact Chief Data Officer Justin Elszasz at justin.elszasz@baltimorecity.gov. Happy learning!</span></span>
-<span><span class="co">#&gt;   style_name content_type</span></span>
-<span><span class="co">#&gt; 1         NA    paragraph</span></span></code></pre></div>
+<span><span class="co">#&gt;            "character"            "character"            "character"</span></span></code></pre></div>
 <p><code><a href="reference/write_sharepoint.html">write_sharepoint()</a></code> saves an R object to local files and then uses <code><a href="reference/upload_sp_item.html">upload_sp_item()</a></code> to uploads the file to SharePoint.</p>
 <p>See <code>vignette("read-write"")</code> for more information on reading and writing files to SharePoint with this package.</p>
 </div>
@@ -146,19 +138,18 @@
 <span><span class="co">#&gt;   Methods:</span></span>
 <span><span class="co">#&gt;     copy, create_folder, create_share_link, delete,</span></span>
 <span><span class="co">#&gt;     do_operation, download, get_item, get_list_pager,</span></span>
-<span><span class="co">#&gt;     get_parent_folder, get_path, is_folder, list_activities,</span></span>
-<span><span class="co">#&gt;     list_files, list_items, list_permissions, list_versions,</span></span>
-<span><span class="co">#&gt;     load_dataframe, load_rdata, load_rds, move, open,</span></span>
-<span><span class="co">#&gt;     save_dataframe, save_rdata, save_rds, sync_fields, update,</span></span>
-<span><span class="co">#&gt;     upload</span></span></code></pre></div>
+<span><span class="co">#&gt;     get_parent_folder, get_path, is_folder, list_files,</span></span>
+<span><span class="co">#&gt;     list_items, load_dataframe, load_rdata, load_rds, move,</span></span>
+<span><span class="co">#&gt;     open, save_dataframe, save_rdata, save_rds, sync_fields,</span></span>
+<span><span class="co">#&gt;     update, upload</span></span></code></pre></div>
 <p>Set <code>as_data_frame = TRUE</code> to return a data frame instead of a <code>ms_drive_item</code> object:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/get_sp_item.html">get_sp_item</a></span><span class="op">(</span><span class="va">docx_shared_url</span>, as_data_frame <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
 <span><span class="co">#&gt;                                                                                                                           @odata.context</span></span>
 <span><span class="co">#&gt; 1 https://graph.microsoft.com/beta/$metadata#drives('b%21txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta613N3QJlbvrVKyTwO')/root/$entity</span></span>
-<span><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @microsoft.graph.downloadUrl</span></span>
-<span><span class="co">#&gt; 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/download.aspx?UniqueId=0a50d3cd-74ce-4a8d-a6d8-2596037f0148&amp;Translate=false&amp;tempauth=v1.eyJzaXRlaWQiOiIxZGEwMWNiNy03NmM3LTQ0ODctYjM5OC1lYzYwZGZmOGY1MmQiLCJhcHBfZGlzcGxheW5hbWUiOiJBenVyZVIvTWljcm9zb2Z0MzY1UiIsImFwcGlkIjoiZDQ0YTA1ZDUtYzZhNS00YmJiLTgyZDItNDQzMTIzNzIyMzgwIiwiYXVkIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwL2Jtb3JlLnNoYXJlcG9pbnQuY29tQDMxMmNiMTI2LWM2YWUtNGZjMi04MDBkLTMxOGU2NzljZTZjNyIsImV4cCI6IjE3NTQ0OTkyNTcifQ.CkAKDGVudHJhX2NsYWltcxIwQ00zeXpjUUdFQUFhRm5sbFptOUhTSE5QYkZWdFlWSXdZamh4UkZKWlFVRXFBQT09CjIKCmFjdG9yYXBwaWQSJDAwMDAwMDAzLTAwMDAtMDAwMC1jMDAwLTAwMDAwMDAwMDAwMAoKCgRzbmlkEgI2NBILCLicyYPxwqo-EAUaDDQwLjEyNi4yMy4yNiosZVZLWjloeWVsdWw1T093NHo5ZDVTTWw5UGRleldOM05Tc2xxbEYzdXYwTT0wlgE4AUIQobkkP9rAAJDpu3o_8YoAkEoQaGFzaGVkcHJvb2Z0b2tlbmokMDA2ZjkyOTktZTk4MS05ZmUxLWY3OGEtNTRmZmUxNWRiZWY5cikwaC5mfG1lbWJlcnNoaXB8MTAwMzIwMDFmZDdjZTEyNEBsaXZlLmNvbXoBMoIBEgkmsSwxrsbCTxGADTGOZ5zmx5IBA0VsaZoBB1BvdXNzb26iAR1lbGkucG91c3NvbkBiYWx0aW1vcmVjaXR5LmdvdqoBEDEwMDMyMDAxRkQ3Q0UxMjSyASpncm91cC53cml0ZSBhbGxzaXRlcy5tYW5hZ2UgYWxsc2l0ZXMud3JpdGXIAQE.ZNiXou-uMFRdHN0gpaP4SsjFXf0PVUY8r39DRaqqbnY&amp;ApiVersion=2.0</span></span>
+<span><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @microsoft.graph.downloadUrl</span></span>
+<span><span class="co">#&gt; 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/download.aspx?UniqueId=0a50d3cd-74ce-4a8d-a6d8-2596037f0148&amp;Translate=false&amp;tempauth=v1.eyJzaXRlaWQiOiIxZGEwMWNiNy03NmM3LTQ0ODctYjM5OC1lYzYwZGZmOGY1MmQiLCJhcHBfZGlzcGxheW5hbWUiOiJBenVyZVIvTWljcm9zb2Z0MzY1UiIsImFwcGlkIjoiZDQ0YTA1ZDUtYzZhNS00YmJiLTgyZDItNDQzMTIzNzIyMzgwIiwiYXVkIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwL2Jtb3JlLnNoYXJlcG9pbnQuY29tQDMxMmNiMTI2LWM2YWUtNGZjMi04MDBkLTMxOGU2NzljZTZjNyIsImV4cCI6IjE3OTIwMjU4MjcifQ.CkQKDGVudHJhX2NsYWltcxI0Q0tLVXdOWUdFQUFhRm5sUU9IUnZkVWN3ZUVWVFZHbDBWVFZhUWxFM1FVRXFBREFCUUFJPQoyCgphY3RvcmFwcGlkEiQwMDAwMDAwMy0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDAKCgoEc25pZBICNjQSCwigpt-tnJbVPxAFGg4yMC4xOTAuMTUxLjEwMCosZVZLWjloeWVsdWw1T093NHo5ZDVTTWw5UGRleldOM05Tc2xxbEYzdXYwTT0wlgE4AUIQokTwYBDwAAAHf95bypDQ3EoQaGFzaGVkcHJvb2Z0b2tlbmokMDA5OWZkZmEtZTQzZS0yODNlLTcwMmYtZDM3MTRlMDFlZWFicikwaC5mfG1lbWJlcnNoaXB8MTAwMzIwMDFmZDdjZTEyNEBsaXZlLmNvbXoBMoIBEgkmsSwxrsbCTxGADTGOZ5zmx5IBA0VsaZoBB1BvdXNzb26iAR1lbGkucG91c3NvbkBiYWx0aW1vcmVjaXR5LmdvdqoBEDEwMDMyMDAxRkQ3Q0UxMjSyASpncm91cC53cml0ZSBhbGxzaXRlcy5tYW5hZ2UgYWxsc2l0ZXMud3JpdGXIAQHiARZ5UDh0b3VHMHhFU1RpdFU1WkJRN0FB.QnRbboHcDlxQEPyhdwWIGdeuqfEjtWXZHO9MktlhT0w&amp;ApiVersion=2.0</span></span>
 <span><span class="co">#&gt;        createdDateTime                                        eTag</span></span>
 <span><span class="co">#&gt; 1 2023-01-13T16:42:07Z "{0A50D3CD-74CE-4A8D-A6D8-2596037F0148},58"</span></span>
 <span><span class="co">#&gt;                                   id lastModifiedDateTime</span></span>
@@ -167,10 +158,10 @@
 <span><span class="co">#&gt; 1 Baltimore Data Academy Announcement Content.docx</span></span>
 <span><span class="co">#&gt;                                                                                                                                                                                                                                      webUrl</span></span>
 <span><span class="co">#&gt; 1 https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/_layouts/15/Doc.aspx?sourcedoc=%7B0A50D3CD-74CE-4A8D-A6D8-2596037F0148%7D&amp;file=Baltimore%20Data%20Academy%20Announcement%20Content.docx&amp;action=default&amp;mobileredirect=true</span></span>
-<span><span class="co">#&gt;                                             cTag  size</span></span>
-<span><span class="co">#&gt; 1 "c:{0A50D3CD-74CE-4A8D-A6D8-2596037F0148},142" 80442</span></span>
-<span><span class="co">#&gt;                                                                                           createdBy</span></span>
-<span><span class="co">#&gt; 1 Justin.Elszasz@baltimorecity.gov, a43c19f9-9a13-403d-9234-0c13f4e84b1c, Elszasz, Justin -Disabled</span></span>
+<span><span class="co">#&gt;                                             cTag isAuthoritative  size</span></span>
+<span><span class="co">#&gt; 1 "c:{0A50D3CD-74CE-4A8D-A6D8-2596037F0148},142"           FALSE 80442</span></span>
+<span><span class="co">#&gt;                                                                                                  createdBy</span></span>
+<span><span class="co">#&gt; 1 Justin.Elszasz@baltimorecity.gov, a43c19f9-9a13-403d-9234-0c13f4e84b1c, Elszasz, Justin (Mayor's Office)</span></span>
 <span><span class="co">#&gt;                                                                                       lastModifiedBy</span></span>
 <span><span class="co">#&gt; 1 Michael.Gottlieb@baltimorecity.gov, a2dedf36-3fce-4998-92f5-9350e749769f, Gottlieb, Michael (BCIT)</span></span>
 <span><span class="co">#&gt;   shared</span></span>
@@ -179,8 +170,10 @@
 <span><span class="co">#&gt; 1 documentLibrary, b!txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta613N3QJlbvrVKyTwO, 017P4HV6NGOMGBBVI5GBBZU5BFDTPDKJ7W, Baltimore Data Academy, /drives/b!txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta613N3QJlbvrVKyTwO/root:/General/Baltimore Data Academy, 1da01cb7-76c7-4487-b398-ec60dff8f52d</span></span>
 <span><span class="co">#&gt;                                                                                                    file</span></span>
 <span><span class="co">#&gt; 1 application/vnd.openxmlformats-officedocument.wordprocessingml.document, Dhx8FRw158o4PZe20R8GrPfSl3k=</span></span>
-<span><span class="co">#&gt;                               fileSystemInfo                    ms_item</span></span>
-<span><span class="co">#&gt; 1 2023-01-13T16:42:07Z, 2023-01-26T18:17:57Z &lt;environment: 0x118461480&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt;                               fileSystemInfo</span></span>
+<span><span class="co">#&gt; 1 2023-01-13T16:42:07Z, 2023-01-26T18:17:57Z</span></span>
+<span><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ms_item</span></span>
+<span><span class="co">#&gt; 1 &lt;ms_drive_item&gt;\n  Inherits from: &lt;ms_object&gt;\n  Public:\n    clone: function (deep = FALSE) \n    copy: function (dest, dest_folder_item = NULL) \n    create_folder: function (path) \n    create_share_link: function (type = c("view", "edit", "embed"), expiry = "7 days", \n    delete: function (confirm = TRUE, by_item = FALSE) \n    do_operation: function (op = "", ...) \n    download: function (dest = self$properties$name, overwrite = FALSE, recursive = FALSE, \n    get_item: function (path) \n    get_list_pager: function (lst, next_link_name = "@odata.nextLink", value_name = "value", \n    get_parent_folder: function () \n    get_path: function () \n    initialize: function (token, tenant = NULL, properties = NULL, remote = NULL) \n    is_folder: function () \n    list_files: function (path = "", info = c("partial", "name", "all"), full_names = FALSE, \n    list_items: function (path = "", info = c("partial", "name", "all"), full_names = FALSE, \n    load_dataframe: function (delim = NULL, ...) \n    load_rdata: function (envir = parent.frame()) \n    load_rds: function () \n    move: function (dest, dest_folder_item = NULL) \n    open: function () \n    print: function (...) \n    properties: list\n    save_dataframe: function (df, file, delim = ",", ...) \n    save_rdata: function (..., file, envir = parent.frame()) \n    save_rds: function (object, file) \n    sync_fields: function () \n    tenant: NULL\n    token: AzureTokenAuthCode, AzureToken, R6\n    type: drive item\n    update: function (...) \n    upload: function (src, dest = basename(src), blocksize = 32768000, recursive = FALSE, \n  Private:\n    api_type: drives/b!txygHcd2h0SzmOxg3_j1LZpAvnrrKrhOjcOP6RBpB6-8Kta ...\n    assert_file_extension_is: function (...) \n    assert_is_file: function () \n    assert_is_folder: function () \n    assert_is_not_remote: function () \n    download_file: function (dest, overwrite) \n    get_drive: function () \n    get_paged_list: function (lst, next_link_name = "@odata.nextLink", value_name = "value", \n    init_list_objects: function (lst, type_filter = NULL, default_generator = ms_object, \n    make_absolute_path: function (dest = ".", use_itemid = getOption("microsoft365r_use_itemid_in_path")) \n    make_absolute_path_from_root: function (props, dest = ".") \n    make_absolute_path_with_itemid: function (props, dest = ".") \n    make_basic_list: function (op, filter, n, ...) \n    remote: FALSE\n    upload_file: function (src, dest, blocksize)</span></span></code></pre></div>
 <p>These basic functions to “get” objects are extended by functions like <code><a href="reference/download_sp_item.html">download_sp_item()</a></code> that adds support for downloading copies of your SharePoint files (this is the function that powers <code><a href="reference/read_sharepoint.html">read_sharepoint()</a></code>):</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_tempfile.html" class="external-link">with_tempdir</a></span><span class="op">(</span><span class="op">{</span></span>
@@ -196,7 +189,9 @@
 <p>See <code>vignette("read-write"")</code> for more on reading and writing items to SharePoint.</p>
 <p>Some of the original <a href="https://github.com/Azure/Microsoft365R" class="external-link">Microsoft365R</a> S6 object methods already return a data frame by default such as the <code>list_items</code> and <code>list_files</code> methods for <code><a href="https://rdrr.io/pkg/Microsoft365R/man/ms_drive.html" class="external-link">Microsoft365R::ms_drive</a></code> object. <code><a href="reference/sp_dir_info.html">sp_dir_info()</a></code> wraps this method to return a data frame similar to the output from <code><a href="https://fs.r-lib.org/reference/dir_ls.html" class="external-link">fs::dir_info()</a></code>:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/sp_dir_info.html">sp_dir_info</a></span><span class="op">(</span><span class="st">"https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/General/Baltimore%20Data%20Academy"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/sp_dir_info.html">sp_dir_info</a></span><span class="op">(</span></span>
+<span>  <span class="st">"https://bmore.sharepoint.com/:w:/r/sites/MayorsOffice-DataGovernance/Shared%20Documents/General/Baltimore%20Data%20Academy"</span></span>
+<span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading Microsoft Graph login for default tenant</span></span>
 <span><span class="co">#&gt;                                                                                                                                       name</span></span>
 <span><span class="co">#&gt; 1                                                                                                     General/Baltimore Data Academy/Logos</span></span>
@@ -256,10 +251,9 @@
 <span><span class="co">#&gt;   description: If you work with or are interested in data, feel free to join! </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt;   Methods:</span></span>
-<span><span class="co">#&gt;     delete, do_operation, get_analytics, get_drive, get_group,</span></span>
-<span><span class="co">#&gt;     get_list, get_list_pager, get_lists, get_pages,</span></span>
-<span><span class="co">#&gt;     list_columns, list_content_types, list_drives,</span></span>
-<span><span class="co">#&gt;     list_permissions, list_subsites, sync_fields, update</span></span></code></pre></div>
+<span><span class="co">#&gt;     delete, do_operation, get_drive, get_group, get_list,</span></span>
+<span><span class="co">#&gt;     get_list_pager, get_lists, list_drives, list_subsites,</span></span>
+<span><span class="co">#&gt;     sync_fields, update</span></span></code></pre></div>
 <p><code><a href="reference/sp_drive.html">get_sp_drive()</a></code> returns a <code>ms_drive</code> object but required a SharePoint URL that includes the name of the drive (otherwise it returns the drive named in the “sharepointr.default_drive_name” option):</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/sp_drive.html">get_sp_drive</a></span><span class="op">(</span><span class="va">docx_shared_url</span><span class="op">)</span></span>
@@ -272,13 +266,12 @@
 <span><span class="co">#&gt;   Methods:</span></span>
 <span><span class="co">#&gt;     copy_item, create_folder, create_share_link, delete,</span></span>
 <span><span class="co">#&gt;     delete_item, do_operation, download_file, download_folder,</span></span>
-<span><span class="co">#&gt;     get_item, get_item_properties, get_list_pager,</span></span>
-<span><span class="co">#&gt;     list_activites, list_files, list_items, list_shared_files,</span></span>
-<span><span class="co">#&gt;     list_shared_items, load_dataframe, load_rdata, load_rds,</span></span>
-<span><span class="co">#&gt;     move_item, open_item, save_dataframe, save_rdata, save_rds,</span></span>
-<span><span class="co">#&gt;     set_item_properties, sync_fields, update, upload_file,</span></span>
-<span><span class="co">#&gt;     upload_folder</span></span></code></pre></div>
-<p>See <code>vignette("sp_url"")</code> for more information on how the package handles URL parsing.</p>
+<span><span class="co">#&gt;     get_item, get_item_properties, get_list_pager, list_files,</span></span>
+<span><span class="co">#&gt;     list_items, list_shared_files, list_shared_items,</span></span>
+<span><span class="co">#&gt;     load_dataframe, load_rdata, load_rds, move_item, open_item,</span></span>
+<span><span class="co">#&gt;     save_dataframe, save_rdata, save_rds, set_item_properties,</span></span>
+<span><span class="co">#&gt;     sync_fields, update, upload_file, upload_folder</span></span></code></pre></div>
+<p>See <code><a href="articles/sp_url.html">vignette("sp_url")</a></code> for more information on how the package handles URL parsing.</p>
 </div>
 </div>
 <div class="section level2">

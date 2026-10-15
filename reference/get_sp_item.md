@@ -1,15 +1,16 @@
-# Get a SharePoint item or item properties
+# Get a SharePoint item
 
 `get_sp_item()` wraps the `get_item` method for `ms_drive` objects and
-returns a `ms_drive_item` object by default. `get_sp_item_properties()`
-uses the `get_item_properties` method (also available by setting
-`properties = TRUE` for `get_sp_item()`).
+returns a `ms_drive_item` object by default. Additional parameters in
+`...` are passed to
+[`get_sp_drive()`](https://elipousson.github.io/sharepointr/reference/sp_drive.md).
 
-Additional parameters in `...` are passed to
-[`get_sp_drive()`](https://elipousson.github.io/sharepointr/reference/sp_drive.md)
-by `get_sp_item()` or to `get_sp_item()` by `get_sp_item_properties()`
-or
-[`delete_sp_item()`](https://elipousson.github.io/sharepointr/reference/delete_sp_item.md).
+Use
+[`get_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/sp_item_properties.md)
+to get the item properties instead. Setting `properties = TRUE` returns
+the same properties, but only
+[`get_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/sp_item_properties.md)
+can include the document library column values (fields) for the item.
 
 ## Usage
 
@@ -24,19 +25,6 @@ get_sp_item(
   drive = NULL,
   site_url = NULL,
   properties = FALSE,
-  as_data_frame = FALSE,
-  call = caller_env()
-)
-
-get_sp_item_properties(
-  path = NULL,
-  item_id = NULL,
-  item_url = NULL,
-  ...,
-  drive = NULL,
-  drive_name = NULL,
-  drive_id = NULL,
-  site_url = NULL,
   as_data_frame = FALSE,
   call = caller_env()
 )
@@ -147,13 +135,12 @@ get_sp_item_properties(
 
 ## Value
 
-For `get_sp_item()`, a `ms_drive_item` object (or a `ms_item_properties`
-object if `properties = TRUE`), or a 1 row data frame if
-`as_data_frame = TRUE`. `get_sp_item_properties()` always uses
-`properties = TRUE`.
+A `ms_drive_item` object (or a list of item properties if
+`properties = TRUE`), or a 1 row data frame if `as_data_frame = TRUE`.
 
 ## See also
 
+[`get_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/sp_item_properties.md),
 [Microsoft365R::ms_drive_item](https://rdrr.io/pkg/Microsoft365R/man/ms_drive_item.html)
 
 ## Examples

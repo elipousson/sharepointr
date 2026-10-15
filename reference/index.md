@@ -73,8 +73,7 @@
   [`list_sp_group_members()`](https://elipousson.github.io/sharepointr/reference/get_sp_group.md)
   : Get SharePoint group for a site or list group members
 - [`get_sp_item()`](https://elipousson.github.io/sharepointr/reference/get_sp_item.md)
-  [`get_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/get_sp_item.md)
-  : Get a SharePoint item or item properties
+  : Get a SharePoint item
 - [`get_sp_list_column()`](https://elipousson.github.io/sharepointr/reference/get_sp_list_column.md)
   : Get SharePoint list column definition for a single column
 - [`list_sp_drives()`](https://elipousson.github.io/sharepointr/reference/list_sp_drives.md)
@@ -105,6 +104,15 @@
 - [`get_sp_drive()`](https://elipousson.github.io/sharepointr/reference/sp_drive.md)
   [`cache_sp_drive()`](https://elipousson.github.io/sharepointr/reference/sp_drive.md)
   : Get a SharePoint drive or set a default SharePoint drive
+- [`sp_item_copy()`](https://elipousson.github.io/sharepointr/reference/sp_item_copy.md)
+  [`sp_item_move()`](https://elipousson.github.io/sharepointr/reference/sp_item_copy.md)
+  [`sp_dir_copy()`](https://elipousson.github.io/sharepointr/reference/sp_item_copy.md)
+  [`sp_dir_move()`](https://elipousson.github.io/sharepointr/reference/sp_item_copy.md)
+  : Copy or move SharePoint files and folders
+- [`get_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/sp_item_properties.md)
+  [`update_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/sp_item_properties.md)
+  **\[experimental\]** : Get or update the properties of a SharePoint
+  file or folder
 - [`get_sp_list()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
   [`list_sp_lists()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
   [`get_sp_list_metadata()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)

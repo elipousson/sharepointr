@@ -282,7 +282,7 @@ sp_url_parse(
 Shared URLs for files work with
 [`get_sp_item()`](https://elipousson.github.io/sharepointr/reference/get_sp_item.md)
 and
-[`get_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/get_sp_item.md):
+[`get_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/sp_item_properties.md):
 
 ``` r
 

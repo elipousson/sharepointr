@@ -41,6 +41,7 @@ download_sp_item(
   new_path = tempdir()
 )
 #> Loading Microsoft Graph login for default tenant
+#> ℹ Downloading SharePoint item to ']8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13]8;;…✔ Downloading SharePoint item to ']8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13]8;;…
 ```
 
 For files on SharePoint, `read_sharepoint()` extends `download_sp_item()` by downloading the selected item to a temporary folder and reading the file based on the file extension:
@@ -54,6 +55,8 @@ For files on SharePoint, `read_sharepoint()` extends `download_sp_item()` by dow
 ``` r
 docx <- read_sharepoint(docx_url)
 #> Loading Microsoft Graph login for default tenant
+#> ℹ Downloading SharePoint item to ']8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13]8;;…✔ Downloading SharePoint item to ']8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13]8;;…
+#> ℹ Reading item with `]8;;x-r-help:officer::read_docxofficer::read_docx]8;;()`✔ Reading item with `]8;;x-r-help:officer::read_docxofficer::read_docx]8;;()` [59ms]
 
 docx
 #> rdocx document with 62 element(s)
@@ -113,6 +116,8 @@ wb_url <- "https://bmore.sharepoint.com/:x:/r/sites/MayorsOffice-DataGovernance/
 
 wb <- read_sharepoint(wb_url, .f = openxlsx2::wb_load)
 #> Loading Microsoft Graph login for default tenant
+#> ℹ Downloading SharePoint item to ']8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Agency Naming Conventions.xlsx/var/folders/3f/50m42dx13]8;;…✔ Downloading SharePoint item to ']8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Agency Naming Conventions.xlsx/var/folders/3f/50m42dx13]8;;…
+#> ℹ Reading item with `]8;;x-r-help:openxlsx2::wb_loadopenxlsx2::wb_load]8;;()`✔ Reading item with `]8;;x-r-help:openxlsx2::wb_loadopenxlsx2::wb_load]8;;()` [183ms]
 
 wb
 #> A Workbook object.
@@ -130,14 +135,31 @@ list_url <- "https://bmore.sharepoint.com/sites/MayorsOffice-DataGovernance/List
 
 list_items <- read_sharepoint(list_url)
 #> Loading Microsoft Graph login for default tenant
-#> Error in `read_sharepoint()`:
-#> ! Not Found (HTTP 404). Failed to complete operation.
-#>   Message: The provided path does not exist, or does not
-#>   represent a site.
+#> ℹ Getting list from SharePoint✔ Getting list from SharePoint [292ms]
+#> ℹ Getting list items from SharePoint✔ Getting list items from SharePoint [368ms]
 
 head(list_items[, 1:4])
-#> Error:
-#> ! object 'list_items' not found
+#>   id ContentType
+#> 1  1        Item
+#> 2  2        Item
+#> 3  3        Item
+#> 4  4        Item
+#> 5  5        Item
+#> 6  6        Item
+#>                                                 Title
+#> 1                      Baltimore City Fire Department
+#> 2                    Baltimore City Health Department
+#> 3 Baltimore City Office of Information and Technology
+#> 4                 Baltimore City Recreation and Parks
+#> 5                               Department of Finance
+#> 6                      Department of General Services
+#>               Modified
+#> 1 2022-07-22T14:26:20Z
+#> 2 2022-09-22T21:16:22Z
+#> 3 2022-07-22T14:10:49Z
+#> 4 2022-07-22T14:11:19Z
+#> 5 2022-07-22T14:14:15Z
+#> 6 2022-07-22T14:11:25Z
 ```
 
 See the [Reading and writing to SharePoint Lists](sp-lists.html) article for more information.
@@ -155,6 +177,7 @@ upload_sp_item(
   dest = folder_url
 )
 #> Loading Microsoft Graph login for default tenant
+#> ℹ Uploading file ']8;;file:///Users/elipousson/Projects/01_rpackages/sharepointr/vignettes/nc.gpkgnc.gpkg]8;;' to SharePoint drive✔ File upload complete [2.4s]                 
 ```
 
 Using `read_sharepoint()`, we can confirm that the file has been uploaded:
@@ -168,6 +191,10 @@ nc <- read_sharepoint(
   "RStats/nc.gpkg",
   drive = sp_drive
 )
+#> ℹ Downloading SharePoint item to
+#> ']8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/nc.gpkg/var/folders/3f/50m42dx13]8;;…
+#> ✔ Downloading SharePoint item to ']8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/nc.gpkg/var/folders/3f/50m42dx13]8;;…
+#> ℹ Reading item with `]8;;x-r-help:sf::read_sfsf::read_sf]8;;()`✔ Reading item with `]8;;x-r-help:sf::read_sfsf::read_sf]8;;()` [48ms]
 
 plot(nc["AREA"])
 ```
@@ -184,6 +211,7 @@ write_sharepoint(
   dest = folder_url
 )
 #> Loading Microsoft Graph login for default tenant
+#> ℹ Uploading file ']8;;file:///Users/elipousson/Projects/01_rpackages/sharepointr/vignettes/mtcars.csvmtcars.csv]8;;' to SharePoint drive✔ File upload complete [1.1s]                    
 ```
 
 To wrap up this example, we need to remove the uploaded files from SharePoint to keep a tidy shared file system.

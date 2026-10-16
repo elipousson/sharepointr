@@ -10,6 +10,7 @@ compare_sp_list(
   sp_list = NULL,
   ...,
   views = TRUE,
+  folders = TRUE,
   call = caller_env()
 )
 
@@ -21,6 +22,7 @@ sync_sp_list(
   delete = FALSE,
   allow_data_loss = FALSE,
   views = TRUE,
+  folders = TRUE,
   call = caller_env()
 )
 }
@@ -46,6 +48,9 @@ compared).}
 \item{views}{If \code{TRUE} (default), compare views if the definition has a
 \code{views} element. If \code{FALSE}, views are skipped.}
 
+\item{folders}{If \code{TRUE} (default), compare folders if the definition has a
+\code{folders} element. If \code{FALSE}, folders are skipped.}
+
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
@@ -64,8 +69,9 @@ definitions. Defaults to \code{FALSE}.}
 \code{\link[=compare_sp_list]{compare_sp_list()}} returns a data frame with one row per added or
 deleted column or view and one row per changed property, with columns:
 \itemize{
-\item \code{object}: \code{"list"}, \code{"column"}, or \code{"view"}.
-\item \code{name}: list display name, internal column name, or view title.
+\item \code{object}: \code{"list"}, \code{"column"}, \code{"view"}, or \code{"folder"}.
+\item \code{name}: list display name, internal column name, view title, or folder
+path.
 \item \code{id}: column or view ID for existing columns and views.
 \item \code{action}: one of \code{"add"}, \code{"update"}, \code{"delete"}, \code{"blocked"}, or
 \code{"unverified"}.
@@ -87,7 +93,8 @@ column: \code{"planned"} (for a dry run), \code{"applied"}, \code{"skipped"},
 
 \code{\link[=compare_sp_list]{compare_sp_list()}} compares a list definition (e.g. from a YAML file read
 with \code{\link[=read_sp_list_yaml]{read_sp_list_yaml()}}) with an existing SharePoint list and returns the
-list settings, columns, and views to add, update, or delete.
+list settings, columns, and views to add, update, or delete, and the
+folders to add to a document library.
 
 \code{\link[=sync_sp_list]{sync_sp_list()}} applies those changes. By default, it only prints the
 planned changes (\code{dry_run = TRUE}) and doesn't delete columns or views
@@ -101,7 +108,9 @@ in a definition are compared, so a definition with \code{text: {}} matches any
 text column. A property missing from a definition isn't changed.
 
 SharePoint internal columns and the \code{Title} column are excluded unless
-\code{Title} is included in the definitions. Columns in the list that aren't in
+\code{Title} is included in the definitions. The built-in columns of a document
+library (e.g. \code{FileLeafRef} or \verb{_ExtendedDescription}) are also excluded
+unless they're included in the definitions. Columns in the list that aren't in
 the definitions are returned with \code{action = "delete"}.
 
 Each change has one of these actions:
@@ -145,6 +154,14 @@ default view. Changes are applied in this order: new views, updated views,
 the default view, and then deleted views.
 
 Views are read and changed with the SharePoint REST API. Use \code{views = FALSE} to skip views (e.g. if the SharePoint REST API isn't available).
+
+Comparing folders
+
+Folders are only compared if the definition has a \code{folders} element,
+\code{folders = TRUE}, and the list is a document library. Each folder path that
+doesn't exist is returned with \code{action = "add"}. A path that exists as a
+file is blocked. Folders that aren't in the definition are never deleted.
+Each folder path is checked with one request.
 
 Changes that use the SharePoint REST API
 

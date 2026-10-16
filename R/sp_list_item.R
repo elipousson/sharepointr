@@ -280,11 +280,22 @@ get_sp_list_items <- function(
 #' regional settings), silently shifting the stored instant. Converting to an
 #' explicit `"%Y-%m-%dT%H:%M:%SZ"` UTC string before serialization avoids the
 #' ambiguity entirely. This is the write-side mirror of `.ms365_dttm()`.
-#' @returns If `x` is a `POSIXt` or `Date`, a string formatted as
-#'   `"%Y-%m-%dT%H:%M:%SZ"` in UTC. Otherwise, `x` unmodified.
+#'
+#' A `Date` is a calendar day, not an instant, so it is sent as
+#' `"%Y-%m-%d"` with no time or offset instead. SharePoint stores a date as
+#' midnight in the site's time zone, so sending midnight UTC shifted dates to
+#' the previous day for any site west of UTC (e.g. `"2026-10-13T00:00:00Z"`
+#' was stored as October 12 on a US Eastern site).
+#' @returns If `x` is a `POSIXt`, a string formatted as `"%Y-%m-%dT%H:%M:%SZ"`
+#'   in UTC. If `x` is a `Date`, a string formatted as `"%Y-%m-%d"`.
+#'   Otherwise, `x` unmodified.
 #' @noRd
 .sp_dttm_to_graph <- function(x) {
-  if (!inherits(x, c("POSIXt", "Date"))) {
+  if (inherits(x, "Date")) {
+    return(format(x, format = "%Y-%m-%d"))
+  }
+
+  if (!inherits(x, "POSIXt")) {
     return(x)
   }
 
@@ -659,9 +670,11 @@ get_sp_list_item <- function(
 #' definitions for the list.
 #' @param .batch If `TRUE` (default), items are sent with Microsoft Graph
 #'   `$batch` requests (up to 20 items per request), which is much faster than
-#'   a separate request for each item. Requests throttled by the Graph API are
-#'   retried after the requested delay. If any items fail, the remaining items
-#'   are still sent and the error lists the failed items. If `FALSE`, a
+#'   a separate request for each item. Requests throttled by the Graph API or
+#'   failing with a temporary error (e.g. "Database is read only") are retried
+#'   up to 5 times after the requested delay (or an increasing delay of up to
+#'   60 seconds). If any items fail, the remaining items are still sent and the
+#'   error lists the failed items with the HTTP status. If `FALSE`, a
 #'   separate request is sent for each item and the first failed item is an
 #'   error. Use `options(sharepointr.batch = FALSE)` to change the default for
 #'   the session. In either case, requests are sent in parallel if
@@ -874,7 +887,7 @@ create_sp_list_items <- function(
 
   purrr::map(
     records,
-    purrr::in_parallel(
+    sp_in_parallel(
       \(record) {
         fn(
           .sp_list = .sp_list,
@@ -1207,7 +1220,7 @@ update_sp_list_items <- function(
   purrr::map2(
     records,
     item_ids,
-    purrr::in_parallel(
+    sp_in_parallel(
       \(record, item_id) {
         fn(
           .data = record,
@@ -1216,15 +1229,15 @@ update_sp_list_items <- function(
           sp_list = sp_list,
           # Fields are already validated (or skipped) for all items
           check_fields = FALSE,
-          .multi_fields = .multi_fields,
-          call = call
+          .multi_fields = .multi_fields
         )
       },
       fn = update_sp_list_item,
       na_fields = na_fields,
       sp_list = sp_list,
-      .multi_fields = multi_fields,
-      call = call
+      # `call` isn't passed since a crated function would copy the calling
+      # environment to every worker
+      .multi_fields = multi_fields
     ),
     .progress = .progress
   )
@@ -2152,7 +2165,7 @@ delete_sp_list_items <- function(
 
   resp_list <- purrr::map(
     item_id,
-    purrr::in_parallel(
+    sp_in_parallel(
       \(i) {
         sp_list$do_operation(
           op = paste0("items/", i),

@@ -843,3 +843,77 @@ test_that("compare_sp_list blocks adding a column without a column type", {
     "blocked"
   )
 })
+
+test_that("folder_change_rows adds missing folders and blocks files", {
+  changes <- folder_change_rows(c(Contracts = "missing", "Reports/2026" = "file"))
+
+  expect_identical(changes[["object"]], c("folder", "folder"))
+  expect_identical(changes[["name"]], c("Contracts", "Reports/2026"))
+  expect_identical(changes[["action"]], c("add", "blocked"))
+
+  changes[["status"]] <- plan_change_status(
+    changes,
+    delete = FALSE,
+    allow_data_loss = FALSE
+  )
+
+  expect_snapshot(print_changes(changes, list_name = "Test"))
+  expect_null(folder_change_rows(character(0)))
+})
+
+test_that("compare_sp_list excludes document library columns", {
+  library_meta <- c(
+    live_meta,
+    list(
+      list(id = "id-file", name = "FileLeafRef", displayName = "Name"),
+      list(
+        id = "id-desc",
+        name = "_ExtendedDescription",
+        displayName = "Description",
+        text = list(allowMultipleLines = TRUE)
+      )
+    )
+  )
+  definitions <- list(
+    create_text_column("Notes"),
+    create_choice_column("Status", c("a", "b")),
+    create_number_column("Amount", decimal_places = "automatic"),
+    create_boolean_column("OldColumn")
+  )
+
+  changes <- compare_sp_list(definitions, sp_list = library_meta)
+  expect_identical(changes[["name"]], "Link")
+
+  # A library column is compared if the definition includes it
+  changes <- compare_sp_list(
+    c(
+      definitions,
+      list(list(name = "_ExtendedDescription", displayName = "Summary", text = list()))
+    ),
+    sp_list = library_meta
+  )
+  desc <- changes[changes[["name"]] == "_ExtendedDescription", ]
+  expect_identical(desc[["property"]], "displayName")
+  expect_identical(desc[["proposed"]][[1]], "Summary")
+})
+
+test_that("apply_folder_changes creates planned folders", {
+  created <- character(0)
+  fake_drive <- list(
+    create_folder = function(path) {
+      if (path == "Bad") stop("Conflict")
+      created <<- c(created, path)
+    }
+  )
+
+  local_mocked_bindings(sp_list_drive = function(sp_list) fake_drive)
+
+  changes <- folder_change_rows(c(Contracts = "missing", Bad = "missing", File = "file"))
+  changes[["status"]] <- plan_change_status(changes, delete = FALSE, allow_data_loss = FALSE)
+
+  changes <- apply_folder_changes(changes, sp_list = NULL)
+
+  expect_identical(created, "Contracts")
+  expect_identical(changes[["status"]], c("applied", "failed", "blocked"))
+  expect_identical(changes[["note"]][[2]], "Conflict")
+})

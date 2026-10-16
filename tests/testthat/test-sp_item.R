@@ -132,3 +132,55 @@ test_that("get_sp_item() falls back to the parsed URL if the shares API fails", 
     )
   })
 })
+
+test_that("batch_download_sp_item() gets the drive once and downloads each item", {
+  drive_calls <- 0
+  downloads <- list()
+
+  # The mocks can't record calls from parallel workers
+  local_mocked_bindings(
+    sp_use_parallel = function() FALSE,
+    get_sp_drive = function(...) {
+      drive_calls <<- drive_calls + 1
+      "drive"
+    },
+    download_sp_item = function(..., item_id = NULL, path = NULL, item = NULL, dest = NULL) {
+      downloads <<- c(downloads, list(list2(item_id = item_id, path = path, dest = dest, ...)))
+      dest %||% item[["properties"]][["name"]]
+    }
+  )
+
+  dest <- batch_download_sp_item(
+    item_id = c("1", "2"),
+    dest = c("a.csv", "b.csv"),
+    drive_name = "Documents",
+    overwrite = TRUE
+  )
+
+  expect_identical(dest, c("a.csv", "b.csv"))
+  expect_identical(drive_calls, 1)
+  expect_identical(purrr::map_chr(downloads, "item_id"), c("1", "2"))
+  expect_identical(downloads[[1]][["drive"]], "drive")
+  expect_true(downloads[[1]][["overwrite"]])
+
+  # The drive isn't looked up for URLs (which may refer to different drives)
+  drive_calls <- 0
+  downloads <- list()
+
+  batch_download_sp_item(
+    path = c("https://contoso.sharepoint.com/a", "https://contoso.sharepoint.com/b"),
+    new_path = "files"
+  )
+
+  expect_identical(drive_calls, 0)
+  expect_identical(purrr::map_chr(downloads, "dest"), c("files", "files"))
+
+  # A list of items with no dest uses the item names
+  items <- list(
+    list(properties = list(name = "c.csv")),
+    list(properties = list(name = "d.csv"))
+  )
+
+  expect_identical(batch_download_sp_item(item = items), c("c.csv", "d.csv"))
+  expect_identical(drive_calls, 0)
+})

@@ -82,7 +82,8 @@ a path to a YAML file. The definition \code{displayName}, \code{description},
 \code{contentTypesEnabled}) are used unless the matching argument is supplied.
 Read-only list properties (e.g. \code{id}) and column ids are ignored.
 \code{definition} can't be combined with \code{columns}. Views in the definition are
-also created (see \code{\link[=list_sp_list_views]{list_sp_list_views()}}).}
+also created (see \code{\link[=list_sp_list_views]{list_sp_list_views()}}), and so are folders for a
+document library.}
 
 \item{site_url}{A SharePoint site URL in the format "https://[tenant
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
@@ -141,10 +142,15 @@ may reference other columns.
 is created since the Graph API doesn't support it.
 \item A \code{"Title"} column in \code{columns} or \code{definition} updates the default
 \code{"Title"} column of a \code{"genericList"} list (combined with
-\code{title_definition}) instead of adding a new column.
+\code{title_definition}) or a \code{"documentLibrary"} library instead of adding a
+new column.
 \item Views in \code{definition} are created with the SharePoint REST API after the
 columns are created. A view titled \code{"All Items"} updates the default view
-of a \code{"genericList"} list.
+of a \code{"genericList"} list and a view titled \code{"All Documents"} updates the
+default view of a \code{"documentLibrary"} library.
+\item Folders in \code{definition} are created after the views for a
+\code{"documentLibrary"} library. Use \code{\link[=create_sp_drive]{create_sp_drive()}} to create a document
+library and return the \code{ms_drive} object.
 }
 
 Notes on updating a SharePoint list:

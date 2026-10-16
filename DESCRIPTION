@@ -23,14 +23,16 @@ Imports:
     jsonlite,
     lifecycle,
     Microsoft365R,
-    purrr (>= 1.1.0),
+    purrr (>= 1.2.0),
     rlang,
     stringr,
     utils,
     vctrs
 Suggests:
+    carrier (>= 0.3.0),
     fs,
     knitr,
+    mirai (>= 2.5.1),
     officer,
     openxlsx2,
     rappdirs,
@@ -47,4 +49,4 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)
-Config/roxygen2/version: 8.1.0
+Config/roxygen2/version: 8.1.1.9000

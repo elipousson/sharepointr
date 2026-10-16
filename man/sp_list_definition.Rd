@@ -18,6 +18,7 @@ get_sp_list_definition(
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
+  include_folders = FALSE,
   call = caller_env()
 )
 
@@ -29,6 +30,7 @@ write_sp_list_yaml(
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
+  include_folders = FALSE,
   doc_start = NULL,
   call = caller_env()
 )
@@ -42,8 +44,8 @@ mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{x}{For \code{\link[=write_sp_list_yaml]{write_sp_list_yaml()}}, a \code{sp_list_definition} object or a
-\code{ms_list} object. \code{keep_defaults}, \code{read_only}, and \code{include_views} are
-only used for a \code{ms_list} object. For \code{\link[=as_sp_list_definition]{as_sp_list_definition()}}, a named list with the
+\code{ms_list} object. \code{keep_defaults}, \code{read_only}, \code{include_views}, and
+\code{include_folders} are only used for a \code{ms_list} object. For \code{\link[=as_sp_list_definition]{as_sp_list_definition()}}, a named list with the
 same structure as a YAML file or an unnamed list of column definitions.}
 
 \item{...}{Must be empty.}
@@ -73,6 +75,11 @@ personal views). Defaults to \code{FALSE}. Views are read with the SharePoint
 REST API, which requires a delegated (user) login. See
 \code{\link[=list_sp_list_views]{list_sp_list_views()}}.}
 
+\item{include_folders}{If \code{TRUE}, include the folders of a document library.
+Defaults to \code{FALSE}. Folders are listed recursively, which takes one
+request for each folder. Only the deepest folders of each path are
+included.}
+
 \item{merge}{If \code{TRUE} (default) and \code{path} exists, keep the comment header
 and column order from the existing file. \code{custom} metadata for the list
 and each column comes from \code{x} if it has any and is otherwise kept from
@@ -80,9 +87,10 @@ the existing file (a list never has \code{custom} metadata, so it's always
 kept when \code{x} is a \code{ms_list} object). Read-only list properties
 and column ids always come from \code{x}. Views come from \code{x} if it has views
 (e.g. with \code{include_views = TRUE}) and are otherwise kept from the
-existing file. Columns that are only in the existing file are dropped
-(unless the Graph API doesn't return their column type). Comments after
-the header are always lost.}
+existing file. Folders are kept from the existing file the same way.
+Columns that are only in the existing file are dropped (unless the Graph
+API doesn't return their column type). Comments after the header are
+always lost.}
 
 \item{doc_start}{If \code{TRUE}, write a document start marker (\verb{---}) after the
 comment header (or at the start of a file with no header). If \code{FALSE},
@@ -92,7 +100,7 @@ has one (with \code{merge = TRUE}).}
 \value{
 A \code{sp_list_definition} object: a list with \code{format_version},
 \code{displayName}, \code{description}, \code{list}, any read-only list properties,
-\code{custom}, and \code{columns} elements.
+\code{custom}, \code{columns}, \code{views}, and \code{folders} elements.
 \code{\link[=write_sp_list_yaml]{write_sp_list_yaml()}} invisibly returns the definition that was written.
 }
 \description{
@@ -286,6 +294,35 @@ view titled \verb{All Items} updates the default view of a new \code{genericList
 list. \code{\link[=compare_sp_list]{compare_sp_list()}} and \code{\link[=sync_sp_list]{sync_sp_list()}} compare and update views
 only if the definition has a \code{views} element. Views are only written by
 \code{\link[=write_sp_list_yaml]{write_sp_list_yaml()}} if \code{include_views = TRUE}.
+
+Document libraries
+
+A definition with \code{list.template: documentLibrary} describes a document
+library. Use \code{\link[=create_sp_drive]{create_sp_drive()}} (or \code{\link[=create_sp_list]{create_sp_list()}}) to create a
+library from a definition. The built-in library columns (e.g.
+\code{FileLeafRef} for the file name or \verb{_ExtendedDescription}) are left out of
+a definition from an existing library and aren't compared unless a
+definition includes them. A view titled \verb{All Documents} updates the
+default view of a new library.
+
+An optional \code{folders} key holds a sequence of folder paths relative to the
+library root. Folders are only allowed for a document library.
+
+\if{html}{\out{<div class="sourceCode yaml">}}\preformatted{list:
+  template: documentLibrary
+folders:
+  - Contracts
+  - Reports/2026
+}\if{html}{\out{</div>}}
+\itemize{
+\item Separate folders with \code{/}. Parent folders are created as needed, so
+\code{Reports/2026} also creates \code{Reports}.
+\item Paths must be unique. A folder name can't be empty, start or end with a
+space, end with a period, or include any of \verb{" * : < > ? \\ |}.
+\item \code{\link[=compare_sp_list]{compare_sp_list()}} and \code{\link[=sync_sp_list]{sync_sp_list()}} add folders that are missing
+from the library. Folders are never deleted or renamed.
+\item Folders are only written by \code{\link[=write_sp_list_yaml]{write_sp_list_yaml()}} if \code{include_folders = TRUE}. Only the deepest folders of each path are written.
+}
 }
 \examples{
 path <- system.file("extdata", "example-list.yaml", package = "sharepointr")

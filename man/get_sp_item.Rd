@@ -2,8 +2,7 @@
 % Please edit documentation in R/sp_item.R
 \name{get_sp_item}
 \alias{get_sp_item}
-\alias{get_sp_item_properties}
-\title{Get a SharePoint item or item properties}
+\title{Get a SharePoint item}
 \usage{
 get_sp_item(
   path = NULL,
@@ -15,19 +14,6 @@ get_sp_item(
   drive = NULL,
   site_url = NULL,
   properties = FALSE,
-  as_data_frame = FALSE,
-  call = caller_env()
-)
-
-get_sp_item_properties(
-  path = NULL,
-  item_id = NULL,
-  item_url = NULL,
-  ...,
-  drive = NULL,
-  drive_name = NULL,
-  drive_id = NULL,
-  site_url = NULL,
   as_data_frame = FALSE,
   call = caller_env()
 )
@@ -90,19 +76,18 @@ mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \value{
-For \code{\link[=get_sp_item]{get_sp_item()}}, a \code{ms_drive_item} object (or a \code{ms_item_properties}
-object if \code{properties = TRUE}), or a 1 row data frame if
-\code{as_data_frame = TRUE}. \code{\link[=get_sp_item_properties]{get_sp_item_properties()}} always uses
-\code{properties = TRUE}.
+A \code{ms_drive_item} object (or a list of item properties if
+\code{properties = TRUE}), or a 1 row data frame if \code{as_data_frame = TRUE}.
 }
 \description{
 \code{\link[=get_sp_item]{get_sp_item()}} wraps the \code{get_item} method for \code{ms_drive} objects and
-returns a \code{ms_drive_item} object by default. \code{\link[=get_sp_item_properties]{get_sp_item_properties()}} uses
-the \code{get_item_properties} method (also available by setting \code{properties = TRUE} for \code{\link[=get_sp_item]{get_sp_item()}}).
+returns a \code{ms_drive_item} object by default. Additional parameters in \code{...}
+are passed to \code{\link[=get_sp_drive]{get_sp_drive()}}.
 
-Additional parameters in \code{...} are passed to \code{\link[=get_sp_drive]{get_sp_drive()}} by
-\code{\link[=get_sp_item]{get_sp_item()}} or to \code{\link[=get_sp_item]{get_sp_item()}} by \code{\link[=get_sp_item_properties]{get_sp_item_properties()}} or
-\code{\link[=delete_sp_item]{delete_sp_item()}}.
+Use \code{\link[=get_sp_item_properties]{get_sp_item_properties()}} to get the item properties instead. Setting
+\code{properties = TRUE} returns the same properties, but only
+\code{\link[=get_sp_item_properties]{get_sp_item_properties()}} can include the document library column values
+(fields) for the item.
 
 If \code{path} or \code{item_url} is a SharePoint URL for a file or folder (e.g. a
 link from "Copy link" in SharePoint, a document URL, or a document library
@@ -124,6 +109,6 @@ if (is_sp_url(sp_item_url)) {
 
 }
 \seealso{
-\link[Microsoft365R:ms_drive_item]{Microsoft365R::ms_drive_item}
+\code{\link[=get_sp_item_properties]{get_sp_item_properties()}}, \link[Microsoft365R:ms_drive_item]{Microsoft365R::ms_drive_item}
 }
 \keyword{items}

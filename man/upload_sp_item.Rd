@@ -82,5 +82,8 @@ file or directory.
 }
 \description{
 \code{\link[=upload_sp_item]{upload_sp_item()}} wraps the \code{upload_folder} and \code{upload_file} method for
-\code{ms_drive} objects.
+\code{ms_drive} objects. \code{\link[=upload_sp_items]{upload_sp_items()}} uploads multiple files or folders.
+If \code{{carrier}} and \code{{mirai}} are installed and \code{\link[mirai:daemons]{mirai::daemons()}} are set,
+\code{\link[=upload_sp_items]{upload_sp_items()}} uploads files in parallel (folders are always uploaded
+one at a time).
 }

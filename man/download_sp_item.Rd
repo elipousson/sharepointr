@@ -103,7 +103,10 @@ folders. Make sure to supply a vector to \code{new_path} or \code{dest} vector w
 directory names or file names to use as a destination for the downloads. With
 either option, you must supply a \code{drive}, a \code{drive_name} and \code{site}, or a
 \code{drive_url}. You can also pass a bare list of items and the value for the
-\code{dest} can be inferred from the item properties.
+\code{dest} can be inferred from the item properties. If \code{{carrier}} and
+\code{{mirai}} are installed and \code{\link[mirai:daemons]{mirai::daemons()}} are set, items are downloaded
+in parallel. The \code{parallel} argument is separate: it is passed to the
+\code{download} method to download the contents of a folder in parallel.
 }
 
 \examples{

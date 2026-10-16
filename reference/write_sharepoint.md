@@ -5,13 +5,13 @@
 to upload an object created using:
 
 - [`sf::write_sf()`](https://r-spatial.github.io/sf/reference/st_write.html)
-  if x is an `sf` object
+  if x is an `sf` object (shapefiles are not supported)
 
 - [`readr::write_csv()`](https://readr.tidyverse.org/reference/write_delim.html)
-  if x is a `data.frame` and file does not include a xlsx extension
+  if x is a `data.frame` and file does not have a xlsx extension
 
 - [`openxlsx2::write_xlsx()`](https://janmarvin.github.io/openxlsx2/reference/write_xlsx.html)
-  if x is a `data.frame` file does include a xlsx extension
+  if x is a `data.frame` and file has a xlsx extension
 
 - The [`print()`](https://rdrr.io/r/base/print.html) method from
   `{officer}` if x is a `rdocx`, `rpptx`, or `rxlsx` object
@@ -25,7 +25,7 @@ to upload an object created using:
 write_sharepoint(
   x,
   file,
-  dest,
+  dest = NULL,
   ...,
   .f = NULL,
   new_path = tempdir(),
@@ -60,7 +60,10 @@ write_sharepoint(
   `dsn` for
   [`sf::write_sf()`](https://r-spatial.github.io/sf/reference/st_write.html),
   or `target` for [`print()`](https://rdrr.io/r/base/print.html) (when
-  working with `{officer}` class objects).
+  working with `{officer}` class objects). A shapefile writes more than
+  one file, so `file` can't use a "shp" extension for `sf` objects. Use
+  a single file format like GeoPackage ("gpkg") or GeoJSON ("geojson")
+  instead.
 
 - dest:
 
@@ -69,7 +72,17 @@ write_sharepoint(
   path. If a `ms_drive_item` is provided and `drive_name` is `NULL`, the
   item URL is used to determine the drive. If `NULL`, the top level of
   the provided drive is used as the destination. If file is a directory,
-  `dest` must be an *existing* directory.
+  `dest` must be an *existing* directory. If `dest` is a SharePoint
+  folder or document library URL and `drive_name`, `drive_id`, and
+  `drive` aren't supplied, the drive and folder are found with the
+  [Microsoft Graph shares
+  API](https://learn.microsoft.com/en-us/graph/api/shares-get) (see
+  [`get_sp_item()`](https://elipousson.github.io/sharepointr/reference/get_sp_item.md)).
+  If the request fails, the drive and folder path are parsed from the
+  URL instead. For
+  [`upload_sp_items()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md),
+  `dest` can also be a character vector with one destination for each
+  file. Destinations can be in different drives.
 
 - ...:
 

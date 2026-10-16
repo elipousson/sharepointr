@@ -72,7 +72,20 @@ one at a time).</p>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">upload_sp_items</span><span class="op">(</span>file <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">dest</span>, <span class="va">...</span>, src <span class="op">=</span> <span class="cn">NULL</span>, call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">upload_sp_items</span><span class="op">(</span></span>
+<span>  file <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">dest</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  src <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  blocksize <span class="op">=</span> <span class="fl">327680000</span>,</span>
+<span>  recursive <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  parallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -90,7 +103,13 @@ supplied.</p></dd>
 <code>ms_drive_item</code> is provided and <code>drive_name</code> is <code>NULL</code>, the item URL is
 used to determine the drive. If <code>NULL</code>, the top level of the provided drive
 is used as the destination. If file is a directory, <code>dest</code> must be an
-<em>existing</em> directory.</p></dd>
+<em>existing</em> directory. If <code>dest</code> is a SharePoint folder or document library
+URL and <code>drive_name</code>, <code>drive_id</code>, and <code>drive</code> aren't supplied, the drive and
+folder are found with the <a href="https://learn.microsoft.com/en-us/graph/api/shares-get" class="external-link">Microsoft Graph shares API</a> (see
+<code><a href="get_sp_item.html">get_sp_item()</a></code>). If the request fails, the drive and folder path are parsed
+from the URL instead. For <code>upload_sp_items()</code>, <code>dest</code> can also be a
+character vector with one destination for each file. Destinations can be
+in different drives.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

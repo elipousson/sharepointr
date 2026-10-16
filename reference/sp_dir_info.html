@@ -101,7 +101,11 @@ file.</p>
 <dd><p>Path to directory or folder. SharePoint folder URLs are allowed.
 If <code>NULL</code>, path is set to default "/". <code>path</code> can be a string or a
 character vector. If a vector or path of URLs are supplied, provide a
-<code>drive</code> object to improve performance.</p></dd>
+<code>drive</code> object to improve performance. If <code>path</code> is a SharePoint folder or
+document library URL and <code>drive_name</code>, <code>drive_id</code>, and <code>drive</code> aren't
+supplied, the drive and folder are found with the <a href="https://learn.microsoft.com/en-us/graph/api/shares-get" class="external-link">Microsoft Graph shares API</a> (see
+<code><a href="get_sp_item.html">get_sp_item()</a></code>). If the request fails, the drive and folder path are
+parsed from the URL instead.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

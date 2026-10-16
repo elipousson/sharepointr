@@ -379,15 +379,25 @@
 ### Fixes
 
 - Fix
+  [`write_sharepoint()`](https://elipousson.github.io/sharepointr/reference/write_sharepoint.md)
+  saving [officer](https://ardata-fr.github.io/officeverse/) `rxlsx`
+  objects with
+  [`readr::write_rds()`](https://readr.tidyverse.org/reference/read_rds.html)
+  and only matching a lowercase “.xlsx” extension for data frames
+  (e.g. `"data.XLSX"` was written as a CSV file). (2026-10-10)
+
+- Fix
   [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
   copying the calling environment (and any objects in it) to every
   parallel worker when
   [`mirai::daemons()`](https://mirai.r-lib.org/reference/daemons.html)
   are set. (2026-10-13)
+
 - Fix
   [`download_sp_item()`](https://elipousson.github.io/sharepointr/reference/download_sp_item.md)
   erroring for a list of items with no `dest` (each item is now
   downloaded using the item name). (2026-10-13)
+
 - Fix
   [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
   [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
@@ -405,6 +415,7 @@
   [mirai](https://mirai.r-lib.org) are now listed in Suggests and
   [purrr](https://purrr.tidyverse.org/) 1.2.0 or later is now required.
   (2026-10-13)
+
 - Fix
   [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md),
   [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
@@ -418,6 +429,7 @@
   seconds, up to 60 seconds) and up to 5 times (instead of 3). The error
   for failed items now includes the HTTP status and Graph error code.
   (2026-10-13)
+
 - Fix `Date` values written to list date columns (e.g. with
   [`create_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_item.md)
   or
@@ -428,6 +440,7 @@
   time or offset (e.g. `"2026-10-13"`), which SharePoint stores using
   the site’s time zone. `POSIXct` values are still sent as UTC
   date-times. (2026-10-13)
+
 - Fix
   [`sp_url_parse()`](https://elipousson.github.io/sharepointr/reference/sp_url_parse.md)
   decoding URL paths twice with [httr2](https://httr2.r-lib.org) 1.1.0
@@ -437,16 +450,19 @@
   now expects a decoded path (as returned by
   [`httr2::url_parse()`](https://httr2.r-lib.org/reference/url_parse.html)).
   Requires [httr2](https://httr2.r-lib.org) 1.1.0 or later. (2026-10-10)
+
 - Fix
   [`sp_url_parse()`](https://elipousson.github.io/sharepointr/reference/sp_url_parse.md)
   (and functions that accept a SharePoint URL) for list URLs with no
   view page
   (e.g. `"https://contoso.sharepoint.com/sites/site-name/Lists/list-name"`).
   (2026-10-10)
+
 - [`sp_url_parse()`](https://elipousson.github.io/sharepointr/reference/sp_url_parse.md)
   now errors if a site name can’t be found in a URL, instead of
   returning a site URL with no site name that caused a “not found” error
   from the Graph API. (2026-10-10)
+
 - Fix
   [`compare_sp_list()`](https://elipousson.github.io/sharepointr/reference/compare_sp_list.md)
   and
@@ -454,6 +470,7 @@
   reporting a `locale` change for a column that was just created from
   the same definition (SharePoint returns locales like `"en-US"` for
   `"en-us"`). Locales are now compared ignoring case. (2026-10-10)
+
 - Fix item id handling for
   [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
   [`delete_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md),
@@ -467,11 +484,13 @@
   errors for more than one item id or for unused arguments, and
   [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
   errors if both `item_id` and `filter` are supplied. (2026-10-10)
+
 - Fix
   [`update_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
   sending an empty update when only the `.id` field is left after
   dropping `NA` values (with `.id` other than `"id"`) and erroring when
   no fields are supplied. (2026-10-10)
+
 - Fix
   [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
   returning modified `data` (and both
@@ -483,13 +502,16 @@
   [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
   also checks `data` before any API calls or creating a list.
   (2026-10-10)
+
 - Fix
   [`update_sp_list_column()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_column.md)
   sending the whole column definition: only properties that differ from
   the existing column are sent. (2026-10-09)
+
 - Fix
   [`create_number_column()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
   rejecting decimal `max` and `min` values. (2026-10-09)
+
 - Fix
   [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
   and
@@ -501,20 +523,24 @@
   [`delete_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
   used every element of a named list as an item id. Other named lists
   now error. (2026-10-06)
+
 - Fix
   [`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md)
   returning no items for a filtered query on a list with more than 5,000
   items when the first page of results is empty. The Graph API evaluates
   these queries in batches, and an empty first page caused all later
   items to be dropped. (2026-10-05)
+
 - Fix updates to multi-value lookup and person or group columns:
   `"{name}LookupId"` values are now sent as a `Collection(Edm.Int32)`
   (lookup ID values are often returned as strings). (2026-10-01)
+
 - Fix
   [`delete_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/delete_sp_list_item.md)
   erroring with a data frame `item_id` (the id value is now pulled from
   the data frame before checking arguments and getting the list item).
   (2026-10-01)
+
 - Fix
   [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
   validating fields again for every item: fields are now validated once
@@ -524,6 +550,7 @@
   [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
   also shares a single list column metadata request for field validation
   and identifying multi-value fields. (2026-10-01)
+
 - Fix multi-select (multi-value) fields when creating or updating list
   items from a data frame with list-columns:
   [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)/[`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
@@ -532,29 +559,35 @@
   and convert `sfc` columns to WKT for updates as well as creates.
   `na_fields = "drop"` now also drops empty values (e.g. `character(0)`)
   so existing values are left in place. (2026-10-01)
+
 - Fix bug where
   [`get_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md)
   only returned item ID, not the
   [`Microsoft365R::ms_list_item`](https://rdrr.io/pkg/Microsoft365R/man/ms_list_item.html)
   object (2024-08-10)
+
 - Fix bug where
   [`read_sharepoint()`](https://elipousson.github.io/sharepointr/reference/read_sharepoint.md)
   used
   [`readr::read_lines()`](https://readr.tidyverse.org/reference/read_lines.html)
   for PowerPoint files. (2024-10-10)
+
 - Fix
   [`upload_sp_item()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)
   overwrite check validating against the source filename instead of the
   actual destination filename when dest renames the file.
+
 - Fix
   [`sp_dir_info()`](https://elipousson.github.io/sharepointr/reference/sp_dir_info.md)
   erroring (instead of warning) when `recurse = TRUE` and
   `type = "file"` are both supplied.
+
 - Fix
   [`sp_url_parse_path()`](https://elipousson.github.io/sharepointr/reference/sp_url_parse.md)
   erroring on drive names containing regex metacharacters
   (e.g. parentheses) by matching the drive name as a fixed string
   instead of interpolating it unescaped into a regex.
+
 - Fix
   [`list_sp_tasks()`](https://elipousson.github.io/sharepointr/reference/sp_tasks.md)/[`get_sp_task()`](https://elipousson.github.io/sharepointr/reference/sp_tasks.md)
   erroring when combining Planner tasks whose properties
@@ -568,6 +601,42 @@
 
 ### Changes
 
+- [`get_sp_item()`](https://elipousson.github.io/sharepointr/reference/get_sp_item.md),
+  [`get_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/sp_item_properties.md),
+  [`sp_dir_info()`](https://elipousson.github.io/sharepointr/reference/sp_dir_info.md)
+  (and
+  [`sp_dir_ls()`](https://elipousson.github.io/sharepointr/reference/sp_dir_info.md)),
+  and
+  [`upload_sp_item()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)
+  (and
+  [`write_sharepoint()`](https://elipousson.github.io/sharepointr/reference/write_sharepoint.md))
+  now use the Microsoft Graph shares API to get a file or folder from a
+  SharePoint URL (a “Copy link” link, document URL, item URL, or
+  document library URL). This supports items in any document library,
+  links to items that have been moved, and URLs that can’t be parsed
+  (e.g. the `webUrl` for a file or a document library URL for a folder
+  with an `id` query parameter). If the shares API request fails, the
+  site, drive, and path are parsed from the URL as before.
+  [`sp_dir_info()`](https://elipousson.github.io/sharepointr/reference/sp_dir_info.md)
+  and
+  [`upload_sp_item()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)
+  now error if a URL is for a file instead of a folder, and
+  [`upload_sp_item()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)
+  no longer errors if `dest` is `NULL` and `overwrite = FALSE`.
+  [`upload_sp_items()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md)
+  now supports a vector of destination URLs (including folders in
+  different drives), finds the drive for a URL `dest` if `drive` isn’t
+  supplied, and gains `overwrite`, `drive_name`, `drive_id`, and `drive`
+  arguments. Like
+  [`upload_sp_item()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md),
+  it now errors if a file already exists unless `overwrite = TRUE`.
+  (2026-10-10)
+- [`write_sharepoint()`](https://elipousson.github.io/sharepointr/reference/write_sharepoint.md)
+  now errors if `file` is a shapefile (which writes more than one file,
+  so only the “.shp” file was uploaded), and `dest` defaults to `NULL`
+  (the top level of the drive) to match
+  [`upload_sp_item()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md).
+  (2026-10-10)
 - [`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md)
   no longer includes the `"@odata.etag"` column, which the Graph API
   returns with the fields of each item, unless `all_metadata = TRUE`.

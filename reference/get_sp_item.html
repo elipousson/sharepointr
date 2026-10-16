@@ -5,13 +5,29 @@ are passed to get_sp_drive().
 Use get_sp_item_properties() to get the item properties instead. Setting
 properties = TRUE returns the same properties, but only
 get_sp_item_properties() can include the document library column values
-(fields) for the item."><meta property="og:description" content="get_sp_item() wraps the get_item method for ms_drive objects and
+(fields) for the item.
+If path or item_url is a SharePoint URL for a file or folder (e.g. a
+link from &quot;Copy link&quot; in SharePoint, a document URL, or a document library
+URL) and item_id, drive_name, drive_id, and drive aren't supplied,
+get_sp_item() gets the item with the Microsoft Graph shares API. This works for
+items in any document library and for links to items that have been moved.
+The Microsoft Graph login uses site, site_url, or the site in the URL.
+If the shares API request fails, the site, drive, and path or item ID are
+parsed from the URL instead."><meta property="og:description" content="get_sp_item() wraps the get_item method for ms_drive objects and
 returns a ms_drive_item object by default. Additional parameters in ...
 are passed to get_sp_drive().
 Use get_sp_item_properties() to get the item properties instead. Setting
 properties = TRUE returns the same properties, but only
 get_sp_item_properties() can include the document library column values
-(fields) for the item."></head><body>
+(fields) for the item.
+If path or item_url is a SharePoint URL for a file or folder (e.g. a
+link from &quot;Copy link&quot; in SharePoint, a document URL, or a document library
+URL) and item_id, drive_name, drive_id, and drive aren't supplied,
+get_sp_item() gets the item with the Microsoft Graph shares API. This works for
+items in any document library and for links to items that have been moved.
+The Microsoft Graph login uses site, site_url, or the site in the URL.
+If the shares API request fails, the site, drive, and path or item ID are
+parsed from the URL instead."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -59,6 +75,14 @@ are passed to <code><a href="sp_drive.html">get_sp_drive()</a></code>.</p>
 <code>properties = TRUE</code> returns the same properties, but only
 <code><a href="sp_item_properties.html">get_sp_item_properties()</a></code> can include the document library column values
 (fields) for the item.</p>
+<p>If <code>path</code> or <code>item_url</code> is a SharePoint URL for a file or folder (e.g. a
+link from "Copy link" in SharePoint, a document URL, or a document library
+URL) and <code>item_id</code>, <code>drive_name</code>, <code>drive_id</code>, and <code>drive</code> aren't supplied,
+<code>get_sp_item()</code> gets the item with the <a href="https://learn.microsoft.com/en-us/graph/api/shares-get" class="external-link">Microsoft Graph shares API</a>. This works for
+items in any document library and for links to items that have been moved.
+The Microsoft Graph login uses <code>site</code>, <code>site_url</code>, or the site in the URL.
+If the shares API request fails, the site, drive, and path or item ID are
+parsed from the URL instead.</p>
     </div>
 
     <div class="section level2">

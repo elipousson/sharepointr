@@ -53,7 +53,14 @@ sp_dir_ls(
   Path to directory or folder. SharePoint folder URLs are allowed. If
   `NULL`, path is set to default "/". `path` can be a string or a
   character vector. If a vector or path of URLs are supplied, provide a
-  `drive` object to improve performance.
+  `drive` object to improve performance. If `path` is a SharePoint
+  folder or document library URL and `drive_name`, `drive_id`, and
+  `drive` aren't supplied, the drive and folder are found with the
+  [Microsoft Graph shares
+  API](https://learn.microsoft.com/en-us/graph/api/shares-get) (see
+  [`get_sp_item()`](https://elipousson.github.io/sharepointr/reference/get_sp_item.md)).
+  If the request fails, the drive and folder path are parsed from the
+  URL instead.
 
 - ...:
 

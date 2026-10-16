@@ -12,6 +12,16 @@ the same properties, but only
 [`get_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/sp_item_properties.md)
 can include the document library column values (fields) for the item.
 
+If `path` or `item_url` is a SharePoint URL for a file or folder (e.g. a
+link from "Copy link" in SharePoint, a document URL, or a document
+library URL) and `item_id`, `drive_name`, `drive_id`, and `drive` aren't
+supplied, `get_sp_item()` gets the item with the [Microsoft Graph shares
+API](https://learn.microsoft.com/en-us/graph/api/shares-get). This works
+for items in any document library and for links to items that have been
+moved. The Microsoft Graph login uses `site`, `site_url`, or the site in
+the URL. If the shares API request fails, the site, drive, and path or
+item ID are parsed from the URL instead.
+
 ## Usage
 
 ``` r

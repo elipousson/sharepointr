@@ -25,7 +25,20 @@ upload_sp_item(
   call = caller_env()
 )
 
-upload_sp_items(file = NULL, dest, ..., src = NULL, call = caller_env())
+upload_sp_items(
+  file = NULL,
+  dest,
+  ...,
+  src = NULL,
+  overwrite = FALSE,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  blocksize = 327680000,
+  recursive = FALSE,
+  parallel = FALSE,
+  call = caller_env()
+)
 ```
 
 ## Arguments
@@ -41,7 +54,16 @@ upload_sp_items(file = NULL, dest, ..., src = NULL, call = caller_env())
   path. If a `ms_drive_item` is provided and `drive_name` is `NULL`, the
   item URL is used to determine the drive. If `NULL`, the top level of
   the provided drive is used as the destination. If file is a directory,
-  `dest` must be an *existing* directory.
+  `dest` must be an *existing* directory. If `dest` is a SharePoint
+  folder or document library URL and `drive_name`, `drive_id`, and
+  `drive` aren't supplied, the drive and folder are found with the
+  [Microsoft Graph shares
+  API](https://learn.microsoft.com/en-us/graph/api/shares-get) (see
+  [`get_sp_item()`](https://elipousson.github.io/sharepointr/reference/get_sp_item.md)).
+  If the request fails, the drive and folder path are parsed from the
+  URL instead. For `upload_sp_items()`, `dest` can also be a character
+  vector with one destination for each file. Destinations can be in
+  different drives.
 
 - ...:
 

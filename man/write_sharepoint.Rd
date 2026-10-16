@@ -7,7 +7,7 @@
 write_sharepoint(
   x,
   file,
-  dest,
+  dest = NULL,
   ...,
   .f = NULL,
   new_path = tempdir(),
@@ -31,14 +31,23 @@ outputs.}
 
 \item{file}{File to write to. Passed to \code{file} parameter for
 \code{\link[readr:write_csv]{readr::write_csv()}} or \code{\link[readr:write_rds]{readr::write_rds()}}, \code{dsn} for \code{sf::write_sf()},
-or \code{target} for \code{print()} (when working with \code{{officer}} class objects).}
+or \code{target} for \code{print()} (when working with \code{{officer}} class objects).
+A shapefile writes more than one file, so \code{file} can't use a "shp"
+extension for \code{sf} objects. Use a single file format like GeoPackage
+("gpkg") or GeoJSON ("geojson") instead.}
 
 \item{dest}{Destination on SharePoint for file to upload. Must be a
 \code{ms_drive_item} for a folder, a SharePoint folder URL, or a drive path. If a
 \code{ms_drive_item} is provided and \code{drive_name} is \code{NULL}, the item URL is
 used to determine the drive. If \code{NULL}, the top level of the provided drive
 is used as the destination. If file is a directory, \code{dest} must be an
-\emph{existing} directory.}
+\emph{existing} directory. If \code{dest} is a SharePoint folder or document library
+URL and \code{drive_name}, \code{drive_id}, and \code{drive} aren't supplied, the drive and
+folder are found with the \href{https://learn.microsoft.com/en-us/graph/api/shares-get}{Microsoft Graph shares API} (see
+\code{\link[=get_sp_item]{get_sp_item()}}). If the request fails, the drive and folder path are parsed
+from the URL instead. For \code{\link[=upload_sp_items]{upload_sp_items()}}, \code{dest} can also be a
+character vector with one destination for each file. Destinations can be
+in different drives.}
 
 \item{...}{Additional parameters passed to write function.}
 
@@ -84,9 +93,9 @@ Invisibly returns the input object x.
 \code{\link[=write_sharepoint]{write_sharepoint()}} uses \code{\link[=upload_sp_item]{upload_sp_item()}} to upload an object created
 using:
 \itemize{
-\item \code{\link[sf:write_sf]{sf::write_sf()}} if x is an \code{sf} object
-\item \code{\link[readr:write_csv]{readr::write_csv()}} if x is a \code{data.frame} and file does not include a xlsx extension
-\item \code{\link[openxlsx2:write_xlsx]{openxlsx2::write_xlsx()}} if x is a \code{data.frame} file does include a xlsx extension
+\item \code{\link[sf:write_sf]{sf::write_sf()}} if x is an \code{sf} object (shapefiles are not supported)
+\item \code{\link[readr:write_csv]{readr::write_csv()}} if x is a \code{data.frame} and file does not have a xlsx extension
+\item \code{\link[openxlsx2:write_xlsx]{openxlsx2::write_xlsx()}} if x is a \code{data.frame} and file has a xlsx extension
 \item The \code{\link[=print]{print()}} method from \code{{officer}} if x is a \code{rdocx}, \code{rpptx}, or \code{rxlsx} object
 \item \code{\link[readr:write_rds]{readr::write_rds()}} if x is any other class
 }

@@ -49,6 +49,8 @@
 
 ## Fixes
 
+* Fix `write_sharepoint()` saving `{officer}` `rxlsx` objects with `readr::write_rds()` and only matching a lowercase ".xlsx" extension for data frames (e.g. `"data.XLSX"` was written as a CSV file). (2026-10-10)
+
 * Fix `update_sp_list_items()` copying the calling environment (and any objects in it) to every parallel worker when `mirai::daemons()` are set. (2026-10-13)
 * Fix `download_sp_item()` erroring for a list of items with no `dest` (each item is now downloaded using the item name). (2026-10-13)
 * Fix `create_sp_list_items()`, `update_sp_list_items()`, and `delete_sp_list_items()` requiring `{carrier}` and `{mirai}` (and erroring or prompting to install them) even when items aren't sent in parallel. Items are now only sent in parallel with `purrr::in_parallel()` if both packages are installed and `mirai::daemons()` are set; otherwise, items are sent sequentially. `{carrier}` and `{mirai}` are now listed in Suggests and `{purrr}` 1.2.0 or later is now required. (2026-10-13)
@@ -78,6 +80,8 @@
 
 ## Changes
 
+* `get_sp_item()`, `get_sp_item_properties()`, `sp_dir_info()` (and `sp_dir_ls()`), and `upload_sp_item()` (and `write_sharepoint()`) now use the Microsoft Graph shares API to get a file or folder from a SharePoint URL (a "Copy link" link, document URL, item URL, or document library URL). This supports items in any document library, links to items that have been moved, and URLs that can't be parsed (e.g. the `webUrl` for a file or a document library URL for a folder with an `id` query parameter). If the shares API request fails, the site, drive, and path are parsed from the URL as before. `sp_dir_info()` and `upload_sp_item()` now error if a URL is for a file instead of a folder, and `upload_sp_item()` no longer errors if `dest` is `NULL` and `overwrite = FALSE`. `upload_sp_items()` now supports a vector of destination URLs (including folders in different drives), finds the drive for a URL `dest` if `drive` isn't supplied, and gains `overwrite`, `drive_name`, `drive_id`, and `drive` arguments. Like `upload_sp_item()`, it now errors if a file already exists unless `overwrite = TRUE`. (2026-10-10)
+* `write_sharepoint()` now errors if `file` is a shapefile (which writes more than one file, so only the ".shp" file was uploaded), and `dest` defaults to `NULL` (the top level of the drive) to match `upload_sp_item()`. (2026-10-10)
 * `list_sp_list_items()` no longer includes the `"@odata.etag"` column, which the Graph API returns with the fields of each item, unless `all_metadata = TRUE`. (2026-10-10)
 * Revise `read_sharepoint()` to support zipped shapefiles. (2024-07-25)
 * Improve printing of custom `.f` argument in `read_sharepoint()`. (2024-10-10)

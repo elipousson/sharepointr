@@ -13,9 +13,9 @@ sp_url_as_src_dest <- function(url, src, call = caller_env()) {
 #' [write_sharepoint()] uses [upload_sp_item()] to upload an object created
 #' using:
 #'
-#' - [sf::write_sf()] if x is an `sf` object
-#' - [readr::write_csv()] if x is a `data.frame` and file does not include a xlsx extension
-#' - [openxlsx2::write_xlsx()] if x is a `data.frame` file does include a xlsx extension
+#' - [sf::write_sf()] if x is an `sf` object (shapefiles are not supported)
+#' - [readr::write_csv()] if x is a `data.frame` and file does not have a xlsx extension
+#' - [openxlsx2::write_xlsx()] if x is a `data.frame` and file has a xlsx extension
 #' - The [print()] method from `{officer}` if x is a `rdocx`, `rpptx`, or `rxlsx` object
 #' - [readr::write_rds()] if x is any other class
 #'
@@ -26,6 +26,9 @@ sp_url_as_src_dest <- function(url, src, call = caller_env()) {
 #' @param file File to write to. Passed to `file` parameter for
 #'   [readr::write_csv()] or [readr::write_rds()], `dsn` for `sf::write_sf()`,
 #'   or `target` for `print()` (when working with `{officer}` class objects).
+#'   A shapefile writes more than one file, so `file` can't use a "shp"
+#'   extension for `sf` objects. Use a single file format like GeoPackage
+#'   ("gpkg") or GeoJSON ("geojson") instead.
 #' @param .f Optional function to write the input data to disk before uploading
 #'   file to SharePoint.
 #' @param ... Additional parameters passed to write function.
@@ -40,7 +43,7 @@ sp_url_as_src_dest <- function(url, src, call = caller_env()) {
 write_sharepoint <- function(
   x,
   file,
-  dest,
+  dest = NULL,
   ...,
   .f = NULL,
   new_path = tempdir(),
@@ -57,22 +60,32 @@ write_sharepoint <- function(
 ) {
   check_string(file, call = call)
   file <- str_c_fsep(new_path, file)
+  file_ext <- tolower(fs::path_ext(file))
 
   if (!is.null(.f)) {
     .f <- as_function(.f, call = call)
     .f(x, file, ...)
   } else if (inherits(x, "sf")) {
+    if (file_ext == "shp") {
+      cli_abort(
+        c(
+          "{.arg file} can't be a shapefile.",
+          "i" = "Use a single file format like GeoPackage ({.file .gpkg}) or
+          GeoJSON ({.file .geojson}) instead."
+        ),
+        call = call
+      )
+    }
+
     check_installed("sf", call = call)
     sf::write_sf(x, dsn = file, ...)
-  } else if (
-    inherits(x, "data.frame") && !stringr::str_detect(file, ".xlsx$")
-  ) {
-    check_installed("readr", call = call)
-    readr::write_csv(x, file = file, ...)
-  } else if (inherits(x, "data.frame") && stringr::str_detect(file, ".xlsx$")) {
+  } else if (inherits(x, "data.frame") && file_ext == "xlsx") {
     check_installed("openxlsx2", call = call)
     openxlsx2::write_xlsx(x, file = file, ...)
-  } else if (inherits(x, c("rdocx", "rpptx", "rxslx"))) {
+  } else if (inherits(x, "data.frame")) {
+    check_installed("readr", call = call)
+    readr::write_csv(x, file = file, ...)
+  } else if (inherits(x, c("rdocx", "rpptx", "rxlsx"))) {
     check_installed("officer", call = call)
     print(x, target = file, ...)
   } else {
@@ -117,7 +130,14 @@ write_sharepoint <- function(
 #'  `ms_drive_item` is provided and `drive_name` is `NULL`, the item URL is
 #'  used to determine the drive. If `NULL`, the top level of the provided drive
 #'  is used as the destination. If file is a directory, `dest` must be an
-#'  *existing* directory.
+#'  *existing* directory. If `dest` is a SharePoint folder or document library
+#'  URL and `drive_name`, `drive_id`, and `drive` aren't supplied, the drive and
+#'  folder are found with the [Microsoft Graph shares
+#'  API](https://learn.microsoft.com/en-us/graph/api/shares-get) (see
+#'  [get_sp_item()]). If the request fails, the drive and folder path are parsed
+#'  from the URL instead. For [upload_sp_items()], `dest` can also be a
+#'  character vector with one destination for each file. Destinations can be
+#'  in different drives.
 #' @param src Data source path passed to `upload_folder` or `upload_file`
 #'   method. Defaults to `NULL` and set to use file value by default.
 #' @param overwrite If `FALSE` (default), error if an item with the name
@@ -163,83 +183,19 @@ upload_sp_item <- function(
     )
   }
 
-  if (is_ms_drive_item(dest, TRUE)) {
-    file_path <- dest$get_path()
-    drive_name <- drive_name %||% dest$properties$webUrl
-    dest <- file_path
-  }
-
-  if (is_sp_url(dest)) {
-    url <- dest
-
-    sp_url_parts <- sp_url_parse(url, call = call)
-    file_path <- sp_url_parts[["file_path"]] |>
-      str_remove_slash()
-
-    dest <- str_c_url(file_path, basename(src))
-    drive_name <- url
-  } else if (is.character(dest)) {
-    # Assume `dest` is a file path if it's not a SharePoint URL
-    file_path <- dest
-  }
-
-  dest <- dest %||% ""
-
-  if (!is_string(dest)) {
-    cli_abort(
-      "{.arg dest} must be a SharePoint folder URL, a file path,
-      a path to an existing SharePoint folder, or a {.cls ms_drive_item} object.",
-      call = call
-    )
-  }
-
-  drive <- drive %||%
-    get_sp_drive(
-      drive_name = drive_name,
-      drive_id = drive_id,
-      ...,
-      call = call
-    )
-
-  check_ms_drive(drive, call = call)
-
-  if (!overwrite) {
-    check_installed("fs")
-
-    dir_path <- file_path
-    overwrite_file <- fs::path_file(src)
-
-    # TODO: Check congruence between src file extension and destination file extension
-    if (fs::path_ext(file_path) != "") {
-      dir_path <- fs::path_dir(file_path)
-      overwrite_file <- fs::path_file(file_path)
-    }
-
-    file_names <- sp_dir_info(
-      drive = drive,
-      path = dir_path,
-      info = "name",
-      full_names = FALSE,
-      call = call
-    )
-
-    if (overwrite_file %in% file_names) {
-      cli_abort(
-        c(
-          # TODO: Replace {.arg dest} w/ {.path {dir_path}} - just need to check it works
-          "{.file {overwrite_file}} already exists on SharePoint drive at {.arg dest}",
-          "i" = "Set {.code overwrite = TRUE} to replace the existing item."
-        ),
-        call = call
-      )
-    }
-  }
-
-  upload_sp_src(
-    src = src,
-    dest = dest,
-    drive = drive,
+  sp_dest <- sp_upload_dest(
+    dest,
+    ...,
     overwrite = overwrite,
+    drive_name = drive_name,
+    drive_id = drive_id,
+    drive = drive,
+    call = call
+  )
+
+  upload_sp_dest(
+    src = src,
+    sp_dest = sp_dest,
     blocksize = blocksize,
     recursive = recursive,
     parallel = parallel,
@@ -254,6 +210,13 @@ upload_sp_items <- function(
   dest,
   ...,
   src = NULL,
+  overwrite = FALSE,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  blocksize = 327680000,
+  recursive = FALSE,
+  parallel = FALSE,
   call = caller_env()
 ) {
   if (!is_character(src) && !is_character(file)) {
@@ -267,23 +230,30 @@ upload_sp_items <- function(
 
   check_character(src, call = call)
 
-  if (
-    all(is_url(dest)) && has_length(dest, 1) || is_ms_drive_item(dest, TRUE)
-  ) {
-    dest <- purrr::map_chr(
-      src,
-      \(x) {
-        sp_url_as_src_dest(
-          url = dest,
-          src = x
-        )
-      }
-    )
+  if (is_ms_drive_item(dest, TRUE)) {
+    dest <- list(dest)
+  } else {
+    check_character(dest, call = call)
   }
 
-  dest <- vctrs::vec_recycle(
-    dest,
-    size = length(src)
+  dest <- vctrs::vec_recycle(dest, size = length(src), call = call)
+
+  # Get the drive and folder once for each unique destination, so files can be
+  # uploaded to folders in different drives
+  unique_dest <- unique(dest)
+  sp_dest_list <- purrr::map(
+    unique_dest,
+    \(x) {
+      sp_upload_dest(
+        x,
+        ...,
+        overwrite = overwrite,
+        drive_name = drive_name,
+        drive_id = drive_id,
+        drive = drive,
+        call = call
+      )
+    }
   )
 
   check_installed("fs", call = call)
@@ -304,16 +274,162 @@ upload_sp_items <- function(
   # contents of each directory in parallel instead).
   dest_list <- purrr::map2_chr(
     src,
-    dest,
+    sp_dest_list[match(dest, unique_dest)],
     sp_in_parallel(
-      \(x, y) do.call(fn, c(list(src = x, dest = y), dots)),
-      fn = upload_sp_src,
-      dots = list2(...),
+      \(x, y) {
+        do.call(fn, c(list(src = x, sp_dest = y), dots))
+      },
+      fn = upload_sp_dest,
+      dots = list(
+        blocksize = blocksize,
+        recursive = recursive,
+        parallel = parallel
+      ),
       .parallel = !any(is_src_dir)
     )
   )
 
   invisible(dest_list)
+}
+
+#' Get the drive and destination path for an upload
+#'
+#' @param dest A `ms_drive_item` for a folder, a SharePoint folder URL, a drive
+#'   path, or `NULL` for the drive root.
+#' @param overwrite If `FALSE`, list the names of existing items in the
+#'   destination folder, so they only need to be listed once for each `dest`.
+#' @returns A list with `drive` (a `ms_drive` object), `file_path` (the
+#'   destination folder or file path), `dest` (the destination path, or
+#'   `NULL` if the destination is a folder URL and the uploaded item name must
+#'   be added to `file_path`), and `existing` (names of existing items in the
+#'   destination folder, or `NULL` if `overwrite = TRUE`).
+#' @noRd
+sp_upload_dest <- function(
+  dest = NULL,
+  ...,
+  overwrite = FALSE,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  call = caller_env()
+) {
+  file_path <- NULL
+
+  if (is_ms_drive_item(dest, TRUE)) {
+    file_path <- dest$get_path()
+    drive_name <- drive_name %||% dest$properties$webUrl
+    dest <- file_path
+  }
+
+  if (is_sp_url(dest)) {
+    # Use the Graph shares API to get the drive and folder path from the URL.
+    # If the request fails, fall back to the drive and path parsed from the URL.
+    folder <- sp_url_get_folder(
+      dest,
+      ...,
+      shares = is.null(c(drive_name, drive_id)) && is.null(drive),
+      arg = "dest",
+      call = call
+    )
+
+    drive <- drive %||% folder[["drive"]]
+    drive_name <- folder[["drive_name"]]
+    file_path <- folder[["path"]]
+    dest <- NULL
+  } else {
+    # Assume `dest` is a file path if it's not a SharePoint URL
+    dest <- dest %||% ""
+
+    if (!is_string(dest)) {
+      cli_abort(
+        "{.arg dest} must be a SharePoint folder URL, a file path,
+        a path to an existing SharePoint folder, or a {.cls ms_drive_item} object.",
+        call = call
+      )
+    }
+
+    file_path <- file_path %||% dest
+  }
+
+  drive <- drive %||%
+    get_sp_drive(
+      drive_name = drive_name,
+      drive_id = drive_id,
+      ...,
+      call = call
+    )
+
+  check_ms_drive(drive, call = call)
+
+  existing <- NULL
+
+  if (!overwrite) {
+    existing <- sp_dir_info(
+      drive = drive,
+      path = sp_dest_dir(file_path),
+      info = "name",
+      full_names = FALSE,
+      call = call
+    )
+  }
+
+  list(drive = drive, file_path = file_path, dest = dest, existing = existing)
+}
+
+#' Get the folder path for a destination file or folder path
+#' @noRd
+sp_dest_dir <- function(file_path) {
+  # TODO: Check congruence between src file extension and destination file extension
+  if (fs::path_ext(file_path) != "") {
+    return(fs::path_dir(file_path))
+  }
+
+  file_path
+}
+
+#' Upload a file or folder to a destination from `sp_upload_dest()`
+#'
+#' @param sp_dest A list from `sp_upload_dest()`.
+#' @returns Invisibly returns the destination path. Errors if an item with the
+#'   same name is in `sp_dest$existing`.
+#' @noRd
+upload_sp_dest <- function(
+  src,
+  sp_dest,
+  blocksize = 327680000,
+  recursive = FALSE,
+  parallel = FALSE,
+  call = caller_env()
+) {
+  drive <- sp_dest[["drive"]]
+  file_path <- sp_dest[["file_path"]]
+  dest <- sp_dest[["dest"]] %||% str_c_url(file_path, basename(src))
+
+  overwrite_file <- fs::path_file(src)
+  if (fs::path_ext(file_path) != "") {
+    overwrite_file <- fs::path_file(file_path)
+  }
+
+  if (overwrite_file %in% sp_dest[["existing"]]) {
+    cli_abort(
+      c(
+        # TODO: Replace {.arg dest} w/ {.path {sp_dest_dir(file_path)}}
+        "{.file {overwrite_file}} already exists on SharePoint drive at {.arg dest}",
+        "i" = "Set {.code overwrite = TRUE} to replace the existing item."
+      ),
+      call = call
+    )
+  }
+
+  upload_sp_src(
+    src = src,
+    dest = dest,
+    drive = drive,
+    blocksize = blocksize,
+    recursive = recursive,
+    parallel = parallel,
+    call = call
+  )
 }
 
 #' @returns Invisibly returns `dest`. Errors if `src` is not an existing file

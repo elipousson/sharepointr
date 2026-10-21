@@ -76,9 +76,10 @@ NULL
 #'   data frame with n rows or all lists available for the SharePoint site or
 #'   drive. Defaults to `FALSE`. Ignored is `metadata = TRUE` as list metadata
 #'   is always returned as a data frame.
-#' @param metadata If `TRUE`, [get_sp_list()] applies the `get_column_info`
-#'   method to the returned SharePoint list and returns a data frame with column
-#'   metadata for the list.
+#' @param metadata `r lifecycle::badge("deprecated")` If `TRUE`,
+#'   [get_sp_list()] applies the `get_column_info` method to the returned
+#'   SharePoint list and returns a data frame with column metadata for the
+#'   list. Use [get_sp_list_metadata()] with `keep = "non-hidden"` instead.
 #' @returns A data frame `as_data_frame = TRUE` or a `ms_list` object (or list
 #'   of `ms_list` objects) if `FALSE`.
 #' @keywords lists
@@ -92,10 +93,25 @@ get_sp_list <- function(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  metadata = FALSE,
+  metadata = deprecated(),
   as_data_frame = FALSE,
   call = caller_env()
 ) {
+  metadata <- if (lifecycle::is_present(metadata)) {
+    lifecycle::deprecate_soft(
+      "0.2.0",
+      "get_sp_list(metadata)",
+      "get_sp_list_metadata()",
+      details = paste(
+        "Unlike `metadata = TRUE`, `get_sp_list_metadata()` also returns hidden",
+        "columns by default. Use `keep = \"non-hidden\"` for the same result."
+      )
+    )
+    isTRUE(metadata)
+  } else {
+    FALSE
+  }
+
   # FIXME: URL parsing is not set up for links to SharePoint lists
   if (is_url(list_name)) {
     url <- list_name
@@ -186,7 +202,6 @@ get_sp_list <- function(
     )
   }
 
-  # TODO: Consider removing the metadata argument
   if (metadata) {
     if (!as_data_frame) {
       cli_warn(
@@ -262,14 +277,15 @@ list_sp_lists <- function(
 #'   "editable", and "external" never include hidden columns.
 #' @param select Optional character vector of columnDefinition properties to
 #'   return, e.g. `c("name", "displayName")`, to reduce the size of the
-#'   response. Must be in `sp_list_col_select` (the columnDefinition
-#'   properties, including the column type properties such as "text" or
-#'   "lookup"). Properties required by `keep` are added: "hidden" for "all",
+#'   response. Must be one of the columnDefinition properties documented by the
+#'   Graph API, including the column type properties such as "text" or
+#'   "lookup". Properties required by `keep` are added: "hidden" for "all",
 #'   "readOnly" for "editable", and "name" for "external". If `NULL`
-#'   (default), all properties are returned.
-#' @param sync_fields If `TRUE`, use the `sync_fields` method to sync the fields
-#'   of the local `ms_list` object with the fields of the SharePoint List source
-#'   before retrieving list metadata.
+#'   (default), the Graph API default properties are returned, except that
+#'   `keep = "all"` requests every known columnDefinition property (and
+#'   "hidden") because the API only returns hidden columns when a selection is
+#'   made. A property that the package does not list is not returned by
+#'   `keep = "all"`.
 #' @export
 get_sp_list_metadata <- function(
   list_name = NULL,
@@ -278,7 +294,6 @@ get_sp_list_metadata <- function(
   ...,
   keep = c("all", "non-hidden", "editable", "external"),
   select = NULL,
-  sync_fields = FALSE,
   site_url = NULL,
   site = NULL,
   drive_name = NULL,
@@ -292,7 +307,6 @@ get_sp_list_metadata <- function(
       list_name = list_name,
       list_id = list_id,
       ...,
-      metadata = FALSE,
       site_url = site_url,
       site = site,
       drive_name = drive_name,
@@ -327,14 +341,6 @@ get_sp_list_metadata <- function(
     options = list(expand = expand),
     simplify = as_data_frame
   )
-
-  # The response has the same list properties as the sync_fields method (in
-  # addition to the columns) so the list isn't requested again
-  if (sync_fields) {
-    sp_list$properties <- sp_list_op_resp[
-      setdiff(names(sp_list_op_resp), c("columns", "columns@odata.context"))
-    ]
-  }
 
   sp_list_meta <- sp_list_op_resp$columns
 
@@ -901,7 +907,6 @@ get_sp_list_column <- function(
       ...,
       site_url = site_url,
       site = site,
-      metadata = FALSE,
       as_data_frame = FALSE,
       call = call
     )

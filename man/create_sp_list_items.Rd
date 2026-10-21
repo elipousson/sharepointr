@@ -21,7 +21,6 @@ create_sp_list_items(
   drive_id = NULL,
   drive = NULL,
   check_fields = TRUE,
-  sync_fields = FALSE,
   create_list = FALSE,
   strict = FALSE,
   .batch = getOption("sharepointr.batch", TRUE),
@@ -117,10 +116,6 @@ method for SharePoint site object.}
 names) for the input data are matched to the fields of the list object.
 If \code{FALSE}, names aren't checked and the Graph API errors for any name
 that isn't a list field.}
-
-\item{sync_fields}{If \code{TRUE}, use the \code{sync_fields} method to sync the fields
-of the local \code{ms_list} object with the fields of the SharePoint List source
-before retrieving list metadata.}
 
 \item{create_list}{If \code{TRUE} and \code{list_name} is supplied, a new list is
 created using \code{\link[=data_as_column_definition_list]{data_as_column_definition_list()}} to set the column

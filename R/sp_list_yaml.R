@@ -843,7 +843,7 @@ get_sp_list_definition <- function(
   read_only <- resolve_read_only_props(read_only, call = call)
 
   sp_list <- sp_list %||%
-    get_sp_list(..., metadata = FALSE, as_data_frame = FALSE, call = call)
+    get_sp_list(..., as_data_frame = FALSE, call = call)
 
   check_ms_obj(sp_list, "ms_list", call = call)
 

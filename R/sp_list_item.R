@@ -79,7 +79,6 @@ list_sp_list_items <- function(
       list_name = list_name,
       list_id = list_id,
       as_data_frame = FALSE,
-      metadata = FALSE,
       ...,
       site_url = site_url,
       site = site,
@@ -596,7 +595,6 @@ get_sp_list_item <- function(
       list_name = list_name,
       list_id = list_id,
       as_data_frame = FALSE,
-      metadata = FALSE,
       ...,
       site_url = site_url,
       site = site,
@@ -713,7 +711,6 @@ create_sp_list_items <- function(
   drive_id = NULL,
   drive = NULL,
   check_fields = TRUE,
-  sync_fields = FALSE,
   create_list = FALSE,
   strict = FALSE,
   .batch = getOption("sharepointr.batch", TRUE),
@@ -768,7 +765,6 @@ create_sp_list_items <- function(
     get_sp_list(
       list_name = list_name,
       list_id = list_id,
-      metadata = FALSE,
       as_data_frame = FALSE,
       ...,
       site_url = site_url,
@@ -783,7 +779,6 @@ create_sp_list_items <- function(
   # multi-value fields
   col_metadata <- get_sp_list_metadata(
     sp_list = sp_list,
-    sync_fields = sync_fields,
     as_data_frame = FALSE,
     call = call
   )
@@ -914,7 +909,6 @@ validate_sp_list_data_fields <- function(
   data,
   sp_list = NULL,
   values = NULL,
-  sync_fields = FALSE,
   keep = "editable",
   strict = FALSE,
   values_from = "name",
@@ -924,8 +918,7 @@ validate_sp_list_data_fields <- function(
   if (is.null(values)) {
     sp_list_meta <- get_sp_list_metadata(
       sp_list = sp_list,
-      sync_fields = sync_fields,
-      keep = keep,
+        keep = keep,
       call = call
     )
 

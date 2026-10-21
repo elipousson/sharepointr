@@ -21,19 +21,21 @@ from.}
 data frame with n rows or all lists available for the SharePoint site or
 drive. Defaults to \code{FALSE}. Ignored is \code{metadata = TRUE} as list metadata
 is always returned as a data frame.}
-    \item{\code{metadata}}{If \code{TRUE}, \code{\link[=get_sp_list]{get_sp_list()}} applies the \code{get_column_info}
-method to the returned SharePoint list and returns a data frame with column
-metadata for the list.}
+    \item{\code{metadata}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} If \code{TRUE},
+\code{\link[=get_sp_list]{get_sp_list()}} applies the \code{get_column_info} method to the returned
+SharePoint list and returns a data frame with column metadata for the
+list. Use \code{\link[=get_sp_list_metadata]{get_sp_list_metadata()}} with \code{keep = "non-hidden"} instead.}
     \item{\code{select}}{Optional character vector of columnDefinition properties to
 return, e.g. \code{c("name", "displayName")}, to reduce the size of the
-response. Must be in \code{sp_list_col_select} (the columnDefinition
-properties, including the column type properties such as "text" or
-"lookup"). Properties required by \code{keep} are added: "hidden" for "all",
+response. Must be one of the columnDefinition properties documented by the
+Graph API, including the column type properties such as "text" or
+"lookup". Properties required by \code{keep} are added: "hidden" for "all",
 "readOnly" for "editable", and "name" for "external". If \code{NULL}
-(default), all properties are returned.}
-    \item{\code{sync_fields}}{If \code{TRUE}, use the \code{sync_fields} method to sync the fields
-of the local \code{ms_list} object with the fields of the SharePoint List source
-before retrieving list metadata.}
+(default), the Graph API default properties are returned, except that
+\code{keep = "all"} requests every known columnDefinition property (and
+"hidden") because the API only returns hidden columns when a selection is
+made. A property that the package does not list is not returned by
+\code{keep = "all"}.}
     \item{\code{drive_name,drive_id}}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
     \item{\code{drive}}{A \code{ms_drive} object. If \code{drive} is supplied, \code{drive_name} and

@@ -336,7 +336,6 @@ get_definition_sp_list <- function(
       get_sp_list(
         list_id = list_id,
         site = get_sp_site(site_id = site_id, call = call),
-        metadata = FALSE,
         as_data_frame = FALSE,
         call = call
       )
@@ -344,7 +343,6 @@ get_definition_sp_list <- function(
       get_sp_list(
         list_id = list_id,
         ...,
-        metadata = FALSE,
         as_data_frame = FALSE,
         call = call
       )
@@ -352,7 +350,6 @@ get_definition_sp_list <- function(
       get_sp_list(
         list_name = definitions[["displayName"]],
         ...,
-        metadata = FALSE,
         as_data_frame = FALSE,
         call = call
       )

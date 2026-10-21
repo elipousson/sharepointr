@@ -460,7 +460,6 @@ get_view_sp_list <- function(
       ...,
       site_url = site_url,
       site = site,
-      metadata = FALSE,
       as_data_frame = FALSE,
       call = call
     )

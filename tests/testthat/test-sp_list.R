@@ -881,33 +881,22 @@ test_that("get_sp_list() returns the matching site list for a list name", {
   )
 })
 
-test_that("get_sp_list_metadata(sync_fields = TRUE) updates list properties with one request", {
-  columns <- list(list(name = "Title", text = list()))
-  n_requests <- 0
+test_that("get_sp_list(metadata = TRUE) is soft deprecated", {
+  col_info <- data.frame(name = "Title")
+  ms_list <- list(get_column_info = function() col_info)
+  ms_list_obj <- list(get_list = function(...) ms_list)
 
-  # Minimal stand-in for a Microsoft365R::ms_list (without a sync_fields
-  # method, which would request the list again)
-  sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
-  sp_list$properties <- list(id = "list-1", displayName = "Old")
-  sp_list$do_operation <- function(options = NULL, simplify = FALSE) {
-    n_requests <<- n_requests + 1
-    list(
-      id = "list-1",
-      displayName = "New",
-      `columns@odata.context` = "context",
-      columns = columns
-    )
-  }
+  local_mocked_bindings(get_ms_list_obj = function(...) ms_list_obj)
 
-  expect_identical(
-    get_sp_list_metadata(sp_list = sp_list, sync_fields = TRUE, as_data_frame = FALSE),
-    columns
+  # Soft deprecation only warns when called directly from the global env or
+  # a package under test
+  withr::local_options(lifecycle_verbosity = "warning")
+
+  expect_warning(
+    res <- get_sp_list(list_id = "list-id", metadata = TRUE, as_data_frame = TRUE),
+    class = "lifecycle_warning_deprecated"
   )
-  expect_identical(n_requests, 1)
-  expect_identical(sp_list$properties, list(id = "list-1", displayName = "New"))
+  expect_identical(res, col_info)
 
-  # Properties aren't changed if sync_fields = FALSE
-  sp_list$properties <- list(id = "list-1", displayName = "Old")
-  get_sp_list_metadata(sp_list = sp_list, as_data_frame = FALSE)
-  expect_identical(sp_list$properties[["displayName"]], "Old")
+  expect_no_warning(get_sp_list(list_id = "list-id"))
 })

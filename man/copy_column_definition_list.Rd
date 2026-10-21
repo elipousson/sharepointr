@@ -4,7 +4,7 @@
 \alias{copy_column_definition_list}
 \title{Create a new column definition based on an existing list}
 \usage{
-copy_column_definition_list(sp_list = NULL, ..., keep = "non-hidden")
+copy_column_definition_list(sp_list = NULL, ..., keep = "visible")
 }
 \arguments{
 \item{sp_list}{A \code{ms_list} object or a data frame created by
@@ -24,7 +24,7 @@ is always returned as a data frame.}
     \item{\code{metadata}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} If \code{TRUE},
 \code{\link[=get_sp_list]{get_sp_list()}} applies the \code{get_column_info} method to the returned
 SharePoint list and returns a data frame with column metadata for the
-list. Use \code{\link[=get_sp_list_metadata]{get_sp_list_metadata()}} with \code{keep = "non-hidden"} instead.}
+list. Use \code{\link[=get_sp_list_metadata]{get_sp_list_metadata()}} with \code{keep = "visible"} instead.}
     \item{\code{select}}{Optional character vector of columnDefinition properties to
 return, e.g. \code{c("name", "displayName")}, to reduce the size of the
 response. Must be one of the columnDefinition properties documented by the
@@ -57,7 +57,7 @@ on using filter query parameters.}
 Defaults to \code{NULL} which sets n to \code{Inf}.}
   }}
 
-\item{keep}{Passed to \code{\link[=get_sp_list_metadata]{get_sp_list_metadata()}}. Defaults to "non-hidden".}
+\item{keep}{Passed to \code{\link[=get_sp_list_metadata]{get_sp_list_metadata()}}. Defaults to "visible".}
 }
 \value{
 A list of named lists, each formatted as a columnDefinition (as

@@ -806,7 +806,7 @@ as_column_body <- function(col) {
 }
 
 #' @rdname sp_list_definition
-#' @param keep One of "non-hidden" (default) or "all". Use "all" to include
+#' @param keep One of "visible" (default) or "all". Use "all" to include
 #'   hidden columns in the definition. See [get_sp_list_metadata()].
 #' @param keep_defaults If `FALSE` (default), drop properties with the default
 #'   value returned by the Graph API (e.g. `required: false`) to keep
@@ -831,7 +831,7 @@ as_column_body <- function(col) {
 get_sp_list_definition <- function(
   sp_list = NULL,
   ...,
-  keep = "non-hidden",
+  keep = "visible",
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
@@ -954,7 +954,7 @@ sp_list_live_columns <- function(
   keep_defaults = TRUE,
   keep_id = FALSE,
   exclude = c("Title", "id", sp_list_internal_colnames),
-  keep = "non-hidden",
+  keep = "visible",
   call = caller_env()
 ) {
   meta <- get_sp_list_metadata(
@@ -1131,7 +1131,7 @@ write_sp_list_yaml <- function(
   path,
   ...,
   merge = TRUE,
-  keep = "non-hidden",
+  keep = "visible",
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,

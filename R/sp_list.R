@@ -79,7 +79,7 @@ NULL
 #' @param metadata `r lifecycle::badge("deprecated")` If `TRUE`,
 #'   [get_sp_list()] applies the `get_column_info` method to the returned
 #'   SharePoint list and returns a data frame with column metadata for the
-#'   list. Use [get_sp_list_metadata()] with `keep = "non-hidden"` instead.
+#'   list. Use [get_sp_list_metadata()] with `keep = "visible"` instead.
 #' @returns A data frame `as_data_frame = TRUE` or a `ms_list` object (or list
 #'   of `ms_list` objects) if `FALSE`.
 #' @keywords lists
@@ -101,11 +101,7 @@ get_sp_list <- function(
     lifecycle::deprecate_soft(
       "0.2.0",
       "get_sp_list(metadata)",
-      "get_sp_list_metadata()",
-      details = paste(
-        "Unlike `metadata = TRUE`, `get_sp_list_metadata()` also returns hidden",
-        "columns by default. Use `keep = \"non-hidden\"` for the same result."
-      )
+      "get_sp_list_metadata()"
     )
     isTRUE(metadata)
   } else {
@@ -270,10 +266,10 @@ list_sp_lists <- function(
 #' @rdname sp_list
 #' @name get_sp_list_metadata
 #' @inheritParams ms_graph_obj_terms
-#' @param keep One of "all" (default), "non-hidden", "editable", or "external"
+#' @param keep One of "visible" (default), "all", "editable", or "external"
 #'   (non-internal fields). Argument determines if the returned list metadata
 #'   includes read only columns or hidden columns. Only "all" requests hidden
-#'   columns, which the Graph API omits by default, so "non-hidden",
+#'   columns, which the Graph API omits by default, so "visible",
 #'   "editable", and "external" never include hidden columns.
 #' @param select Optional character vector of columnDefinition properties to
 #'   return, e.g. `c("name", "displayName")`, to reduce the size of the
@@ -292,7 +288,7 @@ get_sp_list_metadata <- function(
   list_id = NULL,
   sp_list = NULL,
   ...,
-  keep = c("all", "non-hidden", "editable", "external"),
+  keep = c("visible", "all", "editable", "external"),
   select = NULL,
   site_url = NULL,
   site = NULL,
@@ -344,7 +340,7 @@ get_sp_list_metadata <- function(
 
   sp_list_meta <- sp_list_op_resp$columns
 
-  if (keep %in% c("all", "non-hidden")) {
+  if (keep %in% c("visible", "all")) {
     return(sp_list_meta)
   }
 

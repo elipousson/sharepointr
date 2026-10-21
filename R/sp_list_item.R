@@ -2300,7 +2300,7 @@ sp_list_as_ptype_data_frame <- function(
   col_metadata <- sp_list_ptype_col_metadata(
     sp_list = sp_list,
     col_metadata = col_metadata,
-    keep = if (is.null(select)) "non-hidden" else "all"
+    keep = if (is.null(select)) "visible" else "all"
   )
 
   if (!is.null(select)) {

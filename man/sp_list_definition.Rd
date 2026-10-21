@@ -15,7 +15,7 @@ as_sp_list_definition(x, ..., display_name = NULL, call = caller_env())
 get_sp_list_definition(
   sp_list = NULL,
   ...,
-  keep = "non-hidden",
+  keep = "visible",
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
@@ -28,7 +28,7 @@ write_sp_list_yaml(
   path,
   ...,
   merge = TRUE,
-  keep = "non-hidden",
+  keep = "visible",
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
@@ -55,7 +55,7 @@ and \code{include_folders} are only used for a \code{ms_list} object. For
 \item{display_name}{List display name. Used by \code{\link[=as_sp_list_definition]{as_sp_list_definition()}}
 if \code{x} is an unnamed list of column definitions.}
 
-\item{keep}{One of "non-hidden" (default) or "all". Use "all" to include
+\item{keep}{One of "visible" (default) or "all". Use "all" to include
 hidden columns in the definition. See \code{\link[=get_sp_list_metadata]{get_sp_list_metadata()}}.}
 
 \item{keep_defaults}{If \code{FALSE} (default), drop properties with the default

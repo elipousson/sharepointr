@@ -86,11 +86,11 @@ parameters passed to \code{...} are all ignored.}
     \item{\code{metadata}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} If \code{TRUE},
 \code{\link[=get_sp_list]{get_sp_list()}} applies the \code{get_column_info} method to the returned
 SharePoint list and returns a data frame with column metadata for the
-list. Use \code{\link[=get_sp_list_metadata]{get_sp_list_metadata()}} with \code{keep = "non-hidden"} instead.}
-    \item{\code{keep}}{One of "all" (default), "non-hidden", "editable", or "external"
+list. Use \code{\link[=get_sp_list_metadata]{get_sp_list_metadata()}} with \code{keep = "visible"} instead.}
+    \item{\code{keep}}{One of "visible" (default), "all", "editable", or "external"
 (non-internal fields). Argument determines if the returned list metadata
 includes read only columns or hidden columns. Only "all" requests hidden
-columns, which the Graph API omits by default, so "non-hidden",
+columns, which the Graph API omits by default, so "visible",
 "editable", and "external" never include hidden columns.}
     \item{\code{drive_name,drive_id}}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}

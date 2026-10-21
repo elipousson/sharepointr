@@ -39,7 +39,7 @@ get_sp_list_metadata(
   list_id = NULL,
   sp_list = NULL,
   ...,
-  keep = c("all", "non-hidden", "editable", "external"),
+  keep = c("visible", "all", "editable", "external"),
   select = NULL,
   site_url = NULL,
   site = NULL,
@@ -88,7 +88,7 @@ method for SharePoint site object.}
 \item{metadata}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} If \code{TRUE},
 \code{\link[=get_sp_list]{get_sp_list()}} applies the \code{get_column_info} method to the returned
 SharePoint list and returns a data frame with column metadata for the
-list. Use \code{\link[=get_sp_list_metadata]{get_sp_list_metadata()}} with \code{keep = "non-hidden"} instead.}
+list. Use \code{\link[=get_sp_list_metadata]{get_sp_list_metadata()}} with \code{keep = "visible"} instead.}
 
 \item{as_data_frame}{If \code{TRUE}, return a data frame with a "ms_list" column.
 \code{\link[=get_sp_list]{get_sp_list()}} returns a 1 row data frame and \code{\link[=list_sp_lists]{list_sp_lists()}} returns a
@@ -112,10 +112,10 @@ Defaults to \code{NULL} which sets n to \code{Inf}.}
 \code{site_url}, \code{site}, \code{drive_name}, \code{drive_id}, \code{drive}, and any additional
 parameters passed to \code{...} are all ignored.}
 
-\item{keep}{One of "all" (default), "non-hidden", "editable", or "external"
+\item{keep}{One of "visible" (default), "all", "editable", or "external"
 (non-internal fields). Argument determines if the returned list metadata
 includes read only columns or hidden columns. Only "all" requests hidden
-columns, which the Graph API omits by default, so "non-hidden",
+columns, which the Graph API omits by default, so "visible",
 "editable", and "external" never include hidden columns.}
 
 \item{select}{Optional character vector of columnDefinition properties to

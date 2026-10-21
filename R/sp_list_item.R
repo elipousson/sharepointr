@@ -2187,11 +2187,15 @@ delete_sp_list_items <- function(
 #' @noRd
 sp_list_ptype_col_metadata <- function(
   sp_list = NULL,
-  col_metadata = NULL
+  col_metadata = NULL,
+  keep = "all"
 ) {
+  # Only the name and column type properties (facets) are needed
   col_metadata <- col_metadata %||%
     get_sp_list_metadata(
       sp_list = sp_list,
+      keep = keep,
+      select = c("name", sp_list_col_types),
       as_data_frame = FALSE
     )
 
@@ -2299,9 +2303,11 @@ sp_list_as_ptype_data_frame <- function(
   col_metadata = NULL,
   select = NULL
 ) {
+  # Hidden fields are only returned by the Graph API if selected
   col_metadata <- sp_list_ptype_col_metadata(
     sp_list = sp_list,
-    col_metadata = col_metadata
+    col_metadata = col_metadata,
+    keep = if (is.null(select)) "non-hidden" else "all"
   )
 
   if (!is.null(select)) {

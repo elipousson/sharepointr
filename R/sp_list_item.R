@@ -1210,6 +1210,8 @@ update_sp_list_items <- function(
     return(invisible(input))
   }
 
+  cli_progress_step("Updating {length(item_ids)} list item{?s}")
+
   purrr::map2(
     records,
     item_ids,
@@ -1222,7 +1224,10 @@ update_sp_list_items <- function(
           sp_list = sp_list,
           # Fields are already validated (or skipped) for all items
           check_fields = FALSE,
-          .multi_fields = .multi_fields
+          .multi_fields = .multi_fields,
+          # One message is shown for all items (and cli output from parallel
+          # workers isn't shown)
+          .quiet = TRUE
         )
       },
       fn = update_sp_list_item,
@@ -1457,6 +1462,8 @@ replace_with_sp_list_display_names <- function(
 #'   an `"@odata.type"` annotation. If `NULL` and `sp_list` is available, field
 #'   names are found from the list column definitions. Otherwise, only fields
 #'   with a length other than 1 are treated as multi-value fields.
+#' @param .quiet If `TRUE`, don't show a progress message for the update.
+#'   Used by [update_sp_list_items()] when updating items one at a time.
 #' @keywords lists
 #' @export
 update_sp_list_item <- function(
@@ -1477,6 +1484,7 @@ update_sp_list_item <- function(
   drive_id = NULL,
   drive = NULL,
   .multi_fields = NULL,
+  .quiet = FALSE,
   call = caller_env()
 ) {
   # TODO: Allow option to get id from .data
@@ -1590,9 +1598,11 @@ update_sp_list_item <- function(
   update_data <- as_graph_item_fields(update_data, multi_fields = .multi_fields)
 
   if (!is.null(sp_list)) {
-    cli_progress_step(
-      "Updating item {.val {item_id}}"
-    )
+    if (!.quiet) {
+      cli_progress_step(
+        "Updating item {.val {item_id}}"
+      )
+    }
 
     # The update_item method gets the item before the update and again after
     # https://learn.microsoft.com/en-us/graph/api/listitem-update?view=graph-rest-1.0&tabs=http
@@ -1615,9 +1625,11 @@ update_sp_list_item <- function(
 
     item_id <- sp_list_item[["properties"]][["id"]]
 
-    cli_progress_step(
-      "Updating item {.val {item_id}}"
-    )
+    if (!.quiet) {
+      cli_progress_step(
+        "Updating item {.val {item_id}}"
+      )
+    }
 
     # The update method gets the item again after the update
     withCallingHandlers(

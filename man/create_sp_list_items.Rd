@@ -63,6 +63,7 @@ update_sp_list_item(
   drive_id = NULL,
   drive = NULL,
   .multi_fields = NULL,
+  .quiet = FALSE,
   call = caller_env()
 )
 }
@@ -172,6 +173,9 @@ as multi-select choice columns, that should always be sent as an array with
 an \code{"@odata.type"} annotation. If \code{NULL} and \code{sp_list} is available, field
 names are found from the list column definitions. Otherwise, only fields
 with a length other than 1 are treated as multi-value fields.}
+
+\item{.quiet}{If \code{TRUE}, don't show a progress message for the update.
+Used by \code{\link[=update_sp_list_items]{update_sp_list_items()}} when updating items one at a time.}
 }
 \value{
 \code{\link[=create_sp_list_items]{create_sp_list_items()}} and \code{\link[=update_sp_list_items]{update_sp_list_items()}} invisibly

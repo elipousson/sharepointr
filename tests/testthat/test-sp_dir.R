@@ -59,17 +59,29 @@ test_that("sp_drive_item_path() gets an item path relative to the drive root", {
   )
 })
 
+# Mock the Graph children response (the `folder` column is a data frame with
+# a `childCount` value for folders)
+raw_items <- function(name, isdir = FALSE, size = 1, ...) {
+  items <- data.frame(name = name, size = size, id = as.character(seq_along(name)), ...)
+  items[["folder"]] <- data.frame(
+    childCount = ifelse(rep_len(isdir, length(name)), 1L, NA_integer_)
+  )
+  items
+}
+
+mock_drive <- function() {
+  structure(list(), class = c("ms_drive", "ms_object"))
+}
+
 test_that("sp_dir_info() uses the drive and path from the shares API", {
   list_args <- NULL
-  drive <- structure(
-    list(list_items = function(path, ...) {
-      list_args <<- path
-      data.frame(name = "Folder/A.csv", size = 1, isdir = FALSE, id = "1")
-    }),
-    class = c("ms_drive", "ms_object")
-  )
+  drive <- mock_drive()
 
   local_mocked_bindings(
+    sp_dir_request_items = function(drive, path, ...) {
+      list_args <<- path
+      raw_items("A.csv")
+    },
     sp_shares_get_drive_path = function(url, ...) {
       list(drive = drive, path = "Folder", is_folder = TRUE)
     },
@@ -102,17 +114,13 @@ test_that("sp_dir_info() falls back to the parsed URL if the shares API fails", 
   drive_args <- NULL
 
   local_mocked_bindings(
+    sp_dir_request_items = function(drive, path, ...) raw_items("A.csv"),
     sp_shares_get_drive_path = function(...) {
       cli::cli_abort("Forbidden (HTTP 403).")
     },
     get_sp_drive = function(drive_name = NULL, ...) {
       drive_args <<- drive_name
-      structure(
-        list(list_items = function(path, ...) {
-          data.frame(name = path, size = 1, isdir = FALSE, id = "1")
-        }),
-        class = c("ms_drive", "ms_object")
-      )
+      mock_drive()
     }
   )
 
@@ -120,7 +128,7 @@ test_that("sp_dir_info() falls back to the parsed URL if the shares API fails", 
   items <- sp_dir_info(url)
 
   expect_identical(drive_args, url)
-  expect_identical(items[["name"]], "Folder")
+  expect_identical(items[["name"]], "Folder/A.csv")
 
   expect_snapshot(error = TRUE, {
     sp_dir_info(
@@ -131,24 +139,16 @@ test_that("sp_dir_info() falls back to the parsed URL if the shares API fails", 
 
 test_that("sp_dir_info(recurse = TRUE) lists all directories and sorts by name", {
   tree <- list(
-    root = data.frame(
-      name = c("B", "A", "z.csv"),
-      size = 1,
-      isdir = c(TRUE, TRUE, FALSE)
-    ),
-    "A" = data.frame(name = "A/a.csv", size = 1, isdir = FALSE),
-    "B" = data.frame(
-      name = c("B/C", "B/b.csv"),
-      size = 1,
-      isdir = c(TRUE, FALSE)
-    ),
-    "B/C" = data.frame(name = "B/C/c.txt", size = 1, isdir = FALSE)
+    root = raw_items(c("B", "A", "z.csv"), isdir = c(TRUE, TRUE, FALSE)),
+    "A" = raw_items("a.csv"),
+    "B" = raw_items(c("C", "b.csv"), isdir = c(TRUE, FALSE)),
+    "B/C" = raw_items("c.txt")
   )
-  drive <- structure(
-    list(list_items = function(path, ...) {
+  drive <- mock_drive()
+  local_mocked_bindings(
+    sp_dir_request_items = function(drive, path, ...) {
       tree[[if (path == "") "root" else path]]
-    }),
-    class = c("ms_drive", "ms_object")
+    }
   )
 
   items <- sp_dir_info(drive = drive, recurse = TRUE)
@@ -173,39 +173,52 @@ test_that("sp_dir_info(recurse = TRUE) lists all directories and sorts by name",
   items <- sp_dir_info(drive = drive, recurse = TRUE, sort = "name-desc")
   expect_identical(items[["name"]][1], "z.csv")
 
-  expect_error(
-    sp_dir_info(drive = drive, recurse = TRUE, sort = "modified-desc"),
-    "info"
-  )
-
   items <- sp_dir_info(drive = drive, recurse = TRUE, sort = "none")
   expect_identical(items[["name"]][1:3], c("B", "A", "z.csv"))
 })
 
-test_that("sp_dir_info() sorts by modified time with info = 'all'", {
-  drive <- structure(
-    list(list_items = function(path, ...) {
-      data.frame(
-        name = c("a.csv", "b.csv", "c.csv"),
+test_that("sp_dir_info() requests the properties needed to sort", {
+  select_args <- list()
+  local_mocked_bindings(
+    sp_dir_request_items = function(drive, path, select, ...) {
+      select_args <<- c(select_args, list(select))
+      raw_items(
+        c("a.csv", "b.csv", "c.csv"),
         size = c(3, 1, 2),
-        isdir = FALSE,
         lastModifiedDateTime = c(
           "2026-01-02T00:00:00Z",
           "2026-01-03T00:00:00Z",
           "2026-01-01T00:00:00Z"
         )
       )
-    }),
-    class = c("ms_drive", "ms_object")
+    }
   )
+  drive <- mock_drive()
 
-  items <- sp_dir_info(drive = drive, info = "all", sort = "modified-desc")
+  items <- sp_dir_info(drive = drive, sort = "modified-desc")
+  expect_identical(select_args[[1]], c("name", "size", "folder", "id", "lastModifiedDateTime"))
   expect_identical(items[["name"]], c("b.csv", "a.csv", "c.csv"))
+  expect_named(items, c("name", "size", "isdir", "id", "lastModifiedDateTime", "type"))
 
-  items <- sp_dir_info(drive = drive, sort = "size-asc")
+  items <- sp_dir_info(drive = drive, sort = "size-asc", select = "webUrl")
+  expect_identical(select_args[[2]], c("name", "size", "folder", "id", "webUrl"))
   expect_identical(items[["name"]], c("b.csv", "c.csv", "a.csv"))
+
+  sp_dir_info(drive = drive, info = "all")
+  expect_null(select_args[[3]])
 
   # Order is unchanged for a single directory unless `sort` is supplied
   items <- sp_dir_info(drive = drive)
   expect_identical(items[["name"]], c("a.csv", "b.csv", "c.csv"))
+
+  expect_error(sp_dir_ls(drive = drive, select = "webUrl"), "select")
+})
+
+test_that("sp_dir_children_op() encodes path segments", {
+  expect_identical(sp_dir_children_op(""), "root/children")
+  expect_identical(sp_dir_children_op("/"), "root/children")
+  expect_identical(
+    sp_dir_children_op("a b/c#d/é/"),
+    "root:/a%20b/c%23d/%C3%A9:/children"
+  )
 })

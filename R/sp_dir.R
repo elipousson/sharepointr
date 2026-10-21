@@ -22,6 +22,13 @@
 #'   "partial", a data frame is returned containing the name, size, ID and
 #'   whether the item is a file or folder. If "all", a data frame is returned
 #'   containing all the properties for each item (this can be large).
+#' @param select A character vector of [driveItem
+#'   properties](https://learn.microsoft.com/en-us/graph/api/resources/driveitem)
+#'   to return in addition to the name, size, ID, and `isdir` columns, e.g.
+#'   `c("webUrl", "lastModifiedDateTime")`. Passed to the Graph API as the
+#'   `$select` query parameter so only these properties are requested. If
+#'   supplied, `info` must be "partial" (the default) or "all" and "all" is
+#'   treated as "partial". Properties used by `sort` are always included.
 #' @param full_names If `TRUE` (default), return the full file path as the name
 #'   for each item.
 #' @param pagesize Maximum number of items to return. Defaults to 1000. Decrease
@@ -34,10 +41,10 @@
 #'   "size-asc", "size-desc", "created-asc", "created-desc", "modified-asc",
 #'   "modified-desc", or "none" to keep the order that directories were listed
 #'   in. Names are sorted in C-locale order so uppercase letters sort before
-#'   lowercase letters. Sorting by "created" or "modified" requires
-#'   `info = "all"` because the creation and modification times are not
-#'   included in the "partial" info. `sort` is applied if `recurse = TRUE` or if
-#'   `sort` is supplied; otherwise the order returned by SharePoint is kept.
+#'   lowercase letters. `sort` is ignored if `info = "name"`. The properties used by `sort` are added to the
+#'   result if they are not already included. `sort` is applied if
+#'   `recurse = TRUE` or if `sort` is supplied; otherwise the order returned by
+#'   SharePoint is kept.
 #' @param type Type of item to return. Can be "any", "file", or "directory".
 #'   "directory" is not a supported option for [sp_dir_ls()]. As with
 #'   [fs::dir_info()], if `recurse = TRUE`, all directories are searched
@@ -76,6 +83,7 @@ sp_dir_info <- function(
   path = NULL,
   ...,
   info = "partial",
+  select = NULL,
   full_names = TRUE,
   pagesize = 1000,
   drive_name = NULL,
@@ -99,6 +107,7 @@ sp_dir_info <- function(
           # TODO: Consider dropping ... to allow parallelization
           ...,
           info = info,
+          select = select,
           full_names = full_names,
           pagesize = pagesize,
           drive_name = drive_name,
@@ -171,7 +180,20 @@ sp_dir_info <- function(
   sort_items <- recurse || !missing(sort)
   sort <- arg_match(sort, sort_values, error_call = call)
 
-  return_type <- NULL
+  check_character(select, allow_null = TRUE, call = call)
+
+  if (info == "name" && !is.null(select)) {
+    cli_abort(
+      "{.arg select} can't be used with {.code info = \"name\"}.",
+      call = call
+    )
+  }
+
+  # Request the properties needed to sort so the sort column can be returned
+  sort_items <- sort_items && (sort != "none")
+  if (sort_items && (info == "partial" || !is.null(select))) {
+    select <- union(select, sp_dir_sort_cols(sort)[["select"]])
+  }
 
   # TODO: Consider adding other fs::dir_info() arguments and options:
   # - `all` to include hidden files
@@ -209,6 +231,7 @@ sp_dir_info <- function(
         path = pending[[i]],
         drive = drive,
         info = info,
+        select = select,
         full_names = full_names,
         pagesize = pagesize
       )
@@ -272,7 +295,7 @@ sp_dir_info <- function(
     directory = item_list[item_list[["isdir"]], ]
   )
 
-  if (sort_items && (sort != "none")) {
+  if (sort_items) {
     item_list <- sp_dir_sort(item_list, sort, call = call)
   }
 
@@ -302,6 +325,28 @@ sp_dir_info <- function(
 #' @param sort A string with the sort column and direction, e.g. "name-asc".
 #' @noRd
 sp_dir_sort <- function(data, sort, call = caller_env()) {
+  cols <- sp_dir_sort_cols(sort)
+
+  if (!has_name(data, cols[["col"]])) {
+    cli_abort(
+      "Can't sort by {.val {cols[['col']]}}: the column is missing.",
+      call = call
+    )
+  }
+
+  vctrs::vec_slice(
+    data,
+    vctrs::vec_order(
+      as.vector(data[[cols[["col"]]]]),
+      direction = cols[["direction"]]
+    )
+  )
+}
+
+#' @returns A list with the sort column, the Graph property to `$select`
+#'   (`NULL` for name and size, which are always requested), and the direction.
+#' @noRd
+sp_dir_sort_cols <- function(sort) {
   sort <- strsplit(sort, "-", fixed = TRUE)[[1]]
 
   col <- switch(
@@ -312,33 +357,153 @@ sp_dir_sort <- function(data, sort, call = caller_env()) {
     modified = "lastModifiedDateTime"
   )
 
-  if (!has_name(data, col)) {
-    cli_abort(
-      c(
-        "Can't sort by {.val {sort[[1]]}}.",
-        "i" = "Use {.code info = \"all\"} to include {.field {col}}."
-      ),
-      call = call
-    )
-  }
-
-  vctrs::vec_slice(
-    data,
-    vctrs::vec_order(as.vector(data[[col]]), direction = sort[[2]])
+  list(
+    col = col,
+    select = if (!(col %in% c("name", "size"))) col,
+    direction = sort[[2]]
   )
 }
 
 #' List the items in a single directory
 #'
-#' @returns A data frame or, if `info = "name"`, a character vector.
+#' Wraps the Graph API `children` endpoint directly (instead of the
+#' Microsoft365R `list_items` method) so `select` can limit the properties
+#' requested.
+#'
+#' Based on the `list_files` method of `Microsoft365R::ms_drive_item` (also
+#' used by `ms_drive$list_items()`). The `isdir` column, empty result, and
+#' `full_names` handling follow that method, except that names in the drive
+#' root have no leading slash.
+#'
+#' @param select Additional driveItem properties to request. Ignored if `info`
+#'   is "name". If `info = "all"` and `select` is `NULL`, all properties are
+#'   requested.
+#' @returns A data frame with name, size, isdir, and ID columns followed by any
+#'   other columns or, if `info = "name"`, a character vector.
 #' @noRd
-sp_dir_list_items <- function(path, drive, info, full_names, pagesize) {
-  drive$list_items(
+sp_dir_list_items <- function(
+  path,
+  drive,
+  info,
+  select = NULL,
+  full_names = FALSE,
+  pagesize = 1000
+) {
+  base_cols <- c("name", "size", "folder", "id")
+
+  fields <- switch(
+    info,
+    name = "name",
+    partial = union(base_cols, select),
+    all = if (!is.null(select)) union(base_cols, select)
+  )
+
+  items <- sp_dir_request_items(
+    drive = drive,
     path = path,
-    info = info,
-    full_names = full_names,
+    select = fields,
     pagesize = pagesize
   )
+
+  if (is.null(items) || nrow(items) == 0) {
+    if (info == "name") {
+      return(character())
+    }
+
+    items <- data.frame(
+      name = character(),
+      size = numeric(),
+      folder = I(list()),
+      id = character()
+    )
+  }
+
+  if (full_names) {
+    # Unlike Microsoft365R, names in the drive root have no leading slash
+    path <- sub("^/", "", path)
+    if (path != "") {
+      items[["name"]] <- file.path(path, items[["name"]])
+    }
+  }
+
+  if (info == "name") {
+    return(items[["name"]])
+  }
+
+  items[["isdir"]] <- rep(FALSE, nrow(items))
+  if (is.data.frame(items[["folder"]])) {
+    items[["isdir"]] <- !is.na(items[["folder"]][["childCount"]])
+  }
+
+  if (!is.null(select) || info == "partial") {
+    # Drop the `@odata` columns and `folder` unless requested
+    items <- items[!startsWith(names(items), "@")]
+    if (!("folder" %in% select)) {
+      items[["folder"]] <- NULL
+    }
+  }
+
+  first_cols <- c("name", "size", "isdir", "id")
+  items[c(first_cols, setdiff(names(items), first_cols))]
+}
+
+#' Request the children of a drive folder
+#'
+#' This function is the only request made by `sp_dir_list_items()`.
+#'
+#' Based on the request and paging steps in the `list_files` method of
+#' `Microsoft365R::ms_drive_item`, which uses `$select` and `$top` options with
+#' `get_list_pager()` and `extract_list_values()`. Results are combined with
+#' `.sp_extract_list_values()`.
+#'
+#' @param select Character vector of properties to request or `NULL` to request
+#'   every property.
+#' @returns A data frame of driveItem properties or `NULL` if there are no
+#'   items.
+#' @noRd
+sp_dir_request_items <- function(drive, path, select = NULL, pagesize = 1000) {
+  options <- list(`$top` = pagesize)
+
+  if (!is.null(select)) {
+    options[["$select"]] <- paste(select, collapse = ",")
+  }
+
+  # simplify = TRUE is required or the first page is skipped by the pager
+  resp <- drive$do_operation(
+    sp_dir_children_op(path),
+    options = options,
+    simplify = TRUE
+  )
+
+  .sp_extract_list_values(drive$get_list_pager(resp), n = Inf, simplify = TRUE)
+}
+
+#' Get the Graph operation for the children of a path relative to drive root
+#'
+#' Each path segment is URL-encoded (including reserved characters such as `#`
+#' and `?`).
+#'
+#' Based on the `make_absolute_path_from_root()` private method of
+#' `Microsoft365R::ms_drive_item`, which builds a `root:/path` operation with
+#' `utils::URLencode()`. That method does not encode reserved characters, and
+#' `list_files` appends `/children`.
+#' @noRd
+sp_dir_children_op <- function(path) {
+  path <- gsub("^/+|/+$", "", path)
+
+  if (path == "") {
+    return("root/children")
+  }
+
+  segments <- strsplit(path, "/", fixed = TRUE)[[1]]
+  segments <- vapply(
+    segments,
+    \(x) utils::URLencode(enc2utf8(x), reserved = TRUE),
+    NA_character_,
+    USE.NAMES = FALSE
+  )
+
+  paste0("root:/", paste(segments, collapse = "/"), ":/children")
 }
 
 #' Get the paths to the subdirectories of `parent`
@@ -396,6 +561,13 @@ sp_dir_ls <- function(
         "{.arg info} can't be used with {.fn sp_dir_ls}.",
         "*" = "Use {.fn sp_dir_info} instead to set the value for {.arg info}."
       ),
+      call = call
+    )
+  }
+
+  if (has_name(params, "select")) {
+    cli_abort(
+      "{.arg select} can't be used with {.fn sp_dir_ls}.",
       call = call
     )
   }

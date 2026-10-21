@@ -9,6 +9,7 @@ sp_dir_info(
   path = NULL,
   ...,
   info = "partial",
+  select = NULL,
   full_names = TRUE,
   pagesize = 1000,
   drive_name = NULL,
@@ -77,6 +78,13 @@ the same \code{cache_file} name already exists.}
 whether the item is a file or folder. If "all", a data frame is returned
 containing all the properties for each item (this can be large).}
 
+\item{select}{A character vector of \href{https://learn.microsoft.com/en-us/graph/api/resources/driveitem}{driveItem properties}
+to return in addition to the name, size, ID, and \code{isdir} columns, e.g.
+\code{c("webUrl", "lastModifiedDateTime")}. Passed to the Graph API as the
+\verb{$select} query parameter so only these properties are requested. If
+supplied, \code{info} must be "partial" (the default) or "all" and "all" is
+treated as "partial". Properties used by \code{sort} are always included.}
+
 \item{full_names}{If \code{TRUE} (default), return the full file path as the name
 for each item.}
 
@@ -98,10 +106,10 @@ number of directories listed and queued.}
 "size-asc", "size-desc", "created-asc", "created-desc", "modified-asc",
 "modified-desc", or "none" to keep the order that directories were listed
 in. Names are sorted in C-locale order so uppercase letters sort before
-lowercase letters. Sorting by "created" or "modified" requires
-\code{info = "all"} because the creation and modification times are not
-included in the "partial" info. \code{sort} is applied if \code{recurse = TRUE} or if
-\code{sort} is supplied; otherwise the order returned by SharePoint is kept.}
+lowercase letters. \code{sort} is ignored if \code{info = "name"}. The properties used by \code{sort} are added to the
+result if they are not already included. \code{sort} is applied if
+\code{recurse = TRUE} or if \code{sort} is supplied; otherwise the order returned by
+SharePoint is kept.}
 
 \item{type}{Type of item to return. Can be "any", "file", or "directory".
 "directory" is not a supported option for \code{\link[=sp_dir_ls]{sp_dir_ls()}}. As with

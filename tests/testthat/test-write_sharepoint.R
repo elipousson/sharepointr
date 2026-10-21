@@ -237,15 +237,13 @@ test_that("upload_sp_item() uses the drive and folder from the shares API", {
   upload_args <- NULL
   drive <- structure(
     list(
-      list_items = function(path, ...) {
-        data.frame(name = character(), size = numeric(), isdir = logical())
-      },
       upload_file = function(src, dest, ...) upload_args <<- dest
     ),
     class = c("ms_drive", "ms_object")
   )
 
   local_mocked_bindings(
+    sp_dir_request_items = function(...) NULL,
     sp_shares_get_drive_path = function(url, ...) {
       list(drive = drive, path = "Folder A/B", is_folder = TRUE)
     },
@@ -286,10 +284,6 @@ test_that("upload_sp_items() uploads to destinations in different drives", {
     uploads <- character()
     structure(
       list(
-        list_items = function(path, ...) {
-          list_calls <<- list_calls + 1
-          data.frame(name = character(), size = numeric(), isdir = logical())
-        },
         upload_file = function(src, dest, ...) uploads <<- c(uploads, dest),
         uploads = function() uploads
       ),
@@ -301,6 +295,10 @@ test_that("upload_sp_items() uploads to destinations in different drives", {
   shares_calls <- 0
 
   local_mocked_bindings(
+    sp_dir_request_items = function(...) {
+      list_calls <<- list_calls + 1
+      NULL
+    },
     sp_shares_get_drive_path = function(url, ...) {
       shares_calls <<- shares_calls + 1
       drive <- if (grepl("TeamA", url)) "a" else "b"

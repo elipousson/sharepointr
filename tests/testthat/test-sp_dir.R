@@ -271,3 +271,24 @@ test_that("sp_dir_batch_items() errors for a failed request", {
 
   expect_error(sp_dir_batch_items(response, NULL, "Missing"), "404")
 })
+
+test_that("sp_dir_info(recurse = TRUE) requests a whole level at once with daemons", {
+  tree_names <- sprintf("dir%02d", 1:25)
+
+  batch_sizes <- integer()
+  local_mocked_bindings(
+    sp_use_parallel = function() TRUE,
+    sp_dir_request_items = function(...) raw_items(tree_names, isdir = TRUE),
+    sp_graph_batch_requests = function(token, requests, ...) {
+      batch_sizes <<- c(batch_sizes, length(requests))
+      purrr::map(requests, \(x) list(status = 200L, body = list(value = list())))
+    }
+  )
+
+  items <- sp_dir_info(drive = mock_drive(), recurse = TRUE)
+
+  expect_identical(nrow(items), 25L)
+  # All 25 directories are sent to sp_graph_batch_requests() (which splits them
+  # into $batch requests of 20 and sends them in parallel)
+  expect_identical(batch_sizes, 25L)
+})

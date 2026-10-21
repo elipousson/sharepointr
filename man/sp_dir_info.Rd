@@ -133,8 +133,11 @@ against the item name only (unlike \code{\link[fs:dir_info]{fs::dir_info()}}).}
 recursive listing are requested with Microsoft Graph
 \href{https://learn.microsoft.com/en-us/graph/json-batching}{$batch} requests
 (up to 20 directories per request), which is much faster than a request
-per directory. Use \code{.batch = FALSE} or \code{options(sharepointr.batch = FALSE)}
-to send a request per directory.}
+per directory. If \code{{carrier}} and \code{{mirai}} are installed and
+\code{\link[mirai:daemons]{mirai::daemons()}} are set, the \verb{$batch} requests for each level are sent
+in parallel and the progress bar is updated after each level. Use
+\code{.batch = FALSE} or \code{options(sharepointr.batch = FALSE)} to send a request
+per directory.}
 
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be

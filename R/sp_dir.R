@@ -41,8 +41,11 @@
 #'   recursive listing are requested with Microsoft Graph
 #'   [$batch](https://learn.microsoft.com/en-us/graph/json-batching) requests
 #'   (up to 20 directories per request), which is much faster than a request
-#'   per directory. Use `.batch = FALSE` or `options(sharepointr.batch = FALSE)`
-#'   to send a request per directory.
+#'   per directory. If `{carrier}` and `{mirai}` are installed and
+#'   [mirai::daemons()] are set, the `$batch` requests for each level are sent
+#'   in parallel and the progress bar is updated after each level. Use
+#'   `.batch = FALSE` or `options(sharepointr.batch = FALSE)` to send a request
+#'   per directory.
 #' @param sort How to sort the result: "name-asc" (default), "name-desc",
 #'   "size-asc", "size-desc", "created-asc", "created-desc", "modified-asc",
 #'   "modified-desc", or "none" to keep the order that directories were listed
@@ -237,8 +240,12 @@ sp_dir_info <- function(
     next_pending <- character()
 
     # Request up to 20 directories at a time if batching so the progress bar is
-    # updated after each $batch request
-    chunk_size <- if (.batch) sp_batch_size else 1L
+    # updated after each $batch request. If mirai daemons are set, request the
+    # whole level at once so the $batch requests can be sent in parallel.
+    chunk_size <- 1L
+    if (.batch) {
+      chunk_size <- if (sp_use_parallel()) length(pending) else sp_batch_size
+    }
     chunks <- unname(split(
       seq_along(pending),
       ceiling(seq_along(pending) / chunk_size)
@@ -485,9 +492,9 @@ sp_dir_shape_items <- function(items, path, info, select, full_names) {
 #' List the items in one or more directories
 #'
 #' Lists a single directory with `sp_dir_list_items()`. Lists more than one
-#' directory with a single Graph `$batch` request (see
-#' `sp_graph_batch_requests()`).
-#' @param paths A character vector of up to 20 paths.
+#' directory with Graph `$batch` requests of up to 20 directories each (see
+#' `sp_graph_batch_requests()`), which are sent in parallel if daemons are set.
+#' @param paths A character vector of paths.
 #' @returns A list with one element for each path (see `sp_dir_list_items()`).
 #' @noRd
 sp_dir_list_items_chunk <- function(

@@ -61,6 +61,7 @@ update_sp_list_item(
   drive_id = NULL,
   drive = NULL,
   .multi_fields = NULL,
+  .quiet = FALSE,
   call = caller_env()
 )
 ```
@@ -226,6 +227,11 @@ update_sp_list_item(
   available, field names are found from the list column definitions.
   Otherwise, only fields with a length other than 1 are treated as
   multi-value fields.
+
+- .quiet:
+
+  If `TRUE`, don't show a progress message for the update. Used by
+  `update_sp_list_items()` when updating items one at a time.
 
 ## Value
 

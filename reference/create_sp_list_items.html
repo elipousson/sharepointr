@@ -101,6 +101,7 @@
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  .multi_fields <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  .quiet <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -257,6 +258,11 @@ as multi-select choice columns, that should always be sent as an array with
 an <code>"@odata.type"</code> annotation. If <code>NULL</code> and <code>sp_list</code> is available, field
 names are found from the list column definitions. Otherwise, only fields
 with a length other than 1 are treated as multi-value fields.</p></dd>
+
+
+<dt id="arg--quiet">.quiet<a class="anchor" aria-label="anchor" href="#arg--quiet"></a></dt>
+<dd><p>If <code>TRUE</code>, don't show a progress message for the update.
+Used by <code>update_sp_list_items()</code> when updating items one at a time.</p></dd>
 
 </dl></div>
     <div class="section level2">

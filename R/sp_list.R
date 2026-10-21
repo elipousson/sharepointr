@@ -255,9 +255,18 @@ list_sp_lists <- function(
 #' @rdname sp_list
 #' @name get_sp_list_metadata
 #' @inheritParams ms_graph_obj_terms
-#' @param keep One of "all" (default), "editable", "external" (non-internal
-#' fields). Argument determines if the returned list metadata includes read
-#' only columns or hidden columns.
+#' @param keep One of "all" (default), "non-hidden", "editable", or "external"
+#'   (non-internal fields). Argument determines if the returned list metadata
+#'   includes read only columns or hidden columns. Only "all" requests hidden
+#'   columns, which the Graph API omits by default, so "non-hidden",
+#'   "editable", and "external" never include hidden columns.
+#' @param select Optional character vector of columnDefinition properties to
+#'   return, e.g. `c("name", "displayName")`, to reduce the size of the
+#'   response. Must be in `sp_list_col_select` (the columnDefinition
+#'   properties, including the column type properties such as "text" or
+#'   "lookup"). Properties required by `keep` are added: "hidden" for "all",
+#'   "readOnly" for "editable", and "name" for "external". If `NULL`
+#'   (default), all properties are returned.
 #' @param sync_fields If `TRUE`, use the `sync_fields` method to sync the fields
 #'   of the local `ms_list` object with the fields of the SharePoint List source
 #'   before retrieving list metadata.
@@ -267,7 +276,8 @@ get_sp_list_metadata <- function(
   list_id = NULL,
   sp_list = NULL,
   ...,
-  keep = c("all", "editable", "external"),
+  keep = c("all", "non-hidden", "editable", "external"),
+  select = NULL,
   sync_fields = FALSE,
   site_url = NULL,
   site = NULL,
@@ -293,8 +303,28 @@ get_sp_list_metadata <- function(
 
   check_ms_obj(sp_list, "ms_list", call = call)
 
+  keep <- arg_match(keep, error_call = call)
+
+  select <- check_sp_list_col_select(select, call = call)
+
+  # Hidden columns are only returned if `hidden` is in $select, but $select
+  # limits the response to the named properties so all of them are listed
+  select <- switch(
+    keep,
+    all = union(select %||% sp_list_col_select, "hidden"),
+    editable = if (!is.null(select)) union(select, "readOnly"),
+    external = if (!is.null(select)) union(select, "name"),
+    select
+  )
+
+  expand <- if (is.null(select)) {
+    "columns"
+  } else {
+    paste0("columns($select=", paste(select, collapse = ","), ")")
+  }
+
   sp_list_op_resp <- sp_list$do_operation(
-    options = list(expand = "columns"),
+    options = list(expand = expand),
     simplify = as_data_frame
   )
 
@@ -308,9 +338,7 @@ get_sp_list_metadata <- function(
 
   sp_list_meta <- sp_list_op_resp$columns
 
-  keep <- arg_match(keep, error_call = call)
-
-  if (keep == "all") {
+  if (keep %in% c("all", "non-hidden")) {
     return(sp_list_meta)
   }
 
@@ -1905,6 +1933,78 @@ pull_sp_list_cols <- function(
     as.character(pluck_sp_list_meta(sp_list_meta, names_from)[col_i])
   )
 }
+
+#' Check the `select` argument of `get_sp_list_metadata()`
+#' @noRd
+check_sp_list_col_select <- function(select, call = caller_env()) {
+  if (is.null(select)) {
+    return(NULL)
+  }
+
+  if (!is.character(select) || anyNA(select) || length(select) == 0) {
+    stop_input_type(
+      select,
+      "a character vector of column properties",
+      allow_null = TRUE,
+      arg = "select",
+      call = call
+    )
+  }
+
+  bad <- setdiff(select, sp_list_col_select)
+
+  if (length(bad) > 0) {
+    cli_abort(
+      c(
+        "{.arg select} must be {.or {.val {sp_list_col_select}}}.",
+        "x" = "Can't select {.val {bad}}."
+      ),
+      call = call
+    )
+  }
+
+  unique(select)
+}
+
+#' Columns selected to include hidden columns in list metadata
+#'
+#' Hidden columnDefinitions are only returned if `hidden` is selected, which
+#' limits the response to the selected properties.
+#' @noRd
+sp_list_col_select <- c(
+  "id",
+  "name",
+  "displayName",
+  "description",
+  "columnGroup",
+  "hidden",
+  "indexed",
+  "readOnly",
+  "required",
+  "enforceUniqueValues",
+  "defaultValue",
+  "validation",
+  "isDeletable",
+  "isReorderable",
+  "isSealed",
+  "propagateChanges",
+  "sourceColumn",
+  "sourceContentType",
+  "boolean",
+  "calculated",
+  "choice",
+  "contentApprovalStatus",
+  "currency",
+  "dateTime",
+  "geolocation",
+  "hyperlinkOrPicture",
+  "lookup",
+  "number",
+  "personOrGroup",
+  "term",
+  "text",
+  "thumbnail"
+)
 
 #' Column type properties (facets) supported by `pull_sp_list_cols()`
 #'

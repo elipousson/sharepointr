@@ -4,7 +4,7 @@
 \alias{copy_column_definition_list}
 \title{Create a new column definition based on an existing list}
 \usage{
-copy_column_definition_list(sp_list = NULL, ...)
+copy_column_definition_list(sp_list = NULL, ..., keep = "non-hidden")
 }
 \arguments{
 \item{sp_list}{A \code{ms_list} object or a data frame created by
@@ -24,9 +24,13 @@ is always returned as a data frame.}
     \item{\code{metadata}}{If \code{TRUE}, \code{\link[=get_sp_list]{get_sp_list()}} applies the \code{get_column_info}
 method to the returned SharePoint list and returns a data frame with column
 metadata for the list.}
-    \item{\code{keep}}{One of "all" (default), "editable", "external" (non-internal
-fields). Argument determines if the returned list metadata includes read
-only columns or hidden columns.}
+    \item{\code{select}}{Optional character vector of columnDefinition properties to
+return, e.g. \code{c("name", "displayName")}, to reduce the size of the
+response. Must be in \code{sp_list_col_select} (the columnDefinition
+properties, including the column type properties such as "text" or
+"lookup"). Properties required by \code{keep} are added: "hidden" for "all",
+"readOnly" for "editable", and "name" for "external". If \code{NULL}
+(default), all properties are returned.}
     \item{\code{sync_fields}}{If \code{TRUE}, use the \code{sync_fields} method to sync the fields
 of the local \code{ms_list} object with the fields of the SharePoint List source
 before retrieving list metadata.}
@@ -50,6 +54,8 @@ on using filter query parameters.}
     \item{\code{n}}{Maximum number of lists, plans, tasks, or other items to return.
 Defaults to \code{NULL} which sets n to \code{Inf}.}
   }}
+
+\item{keep}{Passed to \code{\link[=get_sp_list_metadata]{get_sp_list_metadata()}}. Defaults to "non-hidden".}
 }
 \value{
 A list of named lists, each formatted as a columnDefinition (as

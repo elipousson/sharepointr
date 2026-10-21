@@ -39,7 +39,8 @@ get_sp_list_metadata(
   list_id = NULL,
   sp_list = NULL,
   ...,
-  keep = c("all", "editable", "external"),
+  keep = c("all", "non-hidden", "editable", "external"),
+  select = NULL,
   sync_fields = FALSE,
   site_url = NULL,
   site = NULL,
@@ -111,9 +112,19 @@ Defaults to \code{NULL} which sets n to \code{Inf}.}
 \code{site_url}, \code{site}, \code{drive_name}, \code{drive_id}, \code{drive}, and any additional
 parameters passed to \code{...} are all ignored.}
 
-\item{keep}{One of "all" (default), "editable", "external" (non-internal
-fields). Argument determines if the returned list metadata includes read
-only columns or hidden columns.}
+\item{keep}{One of "all" (default), "non-hidden", "editable", or "external"
+(non-internal fields). Argument determines if the returned list metadata
+includes read only columns or hidden columns. Only "all" requests hidden
+columns, which the Graph API omits by default, so "non-hidden",
+"editable", and "external" never include hidden columns.}
+
+\item{select}{Optional character vector of columnDefinition properties to
+return, e.g. \code{c("name", "displayName")}, to reduce the size of the
+response. Must be in \code{sp_list_col_select} (the columnDefinition
+properties, including the column type properties such as "text" or
+"lookup"). Properties required by \code{keep} are added: "hidden" for "all",
+"readOnly" for "editable", and "name" for "external". If \code{NULL}
+(default), all properties are returned.}
 
 \item{sync_fields}{If \code{TRUE}, use the \code{sync_fields} method to sync the fields
 of the local \code{ms_list} object with the fields of the SharePoint List source

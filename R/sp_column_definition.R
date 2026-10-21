@@ -1073,13 +1073,18 @@ fmt_sp_list_metadata_df <- function(x, key) {
 #' [get_sp_list_metadata()]. Optional if additional parameters are provided to
 #' `...` that can be used to get a SharePoint list to copy column definitions
 #' from.
-#' @inheritDotParams get_sp_list_metadata
+#' @inheritDotParams get_sp_list_metadata -keep
+#' @param keep Passed to [get_sp_list_metadata()]. Defaults to "non-hidden".
 #' @returns A list of named lists, each formatted as a columnDefinition (as
 #'   created by [create_column_definition()]) for use as the `fields`
 #'   argument to [create_sp_list()].
 #' @keywords lists
 #' @export
-copy_column_definition_list <- function(sp_list = NULL, ...) {
+copy_column_definition_list <- function(
+  sp_list = NULL,
+  ...,
+  keep = "non-hidden"
+) {
   if (
     is.data.frame(sp_list) &&
       all(has_name(sp_list, c("name", "id", "columnGroup", "definition")))
@@ -1089,7 +1094,8 @@ copy_column_definition_list <- function(sp_list = NULL, ...) {
   } else {
     sp_list_meta <- get_sp_list_metadata(
       sp_list = sp_list,
-      ...
+      ...,
+      keep = keep
     )
   }
 

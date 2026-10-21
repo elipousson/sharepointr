@@ -186,6 +186,7 @@ compare_sp_list <- function(
     sp_list <- get_definition_sp_list(definitions, sp_list, ..., call = call)
     meta <- get_sp_list_metadata(
       sp_list = sp_list,
+      keep = "all",
       as_data_frame = FALSE,
       call = call
     )
@@ -232,7 +233,12 @@ compare_sp_list <- function(
 
   rows <- c(list(list_rows), rows)
 
-  delete_names <- setdiff(names(live), declared)
+  # Hidden columns are compared if declared but never deleted, so definitions
+  # work with or without hidden columns
+  hidden <- names(live)[
+    purrr::map_lgl(meta, \(col) isTRUE(col[["hidden"]]))
+  ]
+  delete_names <- setdiff(names(live), c(declared, hidden))
 
   rows <- c(
     rows,

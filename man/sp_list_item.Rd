@@ -86,9 +86,11 @@ parameters passed to \code{...} are all ignored.}
     \item{\code{metadata}}{If \code{TRUE}, \code{\link[=get_sp_list]{get_sp_list()}} applies the \code{get_column_info}
 method to the returned SharePoint list and returns a data frame with column
 metadata for the list.}
-    \item{\code{keep}}{One of "all" (default), "editable", "external" (non-internal
-fields). Argument determines if the returned list metadata includes read
-only columns or hidden columns.}
+    \item{\code{keep}}{One of "all" (default), "non-hidden", "editable", or "external"
+(non-internal fields). Argument determines if the returned list metadata
+includes read only columns or hidden columns. Only "all" requests hidden
+columns, which the Graph API omits by default, so "non-hidden",
+"editable", and "external" never include hidden columns.}
     \item{\code{sync_fields}}{If \code{TRUE}, use the \code{sync_fields} method to sync the fields
 of the local \code{ms_list} object with the fields of the SharePoint List source
 before retrieving list metadata.}

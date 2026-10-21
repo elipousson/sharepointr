@@ -15,6 +15,7 @@ as_sp_list_definition(x, ..., display_name = NULL, call = caller_env())
 get_sp_list_definition(
   sp_list = NULL,
   ...,
+  keep = "non-hidden",
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
@@ -27,6 +28,7 @@ write_sp_list_yaml(
   path,
   ...,
   merge = TRUE,
+  keep = "non-hidden",
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
@@ -44,18 +46,17 @@ mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{x}{For \code{\link[=write_sp_list_yaml]{write_sp_list_yaml()}}, a \code{sp_list_definition} object or a
-\code{ms_list} object. \code{keep_defaults}, \code{read_only}, \code{include_views}, and
-\code{include_folders} are only used for a \code{ms_list} object. For \code{\link[=as_sp_list_definition]{as_sp_list_definition()}}, a named list with the
-same structure as a YAML file or an unnamed list of column definitions.}
+\code{ms_list} object. \code{keep}, \code{keep_defaults}, \code{read_only}, \code{include_views},
+and \code{include_folders} are only used for a \code{ms_list} object. For
+\code{\link[=as_sp_list_definition]{as_sp_list_definition()}}, a named list with the same structure as a YAML file or an unnamed list of column definitions.}
 
 \item{...}{Must be empty.}
 
 \item{display_name}{List display name. Used by \code{\link[=as_sp_list_definition]{as_sp_list_definition()}}
 if \code{x} is an unnamed list of column definitions.}
 
-\item{sp_list}{A \code{ms_list} object. If supplied, \code{list_name}, \code{list_id},
-\code{site_url}, \code{site}, \code{drive_name}, \code{drive_id}, \code{drive}, and any additional
-parameters passed to \code{...} are all ignored.}
+\item{keep}{One of "non-hidden" (default) or "all". Use "all" to include
+hidden columns in the definition. See \code{\link[=get_sp_list_metadata]{get_sp_list_metadata()}}.}
 
 \item{keep_defaults}{If \code{FALSE} (default), drop properties with the default
 value returned by the Graph API (e.g. \code{required: false}) to keep

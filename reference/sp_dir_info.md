@@ -17,16 +17,19 @@ sp_dir_info(
   path = NULL,
   ...,
   info = "partial",
+  select = NULL,
   full_names = TRUE,
   pagesize = 1000,
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
   recurse = FALSE,
+  sort = "name-asc",
   type = "any",
   regexp = NULL,
   invert = FALSE,
   perl = FALSE,
+  .batch = getOption("sharepointr.batch", TRUE),
   call = caller_env()
 )
 
@@ -118,6 +121,16 @@ sp_dir_ls(
   item is a file or folder. If "all", a data frame is returned
   containing all the properties for each item (this can be large).
 
+- select:
+
+  A character vector of [driveItem
+  properties](https://learn.microsoft.com/en-us/graph/api/resources/driveitem)
+  to return in addition to the name, size, ID, and `isdir` columns, e.g.
+  `c("webUrl", "lastModifiedDateTime")`. Passed to the Graph API as the
+  `$select` query parameter so only these properties are requested. If
+  supplied, `info` must be "partial" (the default) or "all" and "all" is
+  treated as "partial". Properties used by `sort` are always included.
+
 - full_names:
 
   If `TRUE` (default), return the full file path as the name for each
@@ -142,17 +155,39 @@ sp_dir_ls(
 
   If `TRUE`, get info for each directory at the supplied path and
   combine this info with the item info for the supplied path.
+  Directories are listed one level at a time and a single progress bar
+  reports the number of directories listed and queued.
+
+- sort:
+
+  How to sort the result: "name-asc" (default), "name-desc", "size-asc",
+  "size-desc", "created-asc", "created-desc", "modified-asc",
+  "modified-desc", or "none" to keep the order that directories were
+  listed in. Names are sorted in C-locale order so uppercase letters
+  sort before lowercase letters. `sort` is ignored if `info = "name"`.
+  The properties used by `sort` are added to the result if they are not
+  already included. `sort` is applied if `recurse = TRUE` or if `sort`
+  is supplied; otherwise the order returned by SharePoint is kept.
 
 - type:
 
   Type of item to return. Can be "any", "file", or "directory".
-  "directory" is not a supported option for `sp_dir_ls()`
+  "directory" is not a supported option for `sp_dir_ls()`. As with
+  [`fs::dir_info()`](https://fs.r-lib.org/reference/dir_ls.html), if
+  `recurse = TRUE`, all directories are searched whatever the value of
+  `type`, and `type` only filters the items returned.
 
 - regexp:
 
   Regular expression passed to
   [`grep()`](https://rdrr.io/r/base/grep.html) and used to filter the
-  paths before they are returned.
+  items before they are returned. As with
+  [`fs::dir_info()`](https://fs.r-lib.org/reference/dir_ls.html),
+  `regexp` is applied after all directories are listed, so directories
+  that do not match are still searched if `recurse = TRUE`. If
+  `full_names = TRUE`, `regexp` is matched against the full path. If
+  `full_names = FALSE`, it is matched against the item name only (unlike
+  [`fs::dir_info()`](https://fs.r-lib.org/reference/dir_ls.html)).
 
 - invert:
 
@@ -162,6 +197,19 @@ sp_dir_ls(
 - perl:
 
   logical. Should Perl-compatible regexps be used?
+
+- .batch:
+
+  If `TRUE` (default), the directories at each level of a recursive
+  listing are requested with Microsoft Graph
+  [\$batch](https://learn.microsoft.com/en-us/graph/json-batching)
+  requests (up to 20 directories per request), which is much faster than
+  a request per directory. If `{carrier}` and `{mirai}` are installed
+  and
+  [`mirai::daemons()`](https://mirai.r-lib.org/reference/daemons.html)
+  are set, the `$batch` requests for each level are sent in parallel and
+  the progress bar is updated after each level. Use `.batch = FALSE` or
+  `options(sharepointr.batch = FALSE)` to send a request per directory.
 
 - call:
 

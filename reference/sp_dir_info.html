@@ -64,16 +64,19 @@ file.</p>
 <span>  path <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  info <span class="op">=</span> <span class="st">"partial"</span>,</span>
+<span>  select <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  full_names <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  pagesize <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  recurse <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  sort <span class="op">=</span> <span class="st">"name-asc"</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"any"</span>,</span>
 <span>  regexp <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  invert <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  perl <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  .batch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sharepointr.batch"</span>, <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -155,6 +158,15 @@ whether the item is a file or folder. If "all", a data frame is returned
 containing all the properties for each item (this can be large).</p></dd>
 
 
+<dt id="arg-select">select<a class="anchor" aria-label="anchor" href="#arg-select"></a></dt>
+<dd><p>A character vector of <a href="https://learn.microsoft.com/en-us/graph/api/resources/driveitem" class="external-link">driveItem properties</a>
+to return in addition to the name, size, ID, and <code>isdir</code> columns, e.g.
+<code>c("webUrl", "lastModifiedDateTime")</code>. Passed to the Graph API as the
+<code>$select</code> query parameter so only these properties are requested. If
+supplied, <code>info</code> must be "partial" (the default) or "all" and "all" is
+treated as "partial". Properties used by <code>sort</code> are always included.</p></dd>
+
+
 <dt id="arg-full-names">full_names<a class="anchor" aria-label="anchor" href="#arg-full-names"></a></dt>
 <dd><p>If <code>TRUE</code> (default), return the full file path as the name
 for each item.</p></dd>
@@ -177,17 +189,36 @@ method for SharePoint site object.</p></dd>
 
 <dt id="arg-recurse">recurse<a class="anchor" aria-label="anchor" href="#arg-recurse"></a></dt>
 <dd><p>If <code>TRUE</code>, get info for each directory at the supplied path
-and combine this info with the item info for the supplied path.</p></dd>
+and combine this info with the item info for the supplied path. Directories
+are listed one level at a time and a single progress bar reports the
+number of directories listed and queued.</p></dd>
+
+
+<dt id="arg-sort">sort<a class="anchor" aria-label="anchor" href="#arg-sort"></a></dt>
+<dd><p>How to sort the result: "name-asc" (default), "name-desc",
+"size-asc", "size-desc", "created-asc", "created-desc", "modified-asc",
+"modified-desc", or "none" to keep the order that directories were listed
+in. Names are sorted in C-locale order so uppercase letters sort before
+lowercase letters. <code>sort</code> is ignored if <code>info = "name"</code>. The properties used by <code>sort</code> are added to the
+result if they are not already included. <code>sort</code> is applied if
+<code>recurse = TRUE</code> or if <code>sort</code> is supplied; otherwise the order returned by
+SharePoint is kept.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Type of item to return. Can be "any", "file", or "directory".
-"directory" is not a supported option for <code>sp_dir_ls()</code></p></dd>
+"directory" is not a supported option for <code>sp_dir_ls()</code>. As with
+<code><a href="https://fs.r-lib.org/reference/dir_ls.html" class="external-link">fs::dir_info()</a></code>, if <code>recurse = TRUE</code>, all directories are searched
+whatever the value of <code>type</code>, and <code>type</code> only filters the items returned.</p></dd>
 
 
 <dt id="arg-regexp">regexp<a class="anchor" aria-label="anchor" href="#arg-regexp"></a></dt>
 <dd><p>Regular expression passed to <code><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep()</a></code> and used to filter the
-paths before they are returned.</p></dd>
+items before they are returned. As with <code><a href="https://fs.r-lib.org/reference/dir_ls.html" class="external-link">fs::dir_info()</a></code>, <code>regexp</code> is
+applied after all directories are listed, so directories that do not match
+are still searched if <code>recurse = TRUE</code>. If <code>full_names = TRUE</code>, <code>regexp</code>
+is matched against the full path. If <code>full_names = FALSE</code>, it is matched
+against the item name only (unlike <code><a href="https://fs.r-lib.org/reference/dir_ls.html" class="external-link">fs::dir_info()</a></code>).</p></dd>
 
 
 <dt id="arg-invert">invert<a class="anchor" aria-label="anchor" href="#arg-invert"></a></dt>
@@ -197,6 +228,18 @@ paths before they are returned.</p></dd>
 
 <dt id="arg-perl">perl<a class="anchor" aria-label="anchor" href="#arg-perl"></a></dt>
 <dd><p>logical.  Should Perl-compatible regexps be used?</p></dd>
+
+
+<dt id="arg--batch">.batch<a class="anchor" aria-label="anchor" href="#arg--batch"></a></dt>
+<dd><p>If <code>TRUE</code> (default), the directories at each level of a
+recursive listing are requested with Microsoft Graph
+<a href="https://learn.microsoft.com/en-us/graph/json-batching" class="external-link">$batch</a> requests
+(up to 20 directories per request), which is much faster than a request
+per directory. If <code>{carrier}</code> and <code>{mirai}</code> are installed and
+<code><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">mirai::daemons()</a></code> are set, the <code>$batch</code> requests for each level are sent
+in parallel and the progress bar is updated after each level. Use
+<code>.batch = FALSE</code> or <code>options(sharepointr.batch = FALSE)</code> to send a request
+per directory.</p></dd>
 
 
 <dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>

@@ -4,6 +4,43 @@
 
 ### Added
 
+- Add a `.batch` argument to
+  [`sp_dir_info()`](https://elipousson.github.io/sharepointr/reference/sp_dir_info.md).
+  By default (`.batch = TRUE`), `sp_dir_info(recurse = TRUE)` now
+  requests up to 20 directories at a time with Microsoft Graph `$batch`
+  requests, which was about 11 times faster than a request per directory
+  when listing a folder with 6,595 items (10 seconds instead of 110).
+  Throttled requests are retried after the delay requested by the API.
+  If [carrier](https://github.com/r-lib/carrier) and
+  [mirai](https://mirai.r-lib.org) are installed and
+  [`mirai::daemons()`](https://mirai.r-lib.org/reference/daemons.html)
+  are set, the `$batch` requests for each level are also sent in
+  parallel (about 1.4 to 1.8 times faster with 4 daemons in testing).
+  Use `.batch = FALSE` or `options(sharepointr.batch = FALSE)` to send a
+  request per directory. (2026-10-21)
+- `sp_dir_info(recurse = TRUE)` now lists directories level by level and
+  shows a single progress bar (directories listed and queued) instead of
+  a bar that reset for each directory. `regexp` and `type` are now
+  applied after all directories are listed (as in
+  [`fs::dir_info()`](https://fs.r-lib.org/reference/dir_ls.html)), so
+  non-matching directories are still searched and `type = "file"` works
+  with `recurse = TRUE`. A new `sort` argument sorts results by name,
+  size, created time, or modified time (e.g. `"name-asc"`, the default
+  for recursive results). Also fixes subdirectory paths when
+  `full_names = FALSE`. (2026-10-21)
+- [`sp_dir_info()`](https://elipousson.github.io/sharepointr/reference/sp_dir_info.md)
+  and
+  [`sp_dir_ls()`](https://elipousson.github.io/sharepointr/reference/sp_dir_info.md)
+  now request the children of a folder directly from the Graph API
+  instead of using the Microsoft365R `list_items` method. Add a `select`
+  argument to
+  [`sp_dir_info()`](https://elipousson.github.io/sharepointr/reference/sp_dir_info.md)
+  to request additional driveItem properties (e.g. `"webUrl"`) without
+  `info = "all"`, and the properties needed by `sort` (such as created
+  or modified time) are now requested automatically. Item names in the
+  drive root no longer have a leading slash when `full_names = TRUE`,
+  and path segments with reserved characters such as `#` are now
+  encoded. (2026-10-21)
 - Add
   [`update_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/sp_item_properties.md)
   (experimental) to rename a file or folder or update the values of

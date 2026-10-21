@@ -97,22 +97,22 @@ get_sp_list_item(
 
   `metadata`
 
-  :   If `TRUE`,
+  :   **\[deprecated\]** If `TRUE`,
       [`get_sp_list()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
       applies the `get_column_info` method to the returned SharePoint
       list and returns a data frame with column metadata for the list.
+      Use
+      [`get_sp_list_metadata()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
+      with `keep = "visible"` instead.
 
   `keep`
 
-  :   One of "all" (default), "editable", "external" (non-internal
-      fields). Argument determines if the returned list metadata
-      includes read only columns or hidden columns.
-
-  `sync_fields`
-
-  :   If `TRUE`, use the `sync_fields` method to sync the fields of the
-      local `ms_list` object with the fields of the SharePoint List
-      source before retrieving list metadata.
+  :   One of "visible" (default), "all", "editable", or "external"
+      (non-internal fields). Argument determines if the returned list
+      metadata includes read only columns or hidden columns. Only "all"
+      requests hidden columns, which the Graph API omits by default, so
+      "visible", "editable", and "external" never include hidden
+      columns.
 
   `drive_name,drive_id`
 

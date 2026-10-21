@@ -69,7 +69,7 @@ to distinguish them from item metadata.</p>
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  metadata <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  metadata <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  as_data_frame <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
@@ -92,8 +92,8 @@ to distinguish them from item metadata.</p>
 <span>  list_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  keep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"editable"</span>, <span class="st">"external"</span><span class="op">)</span>,</span>
-<span>  sync_fields <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  keep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"visible"</span>, <span class="st">"all"</span>, <span class="st">"editable"</span>, <span class="st">"external"</span><span class="op">)</span>,</span>
+<span>  select <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -165,9 +165,10 @@ method for SharePoint site object.</p></dd>
 
 
 <dt id="arg-metadata">metadata<a class="anchor" aria-label="anchor" href="#arg-metadata"></a></dt>
-<dd><p>If <code>TRUE</code>, <code>get_sp_list()</code> applies the <code>get_column_info</code>
-method to the returned SharePoint list and returns a data frame with column
-metadata for the list.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> If <code>TRUE</code>,
+<code>get_sp_list()</code> applies the <code>get_column_info</code> method to the returned
+SharePoint list and returns a data frame with column metadata for the
+list. Use <code>get_sp_list_metadata()</code> with <code>keep = "visible"</code> instead.</p></dd>
 
 
 <dt id="arg-as-data-frame">as_data_frame<a class="anchor" aria-label="anchor" href="#arg-as-data-frame"></a></dt>
@@ -203,15 +204,25 @@ parameters passed to <code>...</code> are all ignored.</p></dd>
 
 
 <dt id="arg-keep">keep<a class="anchor" aria-label="anchor" href="#arg-keep"></a></dt>
-<dd><p>One of "all" (default), "editable", "external" (non-internal
-fields). Argument determines if the returned list metadata includes read
-only columns or hidden columns.</p></dd>
+<dd><p>One of "visible" (default), "all", "editable", or "external"
+(non-internal fields). Argument determines if the returned list metadata
+includes read only columns or hidden columns. Only "all" requests hidden
+columns, which the Graph API omits by default, so "visible",
+"editable", and "external" never include hidden columns.</p></dd>
 
 
-<dt id="arg-sync-fields">sync_fields<a class="anchor" aria-label="anchor" href="#arg-sync-fields"></a></dt>
-<dd><p>If <code>TRUE</code>, use the <code>sync_fields</code> method to sync the fields
-of the local <code>ms_list</code> object with the fields of the SharePoint List source
-before retrieving list metadata.</p></dd>
+<dt id="arg-select">select<a class="anchor" aria-label="anchor" href="#arg-select"></a></dt>
+<dd><p>Optional character vector of columnDefinition properties to
+return, e.g. <code>c("name", "displayName")</code>, to reduce the size of the
+response. Must be one of the columnDefinition properties documented by the
+Graph API, including the column type properties such as "text" or
+"lookup". Properties required by <code>keep</code> are added: "hidden" for "all",
+"readOnly" for "editable", and "name" for "external". If <code>NULL</code>
+(default), the Graph API default properties are returned, except that
+<code>keep = "all"</code> requests every known columnDefinition property (and
+"hidden") because the API only returns hidden columns when a selection is
+made. A property that the package does not list is not returned by
+<code>keep = "all"</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

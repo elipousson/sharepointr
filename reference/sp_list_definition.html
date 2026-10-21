@@ -88,6 +88,7 @@ YAML file.</p></li>
 <span><span class="fu">get_sp_list_definition</span><span class="op">(</span></span>
 <span>  sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
+<span>  keep <span class="op">=</span> <span class="st">"visible"</span>,</span>
 <span>  keep_defaults <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  read_only <span class="op">=</span> <span class="st">"stable"</span>,</span>
 <span>  include_views <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -100,6 +101,7 @@ YAML file.</p></li>
 <span>  <span class="va">path</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  merge <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  keep <span class="op">=</span> <span class="st">"visible"</span>,</span>
 <span>  keep_defaults <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  read_only <span class="op">=</span> <span class="st">"stable"</span>,</span>
 <span>  include_views <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -126,9 +128,9 @@ mentioned in error messages as the source of the error. See the
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>For <code>write_sp_list_yaml()</code>, a <code>sp_list_definition</code> object or a
-<code>ms_list</code> object. <code>keep_defaults</code>, <code>read_only</code>, <code>include_views</code>, and
-<code>include_folders</code> are only used for a <code>ms_list</code> object. For <code>as_sp_list_definition()</code>, a named list with the
-same structure as a YAML file or an unnamed list of column definitions.</p></dd>
+<code>ms_list</code> object. <code>keep</code>, <code>keep_defaults</code>, <code>read_only</code>, <code>include_views</code>,
+and <code>include_folders</code> are only used for a <code>ms_list</code> object. For
+<code>as_sp_list_definition()</code>, a named list with the same structure as a YAML file or an unnamed list of column definitions.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -140,10 +142,9 @@ same structure as a YAML file or an unnamed list of column definitions.</p></dd>
 if <code>x</code> is an unnamed list of column definitions.</p></dd>
 
 
-<dt id="arg-sp-list">sp_list<a class="anchor" aria-label="anchor" href="#arg-sp-list"></a></dt>
-<dd><p>A <code>ms_list</code> object. If supplied, <code>list_name</code>, <code>list_id</code>,
-<code>site_url</code>, <code>site</code>, <code>drive_name</code>, <code>drive_id</code>, <code>drive</code>, and any additional
-parameters passed to <code>...</code> are all ignored.</p></dd>
+<dt id="arg-keep">keep<a class="anchor" aria-label="anchor" href="#arg-keep"></a></dt>
+<dd><p>One of "visible" (default) or "all". Use "all" to include
+hidden columns in the definition. See <code><a href="sp_list.html">get_sp_list_metadata()</a></code>.</p></dd>
 
 
 <dt id="arg-keep-defaults">keep_defaults<a class="anchor" aria-label="anchor" href="#arg-keep-defaults"></a></dt>

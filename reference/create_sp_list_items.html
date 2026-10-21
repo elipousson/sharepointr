@@ -59,7 +59,6 @@
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  check_fields <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  sync_fields <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  create_list <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  strict <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  .batch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sharepointr.batch"</span>, <span class="cn">TRUE</span><span class="op">)</span>,</span>
@@ -180,12 +179,6 @@ method for SharePoint site object.</p></dd>
 names) for the input data are matched to the fields of the list object.
 If <code>FALSE</code>, names aren't checked and the Graph API errors for any name
 that isn't a list field.</p></dd>
-
-
-<dt id="arg-sync-fields">sync_fields<a class="anchor" aria-label="anchor" href="#arg-sync-fields"></a></dt>
-<dd><p>If <code>TRUE</code>, use the <code>sync_fields</code> method to sync the fields
-of the local <code>ms_list</code> object with the fields of the SharePoint List source
-before retrieving list metadata.</p></dd>
 
 
 <dt id="arg-create-list">create_list<a class="anchor" aria-label="anchor" href="#arg-create-list"></a></dt>

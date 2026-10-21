@@ -31,6 +31,7 @@ as_sp_list_definition(x, ..., display_name = NULL, call = caller_env())
 get_sp_list_definition(
   sp_list = NULL,
   ...,
+  keep = "visible",
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
@@ -43,6 +44,7 @@ write_sp_list_yaml(
   path,
   ...,
   merge = TRUE,
+  keep = "visible",
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
@@ -69,10 +71,10 @@ write_sp_list_yaml(
 - x:
 
   For `write_sp_list_yaml()`, a `sp_list_definition` object or a
-  `ms_list` object. `keep_defaults`, `read_only`, `include_views`, and
-  `include_folders` are only used for a `ms_list` object. For
-  `as_sp_list_definition()`, a named list with the same structure as a
-  YAML file or an unnamed list of column definitions.
+  `ms_list` object. `keep`, `keep_defaults`, `read_only`,
+  `include_views`, and `include_folders` are only used for a `ms_list`
+  object. For `as_sp_list_definition()`, a named list with the same
+  structure as a YAML file or an unnamed list of column definitions.
 
 - ...:
 
@@ -83,11 +85,11 @@ write_sp_list_yaml(
   List display name. Used by `as_sp_list_definition()` if `x` is an
   unnamed list of column definitions.
 
-- sp_list:
+- keep:
 
-  A `ms_list` object. If supplied, `list_name`, `list_id`, `site_url`,
-  `site`, `drive_name`, `drive_id`, `drive`, and any additional
-  parameters passed to `...` are all ignored.
+  One of "visible" (default) or "all". Use "all" to include hidden
+  columns in the definition. See
+  [`get_sp_list_metadata()`](https://elipousson.github.io/sharepointr/reference/sp_list.md).
 
 - keep_defaults:
 

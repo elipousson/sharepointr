@@ -19,7 +19,6 @@ create_sp_list_items(
   drive_id = NULL,
   drive = NULL,
   check_fields = TRUE,
-  sync_fields = FALSE,
   create_list = FALSE,
   strict = FALSE,
   .batch = getOption("sharepointr.batch", TRUE),
@@ -143,12 +142,6 @@ update_sp_list_item(
   input data are matched to the fields of the list object. If `FALSE`,
   names aren't checked and the Graph API errors for any name that isn't
   a list field.
-
-- sync_fields:
-
-  If `TRUE`, use the `sync_fields` method to sync the fields of the
-  local `ms_list` object with the fields of the SharePoint List source
-  before retrieving list metadata.
 
 - create_list:
 

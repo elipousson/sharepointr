@@ -77,19 +77,30 @@ drive. Defaults to <code>FALSE</code>. Ignored is <code>metadata = TRUE</code> a
 is always returned as a data frame.</p></dd>
 
     <dt><code>metadata</code></dt>
-<dd><p>If <code>TRUE</code>, <code><a href="sp_list.html">get_sp_list()</a></code> applies the <code>get_column_info</code>
-method to the returned SharePoint list and returns a data frame with column
-metadata for the list.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> If <code>TRUE</code>,
+<code><a href="sp_list.html">get_sp_list()</a></code> applies the <code>get_column_info</code> method to the returned
+SharePoint list and returns a data frame with column metadata for the
+list. Use <code><a href="sp_list.html">get_sp_list_metadata()</a></code> with <code>keep = "visible"</code> instead.</p></dd>
 
     <dt><code>keep</code></dt>
-<dd><p>One of "all" (default), "editable", "external" (non-internal
-fields). Argument determines if the returned list metadata includes read
-only columns or hidden columns.</p></dd>
+<dd><p>One of "visible" (default), "all", "editable", or "external"
+(non-internal fields). Argument determines if the returned list metadata
+includes read only columns or hidden columns. Only "all" requests hidden
+columns, which the Graph API omits by default, so "visible",
+"editable", and "external" never include hidden columns.</p></dd>
 
-    <dt><code>sync_fields</code></dt>
-<dd><p>If <code>TRUE</code>, use the <code>sync_fields</code> method to sync the fields
-of the local <code>ms_list</code> object with the fields of the SharePoint List source
-before retrieving list metadata.</p></dd>
+    <dt><code>select</code></dt>
+<dd><p>Optional character vector of columnDefinition properties to
+return, e.g. <code>c("name", "displayName")</code>, to reduce the size of the
+response. Must be one of the columnDefinition properties documented by the
+Graph API, including the column type properties such as "text" or
+"lookup". Properties required by <code>keep</code> are added: "hidden" for "all",
+"readOnly" for "editable", and "name" for "external". If <code>NULL</code>
+(default), the Graph API default properties are returned, except that
+<code>keep = "all"</code> requests every known columnDefinition property (and
+"hidden") because the API only returns hidden columns when a selection is
+made. A property that the package does not list is not returned by
+<code>keep = "all"</code>.</p></dd>
 
     <dt><code>drive_name,drive_id</code></dt>
 <dd><p>SharePoint Drive name or ID passed to <code>get_drive</code>

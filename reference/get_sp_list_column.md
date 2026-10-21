@@ -42,15 +42,26 @@ get_sp_list_column(
 
   `keep`
 
-  :   One of "all" (default), "editable", "external" (non-internal
-      fields). Argument determines if the returned list metadata
-      includes read only columns or hidden columns.
+  :   One of "visible" (default), "all", "editable", or "external"
+      (non-internal fields). Argument determines if the returned list
+      metadata includes read only columns or hidden columns. Only "all"
+      requests hidden columns, which the Graph API omits by default, so
+      "visible", "editable", and "external" never include hidden
+      columns.
 
-  `sync_fields`
+  `select`
 
-  :   If `TRUE`, use the `sync_fields` method to sync the fields of the
-      local `ms_list` object with the fields of the SharePoint List
-      source before retrieving list metadata.
+  :   Optional character vector of columnDefinition properties to
+      return, e.g. `c("name", "displayName")`, to reduce the size of the
+      response. Must be one of the columnDefinition properties
+      documented by the Graph API, including the column type properties
+      such as "text" or "lookup". Properties required by `keep` are
+      added: "hidden" for "all", "readOnly" for "editable", and "name"
+      for "external". If `NULL` (default), the Graph API default
+      properties are returned, except that `keep = "all"` requests every
+      known columnDefinition property (and "hidden") because the API
+      only returns hidden columns when a selection is made. A property
+      that the package does not list is not returned by `keep = "all"`.
 
   `drive_name,drive_id`
 

@@ -637,6 +637,25 @@
   (the top level of the drive) to match
   [`upload_sp_item()`](https://elipousson.github.io/sharepointr/reference/upload_sp_item.md).
   (2026-10-10)
+- Remove the `sync_fields` argument of
+  [`get_sp_list_metadata()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
+  and
+  [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md).
+  [`get_sp_list_metadata()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
+  always requests the column definitions from the API so syncing the
+  local list object did not change the result. (2026-10-20)
+- [`get_sp_list_metadata()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
+  has a new `"visible"` option for `keep` (the new default), which
+  returns the columns the Graph API returns by default (without hidden
+  columns). `keep = "all"` now includes hidden columns. Use the new
+  `select` argument to limit the column properties returned.
+  (2026-10-20)
+- Soft deprecate the `metadata` argument of
+  [`get_sp_list()`](https://elipousson.github.io/sharepointr/reference/sp_list.md).
+  Use
+  [`get_sp_list_metadata()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
+  instead, which returns the same columns as `metadata = TRUE`.
+  (2026-10-20)
 - [`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md)
   no longer includes the `"@odata.etag"` column, which the Graph API
   returns with the fields of each item, unless `all_metadata = TRUE`.

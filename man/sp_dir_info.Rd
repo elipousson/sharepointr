@@ -21,6 +21,7 @@ sp_dir_info(
   regexp = NULL,
   invert = FALSE,
   perl = FALSE,
+  .batch = getOption("sharepointr.batch", TRUE),
   call = caller_env()
 )
 
@@ -127,6 +128,13 @@ against the item name only (unlike \code{\link[fs:dir_info]{fs::dir_info()}}).}
     elements that do \emph{not} match.}
 
 \item{perl}{logical.  Should Perl-compatible regexps be used?}
+
+\item{.batch}{If \code{TRUE} (default), the directories at each level of a
+recursive listing are requested with Microsoft Graph
+\href{https://learn.microsoft.com/en-us/graph/json-batching}{$batch} requests
+(up to 20 directories per request), which is much faster than a request
+per directory. Use \code{.batch = FALSE} or \code{options(sharepointr.batch = FALSE)}
+to send a request per directory.}
 
 \item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be

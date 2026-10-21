@@ -151,29 +151,29 @@ test_that("sp_dir_info(recurse = TRUE) lists all directories and sorts by name",
     }
   )
 
-  items <- sp_dir_info(drive = drive, recurse = TRUE)
+  items <- sp_dir_info(drive = drive, recurse = TRUE, .batch = FALSE)
   expect_identical(
     items[["name"]],
     c("A", "A/a.csv", "B", "B/C", "B/C/c.txt", "B/b.csv", "z.csv")
   )
 
   # Unmatched directories are still searched
-  items <- sp_dir_info(drive = drive, recurse = TRUE, regexp = "\\.txt$")
+  items <- sp_dir_info(drive = drive, recurse = TRUE, .batch = FALSE, regexp = "\\.txt$")
   expect_identical(items[["name"]], "B/C/c.txt")
 
-  items <- sp_dir_info(drive = drive, recurse = TRUE, type = "directory")
+  items <- sp_dir_info(drive = drive, recurse = TRUE, .batch = FALSE, type = "directory")
   expect_identical(items[["name"]], c("A", "B", "B/C"))
 
-  items <- sp_dir_info(drive = drive, recurse = TRUE, type = "file")
+  items <- sp_dir_info(drive = drive, recurse = TRUE, .batch = FALSE, type = "file")
   expect_identical(
     items[["name"]],
     c("A/a.csv", "B/C/c.txt", "B/b.csv", "z.csv")
   )
 
-  items <- sp_dir_info(drive = drive, recurse = TRUE, sort = "name-desc")
+  items <- sp_dir_info(drive = drive, recurse = TRUE, .batch = FALSE, sort = "name-desc")
   expect_identical(items[["name"]][1], "z.csv")
 
-  items <- sp_dir_info(drive = drive, recurse = TRUE, sort = "none")
+  items <- sp_dir_info(drive = drive, recurse = TRUE, .batch = FALSE, sort = "none")
   expect_identical(items[["name"]][1:3], c("B", "A", "z.csv"))
 })
 
@@ -221,4 +221,53 @@ test_that("sp_dir_children_op() encodes path segments", {
     sp_dir_children_op("a b/c#d/é/"),
     "root:/a%20b/c%23d/%C3%A9:/children"
   )
+})
+
+test_that("sp_dir_info(recurse = TRUE) lists directories with $batch requests", {
+  # Folders have a `folder` value and files don't (as in a Graph response)
+  graph_item <- function(name, isdir = FALSE) {
+    item <- list(name = name, size = 1L, id = name)
+    if (isdir) {
+      item[["folder"]] <- list(childCount = 1L)
+    }
+    item
+  }
+
+  tree <- list(
+    A = list(graph_item("a.csv")),
+    B = list(graph_item("b.csv"))
+  )
+
+  requests <- list()
+  local_mocked_bindings(
+    # A single directory is requested without $batch
+    sp_dir_request_items = function(...) {
+      raw_items(c("B", "A", "z.csv"), isdir = c(TRUE, TRUE, FALSE))
+    },
+    sp_graph_batch_requests = function(token, requests_i, ...) {
+      requests <<- c(requests, list(requests_i))
+      purrr::map(requests_i, \(x) {
+        path <- sub("^.*root:?/?(.*?):?/?children.*$", "\\1", x$url)
+        list(status = 200L, body = list(value = tree[[path]]))
+      })
+    }
+  )
+
+  items <- sp_dir_info(drive = mock_drive(), recurse = TRUE)
+
+  expect_identical(items[["name"]], c("A", "A/a.csv", "B", "B/b.csv", "z.csv"))
+  expect_identical(items[["isdir"]], c(TRUE, FALSE, TRUE, FALSE, FALSE))
+  # The two subfolders are requested in one $batch request
+  expect_length(requests, 1)
+  expect_length(requests[[1]], 2)
+  expect_match(requests[[1]][[1]]$url, "^/drives/.*root:/B:/children\\?\\$top=1000&\\$select=name,size,folder,id")
+})
+
+test_that("sp_dir_batch_items() errors for a failed request", {
+  response <- list(
+    status = 404L,
+    body = list(error = list(message = "The resource could not be found."))
+  )
+
+  expect_error(sp_dir_batch_items(response, NULL, "Missing"), "404")
 })

@@ -37,6 +37,12 @@
 #'   and combine this info with the item info for the supplied path. Directories
 #'   are listed one level at a time and a single progress bar reports the
 #'   number of directories listed and queued.
+#' @param .batch If `TRUE` (default), the directories at each level of a
+#'   recursive listing are requested with Microsoft Graph
+#'   [$batch](https://learn.microsoft.com/en-us/graph/json-batching) requests
+#'   (up to 20 directories per request), which is much faster than a request
+#'   per directory. Use `.batch = FALSE` or `options(sharepointr.batch = FALSE)`
+#'   to send a request per directory.
 #' @param sort How to sort the result: "name-asc" (default), "name-desc",
 #'   "size-asc", "size-desc", "created-asc", "created-desc", "modified-asc",
 #'   "modified-desc", or "none" to keep the order that directories were listed
@@ -95,8 +101,11 @@ sp_dir_info <- function(
   regexp = NULL,
   invert = FALSE,
   perl = FALSE,
+  .batch = getOption("sharepointr.batch", TRUE),
   call = caller_env()
 ) {
+  check_bool(.batch, call = call)
+
   # Handle a vector of paths
   if (is.character(path) && length(path) > 1) {
     dir_info_list <- purrr::map(
@@ -120,6 +129,7 @@ sp_dir_info <- function(
           regexp = regexp,
           invert = invert,
           perl = perl,
+          .batch = .batch,
           call = call
         )
       }
@@ -226,36 +236,48 @@ sp_dir_info <- function(
   while (length(pending) > 0) {
     next_pending <- character()
 
-    for (i in seq_along(pending)) {
-      item_list <- sp_dir_list_items(
-        path = pending[[i]],
+    # Request up to 20 directories at a time if batching so the progress bar is
+    # updated after each $batch request
+    chunk_size <- if (.batch) sp_batch_size else 1L
+    chunks <- unname(split(
+      seq_along(pending),
+      ceiling(seq_along(pending) / chunk_size)
+    ))
+
+    for (idx in chunks) {
+      chunk_lists <- sp_dir_list_items_chunk(
+        paths = pending[idx],
         drive = drive,
         info = info,
         select = select,
         full_names = full_names,
-        pagesize = pagesize
+        pagesize = pagesize,
+        call = call
       )
 
-      item_lists[[length(item_lists) + 1L]] <- item_list
-      n_dirs <- n_dirs + 1L
+      for (j in seq_along(idx)) {
+        item_list <- chunk_lists[[j]]
+        item_lists[[length(item_lists) + 1L]] <- item_list
+        n_dirs <- n_dirs + 1L
 
-      if (is.data.frame(item_list)) {
-        n_items <- n_items + nrow(item_list)
+        if (is.data.frame(item_list)) {
+          n_items <- n_items + nrow(item_list)
 
-        if (recurse && any(item_list[["isdir"]])) {
-          next_pending <- c(
-            next_pending,
-            sp_dir_child_paths(
-              item_list[item_list[["isdir"]], ][["name"]],
-              parent = pending[[i]],
-              full_names = full_names
+          if (recurse && any(item_list[["isdir"]])) {
+            next_pending <- c(
+              next_pending,
+              sp_dir_child_paths(
+                item_list[item_list[["isdir"]], ][["name"]],
+                parent = pending[[idx[[j]]]],
+                full_names = full_names
+              )
             )
-          )
+          }
         }
       }
 
       if (recurse) {
-        n_queued <- length(pending) - i + length(next_pending)
+        n_queued <- length(pending) - max(idx) + length(next_pending)
         cli::cli_progress_update()
       }
     }
@@ -389,22 +411,35 @@ sp_dir_list_items <- function(
   full_names = FALSE,
   pagesize = 1000
 ) {
+  items <- sp_dir_request_items(
+    drive = drive,
+    path = path,
+    select = sp_dir_select_fields(info, select),
+    pagesize = pagesize
+  )
+
+  sp_dir_shape_items(items, path, info, select, full_names)
+}
+
+#' @returns A character vector of properties to `$select` or `NULL` to request
+#'   every property.
+#' @noRd
+sp_dir_select_fields <- function(info, select = NULL) {
   base_cols <- c("name", "size", "folder", "id")
 
-  fields <- switch(
+  switch(
     info,
     name = "name",
     partial = union(base_cols, select),
     all = if (!is.null(select)) union(base_cols, select)
   )
+}
 
-  items <- sp_dir_request_items(
-    drive = drive,
-    path = path,
-    select = fields,
-    pagesize = pagesize
-  )
-
+#' Format the items returned for a directory
+#' @param items A data frame of driveItem properties or `NULL`.
+#' @inheritParams sp_dir_list_items
+#' @noRd
+sp_dir_shape_items <- function(items, path, info, select, full_names) {
   if (is.null(items) || nrow(items) == 0) {
     if (info == "name") {
       return(character())
@@ -445,6 +480,129 @@ sp_dir_list_items <- function(
 
   first_cols <- c("name", "size", "isdir", "id")
   items[c(first_cols, setdiff(names(items), first_cols))]
+}
+
+#' List the items in one or more directories
+#'
+#' Lists a single directory with `sp_dir_list_items()`. Lists more than one
+#' directory with a single Graph `$batch` request (see
+#' `sp_graph_batch_requests()`).
+#' @param paths A character vector of up to 20 paths.
+#' @returns A list with one element for each path (see `sp_dir_list_items()`).
+#' @noRd
+sp_dir_list_items_chunk <- function(
+  paths,
+  drive,
+  info,
+  select = NULL,
+  full_names = FALSE,
+  pagesize = 1000,
+  call = caller_env()
+) {
+  if (length(paths) == 1) {
+    return(list(sp_dir_list_items(
+      path = paths,
+      drive = drive,
+      info = info,
+      select = select,
+      full_names = full_names,
+      pagesize = pagesize
+    )))
+  }
+
+  fields <- sp_dir_select_fields(info, select)
+
+  responses <- sp_graph_batch_requests(
+    drive[["token"]],
+    purrr::map(
+      paths,
+      \(x) sp_dir_children_request(drive, x, fields, pagesize)
+    ),
+    .progress = FALSE,
+    call = call
+  )
+
+  purrr::map2(
+    responses,
+    paths,
+    \(response, path) {
+      items <- sp_dir_batch_items(response, drive[["token"]], path, call = call)
+      sp_dir_shape_items(items, path, info, select, full_names)
+    }
+  )
+}
+
+#' Build a $batch request for the children of a drive folder
+#'
+#' Uses the same `$top` and `$select` options as `sp_dir_request_items()`.
+#' @returns A request list with `method` and `url`.
+#' @noRd
+sp_dir_children_request <- function(drive, path, select = NULL, pagesize = 1000) {
+  query <- paste0("$top=", pagesize)
+
+  if (!is.null(select)) {
+    query <- paste0(query, "&$select=", paste(select, collapse = ","))
+  }
+
+  list(
+    method = "GET",
+    url = paste0(
+      "/drives/",
+      drive[["properties"]][["id"]],
+      "/",
+      sp_dir_children_op(path),
+      "?",
+      query
+    )
+  )
+}
+
+#' Get the items from a $batch response for a folder
+#'
+#' Follows `@odata.nextLink` to request any remaining pages (if a folder has
+#' more items than `pagesize`).
+#' @param response A response from `sp_graph_batch_requests()`.
+#' @returns A data frame of driveItem properties or `NULL` if there are no
+#'   items.
+#' @noRd
+sp_dir_batch_items <- function(response, token, path, call = caller_env()) {
+  status <- as.integer(response[["status"]])
+
+  if (status >= 300) {
+    cli_abort(
+      c(
+        "Can't list {.path {path}} (HTTP {status}).",
+        "x" = response[["body"]][["error"]][["message"]]
+      ),
+      call = call
+    )
+  }
+
+  body <- response[["body"]]
+  items <- sp_dir_parse_items(body[["value"]])
+  next_link <- body[["@odata.nextLink"]]
+
+  while (is_string(next_link)) {
+    page <- AzureGraph::call_graph_url(token, next_link, simplify = TRUE)
+    items <- vctrs::vec_rbind(items, page[["value"]])
+    next_link <- page[["@odata.nextLink"]]
+  }
+
+  items
+}
+
+#' Convert a list of driveItems to the data frame returned by
+#' `simplify = TRUE`
+#' @noRd
+sp_dir_parse_items <- function(value) {
+  if (length(value) == 0) {
+    return(NULL)
+  }
+
+  jsonlite::fromJSON(
+    jsonlite::toJSON(value, auto_unbox = TRUE, null = "null"),
+    simplifyVector = TRUE
+  )
 }
 
 #' Request the children of a drive folder

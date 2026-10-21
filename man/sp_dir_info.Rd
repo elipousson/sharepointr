@@ -15,6 +15,7 @@ sp_dir_info(
   drive_id = NULL,
   drive = NULL,
   recurse = FALSE,
+  sort = "name-asc",
   type = "any",
   regexp = NULL,
   invert = FALSE,
@@ -89,13 +90,30 @@ method for SharePoint site object.}
 \code{drive_id} are ignored.}
 
 \item{recurse}{If \code{TRUE}, get info for each directory at the supplied path
-and combine this info with the item info for the supplied path.}
+and combine this info with the item info for the supplied path. Directories
+are listed one level at a time and a single progress bar reports the
+number of directories listed and queued.}
+
+\item{sort}{How to sort the result: "name-asc" (default), "name-desc",
+"size-asc", "size-desc", "created-asc", "created-desc", "modified-asc",
+"modified-desc", or "none" to keep the order that directories were listed
+in. Names are sorted in C-locale order so uppercase letters sort before
+lowercase letters. Sorting by "created" or "modified" requires
+\code{info = "all"} because the creation and modification times are not
+included in the "partial" info. \code{sort} is applied if \code{recurse = TRUE} or if
+\code{sort} is supplied; otherwise the order returned by SharePoint is kept.}
 
 \item{type}{Type of item to return. Can be "any", "file", or "directory".
-"directory" is not a supported option for \code{\link[=sp_dir_ls]{sp_dir_ls()}}}
+"directory" is not a supported option for \code{\link[=sp_dir_ls]{sp_dir_ls()}}. As with
+\code{\link[fs:dir_info]{fs::dir_info()}}, if \code{recurse = TRUE}, all directories are searched
+whatever the value of \code{type}, and \code{type} only filters the items returned.}
 
 \item{regexp}{Regular expression passed to \code{grep()} and used to filter the
-paths before they are returned.}
+items before they are returned. As with \code{\link[fs:dir_info]{fs::dir_info()}}, \code{regexp} is
+applied after all directories are listed, so directories that do not match
+are still searched if \code{recurse = TRUE}. If \code{full_names = TRUE}, \code{regexp}
+is matched against the full path. If \code{full_names = FALSE}, it is matched
+against the item name only (unlike \code{\link[fs:dir_info]{fs::dir_info()}}).}
 
 \item{invert}{logical. If \code{TRUE} return indices or values for
     elements that do \emph{not} match.}

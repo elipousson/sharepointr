@@ -27,11 +27,27 @@
 #' @param pagesize Maximum number of items to return. Defaults to 1000. Decrease
 #'   if you are experiencing timeouts.
 #' @param recurse If `TRUE`, get info for each directory at the supplied path
-#'   and combine this info with the item info for the supplied path.
+#'   and combine this info with the item info for the supplied path. Directories
+#'   are listed one level at a time and a single progress bar reports the
+#'   number of directories listed and queued.
+#' @param sort How to sort the result: "name-asc" (default), "name-desc",
+#'   "size-asc", "size-desc", "created-asc", "created-desc", "modified-asc",
+#'   "modified-desc", or "none" to keep the order that directories were listed
+#'   in. Names are sorted in C-locale order so uppercase letters sort before
+#'   lowercase letters. Sorting by "created" or "modified" requires
+#'   `info = "all"` because the creation and modification times are not
+#'   included in the "partial" info. `sort` is applied if `recurse = TRUE` or if
+#'   `sort` is supplied; otherwise the order returned by SharePoint is kept.
 #' @param type Type of item to return. Can be "any", "file", or "directory".
-#'   "directory" is not a supported option for [sp_dir_ls()]
+#'   "directory" is not a supported option for [sp_dir_ls()]. As with
+#'   [fs::dir_info()], if `recurse = TRUE`, all directories are searched
+#'   whatever the value of `type`, and `type` only filters the items returned.
 #' @param regexp Regular expression passed to `grep()` and used to filter the
-#'   paths before they are returned.
+#'   items before they are returned. As with [fs::dir_info()], `regexp` is
+#'   applied after all directories are listed, so directories that do not match
+#'   are still searched if `recurse = TRUE`. If `full_names = TRUE`, `regexp`
+#'   is matched against the full path. If `full_names = FALSE`, it is matched
+#'   against the item name only (unlike [fs::dir_info()]).
 #' @inheritDotParams get_sp_drive -drive_name -drive_id -properties
 #' @inheritParams base::grep
 #' @inheritParams get_sp_drive
@@ -66,6 +82,7 @@ sp_dir_info <- function(
   drive_id = NULL,
   drive = NULL,
   recurse = FALSE,
+  sort = "name-asc",
   type = "any",
   regexp = NULL,
   invert = FALSE,
@@ -89,6 +106,7 @@ sp_dir_info <- function(
           # TODO: Add a warning re: performance issues if `drive = NULL`
           drive = drive,
           recurse = recurse,
+          sort = sort,
           type = type,
           regexp = regexp,
           invert = invert,
@@ -138,25 +156,98 @@ sp_dir_info <- function(
 
   type <- arg_match(type, c("any", "file", "directory"), error_call = call)
 
+  sort_values <- c(
+    "name-asc",
+    "name-desc",
+    "size-asc",
+    "size-desc",
+    "created-asc",
+    "created-desc",
+    "modified-asc",
+    "modified-desc",
+    "none"
+  )
+  # Sort the default order for recursive results but not for a single directory
+  sort_items <- recurse || !missing(sort)
+  sort <- arg_match(sort, sort_values, error_call = call)
+
   return_type <- NULL
 
-  if (recurse && (type == "file")) {
-    cli::cli_alert_warning(
-      "{.arg type} is always set to {.val any} if {.code recurse = TRUE}"
-    )
-    type <- "any"
-  }
+  # TODO: Consider adding other fs::dir_info() arguments and options:
+  # - `all` to include hidden files
+  # - `glob` as an alternative to `regexp`
+  # - `fail` to warn instead of error if a directory can't be listed
+  # - more `type` values (e.g. "symlink") if they can be identified
+  # - matching `regexp` against the full path if `full_names = FALSE`
 
   # Remove leading slash
   path <- str_remove_slash(path)
 
-  item_list <- drive$list_items(
-    path = path,
-    info = info,
-    full_names = full_names,
-    pagesize = pagesize
-  )
+  # List directories level by level (breadth-first) so that a single progress
+  # bar can track the whole tree
+  pending <- path
+  item_lists <- list()
+  n_dirs <- 0L
+  n_items <- 0L
 
+  if (recurse) {
+    cli::cli_progress_bar(
+      format = paste0(
+        "{cli::pb_spin} Listing directories: {n_dirs} listed, ",
+        "{n_queued} queued, {n_items} items found"
+      ),
+      format_done = "Listed {n_dirs} directories ({n_items} items)",
+      total = NA
+    )
+  }
+
+  while (length(pending) > 0) {
+    next_pending <- character()
+
+    for (i in seq_along(pending)) {
+      item_list <- sp_dir_list_items(
+        path = pending[[i]],
+        drive = drive,
+        info = info,
+        full_names = full_names,
+        pagesize = pagesize
+      )
+
+      item_lists[[length(item_lists) + 1L]] <- item_list
+      n_dirs <- n_dirs + 1L
+
+      if (is.data.frame(item_list)) {
+        n_items <- n_items + nrow(item_list)
+
+        if (recurse && any(item_list[["isdir"]])) {
+          next_pending <- c(
+            next_pending,
+            sp_dir_child_paths(
+              item_list[item_list[["isdir"]], ][["name"]],
+              parent = pending[[i]],
+              full_names = full_names
+            )
+          )
+        }
+      }
+
+      if (recurse) {
+        n_queued <- length(pending) - i + length(next_pending)
+        cli::cli_progress_update()
+      }
+    }
+
+    pending <- next_pending
+  }
+
+  if (!is.data.frame(item_lists[[1]])) {
+    item_list <- item_lists[[1]]
+  } else {
+    item_list <- vctrs::vec_rbind(!!!item_lists, .error_call = call)
+  }
+
+  # Filter after traversal so that directories that don't match `regexp` are
+  # still searched for matching items
   if (!is.null(regexp)) {
     path_name <- item_list
     if (is.data.frame(item_list)) {
@@ -181,6 +272,10 @@ sp_dir_info <- function(
     directory = item_list[item_list[["isdir"]], ]
   )
 
+  if (sort_items && (sort != "none")) {
+    item_list <- sp_dir_sort(item_list, sort, call = call)
+  }
+
   if (is_installed("fs")) {
     item_list <- fmt_sp_item_size(item_list, "size")
 
@@ -199,54 +294,67 @@ sp_dir_info <- function(
     )
   }
 
-  if (full_names && FALSE) {
-    # FIXME: This is disabled since the resulting item URL values do not match
-    # the native item webURL values
-    item_list <- vctrs::vec_cbind(
-      item_list,
-      data.frame(
-        list(
-          "item_url" = paste0(
-            drive[["properties"]][["webUrl"]],
-            item_list[["name"]]
-          )
-        )
-      )
+  item_list
+}
+
+#' Sort a data frame of directory items
+#'
+#' @param sort A string with the sort column and direction, e.g. "name-asc".
+#' @noRd
+sp_dir_sort <- function(data, sort, call = caller_env()) {
+  sort <- strsplit(sort, "-", fixed = TRUE)[[1]]
+
+  col <- switch(
+    sort[[1]],
+    name = "name",
+    size = "size",
+    created = "createdDateTime",
+    modified = "lastModifiedDateTime"
+  )
+
+  if (!has_name(data, col)) {
+    cli_abort(
+      c(
+        "Can't sort by {.val {sort[[1]]}}.",
+        "i" = "Use {.code info = \"all\"} to include {.field {col}}."
+      ),
+      call = call
     )
   }
 
-  if (!recurse || (type == "file") || !any(item_list[["isdir"]])) {
-    return(item_list)
-  }
-
-  dir_list <- item_list[item_list[["isdir"]], ]
-
-  dir_name <- dir_list[["name"]]
-
-  if (full_names) {
-    dir_name <- str_remove_slash(dir_name, before = TRUE)
-  }
-
-  dir_item_list <- purrr::map(
-    cli::cli_progress_along(dir_name),
-    function(i) {
-      sp_dir_info(
-        path = dir_name[[i]],
-        drive = drive,
-        info = info,
-        full_names = full_names,
-        pagesize = pagesize,
-        recurse = recurse,
-        type = type,
-        regexp = regexp,
-        call = call
-      )
-    }
+  vctrs::vec_slice(
+    data,
+    vctrs::vec_order(as.vector(data[[col]]), direction = sort[[2]])
   )
+}
 
-  dir_item_list <- c(list(item_list), dir_item_list)
+#' List the items in a single directory
+#'
+#' @returns A data frame or, if `info = "name"`, a character vector.
+#' @noRd
+sp_dir_list_items <- function(path, drive, info, full_names, pagesize) {
+  drive$list_items(
+    path = path,
+    info = info,
+    full_names = full_names,
+    pagesize = pagesize
+  )
+}
 
-  vctrs::vec_rbind(!!!dir_item_list, .error_call = call)
+#' Get the paths to the subdirectories of `parent`
+#'
+#' If `full_names` is `FALSE`, `name` is relative to `parent`.
+#' @noRd
+sp_dir_child_paths <- function(name, parent, full_names) {
+  if (full_names) {
+    return(str_remove_slash(name, before = TRUE))
+  }
+
+  if (parent == "") {
+    return(name)
+  }
+
+  paste(parent, name, sep = "/")
 }
 
 #' @returns An `fs_bytes` vector.

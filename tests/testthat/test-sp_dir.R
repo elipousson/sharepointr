@@ -128,3 +128,84 @@ test_that("sp_dir_info() falls back to the parsed URL if the shares API fails", 
     )
   })
 })
+
+test_that("sp_dir_info(recurse = TRUE) lists all directories and sorts by name", {
+  tree <- list(
+    root = data.frame(
+      name = c("B", "A", "z.csv"),
+      size = 1,
+      isdir = c(TRUE, TRUE, FALSE)
+    ),
+    "A" = data.frame(name = "A/a.csv", size = 1, isdir = FALSE),
+    "B" = data.frame(
+      name = c("B/C", "B/b.csv"),
+      size = 1,
+      isdir = c(TRUE, FALSE)
+    ),
+    "B/C" = data.frame(name = "B/C/c.txt", size = 1, isdir = FALSE)
+  )
+  drive <- structure(
+    list(list_items = function(path, ...) {
+      tree[[if (path == "") "root" else path]]
+    }),
+    class = c("ms_drive", "ms_object")
+  )
+
+  items <- sp_dir_info(drive = drive, recurse = TRUE)
+  expect_identical(
+    items[["name"]],
+    c("A", "A/a.csv", "B", "B/C", "B/C/c.txt", "B/b.csv", "z.csv")
+  )
+
+  # Unmatched directories are still searched
+  items <- sp_dir_info(drive = drive, recurse = TRUE, regexp = "\\.txt$")
+  expect_identical(items[["name"]], "B/C/c.txt")
+
+  items <- sp_dir_info(drive = drive, recurse = TRUE, type = "directory")
+  expect_identical(items[["name"]], c("A", "B", "B/C"))
+
+  items <- sp_dir_info(drive = drive, recurse = TRUE, type = "file")
+  expect_identical(
+    items[["name"]],
+    c("A/a.csv", "B/C/c.txt", "B/b.csv", "z.csv")
+  )
+
+  items <- sp_dir_info(drive = drive, recurse = TRUE, sort = "name-desc")
+  expect_identical(items[["name"]][1], "z.csv")
+
+  expect_error(
+    sp_dir_info(drive = drive, recurse = TRUE, sort = "modified-desc"),
+    "info"
+  )
+
+  items <- sp_dir_info(drive = drive, recurse = TRUE, sort = "none")
+  expect_identical(items[["name"]][1:3], c("B", "A", "z.csv"))
+})
+
+test_that("sp_dir_info() sorts by modified time with info = 'all'", {
+  drive <- structure(
+    list(list_items = function(path, ...) {
+      data.frame(
+        name = c("a.csv", "b.csv", "c.csv"),
+        size = c(3, 1, 2),
+        isdir = FALSE,
+        lastModifiedDateTime = c(
+          "2026-01-02T00:00:00Z",
+          "2026-01-03T00:00:00Z",
+          "2026-01-01T00:00:00Z"
+        )
+      )
+    }),
+    class = c("ms_drive", "ms_object")
+  )
+
+  items <- sp_dir_info(drive = drive, info = "all", sort = "modified-desc")
+  expect_identical(items[["name"]], c("b.csv", "a.csv", "c.csv"))
+
+  items <- sp_dir_info(drive = drive, sort = "size-asc")
+  expect_identical(items[["name"]], c("b.csv", "c.csv", "a.csv"))
+
+  # Order is unchanged for a single directory unless `sort` is supplied
+  items <- sp_dir_info(drive = drive)
+  expect_identical(items[["name"]], c("a.csv", "b.csv", "c.csv"))
+})

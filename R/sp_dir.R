@@ -2,12 +2,12 @@
 #'
 #' @description
 #'
-#' [sp_dir_info()] is a wrapper for the `list_files` method with some additional
-#' features based on [fs::dir_info()]. [sp_dir_ls()] returns a character vector
-#' and does not yet include support for the `recurse` argument.  If
-#' `{fs}` is installed, the size column is formatted using [fs::as_fs_bytes()]
-#' and an additional "type" factor column is added with values for directory and
-#' file.
+#' [sp_dir_info()] lists the children of a folder with the Microsoft Graph API
+#' with some additional features based on [fs::dir_info()]. [sp_dir_ls()]
+#' returns a character vector of names or paths, like [fs::dir_ls()]. If `{fs}`
+#' is installed, the size column from [sp_dir_info()] is formatted using
+#' [fs::as_fs_bytes()] and an additional "type" factor column is added with
+#' values for directory and file.
 #'
 #' @param path Path to directory or folder. SharePoint folder URLs are allowed.
 #'   If `NULL`, path is set to default "/". `path` can be a string or a
@@ -31,12 +31,16 @@
 #'   treated as "partial". Properties used by `sort` are always included.
 #' @param full_names If `TRUE` (default), return the full file path as the name
 #'   for each item.
-#' @param pagesize Maximum number of items to return. Defaults to 1000. Decrease
-#'   if you are experiencing timeouts.
+#' @param pagesize Number of items to request in each page of results. Defaults
+#'   to 1000. All pages are requested so this does not limit the number of items
+#'   returned. Decrease if you are experiencing timeouts.
 #' @param recurse If `TRUE`, get info for each directory at the supplied path
 #'   and combine this info with the item info for the supplied path. Directories
 #'   are listed one level at a time and a single progress bar reports the
-#'   number of directories listed and queued.
+#'   number of directories listed and queued. If `full_names = FALSE`, names
+#'   are relative to each directory and a warning is shown since items in
+#'   different directories can have the same name. For [sp_dir_ls()],
+#'   `full_names` defaults to the value of `recurse`.
 #' @param .batch If `TRUE` (default), the directories at each level of a
 #'   recursive listing are requested with Microsoft Graph
 #'   [$batch](https://learn.microsoft.com/en-us/graph/json-batching) requests
@@ -50,13 +54,15 @@
 #'   "size-asc", "size-desc", "created-asc", "created-desc", "modified-asc",
 #'   "modified-desc", or "none" to keep the order that directories were listed
 #'   in. Names are sorted in C-locale order so uppercase letters sort before
-#'   lowercase letters. `sort` is ignored if `info = "name"`. The properties used by `sort` are added to the
-#'   result if they are not already included. `sort` is applied if
+#'   lowercase letters. `sort` is ignored if `info = "name"` unless
+#'   `recurse = TRUE` or `type` is not "any" (in which case only names are
+#'   returned, sorted by the selected property). The properties used by `sort`
+#'   are added to the result if they are not already included. `sort` is applied if
 #'   `recurse = TRUE` or if `sort` is supplied; otherwise the order returned by
-#'   SharePoint is kept.
+#'   SharePoint is kept. If more than one `path` is supplied, the combined
+#'   result is sorted.
 #' @param type Type of item to return. Can be "any", "file", or "directory".
-#'   "directory" is not a supported option for [sp_dir_ls()]. As with
-#'   [fs::dir_info()], if `recurse = TRUE`, all directories are searched
+#'   As with [fs::dir_info()], if `recurse = TRUE`, all directories are searched
 #'   whatever the value of `type`, and `type` only filters the items returned.
 #' @param regexp Regular expression passed to `grep()` and used to filter the
 #'   items before they are returned. As with [fs::dir_info()], `regexp` is
@@ -69,7 +75,7 @@
 #' @inheritParams get_sp_drive
 #' @inheritParams get_sp_item
 #' @returns For [sp_dir_info()], a data frame with one row per file or folder
-#'   at `path`, with columns determined by `info` (`"partial"`, `"name"`, or
+#'   at `path` (and in its subfolders if `recurse = TRUE`), with columns determined by `info` (`"partial"`, `"name"`, or
 #'   `"all"`). For [sp_dir_ls()], a character vector of file and folder
 #'   names or paths.
 #' @examples
@@ -108,67 +114,7 @@ sp_dir_info <- function(
   call = caller_env()
 ) {
   check_bool(.batch, call = call)
-
-  # Handle a vector of paths
-  if (is.character(path) && length(path) > 1) {
-    dir_info_list <- purrr::map(
-      path,
-      \(x) {
-        sp_dir_info(
-          path = x,
-          # TODO: Consider dropping ... to allow parallelization
-          ...,
-          info = info,
-          select = select,
-          full_names = full_names,
-          pagesize = pagesize,
-          drive_name = drive_name,
-          drive_id = drive_id,
-          # TODO: Add a warning re: performance issues if `drive = NULL`
-          drive = drive,
-          recurse = recurse,
-          sort = sort,
-          type = type,
-          regexp = regexp,
-          invert = invert,
-          perl = perl,
-          .batch = .batch,
-          call = call
-        )
-      }
-    )
-
-    return(vctrs::vec_rbind(!!!dir_info_list, .error_call = call))
-  }
-
-  # Use the Graph shares API to get the drive and folder path from the URL. If
-  # the request fails, fall back to the drive and path parsed from the URL.
-  if (!is.null(path) && is_sp_url(path)) {
-    folder <- sp_url_get_folder(
-      path,
-      ...,
-      shares = is.null(c(drive_name, drive_id)) && is.null(drive),
-      call = call
-    )
-
-    drive <- drive %||% folder[["drive"]]
-    drive_name <- folder[["drive_name"]]
-    path <- folder[["path"]]
-  }
-
-  drive <- drive %||%
-    get_sp_drive(
-      drive_name = drive_name,
-      drive_id = drive_id,
-      ...,
-      properties = FALSE,
-      call = call
-    )
-
-  check_ms_drive(drive, call = call)
-
-  # TODO: Check if removing this and replacing "/" w/ "" breaks anything
-  path <- path %||% ""
+  check_bool(recurse, call = call)
 
   info <- arg_match(
     info,
@@ -202,11 +148,106 @@ sp_dir_info <- function(
     )
   }
 
+  if (recurse && !full_names) {
+    cli_warn(
+      c(
+        "Names from a recursive listing are relative to each directory.",
+        "i" = "Items in different directories can have the same name.",
+        "i" = "Use {.code full_names = TRUE} to tell them apart."
+      ),
+      class = "sharepointr_ambiguous_names",
+      call = call
+    )
+  }
+
+  # Names alone can't identify directories to search or filter by type so list
+  # the items with the "partial" info and return the names at the end
+  list_info <- info
+  if (info == "name" && (recurse || type != "any")) {
+    list_info <- "partial"
+  }
+
   # Request the properties needed to sort so the sort column can be returned
-  sort_items <- sort_items && (sort != "none")
-  if (sort_items && (info == "partial" || !is.null(select))) {
+  sort_items <- sort_items && (sort != "none") && (list_info != "name")
+  if (sort_items && (list_info == "partial" || !is.null(select))) {
     select <- union(select, sp_dir_sort_cols(sort)[["select"]])
   }
+
+  # Handle a vector of paths
+  if (is.character(path) && length(path) > 1) {
+    dir_info_list <- withCallingHandlers(
+      purrr::map(
+        path,
+        \(x) {
+          sp_dir_info(
+            path = x,
+            # TODO: Consider dropping ... to allow parallelization
+            ...,
+            info = list_info,
+            select = select,
+            full_names = full_names,
+            pagesize = pagesize,
+            drive_name = drive_name,
+            drive_id = drive_id,
+            # TODO: Add a warning re: performance issues if `drive = NULL`
+            drive = drive,
+            recurse = recurse,
+            # Results are sorted after they are combined
+            sort = "none",
+            type = type,
+            regexp = regexp,
+            invert = invert,
+            perl = perl,
+            .batch = .batch,
+            call = call
+          )
+        }
+      ),
+      # The warning was already shown for all paths
+      sharepointr_ambiguous_names = function(cnd) rlang::cnd_muffle(cnd)
+    )
+
+    item_list <- vctrs::vec_rbind(!!!dir_info_list, .error_call = call)
+
+    if (sort_items) {
+      item_list <- sp_dir_sort(item_list, sort, call = call)
+    }
+
+    if (info == "name") {
+      return(item_list[["name"]])
+    }
+
+    return(item_list)
+  }
+
+  # Use the Graph shares API to get the drive and folder path from the URL. If
+  # the request fails, fall back to the drive and path parsed from the URL.
+  if (!is.null(path) && is_sp_url(path)) {
+    folder <- sp_url_get_folder(
+      path,
+      ...,
+      shares = is.null(c(drive_name, drive_id)) && is.null(drive),
+      call = call
+    )
+
+    drive <- drive %||% folder[["drive"]]
+    drive_name <- folder[["drive_name"]]
+    path <- folder[["path"]]
+  }
+
+  drive <- drive %||%
+    get_sp_drive(
+      drive_name = drive_name,
+      drive_id = drive_id,
+      ...,
+      properties = FALSE,
+      call = call
+    )
+
+  check_ms_drive(drive, call = call)
+
+  # TODO: Check if removing this and replacing "/" w/ "" breaks anything
+  path <- path %||% ""
 
   # TODO: Consider adding other fs::dir_info() arguments and options:
   # - `all` to include hidden files
@@ -255,7 +296,7 @@ sp_dir_info <- function(
       chunk_lists <- sp_dir_list_items_chunk(
         paths = pending[idx],
         drive = drive,
-        info = info,
+        info = list_info,
         select = select,
         full_names = full_names,
         pagesize = pagesize,
@@ -292,8 +333,8 @@ sp_dir_info <- function(
     pending <- next_pending
   }
 
-  if (!is.data.frame(item_lists[[1]])) {
-    item_list <- item_lists[[1]]
+  if (list_info == "name") {
+    item_list <- as.character(unlist(item_lists, use.names = FALSE))
   } else {
     item_list <- vctrs::vec_rbind(!!!item_lists, .error_call = call)
   }
@@ -326,6 +367,10 @@ sp_dir_info <- function(
 
   if (sort_items) {
     item_list <- sp_dir_sort(item_list, sort, call = call)
+  }
+
+  if (info == "name") {
+    return(item_list[["name"]])
   }
 
   if (is_installed("fs")) {
@@ -365,9 +410,11 @@ sp_dir_sort <- function(data, sort, call = caller_env()) {
 
   vctrs::vec_slice(
     data,
-    vctrs::vec_order(
+    # The radix method sorts strings in the C locale whatever the user's locale
+    order(
       as.vector(data[[cols[["col"]]]]),
-      direction = cols[["direction"]]
+      decreasing = cols[["direction"]] == "desc",
+      method = "radix"
     )
   )
 }
@@ -707,15 +754,17 @@ fmt_sp_item_size <- function(data, size_col = "size") {
 sp_dir_ls <- function(
   path = NULL,
   ...,
-  full_names = FALSE,
+  full_names = recurse,
   pagesize = 1000,
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
+  recurse = FALSE,
   type = "any",
   regexp = NULL,
   invert = FALSE,
   perl = FALSE,
+  .batch = getOption("sharepointr.batch", TRUE),
   call = caller_env()
 ) {
   params <- rlang::list2(...)
@@ -746,10 +795,12 @@ sp_dir_ls <- function(
     drive_name = drive_name,
     drive_id = drive_id,
     drive = drive,
+    recurse = recurse,
     type = type,
     regexp = regexp,
     invert = invert,
     perl = perl,
+    .batch = .batch,
     call = call
   )
 }

@@ -28,15 +28,17 @@ sp_dir_info(
 sp_dir_ls(
   path = NULL,
   ...,
-  full_names = FALSE,
+  full_names = recurse,
   pagesize = 1000,
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
+  recurse = FALSE,
   type = "any",
   regexp = NULL,
   invert = FALSE,
   perl = FALSE,
+  .batch = getOption("sharepointr.batch", TRUE),
   call = caller_env()
 )
 }
@@ -89,8 +91,9 @@ treated as "partial". Properties used by \code{sort} are always included.}
 \item{full_names}{If \code{TRUE} (default), return the full file path as the name
 for each item.}
 
-\item{pagesize}{Maximum number of items to return. Defaults to 1000. Decrease
-if you are experiencing timeouts.}
+\item{pagesize}{Number of items to request in each page of results. Defaults
+to 1000. All pages are requested so this does not limit the number of items
+returned. Decrease if you are experiencing timeouts.}
 
 \item{drive_name, drive_id}{SharePoint Drive name or ID passed to \code{get_drive}
 method for SharePoint site object.}
@@ -101,20 +104,25 @@ method for SharePoint site object.}
 \item{recurse}{If \code{TRUE}, get info for each directory at the supplied path
 and combine this info with the item info for the supplied path. Directories
 are listed one level at a time and a single progress bar reports the
-number of directories listed and queued.}
+number of directories listed and queued. If \code{full_names = FALSE}, names
+are relative to each directory and a warning is shown since items in
+different directories can have the same name. For \code{\link[=sp_dir_ls]{sp_dir_ls()}},
+\code{full_names} defaults to the value of \code{recurse}.}
 
 \item{sort}{How to sort the result: "name-asc" (default), "name-desc",
 "size-asc", "size-desc", "created-asc", "created-desc", "modified-asc",
 "modified-desc", or "none" to keep the order that directories were listed
 in. Names are sorted in C-locale order so uppercase letters sort before
-lowercase letters. \code{sort} is ignored if \code{info = "name"}. The properties used by \code{sort} are added to the
-result if they are not already included. \code{sort} is applied if
+lowercase letters. \code{sort} is ignored if \code{info = "name"} unless
+\code{recurse = TRUE} or \code{type} is not "any" (in which case only names are
+returned, sorted by the selected property). The properties used by \code{sort}
+are added to the result if they are not already included. \code{sort} is applied if
 \code{recurse = TRUE} or if \code{sort} is supplied; otherwise the order returned by
-SharePoint is kept.}
+SharePoint is kept. If more than one \code{path} is supplied, the combined
+result is sorted.}
 
 \item{type}{Type of item to return. Can be "any", "file", or "directory".
-"directory" is not a supported option for \code{\link[=sp_dir_ls]{sp_dir_ls()}}. As with
-\code{\link[fs:dir_info]{fs::dir_info()}}, if \code{recurse = TRUE}, all directories are searched
+As with \code{\link[fs:dir_info]{fs::dir_info()}}, if \code{recurse = TRUE}, all directories are searched
 whatever the value of \code{type}, and \code{type} only filters the items returned.}
 
 \item{regexp}{Regular expression passed to \code{grep()} and used to filter the
@@ -146,17 +154,17 @@ mentioned in error messages as the source of the error. See the
 }
 \value{
 For \code{\link[=sp_dir_info]{sp_dir_info()}}, a data frame with one row per file or folder
-at \code{path}, with columns determined by \code{info} (\code{"partial"}, \code{"name"}, or
+at \code{path} (and in its subfolders if \code{recurse = TRUE}), with columns determined by \code{info} (\code{"partial"}, \code{"name"}, or
 \code{"all"}). For \code{\link[=sp_dir_ls]{sp_dir_ls()}}, a character vector of file and folder
 names or paths.
 }
 \description{
-\code{\link[=sp_dir_info]{sp_dir_info()}} is a wrapper for the \code{list_files} method with some additional
-features based on \code{\link[fs:dir_info]{fs::dir_info()}}. \code{\link[=sp_dir_ls]{sp_dir_ls()}} returns a character vector
-and does not yet include support for the \code{recurse} argument.  If
-\code{{fs}} is installed, the size column is formatted using \code{\link[fs:as_fs_bytes]{fs::as_fs_bytes()}}
-and an additional "type" factor column is added with values for directory and
-file.
+\code{\link[=sp_dir_info]{sp_dir_info()}} lists the children of a folder with the Microsoft Graph API
+with some additional features based on \code{\link[fs:dir_info]{fs::dir_info()}}. \code{\link[=sp_dir_ls]{sp_dir_ls()}}
+returns a character vector of names or paths, like \code{\link[fs:dir_ls]{fs::dir_ls()}}. If \code{{fs}}
+is installed, the size column from \code{\link[=sp_dir_info]{sp_dir_info()}} is formatted using
+\code{\link[fs:as_fs_bytes]{fs::as_fs_bytes()}} and an additional "type" factor column is added with
+values for directory and file.
 }
 \examples{
 dir_url <- "<link to SharePoint directory or drive>"

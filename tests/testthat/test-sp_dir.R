@@ -292,3 +292,108 @@ test_that("sp_dir_info(recurse = TRUE) requests a whole level at once with daemo
   # into $batch requests of 20 and sends them in parallel)
   expect_identical(batch_sizes, 25L)
 })
+
+test_that("sp_dir_ls(recurse = TRUE) lists names in all directories", {
+  tree <- list(
+    root = raw_items(c("B", "A", "z.csv"), isdir = c(TRUE, TRUE, FALSE)),
+    "A" = raw_items("a.csv"),
+    "B" = raw_items(c("C", "b.csv"), isdir = c(TRUE, FALSE)),
+    "B/C" = raw_items("c.txt")
+  )
+  local_mocked_bindings(
+    sp_dir_request_items = function(drive, path, ...) {
+      tree[[if (path == "") "root" else path]]
+    }
+  )
+  drive <- mock_drive()
+
+  # full_names defaults to `recurse`
+  expect_identical(
+    sp_dir_ls(drive = drive, recurse = TRUE, .batch = FALSE),
+    c("A", "A/a.csv", "B", "B/C", "B/C/c.txt", "B/b.csv", "z.csv")
+  )
+
+  expect_identical(
+    sp_dir_ls(drive = drive, recurse = TRUE, .batch = FALSE, type = "file"),
+    c("A/a.csv", "B/C/c.txt", "B/b.csv", "z.csv")
+  )
+
+  expect_identical(
+    sp_dir_ls(drive = drive, recurse = TRUE, .batch = FALSE, regexp = "\\.txt$"),
+    "B/C/c.txt"
+  )
+
+  # Names are not sorted or filtered without `recurse` or `type`
+  expect_identical(sp_dir_ls(drive = drive), c("B", "A", "z.csv"))
+  expect_identical(sp_dir_ls(drive = drive, type = "directory"), c("B", "A"))
+})
+
+test_that("sp_dir_info(recurse = TRUE, full_names = FALSE) warns", {
+  tree <- list(
+    root = raw_items("A", isdir = TRUE),
+    "A" = raw_items("a.csv")
+  )
+  local_mocked_bindings(
+    sp_dir_request_items = function(drive, path, ...) {
+      tree[[if (path == "") "root" else path]]
+    }
+  )
+  drive <- mock_drive()
+
+  expect_warning(
+    items <- sp_dir_info(
+      drive = drive,
+      recurse = TRUE,
+      full_names = FALSE,
+      .batch = FALSE
+    ),
+    class = "sharepointr_ambiguous_names"
+  )
+  expect_identical(items[["name"]], c("A", "a.csv"))
+
+  expect_no_warning(sp_dir_info(drive = drive, full_names = FALSE))
+
+  # A vector of paths warns once
+  warnings <- 0
+  withCallingHandlers(
+    sp_dir_info(
+      path = c("", "A"),
+      drive = drive,
+      recurse = TRUE,
+      full_names = FALSE,
+      .batch = FALSE
+    ),
+    warning = function(cnd) {
+      warnings <<- warnings + 1
+      invokeRestart("muffleWarning")
+    }
+  )
+  expect_identical(warnings, 1)
+})
+
+test_that("sp_dir_info() sorts the combined result for a vector of paths", {
+  tree <- list(
+    "B" = raw_items(c("b2.csv", "b1.csv")),
+    "A" = raw_items(c("a2.csv", "a1.csv"))
+  )
+  local_mocked_bindings(
+    sp_dir_request_items = function(drive, path, ...) tree[[path]]
+  )
+  drive <- mock_drive()
+
+  # Order is unchanged unless `sort` is supplied
+  items <- sp_dir_info(path = c("B", "A"), drive = drive)
+  expect_identical(items[["name"]], c("B/b2.csv", "B/b1.csv", "A/a2.csv", "A/a1.csv"))
+
+  items <- sp_dir_info(path = c("B", "A"), drive = drive, sort = "name-asc")
+  expect_identical(items[["name"]], c("A/a1.csv", "A/a2.csv", "B/b1.csv", "B/b2.csv"))
+
+  # Recursive results are sorted by default
+  items <- sp_dir_info(path = c("B", "A"), drive = drive, recurse = TRUE, .batch = FALSE)
+  expect_identical(items[["name"]], c("A/a1.csv", "A/a2.csv", "B/b1.csv", "B/b2.csv"))
+
+  expect_identical(
+    sp_dir_ls(path = c("B", "A"), drive = drive, recurse = TRUE, .batch = FALSE),
+    c("A/a1.csv", "A/a2.csv", "B/b1.csv", "B/b2.csv")
+  )
+})

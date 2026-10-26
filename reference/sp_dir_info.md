@@ -1,11 +1,11 @@
 # List SharePoint files and folders
 
-`sp_dir_info()` is a wrapper for the `list_files` method with some
-additional features based on
+`sp_dir_info()` lists the children of a folder with the Microsoft Graph
+API with some additional features based on
 [`fs::dir_info()`](https://fs.r-lib.org/reference/dir_ls.html).
-`sp_dir_ls()` returns a character vector and does not yet include
-support for the `recurse` argument. If `{fs}` is installed, the size
-column is formatted using
+`sp_dir_ls()` returns a character vector of names or paths, like
+[`fs::dir_ls()`](https://fs.r-lib.org/reference/dir_ls.html). If `{fs}`
+is installed, the size column from `sp_dir_info()` is formatted using
 [`fs::as_fs_bytes()`](https://fs.r-lib.org/reference/fs_bytes.html) and
 an additional "type" factor column is added with values for directory
 and file.
@@ -36,15 +36,17 @@ sp_dir_info(
 sp_dir_ls(
   path = NULL,
   ...,
-  full_names = FALSE,
+  full_names = recurse,
   pagesize = 1000,
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
+  recurse = FALSE,
   type = "any",
   regexp = NULL,
   invert = FALSE,
   perl = FALSE,
+  .batch = getOption("sharepointr.batch", TRUE),
   call = caller_env()
 )
 ```
@@ -138,8 +140,9 @@ sp_dir_ls(
 
 - pagesize:
 
-  Maximum number of items to return. Defaults to 1000. Decrease if you
-  are experiencing timeouts.
+  Number of items to request in each page of results. Defaults to 1000.
+  All pages are requested so this does not limit the number of items
+  returned. Decrease if you are experiencing timeouts.
 
 - drive_name, drive_id:
 
@@ -156,7 +159,11 @@ sp_dir_ls(
   If `TRUE`, get info for each directory at the supplied path and
   combine this info with the item info for the supplied path.
   Directories are listed one level at a time and a single progress bar
-  reports the number of directories listed and queued.
+  reports the number of directories listed and queued. If
+  `full_names = FALSE`, names are relative to each directory and a
+  warning is shown since items in different directories can have the
+  same name. For `sp_dir_ls()`, `full_names` defaults to the value of
+  `recurse`.
 
 - sort:
 
@@ -164,15 +171,17 @@ sp_dir_ls(
   "size-desc", "created-asc", "created-desc", "modified-asc",
   "modified-desc", or "none" to keep the order that directories were
   listed in. Names are sorted in C-locale order so uppercase letters
-  sort before lowercase letters. `sort` is ignored if `info = "name"`.
-  The properties used by `sort` are added to the result if they are not
-  already included. `sort` is applied if `recurse = TRUE` or if `sort`
-  is supplied; otherwise the order returned by SharePoint is kept.
+  sort before lowercase letters. `sort` is ignored if `info = "name"`
+  unless `recurse = TRUE` or `type` is not "any" (in which case only
+  names are returned, sorted by the selected property). The properties
+  used by `sort` are added to the result if they are not already
+  included. `sort` is applied if `recurse = TRUE` or if `sort` is
+  supplied; otherwise the order returned by SharePoint is kept. If more
+  than one `path` is supplied, the combined result is sorted.
 
 - type:
 
-  Type of item to return. Can be "any", "file", or "directory".
-  "directory" is not a supported option for `sp_dir_ls()`. As with
+  Type of item to return. Can be "any", "file", or "directory". As with
   [`fs::dir_info()`](https://fs.r-lib.org/reference/dir_ls.html), if
   `recurse = TRUE`, all directories are searched whatever the value of
   `type`, and `type` only filters the items returned.
@@ -222,9 +231,9 @@ sp_dir_ls(
 ## Value
 
 For `sp_dir_info()`, a data frame with one row per file or folder at
-`path`, with columns determined by `info` (`"partial"`, `"name"`, or
-`"all"`). For `sp_dir_ls()`, a character vector of file and folder names
-or paths.
+`path` (and in its subfolders if `recurse = TRUE`), with columns
+determined by `info` (`"partial"`, `"name"`, or `"all"`). For
+`sp_dir_ls()`, a character vector of file and folder names or paths.
 
 ## Examples
 

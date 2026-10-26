@@ -4,6 +4,15 @@
 
 ### Added
 
+- [`sp_dir_ls()`](https://elipousson.github.io/sharepointr/reference/sp_dir_info.md)
+  gains `recurse` and `.batch` arguments (like
+  [`fs::dir_ls()`](https://fs.r-lib.org/reference/dir_ls.html)),
+  `full_names` defaults to `recurse`, and `type` now works with
+  `info = "name"`. `sp_dir_info(recurse = TRUE, full_names = FALSE)` now
+  warns since names are relative to each directory. When more than one
+  `path` is supplied, `sort` is applied to the combined result, and
+  strings are sorted in the C locale whatever the user’s locale.
+  (2026-10-26)
 - Add a `.batch` argument to
   [`sp_dir_info()`](https://elipousson.github.io/sharepointr/reference/sp_dir_info.md).
   By default (`.batch = TRUE`), `sp_dir_info(recurse = TRUE)` now

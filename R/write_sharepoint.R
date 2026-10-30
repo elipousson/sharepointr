@@ -381,7 +381,9 @@ sp_upload_dest <- function(
 sp_dest_dir <- function(file_path) {
   # TODO: Check congruence between src file extension and destination file extension
   if (fs::path_ext(file_path) != "") {
-    return(fs::path_dir(file_path))
+    dir <- fs::path_dir(file_path)
+    # A file in the drive root has the directory "." (not a SharePoint path)
+    return(if (identical(as.character(dir), ".")) "" else dir)
   }
 
   file_path

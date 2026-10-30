@@ -359,3 +359,10 @@ test_that("upload_sp_items() checks src and uploads each file", {
   expect_identical(purrr::map_chr(uploads, "src"), as.character(local_files))
   expect_identical(uploads[[2]][["drive"]], "drive")
 })
+
+test_that("sp_dest_dir() returns an empty path for a file in the drive root", {
+  expect_identical(sp_dest_dir("a.xlsx"), "")
+  expect_identical(sp_dest_dir("folder/a.xlsx"), "folder")
+  expect_identical(sp_dest_dir("folder"), "folder")
+  expect_identical(sp_dest_dir(""), "")
+})

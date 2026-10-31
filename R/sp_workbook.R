@@ -272,6 +272,8 @@ local_sp_workbook_session <- function(
   .local_envir = caller_env(),
   call = caller_env()
 ) {
+  check_installed("withr", call = call)
+
   item <- sp_workbook_item(x, ..., call = call)
   item_id <- item[["properties"]][["id"]]
 
@@ -288,16 +290,11 @@ local_sp_workbook_session <- function(
   )
   options(sharepointr.workbook_session = new)
 
-  # Run when the calling function exits (the base R equivalent of withr::defer)
-  do.call(
-    base::on.exit,
-    list(
-      substitute({
-        options(sharepointr.workbook_session = old)
-        try(sp_workbook_session_close(item, session_id), silent = TRUE)
-      }),
-      TRUE
-    ),
+  withr::defer(
+    {
+      options(sharepointr.workbook_session = old)
+      try(sp_workbook_session_close(item, session_id), silent = TRUE)
+    },
     envir = .local_envir
   )
 
@@ -369,21 +366,20 @@ sp_workbook_request <- function(
     session_id %||% sp_workbook_session_option(item_id)
   }
 
-  args <- list(
+  headers <- if (!is.null(session_id)) {
+    list(httr::add_headers(`workbook-session-id` = session_id))
+  }
+
+  resp <- rlang::exec(
+    AzureGraph::call_graph_endpoint,
     item[["token"]],
     file.path("drives", drive_id, "items", item_id, "workbook", path),
     body = body,
     encode = "json",
-    http_verb = http_verb
+    http_verb = http_verb,
+    http_status_handler = "pass",
+    !!!headers
   )
-
-  if (!is.null(session_id)) {
-    args <- c(args, list(httr::add_headers(`workbook-session-id` = session_id)))
-  }
-
-  args[["http_status_handler"]] <- "pass"
-
-  resp <- do.call(AzureGraph::call_graph_endpoint, args)
 
   check_sp_workbook_response(resp, item, http_verb, call = call)
 

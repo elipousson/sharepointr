@@ -19,6 +19,9 @@ object, a SharePoint URL, or a path passed to \code{\link[=get_sp_item]{get_sp_i
 \item{persist_changes}{If \code{TRUE} (default), changes made in the session are
 saved to the workbook.}
 
+\item{call}{The execution environment used in error messages. Defaults to
+the environment of the calling function.}
+
 \item{session_id}{A workbook session ID from \code{\link[=sp_workbook_session_create]{sp_workbook_session_create()}}.}
 }
 \value{

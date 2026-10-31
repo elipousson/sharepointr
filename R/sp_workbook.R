@@ -21,8 +21,8 @@
 #'   object, a SharePoint URL, or a path passed to [get_sp_item()].
 #' @param ... Additional parameters passed to [get_sp_item()] if `x` is not a
 #'   `ms_drive_item` object.
-#' @param sheet Worksheet name or ID. If `NULL`, the first worksheet is used. A sheet name can also be included in `range`
-#'   (e.g. `"Sheet1!A1:C3"`).
+#' @param sheet Worksheet name or ID. If `NULL`, the first worksheet is used. A
+#'   sheet name can also be included in `range` (e.g. `"Sheet1!A1:C3"`).
 #' @param range A range in A1 notation (e.g. `"A1:C3"`). If `NULL`,
 #'   [sp_workbook_range_read()] reads the used range of the worksheet. For
 #'   [sp_workbook_range_write()], `range` can be a single cell, which is
@@ -34,6 +34,8 @@
 #'   workbook set by [local_sp_workbook_session()] or the
 #'   `sharepointr.workbook_session` option is used, if any. Otherwise the request
 #'   is sent without a session.
+#' @param call The execution environment used in error messages. Defaults to
+#'   the environment of the calling function.
 #' @returns
 #' - [sp_workbook_sheets()]: A data frame with a row for each worksheet.
 #' - [sp_workbook_range_read()]: A data frame.
@@ -51,7 +53,6 @@
 #' }
 NULL
 
-#' List the worksheets in a workbook
 #' @rdname sp_workbook
 #' @export
 sp_workbook_sheets <- function(
@@ -82,7 +83,6 @@ sp_workbook_sheets <- function(
   )
 }
 
-#' Read a range from a workbook
 #' @rdname sp_workbook
 #' @export
 sp_workbook_range_read <- function(
@@ -108,7 +108,12 @@ sp_workbook_range_read <- function(
   resp <- sp_workbook_request(
     item,
     paste0(
-      sp_workbook_sheet_path(item, address[["sheet"]], session_id, call),
+      sp_workbook_sheet_path(
+        item,
+        address[["sheet"]],
+        session_id = session_id,
+        call = call
+      ),
       path
     ),
     session_id = session_id,
@@ -118,8 +123,6 @@ sp_workbook_range_read <- function(
   sp_workbook_values_as_df(resp[["values"]], header = header)
 }
 
-#' Write values to a range in a workbook
-#'
 #' @param values A data frame, matrix, or vector. A vector is written as a
 #'   single column. `NA` values are written as empty cells.
 #' @param col_names If `TRUE` (default), the column names of a data frame (or
@@ -138,7 +141,6 @@ sp_workbook_range_write <- function(
 ) {
   check_bool(col_names, call = call)
 
-  item <- sp_workbook_item(x, ..., call = call)
   address <- sp_workbook_address(range, sheet, call = call)
 
   if (is.null(address[["range"]])) {
@@ -153,16 +155,23 @@ sp_workbook_range_write <- function(
   # A single starting cell is expanded to the size of values
   address[["range"]] <- sp_workbook_range_resize(
     address[["range"]],
-    nrow = length(values),
-    ncol = length(values[[1]]),
+    n_row = length(values),
+    n_col = length(values[[1]]),
     call = call
   )
+
+  item <- sp_workbook_item(x, ..., call = call)
 
   resp <- sp_workbook_request(
     item,
     sprintf(
       "%srange(address='%s')",
-      sp_workbook_sheet_path(item, address[["sheet"]], session_id, call),
+      sp_workbook_sheet_path(
+        item,
+        address[["sheet"]],
+        session_id = session_id,
+        call = call
+      ),
       address[["range"]]
     ),
     body = list(values = values),
@@ -487,46 +496,55 @@ sp_workbook_sheet_path <- function(
 
 #' Expand a single cell like "B2" to a range like "B2:D5"
 #' @noRd
-sp_workbook_range_resize <- function(range, nrow, ncol, call = caller_env()) {
+sp_workbook_range_resize <- function(
+  range,
+  n_row,
+  n_col,
+  call = caller_env()
+) {
   if (stringr::str_detect(range, stringr::fixed(":"))) {
     return(range)
   }
 
-  match <- stringr::str_match(range, "^\\$?([A-Za-z]+)\\$?([0-9]+)$")
+  cell <- stringr::str_match(range, "^\\$?([A-Za-z]+)\\$?([0-9]+)$")
 
-  if (anyNA(match)) {
+  if (anyNA(cell)) {
     cli_abort(
       "{.arg range} must be a cell like {.val A1}, not {.val {range}}.",
       call = call
     )
   }
 
-  col <- sp_workbook_col_to_number(match[1, 2])
-  row <- as.integer(match[1, 3])
+  col_num <- sp_workbook_col_to_number(cell[1, 2])
+  row_num <- as.integer(cell[1, 3])
 
   paste0(
     range,
     ":",
-    sp_workbook_number_to_col(col + ncol - 1L),
-    row + nrow - 1L
+    sp_workbook_number_to_col(col_num + n_col - 1L),
+    row_num + n_row - 1L
   )
 }
 
-sp_workbook_col_to_number <- function(col) {
-  chars <- utf8ToInt(toupper(col)) - utf8ToInt("A") + 1L
+#' Convert a column name like "AB" to a column number like 28
+#' @noRd
+sp_workbook_col_to_number <- function(col_name) {
+  chars <- utf8ToInt(toupper(col_name)) - utf8ToInt("A") + 1L
   as.integer(sum(chars * 26^(rev(seq_along(chars)) - 1L)))
 }
 
+#' Convert a column number like 28 to a column name like "AB"
+#' @noRd
 sp_workbook_number_to_col <- function(n) {
-  col <- character()
+  col_chars <- character()
 
   while (n > 0) {
     n <- n - 1L
-    col <- c(intToUtf8(utf8ToInt("A") + n %% 26L), col)
+    col_chars <- c(intToUtf8(utf8ToInt("A") + n %% 26L), col_chars)
     n <- n %/% 26L
   }
 
-  paste(col, collapse = "")
+  paste(col_chars, collapse = "")
 }
 
 #' Convert the `values` of a range (a list of rows) to a data frame
@@ -538,14 +556,14 @@ sp_workbook_values_as_df <- function(values, header = TRUE) {
     return(data.frame())
   }
 
-  ncol <- length(values[[1]])
+  n_col <- length(values[[1]])
   columns <- purrr::list_transpose(values, simplify = FALSE)
 
   if (header) {
     col_names <- purrr::map_chr(columns, \(x) as.character(x[[1]]))
     columns <- purrr::map(columns, \(x) x[-1])
   } else {
-    col_names <- paste0("V", seq_len(ncol))
+    col_names <- paste0("V", seq_len(n_col))
   }
 
   columns <- purrr::map(columns, sp_workbook_simplify_column)
@@ -613,7 +631,7 @@ sp_workbook_values_as_list <- function(
 
   rows <- purrr::map(seq_len(nrow(values)), \(i) {
     values |>
-      purrr::map(\(col) sp_workbook_cell(col[[i]])) |>
+      purrr::map(\(column) sp_workbook_cell(column[[i]])) |>
       unname()
   })
 

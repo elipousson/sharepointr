@@ -23,6 +23,9 @@ object, a SharePoint URL, or a path passed to \code{\link[=get_sp_item]{get_sp_i
 saved to the workbook.}
 
 \item{.local_envir}{The environment to use for scoping.}
+
+\item{call}{The execution environment used in error messages. Defaults to
+the environment of the calling function.}
 }
 \value{
 The session ID, invisibly.

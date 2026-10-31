@@ -43,13 +43,16 @@ workbook set by \code{\link[=local_sp_workbook_session]{local_sp_workbook_sessio
 \code{sharepointr.workbook_session} option is used, if any. Otherwise the request
 is sent without a session.}
 
+\item{call}{The execution environment used in error messages. Defaults to
+the environment of the calling function.}
+
 \item{range}{A range in A1 notation (e.g. \code{"A1:C3"}). If \code{NULL},
 \code{\link[=sp_workbook_range_read]{sp_workbook_range_read()}} reads the used range of the worksheet. For
 \code{\link[=sp_workbook_range_write]{sp_workbook_range_write()}}, \code{range} can be a single cell, which is
 expanded to fit \code{values}.}
 
-\item{sheet}{Worksheet name or ID. If \code{NULL}, the first worksheet is used. A sheet name can also be included in \code{range}
-(e.g. \code{"Sheet1!A1:C3"}).}
+\item{sheet}{Worksheet name or ID. If \code{NULL}, the first worksheet is used. A
+sheet name can also be included in \code{range} (e.g. \code{"Sheet1!A1:C3"}).}
 
 \item{header}{If \code{TRUE} (default), the first row of the range is used for
 column names.}

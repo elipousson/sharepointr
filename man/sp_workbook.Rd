@@ -38,8 +38,10 @@ object, a SharePoint URL, or a path passed to \code{\link[=get_sp_item]{get_sp_i
 \code{ms_drive_item} object.}
 
 \item{session_id}{A workbook session ID from
-\code{\link[=sp_workbook_session_create]{sp_workbook_session_create()}}. If \code{NULL}, the request is sent without a
-session.}
+\code{\link[=sp_workbook_session_create]{sp_workbook_session_create()}}. If \code{NULL} (default), the session for the
+workbook set by \code{\link[=local_sp_workbook_session]{local_sp_workbook_session()}} or the
+\code{sharepointr.workbook_session} option is used, if any. Otherwise the request
+is sent without a session.}
 
 \item{range}{A range in A1 notation (e.g. \code{"A1:C3"}). If \code{NULL},
 \code{\link[=sp_workbook_range_read]{sp_workbook_range_read()}} reads the used range of the worksheet. For
@@ -78,8 +80,9 @@ into a data frame.
 range.
 }
 
-Use \code{\link[=sp_workbook_session_create]{sp_workbook_session_create()}} and \code{\link[=sp_workbook_session_close]{sp_workbook_session_close()}} to make
-several requests in one workbook session.
+Use \code{\link[=local_sp_workbook_session]{local_sp_workbook_session()}} to make several requests in one workbook
+session, or \code{\link[=sp_workbook_session_create]{sp_workbook_session_create()}} and \code{\link[=sp_workbook_session_close]{sp_workbook_session_close()}}
+to manage the session yourself.
 }
 \examples{
 sp_workbook_url <- "<SharePoint workbook url>"
@@ -92,6 +95,7 @@ if (is_sp_url(sp_workbook_url)) {
 }
 \seealso{
 Other workbooks:
+\code{\link[=local_sp_workbook_session]{local_sp_workbook_session()}},
 \code{\link[=sp_workbook_session_create]{sp_workbook_session_create()}}
 }
 \concept{workbooks}

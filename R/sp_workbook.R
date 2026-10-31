@@ -13,8 +13,9 @@
 #' - [sp_workbook_range_write()] writes a data frame, matrix, or vector to a
 #'   range.
 #'
-#' Use [sp_workbook_session_create()] and [sp_workbook_session_close()] to make
-#' several requests in one workbook session.
+#' Use [local_sp_workbook_session()] to make several requests in one workbook
+#' session, or [sp_workbook_session_create()] and [sp_workbook_session_close()]
+#' to manage the session yourself.
 #'
 #' @param x A SharePoint or OneDrive Excel workbook. Can be a `ms_drive_item`
 #'   object, a SharePoint URL, or a path passed to [get_sp_item()].
@@ -29,8 +30,10 @@
 #' @param header If `TRUE` (default), the first row of the range is used for
 #'   column names.
 #' @param session_id A workbook session ID from
-#'   [sp_workbook_session_create()]. If `NULL`, the request is sent without a
-#'   session.
+#'   [sp_workbook_session_create()]. If `NULL` (default), the session for the
+#'   workbook set by [local_sp_workbook_session()] or the
+#'   `sharepointr.workbook_session` option is used, if any. Otherwise the request
+#'   is sent without a session.
 #' @returns
 #' - [sp_workbook_sheets()]: A data frame with a row for each worksheet.
 #' - [sp_workbook_range_read()]: A data frame.
@@ -198,6 +201,7 @@ sp_workbook_session_create <- function(
     "createSession",
     body = list(persistChanges = persist_changes),
     http_verb = "POST",
+    session_id = FALSE,
     call = call
   )
 
@@ -228,7 +232,99 @@ sp_workbook_session_close <- function(
   invisible(x)
 }
 
+#' Use a workbook session until the calling function exits
+#'
+#' [local_sp_workbook_session()] creates a session and sets it as the session
+#' for `x` so that it doesn't need to be passed to each function with
+#' `session_id`. The session is closed, and the previous option value restored,
+#' when the function it is called from exits. Wrap the code in [local()] to
+#' limit the session when working interactively.
+#'
+#' The session is stored in the `sharepointr.workbook_session` option as a
+#' character vector of session IDs named with the item ID of the workbook. Since
+#' a session only works for one workbook, the session is only used for requests
+#' to that workbook. An unnamed session ID in the option is used for all
+#' workbooks.
+#'
+#' @inheritParams sp_workbook_session_create
+#' @param .local_envir The environment to use for scoping.
+#' @returns The session ID, invisibly.
+#' @family workbooks
+#' @keywords workbooks
+#' @examples
+#' sp_workbook_url <- "<SharePoint workbook url>"
+#'
+#' if (is_sp_url(sp_workbook_url)) {
+#'   local({
+#'     local_sp_workbook_session(sp_workbook_url)
+#'     sp_workbook_range_write(sp_workbook_url, data.frame(a = 1), "A1")
+#'     sp_workbook_range_write(sp_workbook_url, data.frame(b = 2), "C1")
+#'   })
+#' }
+#' @export
+local_sp_workbook_session <- function(
+  x,
+  ...,
+  persist_changes = TRUE,
+  .local_envir = caller_env(),
+  call = caller_env()
+) {
+  item <- sp_workbook_item(x, ..., call = call)
+  item_id <- item[["properties"]][["id"]]
+
+  session_id <- sp_workbook_session_create(
+    item,
+    persist_changes = persist_changes,
+    call = call
+  )
+
+  old <- getOption("sharepointr.workbook_session")
+  new <- c(
+    old[names(old) %||% character() != item_id],
+    stats::setNames(session_id, item_id)
+  )
+  options(sharepointr.workbook_session = new)
+
+  # Run when the calling function exits (the base R equivalent of withr::defer)
+  do.call(
+    base::on.exit,
+    list(
+      substitute({
+        options(sharepointr.workbook_session = old)
+        try(sp_workbook_session_close(item, session_id), silent = TRUE)
+      }),
+      TRUE
+    ),
+    envir = .local_envir
+  )
+
+  invisible(session_id)
+}
+
 # ---- Internal helpers ----
+
+#' Get the session ID set with the `sharepointr.workbook_session` option
+#'
+#' The option is a named character vector (session IDs named with item IDs) or
+#' an unnamed session ID used for any workbook.
+#' @noRd
+sp_workbook_session_option <- function(item_id) {
+  session <- getOption("sharepointr.workbook_session")
+
+  if (length(session) == 0) {
+    return(NULL)
+  }
+
+  if (is.null(names(session))) {
+    return(session[[1]])
+  }
+
+  if (item_id %in% names(session)) {
+    return(session[[item_id]])
+  }
+
+  NULL
+}
 
 #' Get the drive item for a workbook
 #' @noRd
@@ -262,6 +358,13 @@ sp_workbook_request <- function(
 ) {
   drive_id <- item[["properties"]][["parentReference"]][["driveId"]]
   item_id <- item[["properties"]][["id"]]
+
+  # `session_id = FALSE` sends the request without a session
+  session_id <- if (isFALSE(session_id)) {
+    NULL
+  } else {
+    session_id %||% sp_workbook_session_option(item_id)
+  }
 
   args <- list(
     item[["token"]],

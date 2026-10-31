@@ -33,6 +33,7 @@ is closed. A session that isn't closed expires after a few minutes.
 }
 \seealso{
 Other workbooks:
+\code{\link[=local_sp_workbook_session]{local_sp_workbook_session()}},
 \code{\link{sp_workbook}}
 }
 \concept{workbooks}

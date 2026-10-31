@@ -217,3 +217,67 @@ test_that("sp_workbook_request() adds the session header", {
   request <- purrr::detect(args, \(x) inherits(x, "request"))
   expect_identical(request[["headers"]][["workbook-session-id"]], "abc")
 })
+
+test_that("sp_workbook_session_option() looks up the session for an item", {
+  withr::local_options(sharepointr.workbook_session = NULL)
+  expect_null(sp_workbook_session_option("item1"))
+
+  options(sharepointr.workbook_session = c(item1 = "s1", item2 = "s2"))
+  expect_identical(sp_workbook_session_option("item2"), "s2")
+  expect_null(sp_workbook_session_option("item3"))
+
+  options(sharepointr.workbook_session = "any")
+  expect_identical(sp_workbook_session_option("item3"), "any")
+})
+
+test_that("sp_workbook_request() uses the option unless session_id is set", {
+  withr::local_options(sharepointr.workbook_session = c(item1 = "from-option"))
+
+  headers <- list()
+
+  local_mocked_bindings(
+    call_graph_endpoint = function(...) {
+      request <- purrr::detect(list(...), \(x) inherits(x, "request"))
+      headers[[length(headers) + 1]] <<- request[["headers"]][["workbook-session-id"]]
+      list()
+    },
+    .package = "AzureGraph"
+  )
+
+  item <- mock_workbook_item()
+  item[["properties"]][["parentReference"]] <- list(driveId = "drive1")
+
+  sp_workbook_request(item, "worksheets")
+  sp_workbook_request(item, "worksheets", session_id = "explicit")
+  sp_workbook_request(item, "worksheets", session_id = FALSE)
+
+  expect_identical(headers[1:2], list("from-option", "explicit"))
+  expect_length(headers, 2)
+})
+
+test_that("local_sp_workbook_session() sets the option and closes the session", {
+  withr::local_options(sharepointr.workbook_session = NULL)
+
+  calls <- character()
+
+  local_mocked_bindings(
+    sp_workbook_request = function(item, path, ...) {
+      calls <<- c(calls, path)
+      list(id = "session1")
+    }
+  )
+
+  item <- mock_workbook_item()
+  during <- NULL
+
+  f <- function() {
+    local_sp_workbook_session(item)
+    during <<- getOption("sharepointr.workbook_session")
+  }
+
+  f()
+
+  expect_identical(during, c(item1 = "session1"))
+  expect_null(getOption("sharepointr.workbook_session"))
+  expect_identical(calls, c("createSession", "closeSession"))
+})

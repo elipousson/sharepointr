@@ -17,6 +17,14 @@
 #' session, or [sp_workbook_session_create()] and [sp_workbook_session_close()]
 #' to manage the session yourself.
 #'
+#' @section Reading after writing:
+#' Requests sent without a session may not see each other's changes right away.
+#' Writes are saved to the workbook, but a read sent without a session straight
+#' afterward can return the earlier values for a short time. To read back what
+#' you wrote, make the write and the read in the same session (e.g. with
+#' [local_sp_workbook_session()]). Requests in a session see the changes made in
+#' that session immediately.
+#'
 #' @param x A SharePoint or OneDrive Excel workbook. Can be a `ms_drive_item`
 #'   object, a SharePoint URL, or a path passed to [get_sp_item()].
 #' @param ... Additional parameters passed to [get_sp_item()] if `x` is not a
@@ -189,6 +197,10 @@ sp_workbook_range_write <- function(
 #' session are sent in a new temporary session by the API. If
 #' `persist_changes = FALSE`, changes made in the session are discarded when it
 #' is closed. A session that isn't closed expires after a few minutes.
+#'
+#' Requests in the same session see each other's changes immediately. Requests
+#' sent without a session may not (see "Reading after writing" in
+#' [sp_workbook]).
 #'
 #' @inheritParams sp_workbook
 #' @param persist_changes If `TRUE` (default), changes made in the session are

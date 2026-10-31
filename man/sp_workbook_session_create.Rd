@@ -34,6 +34,11 @@ session are sent in a new temporary session by the API. If
 \code{persist_changes = FALSE}, changes made in the session are discarded when it
 is closed. A session that isn't closed expires after a few minutes.
 }
+\details{
+Requests in the same session see each other's changes immediately. Requests
+sent without a session may not (see "Reading after writing" in
+\link{sp_workbook}).
+}
 \seealso{
 Other workbooks:
 \code{\link[=local_sp_workbook_session]{local_sp_workbook_session()}},

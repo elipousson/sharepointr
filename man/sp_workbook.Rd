@@ -87,6 +87,16 @@ Use \code{\link[=local_sp_workbook_session]{local_sp_workbook_session()}} to mak
 session, or \code{\link[=sp_workbook_session_create]{sp_workbook_session_create()}} and \code{\link[=sp_workbook_session_close]{sp_workbook_session_close()}}
 to manage the session yourself.
 }
+\section{Reading after writing}{
+
+Requests sent without a session may not see each other's changes right away.
+Writes are saved to the workbook, but a read sent without a session straight
+afterward can return the earlier values for a short time. To read back what
+you wrote, make the write and the read in the same session (e.g. with
+\code{\link[=local_sp_workbook_session]{local_sp_workbook_session()}}). Requests in a session see the changes made in
+that session immediately.
+}
+
 \examples{
 sp_workbook_url <- "<SharePoint workbook url>"
 

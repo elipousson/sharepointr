@@ -20,7 +20,12 @@ mock_workbook_response <- function(body = list(), status = 200L) {
 mock_sheets <- list(
   value = list(
     list(id = "{2}", name = "Second", position = 1L, visibility = "Visible"),
-    list(id = "{1}", name = "First Sheet", position = 0L, visibility = "Visible")
+    list(
+      id = "{1}",
+      name = "First Sheet",
+      position = 0L,
+      visibility = "Visible"
+    )
   )
 )
 
@@ -53,9 +58,16 @@ test_that("sp_workbook_range_resize() expands a cell to fit the values", {
 
 test_that("column letter conversion round trips", {
   n <- c(1L, 26L, 27L, 52L, 53L, 702L, 703L, 16384L)
-  expect_identical(sp_workbook_col_to_number(sp_workbook_number_to_col(n[[1]])), 1L)
   expect_identical(
-    vapply(n, \(i) sp_workbook_col_to_number(sp_workbook_number_to_col(i)), integer(1)),
+    sp_workbook_col_to_number(sp_workbook_number_to_col(n[[1]])),
+    1L
+  )
+  expect_identical(
+    vapply(
+      n,
+      \(i) sp_workbook_col_to_number(sp_workbook_number_to_col(i)),
+      integer(1)
+    ),
     n
   )
   expect_identical(sp_workbook_number_to_col(16384L), "XFD")
@@ -82,6 +94,19 @@ test_that("sp_workbook_values_as_df() converts values to a data frame", {
   )
   expect_identical(nrow(sp_workbook_values_as_df(values, header = FALSE)), 4L)
   expect_identical(nrow(sp_workbook_values_as_df(list())), 0L)
+})
+
+test_that("sp_workbook_values_as_df() fills missing values in a short row", {
+  df <- sp_workbook_values_as_df(list(list("a", "b"), list(1, 2), list(3)))
+
+  expect_identical(df[["a"]], c(1, 3))
+  expect_identical(df[["b"]], c(2, NA))
+})
+
+test_that("sp_workbook_values_as_df() converts a numeric header to text", {
+  df <- sp_workbook_values_as_df(list(list(2025, "b"), list(1, 2)))
+
+  expect_identical(names(df), c("2025", "b"))
 })
 
 test_that("sp_workbook_values_as_list() converts R objects to rows", {
@@ -132,7 +157,10 @@ test_that("sp_workbook_range_read() requests the first sheet's used range", {
 
   df <- sp_workbook_range_read(mock_workbook_item())
 
-  expect_identical(paths, c("worksheets", "worksheets/%7B1%7D/usedRange(valuesOnly=true)"))
+  expect_identical(
+    paths,
+    c("worksheets", "worksheets/%7B1%7D/usedRange(valuesOnly=true)")
+  )
   expect_equal(df, data.frame(a = 1))
 })
 
@@ -250,7 +278,9 @@ test_that("sp_workbook_request() uses the option unless session_id is set", {
   local_mocked_bindings(
     call_graph_endpoint = function(...) {
       request <- purrr::detect(list(...), \(x) inherits(x, "request"))
-      headers[[length(headers) + 1]] <<- request[["headers"]][["workbook-session-id"]]
+      headers[[length(headers) + 1]] <<- request[["headers"]][[
+        "workbook-session-id"
+      ]]
       mock_workbook_response()
     },
     .package = "AzureGraph"

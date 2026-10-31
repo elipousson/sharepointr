@@ -142,7 +142,10 @@ sp_workbook_range_write <- function(
   address <- sp_workbook_address(range, sheet, call = call)
 
   if (is.null(address[["range"]])) {
-    cli_abort("{.arg range} must be a cell or range, not {.code NULL}.", call = call)
+    cli_abort(
+      "{.arg range} must be a cell or range, not {.code NULL}.",
+      call = call
+    )
   }
 
   values <- sp_workbook_values_as_list(values, col_names, call = call)
@@ -281,7 +284,7 @@ local_sp_workbook_session <- function(
   old <- getOption("sharepointr.workbook_session")
   new <- c(
     old[names(old) %||% character() != item_id],
-    stats::setNames(session_id, item_id)
+    rlang::set_names(session_id, item_id)
   )
   options(sharepointr.workbook_session = new)
 
@@ -456,13 +459,13 @@ sp_workbook_address <- function(range, sheet, call = caller_env()) {
   check_string(range, allow_null = TRUE, call = call)
   check_string(sheet, allow_null = TRUE, call = call)
 
-  if (!is.null(range) && grepl("!", range, fixed = TRUE)) {
-    range_sheet <- sub("!.*$", "", range)
-    range <- sub("^.*!", "", range)
+  if (!is.null(range) && stringr::str_detect(range, stringr::fixed("!"))) {
+    range_sheet <- stringr::str_remove(range, "!.*$")
+    range <- stringr::str_remove(range, "^.*!")
 
     # Sheet names with spaces are quoted in A1 references
-    sheet <- sheet %||% gsub("^'|'$", "", range_sheet)
-    sheet <- gsub("''", "'", sheet, fixed = TRUE)
+    sheet <- sheet %||% stringr::str_remove_all(range_sheet, "^'|'$")
+    sheet <- stringr::str_replace_all(sheet, stringr::fixed("''"), "'")
   }
 
   list(sheet = sheet, range = range)
@@ -489,18 +492,21 @@ sp_workbook_sheet_path <- function(
 #' Expand a single cell like "B2" to a range like "B2:D5"
 #' @noRd
 sp_workbook_range_resize <- function(range, nrow, ncol, call = caller_env()) {
-  if (grepl(":", range, fixed = TRUE)) {
+  if (stringr::str_detect(range, stringr::fixed(":"))) {
     return(range)
   }
 
-  match <- regmatches(range, regexec("^\\$?([A-Za-z]+)\\$?([0-9]+)$", range))[[1]]
+  match <- stringr::str_match(range, "^\\$?([A-Za-z]+)\\$?([0-9]+)$")
 
-  if (length(match) == 0) {
-    cli_abort("{.arg range} must be a cell like {.val A1}, not {.val {range}}.", call = call)
+  if (anyNA(match)) {
+    cli_abort(
+      "{.arg range} must be a cell like {.val A1}, not {.val {range}}.",
+      call = call
+    )
   }
 
-  col <- sp_workbook_col_to_number(match[[2]])
-  row <- as.integer(match[[3]])
+  col <- sp_workbook_col_to_number(match[1, 2])
+  row <- as.integer(match[1, 3])
 
   paste0(
     range,
@@ -537,19 +543,21 @@ sp_workbook_values_as_df <- function(values, header = TRUE) {
   }
 
   ncol <- length(values[[1]])
-  columns <- lapply(seq_len(ncol), \(i) {
-    purrr::map(values, \(row) row[[i]])
-  })
+  columns <- purrr::list_transpose(values, simplify = FALSE)
 
   if (header) {
-    col_names <- as.character(unlist(purrr::map(columns, 1)))
-    columns <- lapply(columns, \(x) x[-1])
+    col_names <- purrr::map_chr(columns, \(x) as.character(x[[1]]))
+    columns <- purrr::map(columns, \(x) x[-1])
   } else {
     col_names <- paste0("V", seq_len(ncol))
   }
 
-  columns <- lapply(columns, sp_workbook_simplify_column)
-  names(columns) <- vctrs::vec_as_names(col_names, repair = "unique", quiet = TRUE)
+  columns <- purrr::map(columns, sp_workbook_simplify_column)
+  names(columns) <- vctrs::vec_as_names(
+    col_names,
+    repair = "unique",
+    quiet = TRUE
+  )
 
   as.data.frame(columns, check.names = FALSE, stringsAsFactors = FALSE)
 }
@@ -560,18 +568,19 @@ sp_workbook_values_as_df <- function(values, header = TRUE) {
 #' converted to character.
 #' @noRd
 sp_workbook_simplify_column <- function(x) {
-  x <- lapply(x, \(value) {
+  x <- purrr::map(x, \(value) {
     if (is.null(value) || identical(value, "")) NA else value
   })
 
-  types <- unique(vapply(
-    x[!is.na(x)],
-    \(value) if (is.numeric(value)) "numeric" else typeof(value),
-    character(1)
-  ))
+  types <- x |>
+    purrr::discard(is.na) |>
+    purrr::map_chr(\(value) {
+      if (is.numeric(value)) "numeric" else typeof(value)
+    }) |>
+    unique()
 
   if (length(types) > 1) {
-    return(vapply(x, \(value) as.character(value), character(1)))
+    return(purrr::map_chr(x, as.character))
   }
 
   unlist(x)
@@ -597,17 +606,20 @@ sp_workbook_values_as_list <- function(
   }
 
   if (nrow(values) == 0 || ncol(values) == 0) {
-    cli_abort("{.arg values} must have at least 1 row and 1 column.", call = call)
+    cli_abort(
+      "{.arg values} must have at least 1 row and 1 column.",
+      call = call
+    )
   }
 
   has_names <- !is.null(colnames(values))
   values <- as.data.frame(values, stringsAsFactors = FALSE)
 
-  rows <- lapply(seq_len(nrow(values)), \(i) {
-    lapply(values, \(col) sp_workbook_cell(col[[i]]))
+  rows <- purrr::map(seq_len(nrow(values)), \(i) {
+    values |>
+      purrr::map(\(col) sp_workbook_cell(col[[i]])) |>
+      unname()
   })
-
-  rows <- lapply(rows, unname)
 
   if (col_names && has_names) {
     rows <- c(list(as.list(names(values))), rows)

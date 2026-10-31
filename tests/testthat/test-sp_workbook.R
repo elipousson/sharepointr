@@ -5,6 +5,18 @@ mock_workbook_item <- function() {
   )
 }
 
+mock_workbook_response <- function(body = list(), status = 200L) {
+  structure(
+    list(
+      url = "https://graph.microsoft.com/v1.0/",
+      status_code = status,
+      headers = httr::insensitive(list(`Content-Type` = "application/json")),
+      content = charToRaw(jsonlite::toJSON(body, auto_unbox = TRUE))
+    ),
+    class = "response"
+  )
+}
+
 mock_sheets <- list(
   value = list(
     list(id = "{2}", name = "Second", position = 1L, visibility = "Visible"),
@@ -203,7 +215,7 @@ test_that("sp_workbook_request() adds the session header", {
   local_mocked_bindings(
     call_graph_endpoint = function(...) {
       args <<- list(...)
-      list()
+      mock_workbook_response()
     },
     .package = "AzureGraph"
   )
@@ -239,7 +251,7 @@ test_that("sp_workbook_request() uses the option unless session_id is set", {
     call_graph_endpoint = function(...) {
       request <- purrr::detect(list(...), \(x) inherits(x, "request"))
       headers[[length(headers) + 1]] <<- request[["headers"]][["workbook-session-id"]]
-      list()
+      mock_workbook_response()
     },
     .package = "AzureGraph"
   )
@@ -280,4 +292,54 @@ test_that("local_sp_workbook_session() sets the option and closes the session", 
   expect_identical(during, c(item1 = "session1"))
   expect_null(getOption("sharepointr.workbook_session"))
   expect_identical(calls, c("createSession", "closeSession"))
+})
+
+test_that("sp_workbook_error_codes() returns nested codes outermost first", {
+  error <- list(
+    code = "a",
+    innerError = list(code = "b", innerError = list(code = "c"))
+  )
+
+  expect_identical(sp_workbook_error_codes(error), c("a", "b", "c"))
+  expect_identical(sp_workbook_error_codes(NULL), character())
+})
+
+test_that("sp_workbook_request() aborts with a hint for a known inner error code", {
+  local_mocked_bindings(
+    call_graph_endpoint = function(...) {
+      mock_workbook_response(
+        list(
+          error = list(
+            code = "conflict",
+            message = "The request conflicts.",
+            innerError = list(code = "accessConflict")
+          )
+        ),
+        status = 409L
+      )
+    },
+    .package = "AzureGraph"
+  )
+
+  item <- mock_workbook_item()
+  item[["properties"]][["parentReference"]] <- list(driveId = "drive1")
+
+  expect_snapshot(sp_workbook_request(item, "worksheets"), error = TRUE)
+})
+
+test_that("sp_workbook_request() aborts without a hint for unknown error codes", {
+  local_mocked_bindings(
+    call_graph_endpoint = function(...) {
+      mock_workbook_response(
+        list(error = list(code = "other", message = "Something failed.")),
+        status = 400L
+      )
+    },
+    .package = "AzureGraph"
+  )
+
+  item <- mock_workbook_item()
+  item[["properties"]][["parentReference"]] <- list(driveId = "drive1")
+
+  expect_snapshot(sp_workbook_request(item, "worksheets"), error = TRUE)
 })

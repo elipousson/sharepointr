@@ -378,17 +378,76 @@ sp_workbook_request <- function(
     args <- c(args, list(httr::add_headers(`workbook-session-id` = session_id)))
   }
 
-  try_fetch(
-    do.call(AzureGraph::call_graph_endpoint, args),
-    error = function(cnd) {
-      cli_abort(
-        "Can't send a {.val {http_verb}} request to the workbook
-        {.val {item[['properties']][['name']]}}.",
-        parent = cnd,
-        call = call
-      )
-    }
+  args[["http_status_handler"]] <- "pass"
+
+  resp <- do.call(AzureGraph::call_graph_endpoint, args)
+
+  check_sp_workbook_response(resp, item, http_verb, call = call)
+
+  httr::content(resp) %||% list()
+}
+
+# Hints for second-level error codes (lowercase since codes are case
+# insensitive). See
+# <https://learn.microsoft.com/en-us/graph/workbook-error-handling>
+sp_workbook_error_hints <- c(
+  accessconflict = "Another user may have the workbook locked for editing.
+    Try again after they close it.",
+  invalidsessionaccessconflict = "Another user may have the workbook locked for
+    editing. Try again after they close it.",
+  invalidsessionrecreatable = "The workbook session doesn't exist or has
+    expired. Create a new session with {.fn sp_workbook_session_create}.",
+  rangeexceedslimit = "The range has too many cells. Use a smaller range.",
+  payloadtoolargeuncategorized = "The request is too large. Use a smaller
+    range.",
+  unsupportedworkbook = "The workbook has unsupported features or is too large
+    for the Excel API.",
+  invalidsessionunsupportedworkbook = "The workbook has unsupported features or
+    is too large for the Excel API.",
+  itemnotfound = "Check the worksheet name and range.",
+  notfounduncategorized = "Check the worksheet name and range."
+)
+
+#' Check a workbook API response and abort with a hint for known error codes
+#'
+#' The Excel API returns a top-level error code and, nested in `innerError`, a
+#' more specific code that Microsoft recommends handling first.
+#' @noRd
+check_sp_workbook_response <- function(
+  resp,
+  item,
+  http_verb,
+  call = caller_env()
+) {
+  if (!httr::http_error(resp)) {
+    return(invisible(NULL))
+  }
+
+  error <- httr::content(resp)[["error"]]
+  codes <- stringr::str_to_lower(sp_workbook_error_codes(error))
+  hints <- sp_workbook_error_hints[codes]
+  hint <- purrr::detect(hints, \(x) !is.na(x))
+
+  cli_abort(
+    c(
+      "Can't send a {.val {http_verb}} request to the workbook
+      {.val {item[['properties']][['name']]}}.",
+      "x" = error[["message"]] %||% httr::http_status(resp)[["message"]],
+      "i" = hint
+    ),
+    call = call
   )
+}
+
+#' Get the error codes from an error and its nested `innerError`, outermost
+#' first
+#' @noRd
+sp_workbook_error_codes <- function(error) {
+  if (is.null(error)) {
+    return(character())
+  }
+
+  c(error[["code"]], sp_workbook_error_codes(error[["innerError"]]))
 }
 
 #' Split a range like "Sheet1!A1:C3" into the sheet and range

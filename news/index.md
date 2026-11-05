@@ -4,6 +4,22 @@
 
 ### Added
 
+- Add
+  [`sp_workbook_sheets()`](https://elipousson.github.io/sharepointr/reference/sp_workbook.md),
+  [`sp_workbook_range_read()`](https://elipousson.github.io/sharepointr/reference/sp_workbook.md),
+  and
+  [`sp_workbook_range_write()`](https://elipousson.github.io/sharepointr/reference/sp_workbook.md)
+  (experimental) to list worksheets and read or write cell ranges in a
+  SharePoint or OneDrive Excel workbook with the Excel REST API, without
+  downloading and uploading the file.
+  [`sp_workbook_session_create()`](https://elipousson.github.io/sharepointr/reference/sp_workbook_session_create.md)
+  and
+  [`sp_workbook_session_close()`](https://elipousson.github.io/sharepointr/reference/sp_workbook_session_create.md)
+  manage workbook sessions, and
+  [`local_sp_workbook_session()`](https://elipousson.github.io/sharepointr/reference/local_sp_workbook_session.md)
+  sets a session for a workbook (using the
+  `sharepointr.workbook_session` option) so it doesn’t need to be passed
+  as `session_id`. (2026-10-30)
 - [`list_sp_item_versions()`](https://elipousson.github.io/sharepointr/reference/list_sp_item_versions.md)
   is rewritten to return a tidy data frame (`version_id`, `version`,
   `last_modified` as POSIXct, `last_modified_by`,

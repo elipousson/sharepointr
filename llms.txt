@@ -433,6 +433,9 @@ for the time being.
 - [`list_sp_site_user_info()`](https://elipousson.github.io/sharepointr/reference/list_sp_site_user_info.md)
   **\[experimental\]** : List items from the hidden SharePoint "User
   Information List"
+- [`local_sp_workbook_session()`](https://elipousson.github.io/sharepointr/reference/local_sp_workbook_session.md)
+  **\[experimental\]** : Use a workbook session until the calling
+  function exits
 - [`read_sharepoint()`](https://elipousson.github.io/sharepointr/reference/read_sharepoint.md)
   : Read a SharePoint item based on a file URL or file name and site
   details
@@ -481,6 +484,13 @@ for the time being.
 - [`get_sp_task()`](https://elipousson.github.io/sharepointr/reference/sp_tasks.md)
   [`list_sp_tasks()`](https://elipousson.github.io/sharepointr/reference/sp_tasks.md)
   : Get a SharePoint task or list tasks from a planner
+- [`sp_workbook_sheets()`](https://elipousson.github.io/sharepointr/reference/sp_workbook.md)
+  [`sp_workbook_range_read()`](https://elipousson.github.io/sharepointr/reference/sp_workbook.md)
+  [`sp_workbook_range_write()`](https://elipousson.github.io/sharepointr/reference/sp_workbook.md)
+  **\[experimental\]** : Read and write the cells of an Excel workbook
+- [`sp_workbook_session_create()`](https://elipousson.github.io/sharepointr/reference/sp_workbook_session_create.md)
+  [`sp_workbook_session_close()`](https://elipousson.github.io/sharepointr/reference/sp_workbook_session_create.md)
+  **\[experimental\]** : Create or close a workbook session
 - [`update_sp_drive()`](https://elipousson.github.io/sharepointr/reference/update_sp_drive.md)
   [`delete_sp_drive()`](https://elipousson.github.io/sharepointr/reference/update_sp_drive.md)
   **\[experimental\]** : Update or delete a SharePoint document library

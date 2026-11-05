@@ -31,13 +31,15 @@ the environment of the calling function.}
 The session ID, invisibly.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+}
+\details{
 \code{\link[=local_sp_workbook_session]{local_sp_workbook_session()}} creates a session and sets it as the session
 for \code{x} so that it doesn't need to be passed to each function with
 \code{session_id}. The session is closed, and the previous option value restored,
 when the function it is called from exits. Wrap the code in \code{\link[=local]{local()}} to
 limit the session when working interactively.
-}
-\details{
+
 The session is stored in the \code{sharepointr.workbook_session} option as a
 character vector of session IDs named with the item ID of the workbook. Since
 a session only works for one workbook, the session is only used for requests

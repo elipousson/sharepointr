@@ -71,6 +71,8 @@ matrix with column names) are written as the first row.}
 }
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 These functions use the \href{https://learn.microsoft.com/en-us/graph/excel-write-to-workbook}{Excel REST API} to
 work with a workbook stored in SharePoint or OneDrive without downloading and
 uploading the whole file. Changes are made to the live workbook so edits by

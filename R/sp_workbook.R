@@ -1,6 +1,8 @@
 #' Read and write the cells of an Excel workbook
 #'
 #' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' These functions use the [Excel REST
 #' API](https://learn.microsoft.com/en-us/graph/excel-write-to-workbook) to
 #' work with a workbook stored in SharePoint or OneDrive without downloading and
@@ -193,6 +195,8 @@ sp_workbook_range_write <- function(
 
 #' Create or close a workbook session
 #'
+#' `r lifecycle::badge("experimental")`
+#'
 #' Use a session to make several requests to a workbook. Requests without a
 #' session are sent in a new temporary session by the API. If
 #' `persist_changes = FALSE`, changes made in the session are discarded when it
@@ -257,6 +261,8 @@ sp_workbook_session_close <- function(
 }
 
 #' Use a workbook session until the calling function exits
+#'
+#' `r lifecycle::badge("experimental")`
 #'
 #' [local_sp_workbook_session()] creates a session and sets it as the session
 #' for `x` so that it doesn't need to be passed to each function with

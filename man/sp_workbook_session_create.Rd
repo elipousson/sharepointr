@@ -29,12 +29,14 @@ the environment of the calling function.}
 \code{\link[=sp_workbook_session_close]{sp_workbook_session_close()}} returns \code{x} invisibly.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+}
+\details{
 Use a session to make several requests to a workbook. Requests without a
 session are sent in a new temporary session by the API. If
 \code{persist_changes = FALSE}, changes made in the session are discarded when it
 is closed. A session that isn't closed expires after a few minutes.
-}
-\details{
+
 Requests in the same session see each other's changes immediately. Requests
 sent without a session may not (see "Reading after writing" in
 \link{sp_workbook}).

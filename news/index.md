@@ -4,6 +4,29 @@
 
 ### Added
 
+- [`list_sp_item_versions()`](https://elipousson.github.io/sharepointr/reference/list_sp_item_versions.md)
+  is rewritten to return a tidy data frame (`version_id`, `version`,
+  `last_modified` as POSIXct, `last_modified_by`,
+  `last_modified_by_email`, `last_modified_by_id`, `size`) with
+  `item_id` and `drive_id` columns. It now follows paged responses,
+  sorts versions newest first, and gains `n` (the newest versions, sent
+  to the API as `$top`) and `modified_between` arguments (filtering is
+  applied after requesting versions since the Graph API does not support
+  it), plus `item_cols` and `version_cols` arguments to control the
+  columns returned. The short-lived download URL is only returned with
+  `version_cols = "all"`. Add
+  [`get_sp_item_version()`](https://elipousson.github.io/sharepointr/reference/list_sp_item_versions.md)
+  and
+  [`download_sp_item_version()`](https://elipousson.github.io/sharepointr/reference/list_sp_item_versions.md)
+  to get a single version or save a previous version of a file.
+  (2026-11-04)
+- [`download_sp_list()`](https://elipousson.github.io/sharepointr/reference/download_sp_list.md)
+  now flattens `createdBy` and `lastModifiedBy` columns with a new
+  internal `flatten_df_col()` helper (based on
+  [`tidyr::unnest_wider()`](https://tidyr.tidyverse.org/reference/unnest_wider.html))
+  that replaces `fmt_sp_list_col()`, handles nested columns, and keeps
+  the flattened columns in the position of the original column.
+  (2026-11-04)
 - [`sp_dir_ls()`](https://elipousson.github.io/sharepointr/reference/sp_dir_info.md)
   gains `recurse` and `.batch` arguments (like
   [`fs::dir_ls()`](https://fs.r-lib.org/reference/dir_ls.html)),

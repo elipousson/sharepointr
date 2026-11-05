@@ -79,7 +79,9 @@
 - [`list_sp_drives()`](https://elipousson.github.io/sharepointr/reference/list_sp_drives.md)
   : List drives for a SharePoint site
 - [`list_sp_item_versions()`](https://elipousson.github.io/sharepointr/reference/list_sp_item_versions.md)
-  : List versions for a SharePoint item
+  [`get_sp_item_version()`](https://elipousson.github.io/sharepointr/reference/list_sp_item_versions.md)
+  [`download_sp_item_version()`](https://elipousson.github.io/sharepointr/reference/list_sp_item_versions.md)
+  : List, get, and download versions of a SharePoint item
 - [`list_sp_list_views()`](https://elipousson.github.io/sharepointr/reference/list_sp_list_views.md)
   [`get_sp_list_view()`](https://elipousson.github.io/sharepointr/reference/list_sp_list_views.md)
   [`create_sp_list_view()`](https://elipousson.github.io/sharepointr/reference/list_sp_list_views.md)

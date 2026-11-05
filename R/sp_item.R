@@ -958,10 +958,7 @@ download_sp_list <- function(
     ...
   )
 
-  # FIXME: This is not working as expected
-  for (col in keep_list_cols) {
-    sp_list_df <- fmt_sp_list_col(sp_list_df, col = col)
-  }
+  sp_list_df <- flatten_df_col(sp_list_df, cols = keep_list_cols)
 
   if (new_path == "") {
     new_path <- NULL

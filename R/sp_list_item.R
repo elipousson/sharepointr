@@ -99,7 +99,9 @@ list_sp_list_items <- function(
   # and display names (also reused to build the ptype in .ms365_list_items())
   col_metadata <- NULL
 
-  if (select_type != "asis" || col_formatting != "asis" || display_nm != "drop") {
+  if (
+    select_type != "asis" || col_formatting != "asis" || display_nm != "drop"
+  ) {
     col_metadata <- get_sp_list_metadata(
       sp_list = sp_list,
       as_data_frame = FALSE,
@@ -113,7 +115,11 @@ list_sp_list_items <- function(
     # Get editable or visible columns
     select <- c(
       "ID",
-      names(pull_sp_list_cols(col_metadata, col_type = select_type, call = call))
+      names(pull_sp_list_cols(
+        col_metadata,
+        col_type = select_type,
+        call = call
+      ))
     )
   }
 
@@ -918,7 +924,7 @@ validate_sp_list_data_fields <- function(
   if (is.null(values)) {
     sp_list_meta <- get_sp_list_metadata(
       sp_list = sp_list,
-        keep = keep,
+      keep = keep,
       call = call
     )
 

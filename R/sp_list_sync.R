@@ -257,7 +257,9 @@ compare_sp_list <- function(
   )
 
   # Compare views only if the definition has views
-  if (views && !is.null(definitions[["views"]]) && inherits(sp_list, "ms_list")) {
+  if (
+    views && !is.null(definitions[["views"]]) && inherits(sp_list, "ms_list")
+  ) {
     rows <- c(
       rows,
       list(view_change_rows(
@@ -277,7 +279,10 @@ compare_sp_list <- function(
     rows <- c(
       rows,
       list(folder_change_rows(
-        sp_drive_missing_folders(sp_list_drive(sp_list), definitions[["folders"]])
+        sp_drive_missing_folders(
+          sp_list_drive(sp_list),
+          definitions[["folders"]]
+        )
       ))
     )
   }
@@ -358,7 +363,9 @@ get_definition_sp_list <- function(
 
   check_ms_obj(sp_list, "ms_list", call = call)
 
-  if (!is.null(list_id) && !identical(sp_list[["properties"]][["id"]], list_id)) {
+  if (
+    !is.null(list_id) && !identical(sp_list[["properties"]][["id"]], list_id)
+  ) {
     cli_abort(
       c(
         "The list doesn't match the definition {.field id}.",
@@ -559,7 +566,9 @@ column_add_row <- function(col, template = NULL) {
       action = "blocked",
       proposed = type,
       note = paste0(
-        "The name is longer than ", sp_column_name_max, " characters ",
+        "The name is longer than ",
+        sp_column_name_max,
+        " characters ",
         "(counting each space or special character as 7), so SharePoint ",
         "would cut it. Use a shorter name."
       )
@@ -656,8 +665,12 @@ view_change_rows <- function(views, live) {
 
   # The current default view is replaced if another view (including a new
   # view) is set as the default view
-  new_default <- purrr::detect_index(views, \(view) isTRUE(view[["DefaultView"]]))
-  current_default <- purrr::detect_index(live, \(view) isTRUE(view[["DefaultView"]]))
+  new_default <- purrr::detect_index(views, \(view) {
+    isTRUE(view[["DefaultView"]])
+  })
+  current_default <- purrr::detect_index(live, \(view) {
+    isTRUE(view[["DefaultView"]])
+  })
   replaces_default <- new_default > 0 &&
     current_default > 0 &&
     !identical(matches[[new_default]], current_default)
@@ -835,7 +848,15 @@ column_property_diffs <- function(proposed, current) {
   for (prop in names(proposed[[type]])) {
     value <- proposed[[type]][[prop]]
 
-    if (!same_column_value(value, current_props[[prop]], prop, type, current_props)) {
+    if (
+      !same_column_value(
+        value,
+        current_props[[prop]],
+        prop,
+        type,
+        current_props
+      )
+    ) {
       diffs <- c(
         diffs,
         list(list(
@@ -955,40 +976,52 @@ classify_column_change <- function(diff) {
   )
 
   if (diff[["kind"]] == "type") {
-    return(utils::modifyList(change, list(
-      action = "blocked",
-      method = NA_character_,
-      note = "The column type can't be changed."
-    )))
+    return(utils::modifyList(
+      change,
+      list(
+        action = "blocked",
+        method = NA_character_,
+        note = "The column type can't be changed."
+      )
+    ))
   }
 
   if (property == "type") {
-    return(utils::modifyList(change, list(
-      action = "unverified",
-      method = NA_character_,
-      note = "The Graph API doesn't return the current column type."
-    )))
+    return(utils::modifyList(
+      change,
+      list(
+        action = "unverified",
+        method = NA_character_,
+        note = "The Graph API doesn't return the current column type."
+      )
+    ))
   }
 
   if (property == "validation") {
-    return(utils::modifyList(change, list(
-      action = "unverified",
-      method = "rest",
-      note = "The Graph API doesn't return validation, so it is reapplied."
-    )))
+    return(utils::modifyList(
+      change,
+      list(
+        action = "unverified",
+        method = "rest",
+        note = "The Graph API doesn't return validation, so it is reapplied."
+      )
+    ))
   }
 
   if (property == "text.allowMultipleLines") {
     data_loss <- isFALSE(proposed)
-    return(utils::modifyList(change, list(
-      method = "rest",
-      data_loss = data_loss,
-      note = if (data_loss) {
-        "Values longer than 255 characters are truncated."
-      } else {
-        NA_character_
-      }
-    )))
+    return(utils::modifyList(
+      change,
+      list(
+        method = "rest",
+        data_loss = data_loss,
+        note = if (data_loss) {
+          "Values longer than 255 characters are truncated."
+        } else {
+          NA_character_
+        }
+      )
+    ))
   }
 
   if (
@@ -996,23 +1029,29 @@ classify_column_change <- function(diff) {
       xor(identical(current, "checkBoxes"), identical(proposed, "checkBoxes"))
   ) {
     data_loss <- identical(current, "checkBoxes")
-    return(utils::modifyList(change, list(
-      method = "rest",
-      data_loss = data_loss,
-      note = if (data_loss) {
-        "Items with more than one choice may lose values."
-      } else {
-        NA_character_
-      }
-    )))
+    return(utils::modifyList(
+      change,
+      list(
+        method = "rest",
+        data_loss = data_loss,
+        note = if (data_loss) {
+          "Items with more than one choice may lose values."
+        } else {
+          NA_character_
+        }
+      )
+    ))
   }
 
   if (property == "lookup.listId") {
-    return(utils::modifyList(change, list(
-      action = "blocked",
-      method = NA_character_,
-      note = "A lookup column's source list can't be changed."
-    )))
+    return(utils::modifyList(
+      change,
+      list(
+        action = "blocked",
+        method = NA_character_,
+        note = "A lookup column's source list can't be changed."
+      )
+    ))
   }
 
   change
@@ -1102,7 +1141,9 @@ sync_sp_list <- function(
   }
 
   applied <- changes[changes[["status"]] == "applied", ]
-  n_columns <- length(unique(applied[["name"]][applied[["object"]] == "column"]))
+  n_columns <- length(unique(applied[["name"]][
+    applied[["object"]] == "column"
+  ]))
   n_views <- length(unique(applied[["name"]][applied[["object"]] == "view"]))
   n_folders <- sum(applied[["object"]] == "folder")
 
@@ -1167,7 +1208,9 @@ print_changes <- function(changes, list_name, dry_run = TRUE) {
   }
 
   if (dry_run) {
-    cli::cli_text("Dry run: no changes made. Set {.code dry_run = FALSE} to apply.")
+    cli::cli_text(
+      "Dry run: no changes made. Set {.code dry_run = FALSE} to apply."
+    )
   }
 
   invisible(NULL)
@@ -1314,7 +1357,12 @@ apply_folder_changes <- function(changes, sp_list) {
 
 #' Apply planned column changes
 #' @noRd
-apply_column_changes <- function(changes, columns, sp_list, call = caller_env()) {
+apply_column_changes <- function(
+  changes,
+  columns,
+  sp_list,
+  call = caller_env()
+) {
   planned <- changes[["status"]] == "planned" & changes[["object"]] == "column"
 
   # Add columns (calculated columns last since formulas may reference them)
@@ -1326,7 +1374,9 @@ apply_column_changes <- function(changes, columns, sp_list, call = caller_env())
   add_names <- c(add_names[!is_calculated], add_names[is_calculated])
 
   for (name in add_names) {
-    idx <- which(planned & changes[["name"]] == name & changes[["action"]] == "add")
+    idx <- which(
+      planned & changes[["name"]] == name & changes[["action"]] == "add"
+    )
     changes <- try_change(
       changes,
       idx,
@@ -1439,11 +1489,15 @@ apply_view_changes <- function(changes, views, sp_list, call = caller_env()) {
   # for a new view.
   default_idx <- which(
     planned &
-      (changes[["action"]] == "update" & changes[["property"]] %in% "DefaultView" |
-        changes[["action"]] == "add" & changes[["name"]] %in% default_view[["Title"]])
+      (changes[["action"]] == "update" &
+        changes[["property"]] %in% "DefaultView" |
+        changes[["action"]] == "add" &
+          changes[["name"]] %in% default_view[["Title"]])
   )
 
-  if (length(default_idx) > 0 && all(changes[["status"]][default_idx] != "failed")) {
+  if (
+    length(default_idx) > 0 && all(changes[["status"]][default_idx] != "failed")
+  ) {
     # Use the Id of an existing view in case it was renamed (or the Id of the
     # added view)
     view_id <- changes[["id"]][[default_idx[[1]]]]

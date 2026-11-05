@@ -749,7 +749,8 @@ check_sp_transfer_response <- function(
       "Can't {method} {.val {item[['properties']][['name']]}}.",
       "x" = message,
       "i" = if (
-        method %in% c("copy", "move") &&
+        method %in%
+          c("copy", "move") &&
           !overwrite &&
           httr::status_code(resp) == 409
       ) {

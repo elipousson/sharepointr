@@ -591,7 +591,12 @@ sp_dir_list_items_chunk <- function(
 #' Uses the same `$top` and `$select` options as `sp_dir_request_items()`.
 #' @returns A request list with `method` and `url`.
 #' @noRd
-sp_dir_children_request <- function(drive, path, select = NULL, pagesize = 1000) {
+sp_dir_children_request <- function(
+  drive,
+  path,
+  select = NULL,
+  pagesize = 1000
+) {
   query <- paste0("$top=", pagesize)
 
   if (!is.null(select)) {

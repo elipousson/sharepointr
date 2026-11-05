@@ -144,8 +144,17 @@ test_that("batch_download_sp_item() gets the drive once and downloads each item"
       drive_calls <<- drive_calls + 1
       "drive"
     },
-    download_sp_item = function(..., item_id = NULL, path = NULL, item = NULL, dest = NULL) {
-      downloads <<- c(downloads, list(list2(item_id = item_id, path = path, dest = dest, ...)))
+    download_sp_item = function(
+      ...,
+      item_id = NULL,
+      path = NULL,
+      item = NULL,
+      dest = NULL
+    ) {
+      downloads <<- c(
+        downloads,
+        list(list2(item_id = item_id, path = path, dest = dest, ...))
+      )
       dest %||% item[["properties"]][["name"]]
     }
   )
@@ -168,7 +177,10 @@ test_that("batch_download_sp_item() gets the drive once and downloads each item"
   downloads <- list()
 
   batch_download_sp_item(
-    path = c("https://contoso.sharepoint.com/a", "https://contoso.sharepoint.com/b"),
+    path = c(
+      "https://contoso.sharepoint.com/a",
+      "https://contoso.sharepoint.com/b"
+    ),
     new_path = "files"
   )
 

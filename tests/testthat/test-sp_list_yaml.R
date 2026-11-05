@@ -21,7 +21,10 @@ test_that("read_sp_list_yaml reads and validates a list definition", {
   expect_length(definition[["columns"]], 9)
 
   status <- definition[["columns"]][[4]]
-  expect_identical(status[["choice"]][["choices"]], c("Planning", "Active", "Closed"))
+  expect_identical(
+    status[["choice"]][["choices"]],
+    c("Planning", "Active", "Closed")
+  )
   expect_identical(status[["custom"]], list(form_order = 3L))
 
   expect_snapshot(print(definition))
@@ -49,7 +52,11 @@ test_that("read_sp_list_yaml errors for invalid files", {
     read_sp_list_yaml("missing-file.yaml")
     read_sp_list_yaml(local_yaml(c("displayName: Test", "fields: []")))
     read_sp_list_yaml(local_yaml(c("columns: []")))
-    read_sp_list_yaml(local_yaml(c("displayName: Test", "format_version: 2", "columns: []")))
+    read_sp_list_yaml(local_yaml(c(
+      "displayName: Test",
+      "format_version: 2",
+      "columns: []"
+    )))
     read_sp_list_yaml(local_yaml(c(
       "displayName: Test",
       "columns:",
@@ -99,7 +106,10 @@ test_that("read_sp_list_yaml validates the list name and settings", {
     definition[["list"]],
     list(template = "documentLibrary", hidden = TRUE)
   )
-  expect_identical(definition[["custom"]], list(list_url = "https://example.com"))
+  expect_identical(
+    definition[["custom"]],
+    list(list_url = "https://example.com")
+  )
 })
 
 test_that("read_sp_list_yaml allows read-only list properties and column ids", {
@@ -206,7 +216,10 @@ test_that("write_sp_list_yaml keeps single-element sequences in view formatting"
     '{"additionalRowClass":{"operator":"?","operands":["@me"]},',
     '"rowFormatter":{"elmType":"div","children":[{"elmType":"span"}]}}'
   )
-  view <- as_definition_view(list(Title = "Formatted", CustomFormatter = formatter))
+  view <- as_definition_view(list(
+    Title = "Formatted",
+    CustomFormatter = formatter
+  ))
   definition <- as_sp_list_definition(
     list(
       displayName = "Test",
@@ -220,15 +233,28 @@ test_that("write_sp_list_yaml keeps single-element sequences in view formatting"
   read <- read_sp_list_yaml(out)
   read_formatter <- read[["views"]][[1]][["CustomFormatter"]]
 
-  expect_identical(read_formatter[["additionalRowClass"]][["operands"]], list("@me"))
-  expect_true(same_view_value(as_view_json(read_formatter), formatter, "CustomFormatter"))
+  expect_identical(
+    read_formatter[["additionalRowClass"]][["operands"]],
+    list("@me")
+  )
+  expect_true(same_view_value(
+    as_view_json(read_formatter),
+    formatter,
+    "CustomFormatter"
+  ))
 
   # Other single-element sequences are still read as vectors
   expect_identical(read[["columns"]][[1]][["choice"]][["choices"]], "Active")
 })
 
 test_that("read_sp_list_yaml errors and warns for invalid views", {
-  base <- c("displayName: Test", "columns:", "  - name: Status", "    text: {}", "views:")
+  base <- c(
+    "displayName: Test",
+    "columns:",
+    "  - name: Status",
+    "    text: {}",
+    "views:"
+  )
 
   expect_snapshot(error = TRUE, {
     read_sp_list_yaml(local_yaml(c(base, "  - Title: A", "  - Title: A")))
@@ -548,7 +574,10 @@ test_that("sp_list_definition_table converts a definition to a data frame", {
 
   expect_identical(as.data.frame(definition), table)
 
-  expect_false("form_order" %in% names(sp_list_definition_table(definition, custom = FALSE)))
+  expect_false(
+    "form_order" %in%
+      names(sp_list_definition_table(definition, custom = FALSE))
+  )
   expect_true(
     "custom_form_order" %in%
       names(sp_list_definition_table(definition, custom_prefix = "custom_"))
@@ -620,7 +649,11 @@ test_that("write_sp_list_yaml warns for list arguments with a definition", {
   out <- withr::local_tempfile(fileext = ".yaml")
 
   expect_snapshot(
-    write_sp_list_yaml(read_sp_list_yaml(example_path()), out, include_views = TRUE),
+    write_sp_list_yaml(
+      read_sp_list_yaml(example_path()),
+      out,
+      include_views = TRUE
+    ),
     transform = \(x) sub("(Wrote .* to ).*$", "\\1<path>.", x)
   )
 })
@@ -637,15 +670,25 @@ test_that("as_sp_list_definition stores empty views as NULL", {
 test_that("write_sp_list_yaml returns a definition in the same order as the file", {
   definition <- as_sp_list_definition(list(
     displayName = "Test",
-    columns = list(list(text = list(), displayName = "Status", name = "Status")),
+    columns = list(list(
+      text = list(),
+      displayName = "Status",
+      name = "Status"
+    )),
     views = list(list(RowLimit = 10L, ViewFields = "Status", Title = "A"))
   ))
 
   out <- withr::local_tempfile(fileext = ".yaml")
   written <- suppressMessages(write_sp_list_yaml(definition, out))
 
-  expect_identical(names(written[["columns"]][[1]]), c("name", "displayName", "text"))
-  expect_identical(names(written[["views"]][[1]]), c("Title", "ViewFields", "RowLimit"))
+  expect_identical(
+    names(written[["columns"]][[1]]),
+    c("name", "displayName", "text")
+  )
+  expect_identical(
+    names(written[["views"]][[1]]),
+    c("Title", "ViewFields", "RowLimit")
+  )
   expect_identical(read_sp_list_yaml(out), written)
 })
 
@@ -735,7 +778,10 @@ test_that("views in a document library can show library fields", {
       list = list(template = "documentLibrary"),
       columns = list(),
       views = list(
-        list(Title = "All Documents", ViewFields = c("DocIcon", "LinkFilename", "Modified"))
+        list(
+          Title = "All Documents",
+          ViewFields = c("DocIcon", "LinkFilename", "Modified")
+        )
       )
     ))
   )

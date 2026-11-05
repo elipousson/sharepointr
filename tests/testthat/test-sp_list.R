@@ -448,7 +448,10 @@ test_that("update_sp_list_lookup_items matches items to lookup list items", {
   expect_identical(
     update_sp_list_lookup_items(
       sp_list = sp_list,
-      data = data.frame(id = c("1", "2", "3", "4"), Project = c("B", "A", "C", NA)),
+      data = data.frame(
+        id = c("1", "2", "3", "4"),
+        Project = c("B", "A", "C", NA)
+      ),
       column_name = "Project",
       lookup_list_data = lookup_list_data
     ),
@@ -537,7 +540,10 @@ test_that("update_sp_list_lookup_items supports a different lookup join column a
   # Minimal stand-in for a Microsoft365R::ms_list
   sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
 
-  data <- data.frame(id = c("1", "2"), Owner = c("A@Example.com", "c@example.com"))
+  data <- data.frame(
+    id = c("1", "2"),
+    Owner = c("A@Example.com", "c@example.com")
+  )
   lookup_list_data <- data.frame(
     id = c("10", "20"),
     EMail = c("a@example.com", "b@example.com")
@@ -581,7 +587,10 @@ test_that("update_sp_list_lookup_items supports a different lookup join column a
       sp_list = sp_list,
       data = data.frame(id = "1", Owner = "a@x.com"),
       column_name = "Owner",
-      lookup_list_data = data.frame(id = c("10", "20"), EMail = c("a@x.com", "A@x.com")),
+      lookup_list_data = data.frame(
+        id = c("10", "20"),
+        EMail = c("a@x.com", "A@x.com")
+      ),
       lookup_join_column = "EMail",
       ignore_case = TRUE
     ),
@@ -716,7 +725,10 @@ test_that("get_sp_lookup_list gets lookup lists from the same site", {
 
   # ms_list objects are returned as is
   lookup_list <- new_ms_list("Projects", "site-1")
-  expect_identical(get_sp_lookup_list(lookup_list, sp_list = sp_list), lookup_list)
+  expect_identical(
+    get_sp_lookup_list(lookup_list, sp_list = sp_list),
+    lookup_list
+  )
 
   # List names are retrieved from the same site as sp_list
   expect_identical(
@@ -736,13 +748,19 @@ test_that("get_sp_lookup_list gets lookup lists from the same site", {
     "must be a list in the same site"
   )
 
-  expect_error(get_sp_lookup_list(NULL, sp_list = sp_list), "must be a single string")
+  expect_error(
+    get_sp_lookup_list(NULL, sp_list = sp_list),
+    "must be a single string"
+  )
 })
 
 test_that("create_sp_list_lookup_column and create_sp_list_person_column create column definitions", {
   new_ms_list <- function(id, site_id) {
     sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
-    sp_list$properties <- list(id = id, parentReference = list(siteId = site_id))
+    sp_list$properties <- list(
+      id = id,
+      parentReference = list(siteId = site_id)
+    )
     sp_list
   }
 
@@ -808,7 +826,12 @@ test_that("get_sp_list_column() and update_sp_list_column() use list metadata fo
 
   ops <- list()
   sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
-  sp_list$do_operation <- function(op = "", body = NULL, encode = NULL, http_verb = "GET") {
+  sp_list$do_operation <- function(
+    op = "",
+    body = NULL,
+    encode = NULL,
+    http_verb = "GET"
+  ) {
     ops <<- c(ops, list(list(op = op, http_verb = http_verb, body = body)))
   }
 
@@ -829,13 +852,21 @@ test_that("get_sp_list_column() and update_sp_list_column() use list metadata fo
   update_sp_list_column(
     sp_list = sp_list,
     column_name = "Status",
-    column_definition = list(name = "Status", description = "New", text = list())
+    column_definition = list(
+      name = "Status",
+      description = "New",
+      text = list()
+    )
   )
 
   # Only the PATCH request is sent (no separate request for the column)
   expect_identical(
     ops,
-    list(list(op = "columns/col-2", http_verb = "PATCH", body = list(description = "New")))
+    list(list(
+      op = "columns/col-2",
+      http_verb = "PATCH",
+      body = list(description = "New")
+    ))
   )
 
   expect_error(
@@ -893,7 +924,11 @@ test_that("get_sp_list(metadata = TRUE) is soft deprecated", {
   withr::local_options(lifecycle_verbosity = "warning")
 
   expect_warning(
-    res <- get_sp_list(list_id = "list-id", metadata = TRUE, as_data_frame = TRUE),
+    res <- get_sp_list(
+      list_id = "list-id",
+      metadata = TRUE,
+      as_data_frame = TRUE
+    ),
     class = "lifecycle_warning_deprecated"
   )
   expect_identical(res, col_info)

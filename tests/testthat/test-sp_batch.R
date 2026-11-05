@@ -20,7 +20,10 @@ local_mock_batch_endpoint <- function(respond, env = parent.frame()) {
           body <- list(url = request[["url"]])
 
           if (nzchar(message)) {
-            body[["error"]] <- list(code = "generalException", message = message)
+            body[["error"]] <- list(
+              code = "generalException",
+              message = message
+            )
           }
 
           list(
@@ -43,13 +46,19 @@ local_mock_batch_endpoint <- function(respond, env = parent.frame()) {
 }
 
 new_requests <- function(n) {
-  purrr::map(seq_len(n), \(i) list(method = "DELETE", url = paste0("/items/", i)))
+  purrr::map(seq_len(n), \(i) {
+    list(method = "DELETE", url = paste0("/items/", i))
+  })
 }
 
 test_that("sp_graph_batch_requests() sends up to 20 requests per $batch request in order", {
   calls <- local_mock_batch_endpoint(\(requests, n) rep(204L, length(requests)))
 
-  responses <- sp_graph_batch_requests(NULL, new_requests(45), .progress = FALSE)
+  responses <- sp_graph_batch_requests(
+    NULL,
+    new_requests(45),
+    .progress = FALSE
+  )
 
   expect_identical(lengths(calls$batches), c(20L, 20L, 5L))
   # Request ids within each $batch request start at 1
@@ -62,7 +71,10 @@ test_that("sp_graph_batch_requests() sends up to 20 requests per $batch request 
     paste0("/items/", 1:45)
   )
 
-  expect_identical(sp_graph_batch_requests(NULL, list(), .progress = FALSE), list())
+  expect_identical(
+    sp_graph_batch_requests(NULL, list(), .progress = FALSE),
+    list()
+  )
 })
 
 test_that("sp_graph_batch_requests() retries throttled requests", {
@@ -72,7 +84,11 @@ test_that("sp_graph_batch_requests() retries throttled requests", {
   })
 
   expect_message(
-    responses <- sp_graph_batch_requests(NULL, new_requests(4), .progress = FALSE),
+    responses <- sp_graph_batch_requests(
+      NULL,
+      new_requests(4),
+      .progress = FALSE
+    ),
     "2 requests were throttled or temporarily unavailable"
   )
 
@@ -91,7 +107,12 @@ test_that("sp_graph_batch_requests() retries throttled requests", {
   calls <- local_mock_batch_endpoint(\(requests, n) rep(429L, length(requests)))
 
   responses <- suppressMessages(
-    sp_graph_batch_requests(NULL, new_requests(2), max_retries = 1, .progress = FALSE)
+    sp_graph_batch_requests(
+      NULL,
+      new_requests(2),
+      max_retries = 1,
+      .progress = FALSE
+    )
   )
   expect_length(calls$batches, 2)
   expect_identical(purrr::map_int(responses, "status"), c(429L, 429L))
@@ -134,8 +155,14 @@ test_that("sp_batch_is_retryable() checks the status and error message", {
   expect_true(sp_batch_is_retryable(error_response(429L)))
   expect_true(sp_batch_is_retryable(error_response(503L)))
   expect_true(sp_batch_is_retryable(error_response(504L)))
-  expect_true(sp_batch_is_retryable(error_response(500L, "Database Is Read Only")))
-  expect_true(sp_batch_is_retryable(error_response(423L, "database is read-only")))
+  expect_true(sp_batch_is_retryable(error_response(
+    500L,
+    "Database Is Read Only"
+  )))
+  expect_true(sp_batch_is_retryable(error_response(
+    423L,
+    "database is read-only"
+  )))
 
   expect_false(sp_batch_is_retryable(error_response(204L)))
   expect_false(sp_batch_is_retryable(error_response(500L, "Internal error")))
@@ -154,10 +181,19 @@ test_that("sp_batch_retry_after() uses the Retry-After header or a backoff", {
     )),
     5
   )
-  expect_identical(sp_batch_retry_after(list(list(headers = NULL)), attempt = 0), 2)
-  expect_identical(sp_batch_retry_after(list(list(headers = NULL)), attempt = 2), 8)
+  expect_identical(
+    sp_batch_retry_after(list(list(headers = NULL)), attempt = 0),
+    2
+  )
+  expect_identical(
+    sp_batch_retry_after(list(list(headers = NULL)), attempt = 2),
+    8
+  )
   # The backoff is capped
-  expect_identical(sp_batch_retry_after(list(list(headers = NULL)), attempt = 10), 60)
+  expect_identical(
+    sp_batch_retry_after(list(list(headers = NULL)), attempt = 10),
+    60
+  )
 })
 
 test_that("check_sp_batch_responses() lists failed requests", {
@@ -179,7 +215,11 @@ test_that("check_sp_batch_responses() lists failed requests", {
   )
 
   expect_identical(
-    check_sp_batch_responses(responses[c(1, 3)], labels = c("A", "C"), action = "be created"),
+    check_sp_batch_responses(
+      responses[c(1, 3)],
+      labels = c("A", "C"),
+      action = "be created"
+    ),
     responses[c(1, 3)]
   )
 
@@ -193,7 +233,11 @@ test_that("check_sp_batch_responses() lists failed requests", {
   )
   expect_match(conditionMessage(cnd), "2 other list items were completed")
   # Failed requests include the HTTP status and Graph error code
-  expect_match(conditionMessage(cnd), "Record 2: Error 400 (HTTP 400)", fixed = TRUE)
+  expect_match(
+    conditionMessage(cnd),
+    "Record 2: Error 400 (HTTP 400)",
+    fixed = TRUE
+  )
   expect_match(
     conditionMessage(cnd),
     "Record 4: Error 404 (HTTP 404 itemNotFound)",

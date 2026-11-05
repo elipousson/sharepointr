@@ -147,14 +147,22 @@ validate_view_definition <- function(
       },
       json = if (formatter_as_list && is.list(value)) {
         if (!is_named2(value)) {
-          cli_abort("{.arg {arg}} must be a named list or a JSON string.", call = call)
+          cli_abort(
+            "{.arg {arg}} must be a named list or a JSON string.",
+            call = call
+          )
         }
         value
       } else {
         as_view_json(value, arg = arg, call = call)
       },
       # SharePoint returns whole numbers as integers
-      whole = as.integer(check_sp_prop(value, rule = rule, arg = arg, call = call)),
+      whole = as.integer(check_sp_prop(
+        value,
+        rule = rule,
+        arg = arg,
+        call = call
+      )),
       check_sp_prop(value, rule = rule, arg = arg, call = call)
     )
   }
@@ -241,11 +249,16 @@ normalize_view_query <- function(x) {
 #' @noRd
 same_view_value <- function(proposed, current, prop) {
   if (prop == "ViewQuery") {
-    return(identical(normalize_view_query(proposed), normalize_view_query(current)))
+    return(identical(
+      normalize_view_query(proposed),
+      normalize_view_query(current)
+    ))
   }
 
   if (prop == "CustomFormatter") {
-    parse <- \(x) if (nzchar(x %||% "")) jsonlite::fromJSON(x, simplifyVector = FALSE)
+    parse <- \(x) {
+      if (nzchar(x %||% "")) jsonlite::fromJSON(x, simplifyVector = FALSE)
+    }
     return(identical(parse(proposed), parse(current)))
   }
 
@@ -582,7 +595,9 @@ create_sp_list_view <- function(
 #' @noRd
 add_sp_list_view <- function(sp_list, view, call = caller_env()) {
   if (is.null(view[["ViewFields"]])) {
-    view[["ViewFields"]] <- get_sp_list_view(sp_list, call = call)[["ViewFields"]]
+    view[["ViewFields"]] <- get_sp_list_view(sp_list, call = call)[[
+      "ViewFields"
+    ]]
   }
 
   # SP.ViewCreationInformation properties
@@ -608,7 +623,10 @@ add_sp_list_view <- function(sp_list, view, call = caller_env()) {
   )
 
   # Properties that can't be set when a view is created
-  other <- view[intersect(names(view), c("Hidden", "Scope", "MobileView", "MobileDefaultView"))]
+  other <- view[intersect(
+    names(view),
+    c("Hidden", "Scope", "MobileView", "MobileDefaultView")
+  )]
 
   if (length(other) > 0) {
     sp_list_rest_request(
@@ -648,7 +666,11 @@ update_sp_list_view <- function(
 ) {
   proposed <- view_args_as_definition(view_definition, call = call)
 
-  proposed <- validate_view_definition(proposed, require_title = FALSE, call = call)
+  proposed <- validate_view_definition(
+    proposed,
+    require_title = FALSE,
+    call = call
+  )
 
   sp_list <- get_view_sp_list(
     sp_list,
@@ -722,7 +744,12 @@ set_sp_list_view_props <- function(
   }
 
   if (has_name(props, "ViewFields")) {
-    set_sp_list_view_fields(sp_list, view_id, props[["ViewFields"]], call = call)
+    set_sp_list_view_fields(
+      sp_list,
+      view_id,
+      props[["ViewFields"]],
+      call = call
+    )
   }
 
   invisible(sp_list)

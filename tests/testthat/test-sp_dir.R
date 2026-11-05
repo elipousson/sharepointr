@@ -62,7 +62,12 @@ test_that("sp_drive_item_path() gets an item path relative to the drive root", {
 # Mock the Graph children response (the `folder` column is a data frame with
 # a `childCount` value for folders)
 raw_items <- function(name, isdir = FALSE, size = 1, ...) {
-  items <- data.frame(name = name, size = size, id = as.character(seq_along(name)), ...)
+  items <- data.frame(
+    name = name,
+    size = size,
+    id = as.character(seq_along(name)),
+    ...
+  )
   items[["folder"]] <- data.frame(
     childCount = ifelse(rep_len(isdir, length(name)), 1L, NA_integer_)
   )
@@ -158,22 +163,47 @@ test_that("sp_dir_info(recurse = TRUE) lists all directories and sorts by name",
   )
 
   # Unmatched directories are still searched
-  items <- sp_dir_info(drive = drive, recurse = TRUE, .batch = FALSE, regexp = "\\.txt$")
+  items <- sp_dir_info(
+    drive = drive,
+    recurse = TRUE,
+    .batch = FALSE,
+    regexp = "\\.txt$"
+  )
   expect_identical(items[["name"]], "B/C/c.txt")
 
-  items <- sp_dir_info(drive = drive, recurse = TRUE, .batch = FALSE, type = "directory")
+  items <- sp_dir_info(
+    drive = drive,
+    recurse = TRUE,
+    .batch = FALSE,
+    type = "directory"
+  )
   expect_identical(items[["name"]], c("A", "B", "B/C"))
 
-  items <- sp_dir_info(drive = drive, recurse = TRUE, .batch = FALSE, type = "file")
+  items <- sp_dir_info(
+    drive = drive,
+    recurse = TRUE,
+    .batch = FALSE,
+    type = "file"
+  )
   expect_identical(
     items[["name"]],
     c("A/a.csv", "B/C/c.txt", "B/b.csv", "z.csv")
   )
 
-  items <- sp_dir_info(drive = drive, recurse = TRUE, .batch = FALSE, sort = "name-desc")
+  items <- sp_dir_info(
+    drive = drive,
+    recurse = TRUE,
+    .batch = FALSE,
+    sort = "name-desc"
+  )
   expect_identical(items[["name"]][1], "z.csv")
 
-  items <- sp_dir_info(drive = drive, recurse = TRUE, .batch = FALSE, sort = "none")
+  items <- sp_dir_info(
+    drive = drive,
+    recurse = TRUE,
+    .batch = FALSE,
+    sort = "none"
+  )
   expect_identical(items[["name"]][1:3], c("B", "A", "z.csv"))
 })
 
@@ -196,12 +226,21 @@ test_that("sp_dir_info() requests the properties needed to sort", {
   drive <- mock_drive()
 
   items <- sp_dir_info(drive = drive, sort = "modified-desc")
-  expect_identical(select_args[[1]], c("name", "size", "folder", "id", "lastModifiedDateTime"))
+  expect_identical(
+    select_args[[1]],
+    c("name", "size", "folder", "id", "lastModifiedDateTime")
+  )
   expect_identical(items[["name"]], c("b.csv", "a.csv", "c.csv"))
-  expect_named(items, c("name", "size", "isdir", "id", "lastModifiedDateTime", "type"))
+  expect_named(
+    items,
+    c("name", "size", "isdir", "id", "lastModifiedDateTime", "type")
+  )
 
   items <- sp_dir_info(drive = drive, sort = "size-asc", select = "webUrl")
-  expect_identical(select_args[[2]], c("name", "size", "folder", "id", "webUrl"))
+  expect_identical(
+    select_args[[2]],
+    c("name", "size", "folder", "id", "webUrl")
+  )
   expect_identical(items[["name"]], c("b.csv", "c.csv", "a.csv"))
 
   sp_dir_info(drive = drive, info = "all")
@@ -260,7 +299,10 @@ test_that("sp_dir_info(recurse = TRUE) lists directories with $batch requests", 
   # The two subfolders are requested in one $batch request
   expect_length(requests, 1)
   expect_length(requests[[1]], 2)
-  expect_match(requests[[1]][[1]]$url, "^/drives/.*root:/B:/children\\?\\$top=1000&\\$select=name,size,folder,id")
+  expect_match(
+    requests[[1]][[1]]$url,
+    "^/drives/.*root:/B:/children\\?\\$top=1000&\\$select=name,size,folder,id"
+  )
 })
 
 test_that("sp_dir_batch_items() errors for a failed request", {
@@ -281,7 +323,9 @@ test_that("sp_dir_info(recurse = TRUE) requests a whole level at once with daemo
     sp_dir_request_items = function(...) raw_items(tree_names, isdir = TRUE),
     sp_graph_batch_requests = function(token, requests, ...) {
       batch_sizes <<- c(batch_sizes, length(requests))
-      purrr::map(requests, \(x) list(status = 200L, body = list(value = list())))
+      purrr::map(requests, \(x) {
+        list(status = 200L, body = list(value = list()))
+      })
     }
   )
 
@@ -319,7 +363,12 @@ test_that("sp_dir_ls(recurse = TRUE) lists names in all directories", {
   )
 
   expect_identical(
-    sp_dir_ls(drive = drive, recurse = TRUE, .batch = FALSE, regexp = "\\.txt$"),
+    sp_dir_ls(
+      drive = drive,
+      recurse = TRUE,
+      .batch = FALSE,
+      regexp = "\\.txt$"
+    ),
     "B/C/c.txt"
   )
 
@@ -383,17 +432,36 @@ test_that("sp_dir_info() sorts the combined result for a vector of paths", {
 
   # Order is unchanged unless `sort` is supplied
   items <- sp_dir_info(path = c("B", "A"), drive = drive)
-  expect_identical(items[["name"]], c("B/b2.csv", "B/b1.csv", "A/a2.csv", "A/a1.csv"))
+  expect_identical(
+    items[["name"]],
+    c("B/b2.csv", "B/b1.csv", "A/a2.csv", "A/a1.csv")
+  )
 
   items <- sp_dir_info(path = c("B", "A"), drive = drive, sort = "name-asc")
-  expect_identical(items[["name"]], c("A/a1.csv", "A/a2.csv", "B/b1.csv", "B/b2.csv"))
+  expect_identical(
+    items[["name"]],
+    c("A/a1.csv", "A/a2.csv", "B/b1.csv", "B/b2.csv")
+  )
 
   # Recursive results are sorted by default
-  items <- sp_dir_info(path = c("B", "A"), drive = drive, recurse = TRUE, .batch = FALSE)
-  expect_identical(items[["name"]], c("A/a1.csv", "A/a2.csv", "B/b1.csv", "B/b2.csv"))
+  items <- sp_dir_info(
+    path = c("B", "A"),
+    drive = drive,
+    recurse = TRUE,
+    .batch = FALSE
+  )
+  expect_identical(
+    items[["name"]],
+    c("A/a1.csv", "A/a2.csv", "B/b1.csv", "B/b2.csv")
+  )
 
   expect_identical(
-    sp_dir_ls(path = c("B", "A"), drive = drive, recurse = TRUE, .batch = FALSE),
+    sp_dir_ls(
+      path = c("B", "A"),
+      drive = drive,
+      recurse = TRUE,
+      .batch = FALSE
+    ),
     c("A/a1.csv", "A/a2.csv", "B/b1.csv", "B/b2.csv")
   )
 })

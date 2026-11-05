@@ -363,7 +363,10 @@ as_sp_list_definition <- function(
   if (!is.null(folders)) {
     folders <- check_sp_drive_folders(folders, arg = "folders", call = call)
 
-    if (length(folders) > 0 && !identical(list_info[["template"]], "documentLibrary")) {
+    if (
+      length(folders) > 0 &&
+        !identical(list_info[["template"]], "documentLibrary")
+    ) {
       cli_abort(
         c(
           "{.field folders} are only allowed for a document library.",
@@ -380,7 +383,10 @@ as_sp_list_definition <- function(
   custom <- x[["custom"]]
 
   if (!is.null(custom) && (!is.list(custom) || !is_named2(custom))) {
-    cli_abort("{.field custom} must be a named list (a YAML mapping).", call = call)
+    cli_abort(
+      "{.field custom} must be a named list (a YAML mapping).",
+      call = call
+    )
   }
 
   columns <- x[["columns"]]
@@ -514,7 +520,9 @@ check_sp_list_definition_views <- function(
     )
   }
 
-  defaults <- titles[purrr::map_lgl(views, \(view) isTRUE(view[["DefaultView"]]))]
+  defaults <- titles[purrr::map_lgl(views, \(view) {
+    isTRUE(view[["DefaultView"]])
+  })]
 
   if (length(defaults) > 1) {
     cli_abort(
@@ -653,7 +661,10 @@ check_sp_list_info <- function(x, call = caller_env()) {
   }
 
   if (!is.list(x) || !is_named2(x)) {
-    cli_abort("{.field list} must be a named list (a YAML mapping).", call = call)
+    cli_abort(
+      "{.field list} must be a named list (a YAML mapping).",
+      call = call
+    )
   }
 
   unknown <- setdiff(names(x), names(sp_list_info_props))
@@ -691,7 +702,10 @@ new_sp_list_definition <- function(
   folders = NULL,
   format_version = 1L
 ) {
-  read_only <- read_only[intersect(names(sp_list_read_only_props), names(read_only))]
+  read_only <- read_only[intersect(
+    names(sp_list_read_only_props),
+    names(read_only)
+  )]
 
   # A definition without views has `NULL` views (not an empty list) so views
   # are only compared, synced, or kept from an existing file if there are any
@@ -938,7 +952,9 @@ get_sp_list_definition_views <- function(
 
   purrr::map(
     views,
-    \(view) as_definition_view(view, keep_id = keep_id, keep_defaults = keep_defaults)
+    \(view) {
+      as_definition_view(view, keep_id = keep_id, keep_defaults = keep_defaults)
+    }
   )
 }
 
@@ -983,7 +999,9 @@ as_live_columns <- function(
   meta <- purrr::keep(meta, \(col) !col[["name"]] %in% exclude)
   purrr::map(
     meta,
-    \(col) clean_live_column(col, keep_defaults = keep_defaults, keep_id = keep_id)
+    \(col) {
+      clean_live_column(col, keep_defaults = keep_defaults, keep_id = keep_id)
+    }
   )
 }
 
@@ -1205,7 +1223,11 @@ write_sp_list_yaml <- function(
   writeLines(
     c(
       header,
-      if (doc_start) "---" else if (length(header) > 0) "",
+      if (doc_start) {
+        "---"
+      } else if (length(header) > 0) {
+        ""
+      },
       yaml
     ),
     path
@@ -1239,7 +1261,8 @@ merge_sp_list_definition <- function(x, existing, call = caller_env()) {
     purrr::map_lgl(
       old_cols,
       \(col) {
-        column_type_key(col) %in% sp_column_types_create_unsupported ||
+        column_type_key(col) %in%
+          sp_column_types_create_unsupported ||
           identical(col[["name"]], "Title")
       }
     )
@@ -1454,7 +1477,10 @@ as_definition_view <- function(view, keep_id = FALSE, keep_defaults = FALSE) {
   formatter <- view[["CustomFormatter"]]
 
   if (is_string(formatter) && nzchar(formatter)) {
-    view[["CustomFormatter"]] <- jsonlite::fromJSON(formatter, simplifyVector = FALSE)
+    view[["CustomFormatter"]] <- jsonlite::fromJSON(
+      formatter,
+      simplifyVector = FALSE
+    )
   }
 
   if (!keep_defaults) {

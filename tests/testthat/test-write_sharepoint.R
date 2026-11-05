@@ -344,7 +344,10 @@ test_that("upload_sp_items() checks src and uploads each file", {
   fs::file_create(local_files)
 
   expect_error(
-    upload_sp_items(file = c(local_files, fs::path(local_dir, "c.txt")), dest = "folder"),
+    upload_sp_items(
+      file = c(local_files, fs::path(local_dir, "c.txt")),
+      dest = "folder"
+    ),
     "c.txt"
   )
   expect_length(uploads, 0)

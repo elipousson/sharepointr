@@ -65,7 +65,10 @@ local_mock_views <- function(views, env = parent.frame()) {
         return(list(Id = "new-view"))
       }
 
-      id <- regmatches(path, regexpr("(?<=views\\(guid')[^']+", path, perl = TRUE))
+      id <- regmatches(
+        path,
+        regexpr("(?<=views\\(guid')[^']+", path, perl = TRUE)
+      )
       if (length(id) == 1) {
         if (id == "new-view") {
           return(rest_view("new-view", body$parameters$Title %||% "New"))
@@ -73,7 +76,10 @@ local_mock_views <- function(views, env = parent.frame()) {
         return(purrr::detect(views, \(v) v$Id == id))
       }
 
-      title <- regmatches(path, regexpr("(?<=getbytitle\\(')[^']+", path, perl = TRUE))
+      title <- regmatches(
+        path,
+        regexpr("(?<=getbytitle\\(')[^']+", path, perl = TRUE)
+      )
       if (length(title) == 1) {
         title <- utils::URLdecode(title)
         return(purrr::detect(views, \(v) v$Title == title))
@@ -98,14 +104,20 @@ test_that("list_sp_list_views returns a data frame of views", {
 
   expect_s3_class(views, "data.frame")
   expect_identical(views[["Title"]], c("All Items", "Working View"))
-  expect_identical(views[["ViewFields"]], list(c("LinkTitle", "Amount"), "LinkTitle"))
+  expect_identical(
+    views[["ViewFields"]],
+    list(c("LinkTitle", "Amount"), "LinkTitle")
+  )
   expect_identical(views[["DefaultView"]], c(TRUE, FALSE))
   expect_type(views[["RowLimit"]], "integer")
   expect_false("HtmlSchemaXml" %in% names(views))
   # An empty custom formatter is NA, not a missing column
   expect_identical(views[["CustomFormatter"]], c(NA_character_, NA_character_))
 
-  expect_identical(nrow(list_sp_list_views(new_fake_ms_list(), hidden = TRUE)), 3L)
+  expect_identical(
+    nrow(list_sp_list_views(new_fake_ms_list(), hidden = TRUE)),
+    3L
+  )
 
   view_list <- list_sp_list_views(new_fake_ms_list(), as_data_frame = FALSE)
   expect_identical(view_list[[2]][["ViewFields"]], "LinkTitle")
@@ -194,7 +206,12 @@ test_that("create_sp_list_view sends SP.ViewCreationInformation properties", {
 
 test_that("create_sp_list_view uses the default view fields if view_fields is NULL", {
   mock <- local_mock_views(list(
-    rest_view("v1", "All Items", default = TRUE, fields = c("LinkTitle", "Status"))
+    rest_view(
+      "v1",
+      "All Items",
+      default = TRUE,
+      fields = c("LinkTitle", "Status")
+    )
   ))
 
   suppressMessages(create_sp_list_view(new_fake_ms_list(), title = "Copy"))
@@ -252,8 +269,16 @@ test_that("update_sp_list_view and delete_sp_list_view protect the default view"
   ))
 
   expect_snapshot(error = TRUE, {
-    update_sp_list_view(new_fake_ms_list(), view_title = "All Items", default_view = FALSE)
-    delete_sp_list_view(new_fake_ms_list(), view_title = "All Items", confirm = FALSE)
+    update_sp_list_view(
+      new_fake_ms_list(),
+      view_title = "All Items",
+      default_view = FALSE
+    )
+    delete_sp_list_view(
+      new_fake_ms_list(),
+      view_title = "All Items",
+      confirm = FALSE
+    )
     delete_sp_list_view(new_fake_ms_list())
   })
 })
@@ -265,7 +290,11 @@ test_that("delete_sp_list_view deletes a view", {
   ))
 
   suppressMessages(
-    delete_sp_list_view(new_fake_ms_list(), view_title = "Working View", confirm = FALSE)
+    delete_sp_list_view(
+      new_fake_ms_list(),
+      view_title = "Working View",
+      confirm = FALSE
+    )
   )
 
   delete <- purrr::detect(mock$requests, \(r) r$method == "DELETE")
@@ -274,7 +303,11 @@ test_that("delete_sp_list_view deletes a view", {
 
 test_that("validate_view_definition validates view properties", {
   expect_identical(
-    validate_view_definition(list(Title = "A", RowLimit = 10, ViewFields = list("X", "Y"))),
+    validate_view_definition(list(
+      Title = "A",
+      RowLimit = 10,
+      ViewFields = list("X", "Y")
+    )),
     list(Title = "A", RowLimit = 10L, ViewFields = c("X", "Y"))
   )
 
@@ -288,8 +321,12 @@ test_that("validate_view_definition validates view properties", {
 
 test_that("normalize_view_query matches queries saved by SharePoint", {
   expect_identical(
-    normalize_view_query("<Where>\n  <Eq><FieldRef Name=\"A\"/><Value Type=\"Text\">x</Value></Eq>\n</Where>"),
-    normalize_view_query("<Where><Eq><FieldRef Name=\"A\" /><Value Type=\"Text\">x</Value></Eq></Where>")
+    normalize_view_query(
+      "<Where>\n  <Eq><FieldRef Name=\"A\"/><Value Type=\"Text\">x</Value></Eq>\n</Where>"
+    ),
+    normalize_view_query(
+      "<Where><Eq><FieldRef Name=\"A\" /><Value Type=\"Text\">x</Value></Eq></Where>"
+    )
   )
 
   expect_true(same_view_value("{\"a\": 1}", "{\"a\":1}", "CustomFormatter"))
@@ -299,7 +336,13 @@ test_that("create_sp_list_definition_views creates views and sets the default vi
   calls <- list()
 
   local_mocked_bindings(
-    update_sp_list_view = function(sp_list, view_title = NULL, ..., view_definition = NULL, call = NULL) {
+    update_sp_list_view = function(
+      sp_list,
+      view_title = NULL,
+      ...,
+      view_definition = NULL,
+      call = NULL
+    ) {
       calls[[length(calls) + 1]] <<- list(
         fn = "update",
         view_title = view_title,
@@ -312,7 +355,11 @@ test_that("create_sp_list_definition_views creates views and sets the default vi
       "new-view-id"
     },
     set_sp_list_view_props = function(sp_list, view_id, props, call = NULL) {
-      calls[[length(calls) + 1]] <<- list(fn = "update", view_id = view_id, props = props)
+      calls[[length(calls) + 1]] <<- list(
+        fn = "update",
+        view_id = view_id,
+        props = props
+      )
     },
     get_sp_list_view = function(...) stop("Views shouldn't be requested again.")
   )
@@ -328,7 +375,10 @@ test_that("create_sp_list_definition_views creates views and sets the default vi
   expect_identical(purrr::map_chr(calls, "fn"), c("create", "update", "update"))
 
   # Read-only properties and DefaultView aren't sent when creating views
-  expect_identical(calls[[1]][["view_definition"]], list(Title = "Active", RowLimit = 50L))
+  expect_identical(
+    calls[[1]][["view_definition"]],
+    list(Title = "Active", RowLimit = 50L)
+  )
   expect_identical(calls[[2]][["view_title"]], "All Items")
 
   # The default view is set after all views are created (using the Id of the
@@ -407,7 +457,11 @@ test_that("list view functions work with a live list", {
   expect_identical(get_sp_list_view(sp_list)[["Title"]], "Active")
 
   # All Items is no longer the default view, so it can be deleted
-  suppressMessages(delete_sp_list_view(sp_list, view_title = "All Items", confirm = FALSE))
+  suppressMessages(delete_sp_list_view(
+    sp_list,
+    view_title = "All Items",
+    confirm = FALSE
+  ))
   expect_identical(list_sp_list_views(sp_list)[["Title"]], "Active")
 
   expect_error(
@@ -465,11 +519,20 @@ test_that("create_sp_list and write_sp_list_yaml support definition views", {
   suppressMessages(write_sp_list_yaml(sp_list, path))
   expect_null(read_sp_list_yaml(path)[["views"]])
 
-  written <- suppressMessages(write_sp_list_yaml(sp_list, path, include_views = TRUE))
-  active <- purrr::detect(written[["views"]], \(view) view[["Title"]] == "Active")
+  written <- suppressMessages(write_sp_list_yaml(
+    sp_list,
+    path,
+    include_views = TRUE
+  ))
+  active <- purrr::detect(written[["views"]], \(view) {
+    view[["Title"]] == "Active"
+  })
   expect_true(active[["DefaultView"]])
   expect_identical(active[["RowLimit"]], 50L)
-  expect_identical(active[["CustomFormatter"]], list(additionalRowClass = "sp-field-severity--good"))
+  expect_identical(
+    active[["CustomFormatter"]],
+    list(additionalRowClass = "sp-field-severity--good")
+  )
   expect_true(is_string(active[["Id"]]))
   expect_identical(read_sp_list_yaml(path), written)
 })

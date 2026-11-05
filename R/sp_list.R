@@ -715,7 +715,11 @@ create_sp_list_definition_views <- function(
       view_ids[[view[["Title"]]]] <- updated[["Id"]]
     } else {
       view <- validate_view_definition(view, call = call)
-      view_ids[[view[["Title"]]]] <- add_sp_list_view(sp_list, view, call = call)
+      view_ids[[view[["Title"]]]] <- add_sp_list_view(
+        sp_list,
+        view,
+        call = call
+      )
     }
   }
 

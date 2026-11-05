@@ -446,7 +446,12 @@ validate_column_definition <- function(
     )
   }
 
-  check_string(x[["id"]], allow_null = TRUE, arg = paste0(label, ".id"), call = call)
+  check_string(
+    x[["id"]],
+    allow_null = TRUE,
+    arg = paste0(label, ".id"),
+    call = call
+  )
 
   # Validate column-level properties
   for (prop in intersect(names(x), names(sp_column_props))) {

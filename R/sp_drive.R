@@ -462,7 +462,12 @@ delete_sp_drive <- function(
   site_id <- sp_list[["properties"]][["parentReference"]][["siteId"]]
   nm <- drive[["properties"]][["name"]]
 
-  if (identical(sp_site_default_drive_id(drive, site_id), drive[["properties"]][["id"]])) {
+  if (
+    identical(
+      sp_site_default_drive_id(drive, site_id),
+      drive[["properties"]][["id"]]
+    )
+  ) {
     cli_abort(
       "{.val {nm}} is the default document library of the site and can't be
       deleted.",
@@ -555,7 +560,11 @@ check_sp_drive_folders <- function(
     return(character(0))
   }
 
-  if (is.list(folders) && !is_named(folders) && all(purrr::map_lgl(folders, is_string))) {
+  if (
+    is.list(folders) &&
+      !is_named(folders) &&
+      all(purrr::map_lgl(folders, is_string))
+  ) {
     folders <- unlist(folders)
   }
 

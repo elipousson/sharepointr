@@ -568,7 +568,12 @@ local_fake_item_list <- function(env = parent.frame()) {
   requests$n_metadata <- 0
 
   sp_list <- structure(new.env(), class = c("ms_list", "ms_object"))
-  sp_list$do_operation <- function(op, body = NULL, encode = NULL, http_verb = "GET") {
+  sp_list$do_operation <- function(
+    op,
+    body = NULL,
+    encode = NULL,
+    http_verb = "GET"
+  ) {
     if (http_verb == "DELETE") {
       requests$deletes <- c(requests$deletes, op)
     } else if (http_verb == "PATCH") {
@@ -664,7 +669,11 @@ test_that("update_sp_list_items() and create_sp_list_items() return the input in
 
   expect_invisible(
     out <- suppressMessages(
-      create_sp_list_items(data[-1], sp_list = requests$sp_list, .progress = FALSE)
+      create_sp_list_items(
+        data[-1],
+        sp_list = requests$sp_list,
+        .progress = FALSE
+      )
     )
   )
   expect_identical(out, data[-1])
@@ -672,11 +681,17 @@ test_that("update_sp_list_items() and create_sp_list_items() return the input in
   # Empty input is also returned invisibly
   empty <- data[0, ]
   expect_invisible(
-    out <- suppressMessages(update_sp_list_items(empty, sp_list = requests$sp_list))
+    out <- suppressMessages(update_sp_list_items(
+      empty,
+      sp_list = requests$sp_list
+    ))
   )
   expect_identical(out, empty)
   expect_invisible(
-    out <- suppressMessages(create_sp_list_items(empty, sp_list = requests$sp_list))
+    out <- suppressMessages(create_sp_list_items(
+      empty,
+      sp_list = requests$sp_list
+    ))
   )
   expect_identical(out, empty)
 })
@@ -690,7 +705,11 @@ test_that("create_sp_list_items() creates items from a list of records", {
   )
 
   expect_message(
-    out <- create_sp_list_items(records, sp_list = requests$sp_list, .progress = FALSE),
+    out <- create_sp_list_items(
+      records,
+      sp_list = requests$sp_list,
+      .progress = FALSE
+    ),
     "Other"
   )
   expect_identical(out, records)
@@ -744,7 +763,11 @@ test_that("delete_sp_list_item() and delete_sp_list_items() check arguments", {
   requests <- local_fake_item_list()
 
   expect_error(
-    delete_sp_list_item(item_id = "1", sp_list = requests$sp_list, cofirm = FALSE),
+    delete_sp_list_item(
+      item_id = "1",
+      sp_list = requests$sp_list,
+      cofirm = FALSE
+    ),
     "must be empty"
   )
   expect_error(
@@ -1224,7 +1247,12 @@ test_that("update_sp_list_item() sends one PATCH and gets column metadata once",
   # item again)
   sp_list_item <- structure(new.env(), class = c("ms_list_item", "ms_object"))
   sp_list_item$properties <- list(id = "3")
-  sp_list_item$do_operation <- function(op = "", body = NULL, encode = NULL, http_verb = "GET") {
+  sp_list_item$do_operation <- function(
+    op = "",
+    body = NULL,
+    encode = NULL,
+    http_verb = "GET"
+  ) {
     requests$item_ops <- c(requests$item_ops, list(list(op, http_verb, body)))
   }
 
@@ -1238,7 +1266,10 @@ test_that("update_sp_list_item() sends one PATCH and gets column metadata once",
 test_that("delete_sp_list_items() finds items with a filter without getting list metadata", {
   requests <- local_fake_item_list()
   sp_list <- requests$sp_list
-  sp_list$properties <- list(id = "list", parentReference = list(siteId = "site"))
+  sp_list$properties <- list(
+    id = "list",
+    parentReference = list(siteId = "site")
+  )
   sp_list$get_list_pager <- function(...) NULL
 
   # Accept the arguments used to list items (in addition to deletes)
@@ -1250,7 +1281,11 @@ test_that("delete_sp_list_items() finds items with a filter without getting list
   local_mocked_bindings(
     .sp_extract_list_values = function(pager, ...) {
       values <- data.frame(id = c("4", "5"))
-      values[["fields"]] <- data.frame(`@odata.etag` = "1", id = c("4", "5"), check.names = FALSE)
+      values[["fields"]] <- data.frame(
+        `@odata.etag` = "1",
+        id = c("4", "5"),
+        check.names = FALSE
+      )
       values
     }
   )
@@ -1269,7 +1304,9 @@ test_that("delete_sp_list_items() finds items with a filter without getting list
 test_that("bulk item functions send a request per item with `.batch = FALSE`", {
   requests <- local_fake_item_list()
   local_mocked_bindings(
-    sp_graph_batch_requests = function(...) stop("$batch requests shouldn't be used.")
+    sp_graph_batch_requests = function(...) {
+      stop("$batch requests shouldn't be used.")
+    }
   )
 
   create_sp_list_items(
@@ -1299,7 +1336,11 @@ test_that("bulk item functions send a request per item with `.batch = FALSE`", {
   expect_identical(requests$deletes, c("items/1", "items/2"))
 
   expect_error(
-    create_sp_list_items(list(list(Title = "A")), sp_list = requests$sp_list, .batch = "yes"),
+    create_sp_list_items(
+      list(list(Title = "A")),
+      sp_list = requests$sp_list,
+      .batch = "yes"
+    ),
     "must be `TRUE` or `FALSE`"
   )
 })

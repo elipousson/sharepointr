@@ -52,7 +52,10 @@ sp_graph_batch_requests <- function(
   pending <- seq_along(requests)
 
   for (attempt in seq(0, max_retries)) {
-    chunks <- unname(split(pending, ceiling(seq_along(pending) / sp_batch_size)))
+    chunks <- unname(split(
+      pending,
+      ceiling(seq_along(pending) / sp_batch_size)
+    ))
 
     chunk_responses <- purrr::map(
       purrr::map(chunks, \(i) requests[i]),

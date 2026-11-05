@@ -74,7 +74,11 @@ test_that("sp_in_parallel() uses purrr::in_parallel() with daemons", {
   expect_identical(purrr::map_dbl(1:3, f), c(11, 12, 13))
 
   # Values in a list are passed with do.call() (not `!!!`)
-  f <- sp_in_parallel(\(i) do.call(fn, c(list(i), dots)), fn = sum, dots = list(10))
+  f <- sp_in_parallel(
+    \(i) do.call(fn, c(list(i), dots)),
+    fn = sum,
+    dots = list(10)
+  )
   expect_identical(purrr::map_dbl(1:3, f), c(11, 12, 13))
 })
 

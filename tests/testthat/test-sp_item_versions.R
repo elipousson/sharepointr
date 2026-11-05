@@ -15,7 +15,13 @@ version_record <- function(id, modified, size, name, email, user_id = NULL) {
 }
 
 test_versions <- list(
-  version_record("3.0", "2026-10-20T10:00:00Z", 3000L, "Ann", "ann@example.com"),
+  version_record(
+    "3.0",
+    "2026-10-20T10:00:00Z",
+    3000L,
+    "Ann",
+    "ann@example.com"
+  ),
   version_record("2.0", "2026-10-16T20:22:44Z", 2000L, "Bo", "bo@example.com"),
   version_record("1.0", "2026-10-15T08:00:00Z", 1000L, "Ann", "ann@example.com")
 )
@@ -214,7 +220,9 @@ test_that("list_sp_item_versions() `version_cols = 'all'` keeps the URL", {
 
 test_that("list_sp_item_versions() sorts versions", {
   # The order returned by the API isn't relied on to order the result
-  out <- list_sp_item_versions(sp_item = fake_sp_item(test_versions[c(2, 3, 1)]))
+  out <- list_sp_item_versions(
+    sp_item = fake_sp_item(test_versions[c(2, 3, 1)])
+  )
   expect_equal(out$version_id, c("3.0", "2.0", "1.0"))
 })
 
@@ -393,7 +401,13 @@ fake_download_op <- function(statuses, newest = "3.0") {
 
   list(
     ops = function() ops,
-    do_operation = function(op, ..., config = NULL, options = list(), http_status_handler = "pass") {
+    do_operation = function(
+      op,
+      ...,
+      config = NULL,
+      options = list(),
+      http_status_handler = "pass"
+    ) {
       ops <<- c(ops, op)
 
       if (op == "versions") {
@@ -458,7 +472,10 @@ test_that("download_sp_item_version() errors without writing dest", {
 })
 
 test_that("download_sp_item_version() uses a default file name", {
-  expect_equal(sp_item_version_filename(fake_sp_item(), "2.0"), "book_v2.0.xlsx")
+  expect_equal(
+    sp_item_version_filename(fake_sp_item(), "2.0"),
+    "book_v2.0.xlsx"
+  )
 })
 
 test_that("download_sp_item_version() won't overwrite by default", {

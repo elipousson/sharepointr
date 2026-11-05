@@ -67,7 +67,10 @@ test_that("create_sp_drive creates a library with columns, views, and folders", 
       list(name = "Status", choice = list(choices = c("Draft", "Final")))
     ),
     views = list(
-      list(Title = "All Documents", ViewFields = c("DocIcon", "LinkFilename", "Status")),
+      list(
+        Title = "All Documents",
+        ViewFields = c("DocIcon", "LinkFilename", "Status")
+      ),
       list(Title = "Drafts", ViewFields = c("LinkFilename", "Status"))
     ),
     folders = c("Contracts", "Reports/2026")
@@ -137,12 +140,18 @@ test_that("create_sp_drive creates a library with columns, views, and folders", 
     renamed[["properties"]][["name"]],
     paste0(definition[["displayName"]], "-renamed")
   )
-  expect_identical(renamed[["properties"]][["description"]], "Updated by sharepointr tests")
+  expect_identical(
+    renamed[["properties"]][["description"]],
+    "Updated by sharepointr tests"
+  )
   expect_identical(renamed[["properties"]][["webUrl"]], web_url)
 
   suppressMessages(delete_sp_drive(drive = drive, confirm = FALSE))
   expect_error(
-    suppressMessages(get_sp_drive(drive_id = drive[["properties"]][["id"]], site_url = test_site_url))
+    suppressMessages(get_sp_drive(
+      drive_id = drive[["properties"]][["id"]],
+      site_url = test_site_url
+    ))
   )
 })
 
@@ -150,7 +159,10 @@ test_that("delete_sp_drive won't delete the default library", {
   test_site_url <- "https://bmore.sharepoint.com/sites/DOP-CIP/"
   skip_if_no_ms_site(test_site_url)
 
-  drive <- suppressMessages(get_sp_drive(drive_name = "Documents", site_url = test_site_url))
+  drive <- suppressMessages(get_sp_drive(
+    drive_name = "Documents",
+    site_url = test_site_url
+  ))
 
   expect_error(
     delete_sp_drive(drive = drive, confirm = FALSE),

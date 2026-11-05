@@ -22,7 +22,11 @@ has_cached_ms_graph_login <- function() {
   }
 
   length(
-    suppressWarnings(fs::dir_ls(path, glob = "*graph_logins.json", fail = FALSE))
+    suppressWarnings(fs::dir_ls(
+      path,
+      glob = "*graph_logins.json",
+      fail = FALSE
+    ))
   ) >
     0
 }

@@ -35,7 +35,9 @@ sp_rest_token <- function(sp_list, host, call = caller_env()) {
   token <- sp_list[["token"]]
   refresh_token <- token[["credentials"]][["refresh_token"]]
 
-  if (is.null(refresh_token) || !identical(as.integer(token[["version"]]), 2L)) {
+  if (
+    is.null(refresh_token) || !identical(as.integer(token[["version"]]), 2L)
+  ) {
     cli_abort(
       c(
         "Can't get a SharePoint REST API token from the current Microsoft

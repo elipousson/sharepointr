@@ -35,7 +35,11 @@ test_that("as_column_definition errors for invalid definitions", {
   expect_snapshot(error = TRUE, {
     as_column_definition(list(displayName = "No name", text = list()))
     as_column_definition(list(name = "NoType"))
-    as_column_definition(list(name = "TwoTypes", text = list(), number = list()))
+    as_column_definition(list(
+      name = "TwoTypes",
+      text = list(),
+      number = list()
+    ))
     as_column_definition(list(name = "Label", label = "Label", text = list()))
     as_column_definition(list(name = "ReadOnly", type = "text", text = list()))
     as_column_definition(
@@ -53,7 +57,11 @@ test_that("as_column_definition errors for invalid definitions", {
     as_column_definition(
       list(
         name = "Calc",
-        calculated = list(formula = "=1", outputType = "text", format = "dateOnly")
+        calculated = list(
+          formula = "=1",
+          outputType = "text",
+          format = "dateOnly"
+        )
       )
     )
     as_column_definition(
@@ -65,7 +73,10 @@ test_that("as_column_definition errors for invalid definitions", {
     as_column_definition(
       list(name = "Custom", custom = list("a"), text = list())
     )
-    as_column_definition(list(name = "NoCustom", custom = list(), text = list()), allow_custom = FALSE)
+    as_column_definition(
+      list(name = "NoCustom", custom = list(), text = list()),
+      allow_custom = FALSE
+    )
   })
 })
 
@@ -124,7 +135,11 @@ test_that("create_*_column helpers accept Graph property names", {
 
 test_that("create_*_column helpers error for conflicting or unknown properties", {
   expect_snapshot(error = TRUE, {
-    create_text_column("Notes", multiple_lines = TRUE, allowMultipleLines = FALSE)
+    create_text_column(
+      "Notes",
+      multiple_lines = TRUE,
+      allowMultipleLines = FALSE
+    )
     create_column_definition(
       "Notes",
       display_name = "A",
@@ -187,7 +202,10 @@ test_that("column_validation creates validation definitions", {
 
   expect_identical(
     sp_validation_as_rest_fields(validation),
-    list(ValidationFormula = "=[Amount]>0", ValidationMessage = "Must be positive")
+    list(
+      ValidationFormula = "=[Amount]>0",
+      ValidationMessage = "Must be positive"
+    )
   )
 })
 

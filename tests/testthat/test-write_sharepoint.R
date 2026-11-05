@@ -344,7 +344,10 @@ test_that("upload_sp_items() checks src and uploads each file", {
   fs::file_create(local_files)
 
   expect_error(
-    upload_sp_items(file = c(local_files, fs::path(local_dir, "c.txt")), dest = "folder"),
+    upload_sp_items(
+      file = c(local_files, fs::path(local_dir, "c.txt")),
+      dest = "folder"
+    ),
     "c.txt"
   )
   expect_length(uploads, 0)
@@ -358,4 +361,11 @@ test_that("upload_sp_items() checks src and uploads each file", {
   expect_identical(dest, c("folder/a.txt", "folder/b.txt"))
   expect_identical(purrr::map_chr(uploads, "src"), as.character(local_files))
   expect_identical(uploads[[2]][["drive"]], "drive")
+})
+
+test_that("sp_dest_dir() returns an empty path for a file in the drive root", {
+  expect_identical(sp_dest_dir("a.xlsx"), "")
+  expect_identical(sp_dest_dir("folder/a.xlsx"), "folder")
+  expect_identical(sp_dest_dir("folder"), "folder")
+  expect_identical(sp_dest_dir(""), "")
 })

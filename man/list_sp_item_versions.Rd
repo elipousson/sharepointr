@@ -2,9 +2,39 @@
 % Please edit documentation in R/sp_item_versions.R
 \name{list_sp_item_versions}
 \alias{list_sp_item_versions}
-\title{List versions for a SharePoint item}
+\alias{get_sp_item_version}
+\alias{download_sp_item_version}
+\title{List, get, and download versions of a SharePoint item}
 \usage{
-list_sp_item_versions(..., sp_item = NULL, as_data_frame = TRUE)
+list_sp_item_versions(
+  ...,
+  sp_item = NULL,
+  n = NULL,
+  modified_between = NULL,
+  item_cols = c("id", "none", "summary"),
+  version_cols = c("properties", "all"),
+  as_data_frame = TRUE,
+  call = caller_env()
+)
+
+get_sp_item_version(
+  version_id,
+  ...,
+  sp_item = NULL,
+  item_cols = c("id", "none", "summary"),
+  version_cols = c("properties", "all"),
+  as_data_frame = TRUE,
+  call = caller_env()
+)
+
+download_sp_item_version(
+  version_id,
+  ...,
+  sp_item = NULL,
+  dest = NULL,
+  overwrite = FALSE,
+  call = caller_env()
+)
 }
 \arguments{
 \item{...}{
@@ -29,25 +59,104 @@ item properties instead of the item.}
 name].sharepoint.com/sites/[site name]". Any SharePoint item or document
 URL can also be parsed to build a site URL using the tenant and site name
 included in the URL.}
-    \item{\code{call}}{The execution environment of a currently
+  }}
+
+\item{sp_item}{A \code{ms_drive_item} object for a SharePoint file. Additional
+parameters passed to \code{...} are ignored if \code{sp_item} is supplied.}
+
+\item{n}{Maximum number of versions to return, starting with the newest
+(latest). Defaults to \code{NULL} (all versions). Applied after
+\code{modified_between}.}
+
+\item{modified_between}{A length 2 vector of dates or date-times with the
+start and end of the period to return versions for (inclusive, as in
+\code{dplyr::between()}). Use \code{NA} for an open start or end. A \code{Date} end
+includes that whole day. Character values are parsed as UTC. If the
+lubridate package is installed, a \code{\link[lubridate:interval]{lubridate::interval()}} is also
+accepted.}
+
+\item{item_cols}{Item columns to add to the returned data frame: \code{"id"}
+(default) adds \code{item_id} and \code{drive_id}, \code{"summary"} also adds \code{item_name}
+and \code{item_web_url}, and \code{"none"} adds no item columns.}
+
+\item{version_cols}{Version columns to return: \code{"properties"} (default)
+returns \code{version_id}, \code{version}, \code{last_modified}, \code{last_modified_by},
+\code{last_modified_by_email}, \code{last_modified_by_id}, and \code{size} and \code{"all"}
+also returns everything else the API provides, including \code{download_url}.
+The download URL includes a short-lived access token so is not returned
+by default. Column names use snake case (unlike the Graph API property
+names that \code{\link[=sp_dir_info]{sp_dir_info()}} returns).}
+
+\item{as_data_frame}{If \code{TRUE} (default), return a data frame. If \code{FALSE},
+return the response from the API as a list.}
+
+\item{call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be
 mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
-  }}
 
-\item{sp_item}{SharePoint item to get versions for. Additional parameters
-passed to \code{...} are ignored if sp_item is supplied.}
+\item{version_id}{Version ID, e.g. \code{"3.0"}, as returned by
+\code{\link[=list_sp_item_versions]{list_sp_item_versions()}}.}
 
-\item{as_data_frame}{If \code{TRUE}, return a data frame of versions. If \code{FALSE},
-return a list.}
+\item{dest}{Path to save the file to. Defaults to the name of the item with
+the version ID added before the file extension (e.g. \code{"book_v3.0.xlsx"})
+in the working directory.}
+
+\item{overwrite}{If \code{TRUE}, overwrite an existing file at \code{dest}.}
 }
 \value{
-A data frame if \code{as_data_frame = TRUE} or a list if \code{FALSE}.
+For \code{\link[=list_sp_item_versions]{list_sp_item_versions()}}, a data frame with one row for each
+version (newest first) if \code{as_data_frame = TRUE} or a list with the
+versions in \code{value} otherwise. For \code{\link[=get_sp_item_version]{get_sp_item_version()}}, a one row data
+frame or a list. For \code{\link[=download_sp_item_version]{download_sp_item_version()}}, the path to the
+downloaded file (invisibly).
 }
 \description{
-This is an implementation of a new method for a \code{ms_item} object using the
-\code{do_operation} method directly. The intent is to add a list_versions method
-back to the Microsoft365R package which may include changes to the
-functionality and output of this function.
+\code{\link[=list_sp_item_versions]{list_sp_item_versions()}} lists the versions of a SharePoint file (a
+\code{driveItem}) and when and by whom they were saved, which makes it possible to
+check the recent edit history of a file such as an Excel workbook.
+\code{\link[=get_sp_item_version]{get_sp_item_version()}} returns a single version, and
+\code{\link[=download_sp_item_version]{download_sp_item_version()}} saves the content of a past version of the file.
+}
+\details{
+These functions use the \code{do_operation} method for a \code{ms_drive_item} object
+directly. The intent is to add comparable methods back to the Microsoft365R
+package which may include changes to the functionality and output of these
+functions.
+
+Versions are only available if versioning is enabled for the document
+library (the default for SharePoint). The Graph API doesn't document the order
+it returns versions in. In testing with 60 files, it always returned
+versions from newest to oldest, so \code{n} is sent to the API as \verb{$top} to limit
+the size of the response for files with many versions and returns the
+newest versions. The versions that are returned are sorted by last modified
+time. The API does not support filtering versions by date, so if
+\code{modified_between} is used, all versions are requested and \code{n} is applied
+afterward. SharePoint may combine edits made close together into a single
+version.
+}
+\section{Version IDs}{
+
+Version IDs (e.g. \code{"3.0"}) are only unique within a single item. Use
+\code{item_cols = "id"} (the default) to keep the item ID alongside the version
+ID if you combine the results for more than one item.
+
+See the Microsoft Graph documentation for
+\href{https://learn.microsoft.com/en-us/graph/api/driveitem-list-versions}{listing versions}
+and the
+\href{https://learn.microsoft.com/en-us/graph/api/resources/driveitemversion}{driveItemVersion resource}.
+}
+
+\examples{
+\dontrun{
+# List the five most recent versions of a file
+list_sp_item_versions(item_url = "<SharePoint file URL>", n = 5)
+
+# Versions saved in October 2026
+list_sp_item_versions(
+  item_url = "<SharePoint file URL>",
+  modified_between = c("2026-10-01", "2026-10-31")
+)
+}
 }
 \keyword{items}

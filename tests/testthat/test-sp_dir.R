@@ -465,3 +465,15 @@ test_that("sp_dir_info() sorts the combined result for a vector of paths", {
     c("A/a1.csv", "A/a2.csv", "B/b1.csv", "B/b2.csv")
   )
 })
+
+test_that("sp_dir_shape_items() empty results can be combined with populated ones", {
+  populated <- data.frame(name = "sub", size = 0, id = "1")
+  populated[["folder"]] <- data.frame(childCount = 2L)
+
+  shaped <- sp_dir_shape_items(populated, "", "all", NULL, FALSE)
+  empty <- sp_dir_shape_items(NULL, "", "all", NULL, FALSE)
+
+  expect_s3_class(empty[["folder"]], "data.frame")
+  expect_no_error(vctrs::vec_rbind(shaped, empty))
+  expect_no_error(vctrs::vec_rbind(empty, shaped))
+})

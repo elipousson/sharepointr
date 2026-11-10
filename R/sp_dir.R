@@ -502,9 +502,11 @@ sp_dir_shape_items <- function(items, path, info, select, full_names) {
     items <- data.frame(
       name = character(),
       size = numeric(),
-      folder = I(list()),
       id = character()
     )
+    # Match the nested data frame returned for non-empty directories
+    # (data.frame() would flatten it into a `childCount` column)
+    items[["folder"]] <- data.frame(childCount = integer())
   }
 
   if (full_names) {

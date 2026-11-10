@@ -56,6 +56,7 @@
 
 ## Fixes
 
+* Fix `sp_dir_info(info = "all", recurse = TRUE)` failing with "Can't combine `..1$folder` <data.frame> and `..3$folder` <list>" when the listing included an empty folder. (2026-11-10)
 * Fix `write_sharepoint()` saving `{officer}` `rxlsx` objects with `readr::write_rds()` and only matching a lowercase ".xlsx" extension for data frames (e.g. `"data.XLSX"` was written as a CSV file). (2026-10-10)
 
 * Fix `update_sp_list_items()` copying the calling environment (and any objects in it) to every parallel worker when `mirai::daemons()` are set. (2026-10-13)

@@ -463,6 +463,10 @@
 
 ### Fixes
 
+- Fix `sp_dir_info(info = "all", recurse = TRUE)` failing with “Can’t
+  combine `..1$folder` \<data.frame\> and `..3$folder` ” when the
+  listing included an empty folder. (2026-11-10)
+
 - Fix
   [`write_sharepoint()`](https://elipousson.github.io/sharepointr/reference/write_sharepoint.md)
   saving [officer](https://ardata-fr.github.io/officeverse/) `rxlsx`

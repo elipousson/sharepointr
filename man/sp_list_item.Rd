@@ -29,8 +29,7 @@ list_sp_list_items(
   site = NULL,
   drive_name = NULL,
   drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
+  drive = NULL
 )
 
 get_sp_list_items(
@@ -54,8 +53,7 @@ get_sp_list_items(
   site = NULL,
   drive_name = NULL,
   drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
+  drive = NULL
 )
 
 get_sp_list_item(
@@ -68,8 +66,7 @@ get_sp_list_item(
   site = NULL,
   drive_name = NULL,
   drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
+  drive = NULL
 )
 }
 \arguments{
@@ -160,11 +157,6 @@ method for SharePoint site object.}
 
 \item{drive}{A \code{ms_drive} object. If \code{drive} is supplied, \code{drive_name} and
 \code{drive_id} are ignored.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{id}{Required. A SharePoint list item ID typically an integer for the
 record number starting from 1 with the first record.}

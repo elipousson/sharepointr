@@ -23,15 +23,18 @@ list_sp_site_user_info <- function(
   sp_site = NULL,
   user_type = c("all", "visible"),
   filter = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   user_type <- arg_match(user_type, error_call = call)
   check_string(filter, allow_null = TRUE, call = call)
 
-  sp_site <- sp_site %||% get_sp_site(..., call = call)
+  sp_site <- sp_site %||% .get_sp_site(..., call = call)
 
-  sp_list <- get_sp_list(
+  sp_list <- .get_sp_list(
     list_name = "User Information List",
     site = sp_site,
     as_data_frame = FALSE,
@@ -49,8 +52,7 @@ list_sp_site_user_info <- function(
   list_sp_list_items(
     sp_list = sp_list,
     filter = filter,
-    as_data_frame = as_data_frame,
-    call = call
+    as_data_frame = as_data_frame
   )
 }
 
@@ -75,13 +77,13 @@ update_sp_list_person_items <- function(
   ...,
   .id = "id",
   na_fields = c("drop", "replace"),
-  .progress = TRUE,
-  call = caller_env()
+  .progress = TRUE
 ) {
+  call <- current_env()
   check_bool(allow_hidden, call = call)
 
   sp_list <- sp_list %||%
-    get_sp_list(
+    .get_sp_list(
       ...,
       as_data_frame = FALSE,
       call = call
@@ -92,8 +94,7 @@ update_sp_list_person_items <- function(
   if (is.null(user_info_data)) {
     user_info_data <- list_sp_site_user_info(
       sp_site = sp_list_site(sp_list),
-      user_type = if (allow_hidden) "all" else "visible",
-      call = call
+      user_type = if (allow_hidden) "all" else "visible"
     )
   } else if (!allow_hidden) {
     user_info_data <- drop_hidden_users(user_info_data)
@@ -110,8 +111,7 @@ update_sp_list_person_items <- function(
     .id = .id,
     ignore_case = TRUE,
     na_fields = na_fields,
-    .progress = .progress,
-    call = call
+    .progress = .progress
   )
 }
 

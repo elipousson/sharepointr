@@ -4,14 +4,7 @@
 \alias{list_sp_drives}
 \title{List drives for a SharePoint site}
 \usage{
-list_sp_drives(
-  ...,
-  site = NULL,
-  filter = NULL,
-  n = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
-)
+list_sp_drives(..., site = NULL, filter = NULL, n = NULL, as_data_frame = TRUE)
 }
 \arguments{
 \item{...}{
@@ -44,11 +37,6 @@ cache directory is set to \code{rappdirs::user_cache_dir("sharepointr")}.}
 \item{n}{Max number of drives to return}
 
 \item{as_data_frame}{If \code{TRUE} (default), return list as a data frame.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \value{
 A data frame with a list column of \code{ms_drive} objects if

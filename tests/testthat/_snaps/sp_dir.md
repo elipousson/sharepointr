@@ -4,7 +4,7 @@
       sp_dir_info(
         "https://contoso.sharepoint.com/sites/Team/Shared%20Documents/Folder/A.csv")
     Condition
-      Error:
+      Error in `sp_dir_info()`:
       ! `path` must be a folder or document library URL.
       i <https://contoso.sharepoint.com/sites/Team/Shared%20Documents/Folder/A.csv> is a file.
 
@@ -14,7 +14,7 @@
       sp_dir_info(
         "https://contoso.sharepoint.com/sites/Team/Shared%20Documents/Folder")
     Condition
-      Error:
+      Error in `sp_dir_info()`:
       ! Can't get a SharePoint folder from <https://contoso.sharepoint.com/sites/Team/Shared%20Documents/Folder>.
       Caused by error in `sp_shares_get_drive_path()`:
       ! Forbidden (HTTP 403).

@@ -40,6 +40,35 @@ get_sp_site <- function(
   cache = getOption("sharepointr.cache", FALSE),
   refresh = getOption("sharepointr.refresh", TRUE),
   overwrite = FALSE,
+  cache_file = NULL
+) {
+  .get_sp_site(
+    site_url = site_url,
+    site_name = site_name,
+    site_id = site_id,
+    ...,
+    cache = cache,
+    refresh = refresh,
+    overwrite = overwrite,
+    cache_file = cache_file,
+    call = current_env()
+  )
+}
+
+#' Internal version of [get_sp_site()] that takes the `call` environment
+#'
+#' Used by other package functions so that errors are reported from the
+#' user-facing function that was called.
+#'
+#' @noRd
+.get_sp_site <- function(
+  site_url = NULL,
+  site_name = NULL,
+  site_id = NULL,
+  ...,
+  cache = getOption("sharepointr.cache", FALSE),
+  refresh = getOption("sharepointr.refresh", TRUE),
+  overwrite = FALSE,
   cache_file = NULL,
   call = caller_env()
 ) {
@@ -73,7 +102,7 @@ get_sp_site <- function(
 
     # FIXME: Does not work for subsite URLs
     if (!is_sp_site_url(site_url)) {
-      site_url <- sp_url_parse(site_url, call = call)[["site_url"]]
+      site_url <- sp_url_parse(site_url)[["site_url"]]
     }
   }
 
@@ -140,8 +169,7 @@ get_sp_site <- function(
     cache_sp_site(
       site = site,
       cache_file = cache_file,
-      overwrite = overwrite,
-      call = call
+      overwrite = overwrite
     )
   }
 
@@ -159,10 +187,13 @@ cache_sp_site <- function(
   site = NULL,
   cache_file = NULL,
   cache_dir = NULL,
-  overwrite = FALSE,
-  call = caller_env()
+  overwrite = FALSE
 ) {
-  site <- site %||% get_sp_site(..., call = call)
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
+  site <- site %||% .get_sp_site(..., call = call)
 
   cache_ms_obj(
     site,

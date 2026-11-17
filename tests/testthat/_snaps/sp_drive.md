@@ -22,19 +22,19 @@
     Code
       create_sp_drive("Test", template = "genericList")
     Condition
-      Error:
+      Error in `create_sp_drive()`:
       ! `template` can't be set: a drive is always created with the "documentLibrary" template.
     Code
       create_sp_drive(definition = list(displayName = "Test", list = list(template = "genericList"),
       columns = list()))
     Condition
-      Error:
+      Error in `create_sp_drive()`:
       ! `definition` must use the "documentLibrary" template, not "genericList".
       i Use `create_sp_list()` to create a list.
     Code
       create_sp_drive("Test", folders = "A:B")
     Condition
-      Error:
+      Error in `create_sp_drive()`:
       ! folders has invalid folder path: "A:B".
       i Separate folders with `/`. A folder name can't be empty, start or end with a space, end with a period, or include any of `" * : < > ? \ |`.
 
@@ -43,22 +43,22 @@
     Code
       update_sp_drive(drive = onedrive)
     Condition
-      Error:
+      Error in `update_sp_drive()`:
       ! `display_name` or `description` must be supplied.
     Code
       update_sp_drive(drive = onedrive, display_name = "New")
     Condition
-      Error:
+      Error in `update_sp_drive()`:
       ! `drive` must be a SharePoint document library, not a "business" drive.
     Code
       delete_sp_drive(drive = onedrive)
     Condition
-      Error:
+      Error in `delete_sp_drive()`:
       ! `drive` must be a SharePoint document library, not a "business" drive.
     Code
       delete_sp_drive(drive = "Documents")
     Condition
-      Error:
+      Error in `delete_sp_drive()`:
       ! `drive` must be ms_drive, not the string "Documents".
 
 # create_sp_list errors for folders in a list definition
@@ -66,6 +66,6 @@
     Code
       create_sp_list(definition = definition, template = "genericList")
     Condition
-      Error:
+      Error in `create_sp_list()`:
       ! Folders can only be created for a "documentLibrary" library, not a "genericList" list.
 

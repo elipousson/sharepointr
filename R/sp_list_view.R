@@ -376,9 +376,12 @@ list_sp_list_views <- function(
   as_data_frame = TRUE,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   check_bool(hidden, call = call)
   check_bool(as_data_frame, call = call)
 
@@ -468,7 +471,7 @@ get_view_sp_list <- function(
   call = caller_env()
 ) {
   sp_list <- sp_list %||%
-    get_sp_list(
+    .get_sp_list(
       list_name = list_name,
       ...,
       site_url = site_url,
@@ -492,9 +495,9 @@ get_sp_list_view <- function(
   ...,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 ) {
+  call <- current_env()
   check_string(view_title, allow_null = TRUE, call = call)
   check_string(view_id, allow_null = TRUE, call = call)
 
@@ -565,9 +568,9 @@ create_sp_list_view <- function(
   view_definition = NULL,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 ) {
+  call <- current_env()
   view <- view_args_as_definition(view_definition, call = call)
 
   view <- validate_view_definition(view, call = call)
@@ -584,7 +587,7 @@ create_sp_list_view <- function(
 
   view_id <- add_sp_list_view(sp_list, view, call = call)
 
-  invisible(get_sp_list_view(sp_list, view_id = view_id, call = call))
+  invisible(get_sp_list_view(sp_list, view_id = view_id))
 }
 
 #' Add a view without getting the new view
@@ -595,7 +598,7 @@ create_sp_list_view <- function(
 #' @noRd
 add_sp_list_view <- function(sp_list, view, call = caller_env()) {
   if (is.null(view[["ViewFields"]])) {
-    view[["ViewFields"]] <- get_sp_list_view(sp_list, call = call)[[
+    view[["ViewFields"]] <- get_sp_list_view(sp_list)[[
       "ViewFields"
     ]]
   }
@@ -661,9 +664,9 @@ update_sp_list_view <- function(
   view_definition = NULL,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 ) {
+  call <- current_env()
   proposed <- view_args_as_definition(view_definition, call = call)
 
   proposed <- validate_view_definition(
@@ -684,8 +687,7 @@ update_sp_list_view <- function(
   current <- get_sp_list_view(
     sp_list,
     view_title = view_title,
-    view_id = view_id %||% proposed[["Id"]],
-    call = call
+    view_id = view_id %||% proposed[["Id"]]
   )
 
   view_id <- current[["Id"]]
@@ -714,7 +716,7 @@ update_sp_list_view <- function(
 
   set_sp_list_view_props(sp_list, view_id, proposed[changed], call = call)
 
-  invisible(get_sp_list_view(sp_list, view_id = view_id, call = call))
+  invisible(get_sp_list_view(sp_list, view_id = view_id))
 }
 
 #' Set view properties without getting the view
@@ -796,9 +798,9 @@ delete_sp_list_view <- function(
   confirm = TRUE,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 ) {
+  call <- current_env()
   check_bool(confirm, call = call)
 
   if (is.null(view_title) && is.null(view_id)) {
@@ -820,8 +822,7 @@ delete_sp_list_view <- function(
   view <- get_sp_list_view(
     sp_list,
     view_title = view_title,
-    view_id = view_id,
-    call = call
+    view_id = view_id
   )
 
   # SharePoint allows deleting the default view, which leaves a list without

@@ -44,8 +44,6 @@
 #'   workbook set by [local_sp_workbook_session()] or the
 #'   `sharepointr.workbook_session` option is used, if any. Otherwise the request
 #'   is sent without a session.
-#' @param call The execution environment used in error messages. Defaults to
-#'   the environment of the calling function.
 #' @returns
 #' - [sp_workbook_sheets()]: A data frame with a row for each worksheet.
 #' - [sp_workbook_range_read()]: A data frame.
@@ -68,9 +66,12 @@ NULL
 sp_workbook_sheets <- function(
   x,
   ...,
-  session_id = NULL,
-  call = caller_env()
+  session_id = NULL
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   item <- sp_workbook_item(x, ..., call = call)
 
   resp <- sp_workbook_request(
@@ -101,9 +102,9 @@ sp_workbook_range_read <- function(
   ...,
   sheet = NULL,
   header = TRUE,
-  session_id = NULL,
-  call = caller_env()
+  session_id = NULL
 ) {
+  call <- current_env()
   check_bool(header, call = call)
 
   item <- sp_workbook_item(x, ..., call = call)
@@ -146,9 +147,9 @@ sp_workbook_range_write <- function(
   ...,
   sheet = NULL,
   col_names = TRUE,
-  session_id = NULL,
-  call = caller_env()
+  session_id = NULL
 ) {
+  call <- current_env()
   check_bool(col_names, call = call)
 
   address <- sp_workbook_address(range, sheet, call = call)
@@ -217,9 +218,9 @@ sp_workbook_range_write <- function(
 sp_workbook_session_create <- function(
   x,
   ...,
-  persist_changes = TRUE,
-  call = caller_env()
+  persist_changes = TRUE
 ) {
+  call <- current_env()
   check_bool(persist_changes, call = call)
 
   item <- sp_workbook_item(x, ..., call = call)
@@ -242,9 +243,9 @@ sp_workbook_session_create <- function(
 sp_workbook_session_close <- function(
   x,
   session_id,
-  ...,
-  call = caller_env()
+  ...
 ) {
+  call <- current_env()
   check_string(session_id, call = call)
 
   item <- sp_workbook_item(x, ..., call = call)
@@ -296,9 +297,9 @@ local_sp_workbook_session <- function(
   x,
   ...,
   persist_changes = TRUE,
-  .local_envir = caller_env(),
-  call = caller_env()
+  .local_envir = caller_env()
 ) {
+  call <- current_env()
   check_installed("withr", call = call)
 
   item <- sp_workbook_item(x, ..., call = call)
@@ -306,8 +307,7 @@ local_sp_workbook_session <- function(
 
   session_id <- sp_workbook_session_create(
     item,
-    persist_changes = persist_changes,
-    call = call
+    persist_changes = persist_changes
   )
 
   old <- getOption("sharepointr.workbook_session")
@@ -362,7 +362,7 @@ sp_workbook_item <- function(x, ..., call = caller_env()) {
 
   check_string(x, call = call)
 
-  item <- get_sp_item(x, ..., call = call)
+  item <- .get_sp_item(x, ..., call = call)
 
   if (item$is_folder()) {
     cli_abort("{.arg x} must be a workbook, not a folder.", call = call)
@@ -505,7 +505,7 @@ sp_workbook_sheet_path <- function(
   call = caller_env()
 ) {
   if (is.null(sheet)) {
-    sheets <- sp_workbook_sheets(item, session_id = session_id, call = call)
+    sheets <- sp_workbook_sheets(item, session_id = session_id)
     sheet <- sheets[["id"]][which.min(sheets[["position"]])]
   }
 

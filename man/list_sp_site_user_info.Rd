@@ -9,8 +9,7 @@ list_sp_site_user_info(
   sp_site = NULL,
   user_type = c("all", "visible"),
   filter = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 }
 \arguments{
@@ -31,11 +30,6 @@ with a filter for visible users.}
 data frame with n rows or all lists available for the SharePoint site or
 drive. Defaults to \code{FALSE}. Ignored is \code{metadata = TRUE} as list metadata
 is always returned as a data frame.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

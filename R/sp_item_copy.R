@@ -84,9 +84,12 @@ sp_item_copy <- function(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  site_url = NULL,
-  call = caller_env()
+  site_url = NULL
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   sp_item_transfer(
     path = path,
     new_path = new_path,
@@ -114,9 +117,9 @@ sp_item_move <- function(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  site_url = NULL,
-  call = caller_env()
+  site_url = NULL
 ) {
+  call <- current_env()
   sp_item_transfer(
     path = path,
     new_path = new_path,
@@ -144,9 +147,9 @@ sp_dir_copy <- function(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  site_url = NULL,
-  call = caller_env()
+  site_url = NULL
 ) {
+  call <- current_env()
   sp_item_transfer(
     path = path,
     new_path = new_path,
@@ -173,9 +176,9 @@ sp_dir_move <- function(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  site_url = NULL,
-  call = caller_env()
+  site_url = NULL
 ) {
+  call <- current_env()
   sp_item_transfer(
     path = path,
     new_path = new_path,
@@ -431,7 +434,7 @@ sp_transfer_items <- function(
   # Get the drive once for any relative paths
   if (!all(is_path_url)) {
     drive <- drive %||%
-      get_sp_drive(
+      .get_sp_drive(
         drive_name = drive_name,
         drive_id = drive_id,
         ...,
@@ -446,10 +449,10 @@ sp_transfer_items <- function(
     is_path_url,
     \(x, x_is_url) {
       if (x_is_url) {
-        return(get_sp_item(path = x, ..., call = call))
+        return(.get_sp_item(path = x, ..., call = call))
       }
 
-      get_sp_item(path = x, drive = drive, call = call)
+      .get_sp_item(path = x, drive = drive, call = call)
     }
   )
 }
@@ -515,7 +518,7 @@ sp_transfer_dest <- function(
   drive_id <- item[["properties"]][["parentReference"]][["driveId"]]
 
   if (is_url(new_path)) {
-    url_parts <- sp_url_parse(new_path, call = call)
+    url_parts <- sp_url_parse(new_path)
 
     if (!is.null(url_parts[["item_id"]])) {
       cli_abort(
@@ -533,7 +536,7 @@ sp_transfer_dest <- function(
       url_drive_name <- url_parts[["drive_url"]]
     }
 
-    dest_drive <- get_sp_drive(
+    dest_drive <- .get_sp_drive(
       drive_name = url_drive_name,
       ...,
       properties = FALSE,

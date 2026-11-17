@@ -10,8 +10,7 @@ sp_dir_create(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  relative = FALSE,
-  call = caller_env()
+  relative = FALSE
 )
 }
 \arguments{
@@ -52,11 +51,6 @@ method for SharePoint site object.}
 a character vector, it must be length 1 or the same length as path and
 appended to path as a vector of parent directories. The second option takes
 precedence over any file path parsed from the url.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \value{
 Invisibly returns the input \code{path} (or \code{path} combined with

@@ -5,14 +5,7 @@
 \alias{sync_sp_list}
 \title{Compare or sync a list definition with an existing SharePoint list}
 \usage{
-compare_sp_list(
-  definitions,
-  sp_list = NULL,
-  ...,
-  views = TRUE,
-  folders = TRUE,
-  call = caller_env()
-)
+compare_sp_list(definitions, sp_list = NULL, ..., views = TRUE, folders = TRUE)
 
 sync_sp_list(
   definitions,
@@ -22,8 +15,7 @@ sync_sp_list(
   delete = FALSE,
   allow_data_loss = FALSE,
   views = TRUE,
-  folders = TRUE,
-  call = caller_env()
+  folders = TRUE
 )
 }
 \arguments{
@@ -50,11 +42,6 @@ compared).}
 
 \item{folders}{If \code{TRUE} (default), compare folders if the definition has a
 \code{folders} element. If \code{FALSE}, folders are skipped.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{dry_run}{If \code{TRUE} (default), print the planned changes without
 changing the list.}

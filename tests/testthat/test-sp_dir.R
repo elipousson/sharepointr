@@ -90,7 +90,9 @@ test_that("sp_dir_info() uses the drive and path from the shares API", {
     sp_shares_get_drive_path = function(url, ...) {
       list(drive = drive, path = "Folder", is_folder = TRUE)
     },
-    get_sp_drive = function(...) stop("get_sp_drive() shouldn't be called")
+    !!!mock_sp_fn(get_sp_drive = function(...) {
+      stop("get_sp_drive() shouldn't be called")
+    })
   )
 
   items <- sp_dir_info(
@@ -123,10 +125,10 @@ test_that("sp_dir_info() falls back to the parsed URL if the shares API fails", 
     sp_shares_get_drive_path = function(...) {
       cli::cli_abort("Forbidden (HTTP 403).")
     },
-    get_sp_drive = function(drive_name = NULL, ...) {
+    !!!mock_sp_fn(get_sp_drive = function(drive_name = NULL, ...) {
       drive_args <<- drive_name
       mock_drive()
-    }
+    })
   )
 
   url <- "https://contoso.sharepoint.com/:f:/r/sites/Team/Shared%20Documents/Folder?csf=1"

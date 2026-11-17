@@ -31,7 +31,7 @@
     Code
       compare_sp_list(list(create_text_column("A")), sp_list = data.frame(name = "A"))
     Condition
-      Error:
+      Error in `compare_sp_list()`:
       ! `sp_list` must be a <ms_list> object or a list of column metadata from `get_sp_list_metadata(as_data_frame = FALSE)`.
 
 # print_changes summarizes planned changes
@@ -76,7 +76,7 @@
     Code
       compare_sp_list(definition, sp_list = sp_list)
     Condition
-      Error:
+      Error in `compare_sp_list()`:
       ! Can't read the list views to compare them with the definition.
       i Use `views = FALSE` to skip views.
       Caused by error in `list_sp_list_views()`:

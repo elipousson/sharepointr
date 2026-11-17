@@ -110,9 +110,12 @@ sp_dir_info <- function(
   regexp = NULL,
   invert = FALSE,
   perl = FALSE,
-  .batch = getOption("sharepointr.batch", TRUE),
-  call = caller_env()
+  .batch = getOption("sharepointr.batch", TRUE)
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   check_bool(.batch, call = call)
   check_bool(recurse, call = call)
 
@@ -198,8 +201,7 @@ sp_dir_info <- function(
             regexp = regexp,
             invert = invert,
             perl = perl,
-            .batch = .batch,
-            call = call
+            .batch = .batch
           )
         }
       ),
@@ -236,7 +238,7 @@ sp_dir_info <- function(
   }
 
   drive <- drive %||%
-    get_sp_drive(
+    .get_sp_drive(
       drive_name = drive_name,
       drive_id = drive_id,
       ...,
@@ -771,9 +773,9 @@ sp_dir_ls <- function(
   regexp = NULL,
   invert = FALSE,
   perl = FALSE,
-  .batch = getOption("sharepointr.batch", TRUE),
-  call = caller_env()
+  .batch = getOption("sharepointr.batch", TRUE)
 ) {
+  call <- current_env()
   params <- rlang::list2(...)
 
   if (has_name(params, "info")) {
@@ -807,8 +809,7 @@ sp_dir_ls <- function(
     regexp = regexp,
     invert = invert,
     perl = perl,
-    .batch = .batch,
-    call = call
+    .batch = .batch
   )
 }
 
@@ -865,11 +866,11 @@ sp_dir_create <- function(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  relative = FALSE,
-  call = caller_env()
+  relative = FALSE
 ) {
+  call <- current_env()
   drive <- drive %||%
-    get_sp_drive(
+    .get_sp_drive(
       drive_name = drive_name,
       drive_id = drive_id,
       ...,

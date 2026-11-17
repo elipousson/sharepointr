@@ -28,11 +28,14 @@ list_sp_plan_buckets <- function(
   filter = NULL,
   n = NULL,
   plan = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   plan <- plan %||%
-    get_sp_plan(plan_title = plan_title, plan_id = plan_id, ..., call = call)
+    get_sp_plan(plan_title = plan_title, plan_id = plan_id, ...)
 
   check_ms_obj(plan, "ms_plan", call = call)
 

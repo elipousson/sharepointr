@@ -21,8 +21,7 @@ sp_dir_info(
   regexp = NULL,
   invert = FALSE,
   perl = FALSE,
-  .batch = getOption("sharepointr.batch", TRUE),
-  call = caller_env()
+  .batch = getOption("sharepointr.batch", TRUE)
 )
 
 sp_dir_ls(
@@ -38,8 +37,7 @@ sp_dir_ls(
   regexp = NULL,
   invert = FALSE,
   perl = FALSE,
-  .batch = getOption("sharepointr.batch", TRUE),
-  call = caller_env()
+  .batch = getOption("sharepointr.batch", TRUE)
 )
 }
 \arguments{
@@ -146,11 +144,6 @@ per directory. If \code{{carrier}} and \code{{mirai}} are installed and
 in parallel and the progress bar is updated after each level. Use
 \code{.batch = FALSE} or \code{options(sharepointr.batch = FALSE)} to send a request
 per directory.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \value{
 For \code{\link[=sp_dir_info]{sp_dir_info()}}, a data frame with one row per file or folder

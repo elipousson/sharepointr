@@ -2,7 +2,7 @@
 #'   basename of `src`.
 #' @noRd
 sp_url_as_src_dest <- function(url, src, call = caller_env()) {
-  sp_url_parts <- sp_url_parse(url, call = call)
+  sp_url_parts <- sp_url_parse(url)
   file_path <- str_remove_slash(sp_url_parts[["file_path"]])
   str_c_url(file_path, basename(src))
 }
@@ -55,9 +55,12 @@ write_sharepoint <- function(
   site_name = NULL,
   site_id = NULL,
   site = NULL,
-  blocksize = 327680000,
-  call = caller_env()
+  blocksize = 327680000
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   check_string(file, call = call)
   file <- str_c_fsep(new_path, file)
   file_ext <- tolower(fs::path_ext(file))
@@ -107,8 +110,7 @@ write_sharepoint <- function(
     site_name = site_name,
     site_id = site_id,
     site = site,
-    blocksize = blocksize,
-    call = call
+    blocksize = blocksize
   )
 
   invisible(x)
@@ -162,9 +164,9 @@ upload_sp_item <- function(
   drive = NULL,
   blocksize = 327680000,
   recursive = FALSE,
-  parallel = FALSE,
-  call = caller_env()
+  parallel = FALSE
 ) {
+  call <- current_env()
   if (!is_string(src) && !is_string(file)) {
     cli_abort(
       "One of {.arg file} or {.arg src} must be a string.",
@@ -216,9 +218,9 @@ upload_sp_items <- function(
   drive = NULL,
   blocksize = 327680000,
   recursive = FALSE,
-  parallel = FALSE,
-  call = caller_env()
+  parallel = FALSE
 ) {
+  call <- current_env()
   if (!is_character(src) && !is_character(file)) {
     cli_abort(
       "One of {.arg file} or {.arg src} must be a character vector",
@@ -352,7 +354,7 @@ sp_upload_dest <- function(
   }
 
   drive <- drive %||%
-    get_sp_drive(
+    .get_sp_drive(
       drive_name = drive_name,
       drive_id = drive_id,
       ...,
@@ -368,8 +370,7 @@ sp_upload_dest <- function(
       drive = drive,
       path = sp_dest_dir(file_path),
       info = "name",
-      full_names = FALSE,
-      call = call
+      full_names = FALSE
     )
   }
 

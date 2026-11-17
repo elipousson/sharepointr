@@ -8,8 +8,7 @@ create_list_info(
   template = c("documentLibrary", "genericList", "task", "survey", "announcements",
     "contacts"),
   content_types = NULL,
-  hidden = NULL,
-  call = caller_env()
+  hidden = NULL
 )
 }
 \arguments{

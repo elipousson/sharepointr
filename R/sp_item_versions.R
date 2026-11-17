@@ -82,16 +82,19 @@ list_sp_item_versions <- function(
   modified_between = NULL,
   item_cols = c("id", "none", "summary"),
   version_cols = c("properties", "all"),
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   item_cols <- arg_match(item_cols, error_call = call)
   version_cols <- arg_match(version_cols, error_call = call)
   check_number_whole(n, min = 1, allow_null = TRUE, call = call)
   check_bool(as_data_frame, call = call)
   modified_between <- as_modified_between(modified_between, call = call)
 
-  sp_item <- sp_item %||% get_sp_item(..., call = call)
+  sp_item <- sp_item %||% .get_sp_item(..., call = call)
   check_ms_obj(sp_item, "ms_drive_item", call = call)
 
   # `n` is only passed to the API (to reduce the size of the response) when
@@ -135,15 +138,15 @@ get_sp_item_version <- function(
   sp_item = NULL,
   item_cols = c("id", "none", "summary"),
   version_cols = c("properties", "all"),
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 ) {
+  call <- current_env()
   check_string(version_id, call = call)
   item_cols <- arg_match(item_cols, error_call = call)
   version_cols <- arg_match(version_cols, error_call = call)
   check_bool(as_data_frame, call = call)
 
-  sp_item <- sp_item %||% get_sp_item(..., call = call)
+  sp_item <- sp_item %||% .get_sp_item(..., call = call)
   check_ms_obj(sp_item, "ms_drive_item", call = call)
 
   version <- sp_item$do_operation(paste0("versions/", version_id))
@@ -171,14 +174,14 @@ download_sp_item_version <- function(
   ...,
   sp_item = NULL,
   dest = NULL,
-  overwrite = FALSE,
-  call = caller_env()
+  overwrite = FALSE
 ) {
+  call <- current_env()
   check_string(version_id, call = call)
   check_string(dest, allow_null = TRUE, call = call)
   check_bool(overwrite, call = call)
 
-  sp_item <- sp_item %||% get_sp_item(..., call = call)
+  sp_item <- sp_item %||% .get_sp_item(..., call = call)
   check_ms_obj(sp_item, "ms_drive_item", call = call)
 
   dest <- dest %||% sp_item_version_filename(sp_item, version_id)

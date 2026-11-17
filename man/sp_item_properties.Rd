@@ -16,8 +16,7 @@ get_sp_item_properties(
   drive_id = NULL,
   site_url = NULL,
   fields = FALSE,
-  as_data_frame = FALSE,
-  call = caller_env()
+  as_data_frame = FALSE
 )
 
 update_sp_item_properties(
@@ -35,8 +34,7 @@ update_sp_item_properties(
   drive = NULL,
   site_url = NULL,
   fields = FALSE,
-  as_data_frame = FALSE,
-  call = caller_env()
+  as_data_frame = FALSE
 )
 }
 \arguments{
@@ -78,11 +76,6 @@ SharePoint document library.}
 
 \item{as_data_frame}{If \code{TRUE}, return a 1 row data frame. If \code{FALSE}
 (default), return a list of item properties.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{.data}{A named list or a single row data frame with field values to
 update. Optional.}

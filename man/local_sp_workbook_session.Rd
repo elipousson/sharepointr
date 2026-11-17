@@ -8,8 +8,7 @@ local_sp_workbook_session(
   x,
   ...,
   persist_changes = TRUE,
-  .local_envir = caller_env(),
-  call = caller_env()
+  .local_envir = caller_env()
 )
 }
 \arguments{
@@ -23,9 +22,6 @@ object, a SharePoint URL, or a path passed to \code{\link[=get_sp_item]{get_sp_i
 saved to the workbook.}
 
 \item{.local_envir}{The environment to use for scoping.}
-
-\item{call}{The execution environment used in error messages. Defaults to
-the environment of the calling function.}
 }
 \value{
 The session ID, invisibly.

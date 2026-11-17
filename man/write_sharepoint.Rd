@@ -19,8 +19,7 @@ write_sharepoint(
   site_name = NULL,
   site_id = NULL,
   site = NULL,
-  blocksize = 327680000,
-  call = caller_env()
+  blocksize = 327680000
 )
 }
 \arguments{
@@ -80,11 +79,6 @@ alternative to the SharePoint site URL. Exactly one of  \code{site_url},
 
 \item{blocksize}{Additional parameter passed to \code{upload_folder} or
 \code{upload_file} method for \code{ms_drive} objects.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \value{
 Invisibly returns the input object x.

@@ -158,9 +158,12 @@ compare_sp_list <- function(
   sp_list = NULL,
   ...,
   views = TRUE,
-  folders = TRUE,
-  call = caller_env()
+  folders = TRUE
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   check_bool(views, call = call)
   check_bool(folders, call = call)
   definitions <- as_sync_definitions(definitions, call = call)
@@ -184,7 +187,7 @@ compare_sp_list <- function(
     meta <- sp_list
   } else {
     sp_list <- get_definition_sp_list(definitions, sp_list, ..., call = call)
-    meta <- get_sp_list_metadata(
+    meta <- .get_sp_list_metadata(
       sp_list = sp_list,
       keep = "all",
       as_data_frame = FALSE,
@@ -338,21 +341,21 @@ get_definition_sp_list <- function(
     site_id <- definitions[["parentReference"]][["siteId"]]
 
     sp_list <- if (!is.null(list_id) && ...length() == 0 && !is.null(site_id)) {
-      get_sp_list(
+      .get_sp_list(
         list_id = list_id,
-        site = get_sp_site(site_id = site_id, call = call),
+        site = .get_sp_site(site_id = site_id, call = call),
         as_data_frame = FALSE,
         call = call
       )
     } else if (!is.null(list_id)) {
-      get_sp_list(
+      .get_sp_list(
         list_id = list_id,
         ...,
         as_data_frame = FALSE,
         call = call
       )
     } else {
-      get_sp_list(
+      .get_sp_list(
         list_name = definitions[["displayName"]],
         ...,
         as_data_frame = FALSE,
@@ -447,7 +450,7 @@ list_change_rows <- function(definitions, properties) {
 #' @noRd
 as_sync_definitions <- function(definitions, call = caller_env()) {
   if (is_string(definitions)) {
-    return(read_sp_list_yaml(definitions, call = call))
+    return(read_sp_list_yaml(definitions))
   }
 
   if (inherits(definitions, "sp_list_definition")) {
@@ -457,7 +460,7 @@ as_sync_definitions <- function(definitions, call = caller_env()) {
   # A single column definition
   if (is.list(definitions) && is_named(definitions)) {
     if (has_name(definitions, "columns")) {
-      return(as_sp_list_definition(definitions, call = call))
+      return(as_sp_list_definition(definitions))
     }
 
     definitions <- list(definitions)
@@ -625,7 +628,7 @@ column_change_rows <- function(col, current, column_id = NA_character_) {
 #' @noRd
 get_sync_live_views <- function(sp_list, call = caller_env()) {
   views <- try_fetch(
-    list_sp_list_views(sp_list, as_data_frame = FALSE, call = call),
+    list_sp_list_views(sp_list, as_data_frame = FALSE),
     error = function(cnd) {
       cli_abort(
         c(
@@ -1073,9 +1076,9 @@ sync_sp_list <- function(
   delete = FALSE,
   allow_data_loss = FALSE,
   views = TRUE,
-  folders = TRUE,
-  call = caller_env()
+  folders = TRUE
 ) {
+  call <- current_env()
   check_bool(dry_run, call = call)
   check_bool(delete, call = call)
   check_bool(allow_data_loss, call = call)
@@ -1088,8 +1091,7 @@ sync_sp_list <- function(
     definitions,
     sp_list = sp_list,
     views = views,
-    folders = folders,
-    call = call
+    folders = folders
   )
   changes[["status"]] <- plan_change_status(
     changes,
@@ -1382,8 +1384,7 @@ apply_column_changes <- function(
       idx,
       create_sp_list_column(
         sp_list = sp_list,
-        column_definition = columns[[name]],
-        call = call
+        column_definition = columns[[name]]
       )
     )
   }
@@ -1414,8 +1415,7 @@ apply_column_changes <- function(
       idx,
       delete_sp_list_column(
         sp_list = sp_list,
-        column_id = changes[["id"]][[idx]],
-        call = call
+        column_id = changes[["id"]][[idx]]
       )
     )
   }
@@ -1540,8 +1540,7 @@ apply_view_changes <- function(changes, views, sp_list, call = caller_env()) {
         delete_sp_list_view(
           sp_list,
           view_id = view_id,
-          confirm = FALSE,
-          call = call
+          confirm = FALSE
         )
       } else {
         cli_progress_step("Deleting view {.val {view_title}}")

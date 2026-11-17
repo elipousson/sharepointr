@@ -14,8 +14,7 @@ get_sp_item(
   drive = NULL,
   site_url = NULL,
   properties = FALSE,
-  as_data_frame = FALSE,
-  call = caller_env()
+  as_data_frame = FALSE
 )
 }
 \arguments{
@@ -69,11 +68,6 @@ item properties instead of the item.}
 
 \item{as_data_frame}{If \code{TRUE}, return a data frame. If \code{FALSE} (default),
 return a \code{ms_item} or \code{ms_item_properties} object.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \value{
 A \code{ms_drive_item} object (or a list of item properties if

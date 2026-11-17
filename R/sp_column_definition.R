@@ -871,9 +871,12 @@ create_column_definition_list <- function(
 get_column_default <- function(
   value = NULL,
   formula = NULL,
-  allow_null = TRUE,
-  call = caller_env()
+  allow_null = TRUE
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   if (allow_null && is.null(formula) && is.null(value)) {
     return(invisible(NULL))
   }

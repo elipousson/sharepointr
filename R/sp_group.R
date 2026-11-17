@@ -20,16 +20,19 @@ get_sp_group <- function(
   site_name = NULL,
   site_id = NULL,
   ...,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   if (is_url(site)) {
     site_url <- site
     site <- NULL
   }
 
   site <- site %||%
-    get_sp_site(
+    .get_sp_site(
       site_url = site_url,
       site_name = site_name,
       site_id = site_id,
@@ -55,16 +58,15 @@ list_sp_group_members <- function(
   site_id = NULL,
   ...,
   sp_group = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 ) {
+  call <- current_env()
   sp_group <- sp_group %||%
     get_sp_group(
       site_url = site_url,
       site_name = site_name,
       site_id = site_id,
-      ...,
-      call = call
+      ...
     )
 
   check_ms_obj(sp_group, "az_group", call = call)

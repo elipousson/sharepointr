@@ -4,7 +4,7 @@
       get_sp_item(
         "https://contoso.sharepoint.com/sites/Team/Shared%20Documents/A.png")
     Condition
-      Error:
+      Error in `get_sp_item()`:
       ! Can't get a SharePoint item from <https://contoso.sharepoint.com/sites/Team/Shared%20Documents/A.png>.
       Caused by error in `sp_shares_get_item()`:
       ! Forbidden (HTTP 403).

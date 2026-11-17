@@ -24,8 +24,7 @@ create_sp_list_items(
   create_list = FALSE,
   strict = FALSE,
   .batch = getOption("sharepointr.batch", TRUE),
-  .progress = TRUE,
-  call = caller_env()
+  .progress = TRUE
 )
 
 update_sp_list_items(
@@ -41,8 +40,7 @@ update_sp_list_items(
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
   .batch = getOption("sharepointr.batch", TRUE),
-  .progress = TRUE,
-  call = caller_env()
+  .progress = TRUE
 )
 
 update_sp_list_item(
@@ -63,8 +61,7 @@ update_sp_list_item(
   drive_id = NULL,
   drive = NULL,
   .multi_fields = NULL,
-  .quiet = FALSE,
-  call = caller_env()
+  .quiet = FALSE
 )
 }
 \arguments{
@@ -146,11 +143,6 @@ if item IDs must follow the order of \code{data}.}
 \item{.progress}{Whether to show a progress bar. Use \code{TRUE} to turn on
 a basic progress bar, use a string to give it a name, or see
 \link[purrr]{progress_bars} for more details.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{na_fields}{How to handle \code{NA} fields in input data. One of \code{"drop"}
 (remove \code{NA} and empty fields, e.g. a multi-select value of

@@ -63,6 +63,39 @@ get_sp_item <- function(
   drive = NULL,
   site_url = NULL,
   properties = FALSE,
+  as_data_frame = FALSE
+) {
+  .get_sp_item(
+    path = path,
+    item_id = item_id,
+    item_url = item_url,
+    ...,
+    drive_name = drive_name,
+    drive_id = drive_id,
+    drive = drive,
+    site_url = site_url,
+    properties = properties,
+    as_data_frame = as_data_frame,
+    call = current_env()
+  )
+}
+
+#' Internal version of [get_sp_item()] that takes the `call` environment
+#'
+#' Used by other package functions so that errors are reported from the
+#' user-facing function that was called.
+#'
+#' @noRd
+.get_sp_item <- function(
+  path = NULL,
+  item_id = NULL,
+  item_url = NULL,
+  ...,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  site_url = NULL,
+  properties = FALSE,
   as_data_frame = FALSE,
   call = caller_env()
 ) {
@@ -95,7 +128,7 @@ get_sp_item <- function(
 
     if (is_url(item_url)) {
       sp_url_parts <- try_fetch(
-        sp_url_parse(url = item_url, call = call),
+        sp_url_parse(url = item_url),
         error = function(cnd) {
           if (is.null(shares_cnd)) {
             cnd_signal(cnd)
@@ -120,7 +153,7 @@ get_sp_item <- function(
   }
 
   drive <- drive %||%
-    get_sp_drive(
+    .get_sp_drive(
       drive_name = drive_name,
       drive_id = drive_id,
       ...,
@@ -249,14 +282,17 @@ get_sp_item_properties <- function(
   drive_id = NULL,
   site_url = NULL,
   fields = FALSE,
-  as_data_frame = FALSE,
-  call = caller_env()
+  as_data_frame = FALSE
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   check_bool(fields, call = call)
 
   if (!fields) {
     return(
-      get_sp_item(
+      .get_sp_item(
         path = path,
         item_id = item_id,
         item_url = item_url,
@@ -272,7 +308,7 @@ get_sp_item_properties <- function(
     )
   }
 
-  item <- get_sp_item(
+  item <- .get_sp_item(
     path = path,
     item_id = item_id,
     item_url = item_url,
@@ -377,9 +413,9 @@ update_sp_item_properties <- function(
   drive = NULL,
   site_url = NULL,
   fields = FALSE,
-  as_data_frame = FALSE,
-  call = caller_env()
+  as_data_frame = FALSE
 ) {
+  call <- current_env()
   .data <- .data %||% list2(...)
   check_bool(fields, call = call)
   check_string(name, allow_null = TRUE, call = call)
@@ -404,7 +440,7 @@ update_sp_item_properties <- function(
   }
 
   item <- item %||%
-    get_sp_item(
+    .get_sp_item(
       path = path,
       item_id = item_id,
       item_url = item_url,
@@ -423,8 +459,7 @@ update_sp_item_properties <- function(
       item_id = sp_drive_item_list_item_id(item, call = call),
       sp_list = sp_drive_item_list(item),
       check_fields = check_fields,
-      na_fields = na_fields,
-      call = call
+      na_fields = na_fields
     )
   }
 
@@ -527,11 +562,11 @@ delete_sp_item <- function(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  site_url = NULL,
-  call = caller_env()
+  site_url = NULL
 ) {
+  call <- current_env()
   item <- item %||%
-    get_sp_item(
+    .get_sp_item(
       path = path,
       item_id = item_id,
       item_url = item_url,
@@ -665,9 +700,9 @@ download_sp_item <- function(
   dest = NULL,
   overwrite = FALSE,
   recursive = FALSE,
-  parallel = FALSE,
-  call = caller_env()
+  parallel = FALSE
 ) {
+  call <- current_env()
   # Check if item requires a batch download approach
   is_batch_item <- (length(path) > 1) ||
     (length(item_id) > 1) ||
@@ -695,7 +730,7 @@ download_sp_item <- function(
   }
 
   item <- item %||%
-    get_sp_item(
+    .get_sp_item(
       path = path,
       item_id = item_id,
       item_url = item_url,
@@ -795,12 +830,12 @@ download_sp_item <- function(
 #' @name download_sp_file
 #' @aliases sp_file_download
 #' @export
-download_sp_file <- function(file, new_path = "", ..., call = caller_env()) {
+download_sp_file <- function(file, new_path = "", ...) {
+  call <- current_env()
   download_sp_item(
     path = file,
     new_path = new_path,
-    ...,
-    call = call
+    ...
   )
 }
 
@@ -877,7 +912,7 @@ batch_download_sp_item <- function(
   # Get the drive once (instead of for each item) unless items are found from
   # URLs (which may each refer to a different drive)
   if (is.null(drive) && arg != "item" && !any(is_url(path))) {
-    drive <- get_sp_drive(
+    drive <- .get_sp_drive(
       drive_name = drive_name,
       drive_id = drive_id,
       ...,
@@ -950,9 +985,9 @@ download_sp_list <- function(
   new_path = "",
   sp_list = NULL,
   fileext = "csv",
-  keep_list_cols = c("createdBy", "lastModifiedBy"),
-  call = caller_env()
+  keep_list_cols = c("createdBy", "lastModifiedBy")
 ) {
+  call <- current_env()
   sp_list_df <- list_sp_list_items(
     sp_list = sp_list,
     ...

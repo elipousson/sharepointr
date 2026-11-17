@@ -7,7 +7,7 @@
 \alias{sp_workbook_range_write}
 \title{Read and write the cells of an Excel workbook}
 \usage{
-sp_workbook_sheets(x, ..., session_id = NULL, call = caller_env())
+sp_workbook_sheets(x, ..., session_id = NULL)
 
 sp_workbook_range_read(
   x,
@@ -15,8 +15,7 @@ sp_workbook_range_read(
   ...,
   sheet = NULL,
   header = TRUE,
-  session_id = NULL,
-  call = caller_env()
+  session_id = NULL
 )
 
 sp_workbook_range_write(
@@ -26,8 +25,7 @@ sp_workbook_range_write(
   ...,
   sheet = NULL,
   col_names = TRUE,
-  session_id = NULL,
-  call = caller_env()
+  session_id = NULL
 )
 }
 \arguments{
@@ -42,9 +40,6 @@ object, a SharePoint URL, or a path passed to \code{\link[=get_sp_item]{get_sp_i
 workbook set by \code{\link[=local_sp_workbook_session]{local_sp_workbook_session()}} or the
 \code{sharepointr.workbook_session} option is used, if any. Otherwise the request
 is sent without a session.}
-
-\item{call}{The execution environment used in error messages. Defaults to
-the environment of the calling function.}
 
 \item{range}{A range in A1 notation (e.g. \code{"A1:C3"}). If \code{NULL},
 \code{\link[=sp_workbook_range_read]{sp_workbook_range_read()}} reads the used range of the worksheet. For

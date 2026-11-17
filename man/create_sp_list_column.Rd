@@ -13,8 +13,7 @@ create_sp_list_column(
   column_definition = NULL,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 
 update_sp_list_column(
@@ -26,8 +25,7 @@ update_sp_list_column(
   site_url = NULL,
   site = NULL,
   column_definition = NULL,
-  column_name_type = "name",
-  call = caller_env()
+  column_name_type = "name"
 )
 
 delete_sp_list_column(
@@ -37,8 +35,7 @@ delete_sp_list_column(
   list_name = NULL,
   site_url = NULL,
   site = NULL,
-  column_name_type = "name",
-  call = caller_env()
+  column_name_type = "name"
 )
 }
 \arguments{
@@ -75,6 +72,8 @@ Graph property: \code{defaultValue}.}
     \item{\code{displayname}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{display_name}.}
     \item{\code{validation}}{Column validation created with \code{\link[=column_validation]{column_validation()}}.
 Graph property: \code{validation}.}
+    \item{\code{call}}{The execution environment used in error messages. The
+\verb{create_*_column()} helpers pass their own environment.}
     \item{\code{indexed,sealed,propagate_changes,read_only,id}}{Additional arguments
 used by \code{\link[=create_column_definition]{create_column_definition()}}. Graph properties: \code{indexed},
 \code{isSealed}, \code{propagateChanges}, \code{readOnly}, and \code{id}.}
@@ -166,11 +165,6 @@ included in the URL.}
 
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{column_name_type}{"name" or "displayName". Used to match column ID so
 column_name must be unique if \code{column_name_type = "displayName"}.}

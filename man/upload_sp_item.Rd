@@ -16,8 +16,7 @@ upload_sp_item(
   drive = NULL,
   blocksize = 327680000,
   recursive = FALSE,
-  parallel = FALSE,
-  call = caller_env()
+  parallel = FALSE
 )
 
 upload_sp_items(
@@ -31,8 +30,7 @@ upload_sp_items(
   drive = NULL,
   blocksize = 327680000,
   recursive = FALSE,
-  parallel = FALSE,
-  call = caller_env()
+  parallel = FALSE
 )
 }
 \arguments{
@@ -70,11 +68,6 @@ the default for the \code{upload_file} method.}
 
 \item{blocksize, recursive, parallel}{Additional parameters passed to
 \code{upload_folder} or \code{upload_file} method for \code{ms_drive} objects.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \value{
 Invisibly returns the destination path (\code{dest}) for the uploaded

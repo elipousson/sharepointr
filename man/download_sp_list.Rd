@@ -9,8 +9,7 @@ download_sp_list(
   new_path = "",
   sp_list = NULL,
   fileext = "csv",
-  keep_list_cols = c("createdBy", "lastModifiedBy"),
-  call = caller_env()
+  keep_list_cols = c("createdBy", "lastModifiedBy")
 )
 }
 \arguments{
@@ -72,11 +71,6 @@ to \code{...} are ignored.}
 
 \item{keep_list_cols}{Column names for those columns to maintain in a list
 format instead of attempting to convert to a character vector.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \value{
 Invisibly returns the path to the downloaded file.

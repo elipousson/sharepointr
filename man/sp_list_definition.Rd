@@ -8,9 +8,9 @@
 \alias{write_sp_list_yaml}
 \title{Read, write, and create SharePoint list definitions}
 \usage{
-read_sp_list_yaml(path, call = caller_env())
+read_sp_list_yaml(path)
 
-as_sp_list_definition(x, ..., display_name = NULL, call = caller_env())
+as_sp_list_definition(x, ..., display_name = NULL)
 
 get_sp_list_definition(
   sp_list = NULL,
@@ -19,8 +19,7 @@ get_sp_list_definition(
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
-  include_folders = FALSE,
-  call = caller_env()
+  include_folders = FALSE
 )
 
 write_sp_list_yaml(
@@ -33,17 +32,11 @@ write_sp_list_yaml(
   read_only = "stable",
   include_views = FALSE,
   include_folders = FALSE,
-  doc_start = NULL,
-  call = caller_env()
+  doc_start = NULL
 )
 }
 \arguments{
 \item{path}{Path to a YAML file.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{x}{For \code{\link[=write_sp_list_yaml]{write_sp_list_yaml()}}, a \code{sp_list_definition} object or a
 \code{ms_list} object. \code{keep}, \code{keep_defaults}, \code{read_only}, \code{include_views},

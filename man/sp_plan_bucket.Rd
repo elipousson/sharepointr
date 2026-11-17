@@ -12,8 +12,7 @@ list_sp_plan_buckets(
   filter = NULL,
   n = NULL,
   plan = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 }
 \arguments{
@@ -36,11 +35,6 @@ Defaults to \code{NULL} which sets n to \code{Inf}.}
 a data frame of object properties with with a list column named
 "ms_plan_bucket" containing \code{ms_plan_task} objects. If \code{FALSE}, return a
 \code{ms_plan_bucket} object or list of \code{ms_plan_bucket} objects.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \value{
 For \code{\link[=list_sp_plan_buckets]{list_sp_plan_buckets()}}, a list of \code{ms_plan_bucket} class

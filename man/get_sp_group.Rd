@@ -11,8 +11,7 @@ get_sp_group(
   site_name = NULL,
   site_id = NULL,
   ...,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 
 list_sp_group_members(
@@ -21,8 +20,7 @@ list_sp_group_members(
   site_id = NULL,
   ...,
   sp_group = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 }
 \arguments{
@@ -40,11 +38,6 @@ alternative to the SharePoint site URL. Exactly one of  \code{site_url},
 
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{sp_group}{A "az_group" object returned by  \code{\link[=get_sp_group]{get_sp_group()}} or using the \code{get_group} method.}
 

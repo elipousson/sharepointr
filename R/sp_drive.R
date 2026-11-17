@@ -48,6 +48,46 @@ get_sp_drive <- function(
   cache = getOption("sharepointr.cache", FALSE),
   refresh = getOption("sharepointr.refresh", TRUE),
   overwrite = FALSE,
+  cache_file = NULL
+) {
+  .get_sp_drive(
+    drive_name = drive_name,
+    drive_id = drive_id,
+    drive_url = drive_url,
+    properties = properties,
+    ...,
+    site_url = site_url,
+    site = site,
+    default_drive_name = default_drive_name,
+    cache = cache,
+    refresh = refresh,
+    overwrite = overwrite,
+    cache_file = cache_file,
+    call = current_env()
+  )
+}
+
+#' Internal version of [get_sp_drive()] that takes the `call` environment
+#'
+#' Used by other package functions so that errors are reported from the
+#' user-facing function that was called.
+#'
+#' @noRd
+.get_sp_drive <- function(
+  drive_name = NULL,
+  drive_id = NULL,
+  drive_url = NULL,
+  properties = FALSE,
+  ...,
+  site_url = NULL,
+  site = NULL,
+  default_drive_name = getOption(
+    "sharepointr.default_drive_name",
+    "Documents"
+  ),
+  cache = getOption("sharepointr.cache", FALSE),
+  refresh = getOption("sharepointr.refresh", TRUE),
+  overwrite = FALSE,
   cache_file = NULL,
   call = caller_env()
 ) {
@@ -93,7 +133,7 @@ get_sp_drive <- function(
       )
     }
 
-    sp_url_parts <- sp_url_parse(drive_url, call = call)
+    sp_url_parts <- sp_url_parse(drive_url)
     site_url <- site_url %||% sp_url_parts[["site_url"]]
     drive_name <- drive_name %||% sp_url_parts[["drive_name"]]
     drive_id <- drive_id %||% sp_url_parts[["drive_id"]]
@@ -109,7 +149,7 @@ get_sp_drive <- function(
   }
 
   site <- site %||%
-    get_sp_site(
+    .get_sp_site(
       site_url = site_url,
       ...,
       refresh = refresh,
@@ -127,8 +167,7 @@ get_sp_drive <- function(
     cache_sp_drive(
       drive = drive,
       cache_file = cache_file,
-      overwrite = overwrite,
-      call = call
+      overwrite = overwrite
     )
   }
 
@@ -152,10 +191,13 @@ cache_sp_drive <- function(
     "sharepointr.cache_file_drive",
     "sp_drive.rds"
   ),
-  overwrite = FALSE,
-  call = caller_env()
+  overwrite = FALSE
 ) {
-  drive <- drive %||% get_sp_drive(..., call = call)
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
+  drive <- drive %||% .get_sp_drive(..., call = call)
 
   check_ms_drive(drive, call = call)
 
@@ -190,10 +232,10 @@ list_sp_drives <- function(
   site = NULL,
   filter = NULL,
   n = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 ) {
-  sp_site <- site %||% get_sp_site(..., call = call)
+  call <- current_env()
+  sp_site <- site %||% .get_sp_site(..., call = call)
 
   site_drives <- sp_site$list_drives(filter = filter, n = n %||% Inf)
 
@@ -273,9 +315,9 @@ create_sp_drive <- function(
   definition = NULL,
   properties = FALSE,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 ) {
+  call <- current_env()
   check_bool(properties, call = call)
 
   if (has_name(list2(...), "template")) {
@@ -288,10 +330,10 @@ create_sp_drive <- function(
 
   if (!is.null(definition)) {
     if (is_string(definition)) {
-      definition <- read_sp_list_yaml(definition, call = call)
+      definition <- read_sp_list_yaml(definition)
     }
 
-    definition <- as_sp_list_definition(definition, call = call)
+    definition <- as_sp_list_definition(definition)
     template <- definition[["list"]][["template"]]
 
     if (!is.null(template) && template != "documentLibrary") {
@@ -317,8 +359,7 @@ create_sp_drive <- function(
     template = "documentLibrary",
     definition = definition,
     site_url = site_url,
-    site = site,
-    call = call
+    site = site
   )
 
   drive <- sp_list_drive(sp_list)
@@ -387,9 +428,9 @@ update_sp_drive <- function(
   ...,
   properties = FALSE,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 ) {
+  call <- current_env()
   check_string(display_name, allow_null = TRUE, call = call)
   check_string(description, allow_null = TRUE, call = call)
   check_bool(properties, call = call)
@@ -402,7 +443,7 @@ update_sp_drive <- function(
   }
 
   drive <- drive %||%
-    get_sp_drive(
+    .get_sp_drive(
       drive_name = drive_name,
       drive_id = drive_id,
       drive_url = drive_url,
@@ -417,8 +458,7 @@ update_sp_drive <- function(
   update_sp_list(
     sp_list = sp_drive_list(drive),
     display_name = display_name,
-    description = description,
-    call = call
+    description = description
   )
 
   drive$sync_fields()
@@ -440,13 +480,13 @@ delete_sp_drive <- function(
   confirm = TRUE,
   ...,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 ) {
+  call <- current_env()
   check_bool(confirm, call = call)
 
   drive <- drive %||%
-    get_sp_drive(
+    .get_sp_drive(
       drive_name = drive_name,
       drive_id = drive_id,
       drive_url = drive_url,

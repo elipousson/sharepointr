@@ -17,8 +17,7 @@ create_sp_list(
   title_definition = list(required = FALSE),
   definition = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 
 update_sp_list(
@@ -32,8 +31,7 @@ update_sp_list(
   site = NULL,
   drive_name = NULL,
   drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
+  drive = NULL
 )
 
 delete_sp_list(
@@ -46,8 +44,7 @@ delete_sp_list(
   site = NULL,
   drive_name = NULL,
   drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
+  drive = NULL
 )
 }
 \arguments{
@@ -92,11 +89,6 @@ included in the URL.}
 
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{list_id}{List ID for list to update or delete.}
 

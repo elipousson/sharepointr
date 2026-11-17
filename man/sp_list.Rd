@@ -17,8 +17,7 @@ get_sp_list(
   drive_id = NULL,
   drive = NULL,
   metadata = deprecated(),
-  as_data_frame = FALSE,
-  call = caller_env()
+  as_data_frame = FALSE
 )
 
 list_sp_lists(
@@ -30,8 +29,7 @@ list_sp_lists(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 
 get_sp_list_metadata(
@@ -46,8 +44,7 @@ get_sp_list_metadata(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 }
 \arguments{
@@ -95,11 +92,6 @@ list. Use \code{\link[=get_sp_list_metadata]{get_sp_list_metadata()}} with \code
 data frame with n rows or all lists available for the SharePoint site or
 drive. Defaults to \code{FALSE}. Ignored is \code{metadata = TRUE} as list metadata
 is always returned as a data frame.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{filter}{A string with \href{https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter}{an OData expression}
 apply as a filter to the results. Learn more in the \href{https://learn.microsoft.com/en-us/graph/filter-query-parameter}{Microsoft Graph API documentation}

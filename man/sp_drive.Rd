@@ -18,16 +18,14 @@ get_sp_drive(
   cache = getOption("sharepointr.cache", FALSE),
   refresh = getOption("sharepointr.refresh", TRUE),
   overwrite = FALSE,
-  cache_file = NULL,
-  call = caller_env()
+  cache_file = NULL
 )
 
 cache_sp_drive(
   ...,
   drive = NULL,
   cache_file = getOption("sharepointr.cache_file_drive", "sp_drive.rds"),
-  overwrite = FALSE,
-  call = caller_env()
+  overwrite = FALSE
 )
 }
 \arguments{
@@ -74,11 +72,6 @@ it exists.}
 the same \code{cache_file} name already exists.}
 
 \item{cache_file}{File name for cached drive or site. Default \code{NULL}.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{drive}{A \code{ms_drive} object. If \code{drive} is supplied, \code{drive_name} and
 \code{drive_id} are ignored.}

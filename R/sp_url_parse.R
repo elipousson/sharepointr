@@ -50,7 +50,11 @@
 #' @export
 #' @importFrom httr2 url_parse
 #' @importFrom stringr str_detect
-sp_url_parse <- function(url, call = caller_env()) {
+sp_url_parse <- function(url) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   check_url(url, call = call)
 
   # TODO: Add parsing for Planner URLs

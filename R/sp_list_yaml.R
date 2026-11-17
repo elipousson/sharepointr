@@ -245,7 +245,11 @@ NULL
 
 #' @rdname sp_list_definition
 #' @export
-read_sp_list_yaml <- function(path, call = caller_env()) {
+read_sp_list_yaml <- function(path) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   check_installed("yaml12", call = call)
   check_string(path, call = call)
 
@@ -272,7 +276,7 @@ read_sp_list_yaml <- function(path, call = caller_env()) {
 
   doc <- if (length(docs) == 1) docs[[1]]
 
-  as_sp_list_definition(doc, call = call)
+  as_sp_list_definition(doc)
 }
 
 #' @rdname sp_list_definition
@@ -283,9 +287,9 @@ read_sp_list_yaml <- function(path, call = caller_env()) {
 as_sp_list_definition <- function(
   x,
   ...,
-  display_name = NULL,
-  call = caller_env()
+  display_name = NULL
 ) {
+  call <- current_env()
   check_dots_empty()
 
   if (!is.list(x)) {
@@ -849,15 +853,15 @@ get_sp_list_definition <- function(
   keep_defaults = FALSE,
   read_only = "stable",
   include_views = FALSE,
-  include_folders = FALSE,
-  call = caller_env()
+  include_folders = FALSE
 ) {
+  call <- current_env()
   check_bool(include_views, call = call)
   check_bool(include_folders, call = call)
   read_only <- resolve_read_only_props(read_only, call = call)
 
   sp_list <- sp_list %||%
-    get_sp_list(..., as_data_frame = FALSE, call = call)
+    .get_sp_list(..., as_data_frame = FALSE, call = call)
 
   check_ms_obj(sp_list, "ms_list", call = call)
 
@@ -947,7 +951,7 @@ get_sp_list_definition_views <- function(
   keep_defaults = FALSE,
   call = caller_env()
 ) {
-  views <- list_sp_list_views(sp_list, as_data_frame = FALSE, call = call)
+  views <- list_sp_list_views(sp_list, as_data_frame = FALSE)
   views <- purrr::discard(views, \(view) isTRUE(view[["PersonalView"]]))
 
   purrr::map(
@@ -973,7 +977,7 @@ sp_list_live_columns <- function(
   keep = "visible",
   call = caller_env()
 ) {
-  meta <- get_sp_list_metadata(
+  meta <- .get_sp_list_metadata(
     sp_list = sp_list,
     keep = keep,
     as_data_frame = FALSE,
@@ -1154,9 +1158,9 @@ write_sp_list_yaml <- function(
   read_only = "stable",
   include_views = FALSE,
   include_folders = FALSE,
-  doc_start = NULL,
-  call = caller_env()
+  doc_start = NULL
 ) {
+  call <- current_env()
   check_dots_empty()
   check_installed("yaml12", call = call)
   check_string(path, call = call)
@@ -1170,8 +1174,7 @@ write_sp_list_yaml <- function(
       keep_defaults = keep_defaults,
       read_only = read_only,
       include_views = include_views,
-      include_folders = include_folders,
-      call = call
+      include_folders = include_folders
     )
   } else {
     ignored <- c(
@@ -1194,7 +1197,7 @@ write_sp_list_yaml <- function(
       )
     }
 
-    x <- as_sp_list_definition(x, call = call)
+    x <- as_sp_list_definition(x)
   }
 
   header <- NULL
@@ -1204,7 +1207,7 @@ write_sp_list_yaml <- function(
     header <- read_yaml_header(path, call = call)
     existing_doc_start <- attr(header, "doc_start")
     attr(header, "doc_start") <- NULL
-    existing <- read_sp_list_yaml(path, call = call)
+    existing <- read_sp_list_yaml(path)
     x <- merge_sp_list_definition(x, existing, call = call)
   }
 

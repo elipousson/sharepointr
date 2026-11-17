@@ -247,7 +247,9 @@ test_that("upload_sp_item() uses the drive and folder from the shares API", {
     sp_shares_get_drive_path = function(url, ...) {
       list(drive = drive, path = "Folder A/B", is_folder = TRUE)
     },
-    get_sp_drive = function(...) stop("get_sp_drive() shouldn't be called")
+    !!!mock_sp_fn(get_sp_drive = function(...) {
+      stop("get_sp_drive() shouldn't be called")
+    })
   )
 
   local_file <- withr::local_tempfile(fileext = ".txt", lines = "test")
@@ -304,7 +306,9 @@ test_that("upload_sp_items() uploads to destinations in different drives", {
       drive <- if (grepl("TeamA", url)) "a" else "b"
       list(drive = drives[[drive]], path = "Folder", is_folder = TRUE)
     },
-    get_sp_drive = function(...) stop("get_sp_drive() shouldn't be called")
+    !!!mock_sp_fn(get_sp_drive = function(...) {
+      stop("get_sp_drive() shouldn't be called")
+    })
   )
 
   local_files <- c(

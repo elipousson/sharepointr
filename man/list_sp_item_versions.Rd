@@ -13,8 +13,7 @@ list_sp_item_versions(
   modified_between = NULL,
   item_cols = c("id", "none", "summary"),
   version_cols = c("properties", "all"),
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 
 get_sp_item_version(
@@ -23,8 +22,7 @@ get_sp_item_version(
   sp_item = NULL,
   item_cols = c("id", "none", "summary"),
   version_cols = c("properties", "all"),
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 
 download_sp_item_version(
@@ -32,8 +30,7 @@ download_sp_item_version(
   ...,
   sp_item = NULL,
   dest = NULL,
-  overwrite = FALSE,
-  call = caller_env()
+  overwrite = FALSE
 )
 }
 \arguments{
@@ -89,11 +86,6 @@ names that \code{\link[=sp_dir_info]{sp_dir_info()}} returns).}
 
 \item{as_data_frame}{If \code{TRUE} (default), return a data frame. If \code{FALSE},
 return the response from the API as a list.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{version_id}{Version ID, e.g. \code{"3.0"}, as returned by
 \code{\link[=list_sp_item_versions]{list_sp_item_versions()}}.}

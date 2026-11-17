@@ -75,7 +75,7 @@ skip_if_no_ms_graph_credentials <- function() {
 }
 
 skip_if_no_ms_site <- function(url) {
-  url_parts <- sp_url_parse(url, call = call)
+  url_parts <- sp_url_parse(url)
   site_url <- url_parts[["site_url"]]
 
   if (!is_sp_site_url(site_url)) {
@@ -146,3 +146,11 @@ withr::local_options(
   ),
   .local_envir = teardown_env()
 )
+
+# Mock exported functions and their internal dot-prefixed versions (used by
+# other package functions to pass on `call`), e.g.
+# `local_mocked_bindings(!!!mock_sp_fn(get_sp_site = function(...) NULL))`
+mock_sp_fn <- function(...) {
+  fns <- rlang::list2(...)
+  c(fns, rlang::set_names(fns, paste0(".", names(fns))))
+}

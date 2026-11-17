@@ -12,18 +12,10 @@ get_sp_plan(
   ...,
   site = NULL,
   site_url = NULL,
-  as_data_frame = FALSE,
-  call = caller_env()
+  as_data_frame = FALSE
 )
 
-list_sp_plans(
-  ...,
-  filter = NULL,
-  n = NULL,
-  site = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
-)
+list_sp_plans(..., filter = NULL, n = NULL, site = NULL, as_data_frame = TRUE)
 }
 \arguments{
 \item{plan_title, plan_id}{Planner title or ID. Exactly one of the two
@@ -43,11 +35,6 @@ included in the URL.}
 frame with the plan title, id, creation date/time, and owner ID with a list
 column named "ms_plan" containing \code{ms_plan} objects. If \code{FALSE} (default
 \code{\link[=get_sp_plan]{get_sp_plan()}}), return a \code{ms_plan} object or list of \code{ms_plan} objects.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{filter}{A string with \href{https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter}{an OData expression}
 apply as a filter to the results. Learn more in the \href{https://learn.microsoft.com/en-us/graph/filter-query-parameter}{Microsoft Graph API documentation}

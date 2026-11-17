@@ -15,8 +15,7 @@ list_sp_list_views(
   as_data_frame = TRUE,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 
 get_sp_list_view(
@@ -26,8 +25,7 @@ get_sp_list_view(
   ...,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 
 create_sp_list_view(
@@ -45,8 +43,7 @@ create_sp_list_view(
   view_definition = NULL,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 
 update_sp_list_view(
@@ -66,8 +63,7 @@ update_sp_list_view(
   view_definition = NULL,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 
 delete_sp_list_view(
@@ -78,8 +74,7 @@ delete_sp_list_view(
   confirm = TRUE,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 }
 \arguments{
@@ -107,11 +102,6 @@ included in the URL.}
 
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{view_title, view_id}{Title or ID of an existing view. If both are
 \code{NULL}, \code{\link[=get_sp_list_view]{get_sp_list_view()}} returns the default view.}

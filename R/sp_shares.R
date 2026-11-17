@@ -84,7 +84,7 @@ sp_shares_get_item <- function(
       return(NULL)
     }
 
-    site <- get_sp_site(site_url = site_url, ..., call = call)
+    site <- .get_sp_site(site_url = site_url, ..., call = call)
   }
 
   check_ms_site(site, call = call)
@@ -209,7 +209,7 @@ sp_url_get_folder <- function(
   }
 
   url_parts <- try_fetch(
-    sp_url_parse(url, call = call),
+    sp_url_parse(url),
     error = function(cnd) {
       if (is.null(shares_cnd)) {
         cnd_signal(cnd)

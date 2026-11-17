@@ -20,10 +20,13 @@ list_sp_pages <- function(
   ...,
   site = NULL,
   page_type = c("sitePage", "page"),
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 ) {
-  sp_site <- site %||% get_sp_site(..., call = call)
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
+  sp_site <- site %||% .get_sp_site(..., call = call)
 
   page_type <- arg_match(page_type, error_call = call)
 

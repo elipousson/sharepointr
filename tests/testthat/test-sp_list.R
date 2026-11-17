@@ -716,11 +716,13 @@ test_that("get_sp_lookup_list gets lookup lists from the same site", {
   get_args <- list()
 
   local_mocked_bindings(
-    get_sp_site = function(...) stop("The site should not be requested"),
-    get_sp_list = function(list_name, ..., site = NULL) {
+    !!!mock_sp_fn(get_sp_site = function(...) {
+      stop("The site should not be requested")
+    }),
+    !!!mock_sp_fn(get_sp_list = function(list_name, ..., site = NULL) {
       get_args <<- list(list_name = list_name, site = site)
       new_ms_list(list_name, if (list_name == "Other") "site-2" else "site-1")
-    }
+    })
   )
 
   # ms_list objects are returned as is
@@ -821,7 +823,9 @@ test_that("get_sp_list_column() and update_sp_list_column() use list metadata fo
   )
 
   local_mocked_bindings(
-    get_sp_list_metadata = function(..., as_data_frame = TRUE) col_metadata
+    !!!mock_sp_fn(get_sp_list_metadata = function(..., as_data_frame = TRUE) {
+      col_metadata
+    })
   )
 
   ops <- list()

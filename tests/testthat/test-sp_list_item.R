@@ -256,10 +256,10 @@ test_that("update_sp_list_items() updates items from a data frame or a list of r
   n_metadata_calls <- 0
 
   local_mocked_bindings(
-    get_sp_list_metadata = function(..., as_data_frame = TRUE) {
+    !!!mock_sp_fn(get_sp_list_metadata = function(..., as_data_frame = TRUE) {
       n_metadata_calls <<- n_metadata_calls + 1
       col_metadata
-    }
+    })
   )
 
   # Minimal stand-in for a Microsoft365R::ms_list that records update calls
@@ -377,10 +377,10 @@ test_that("create_sp_list_items() creates items with multi-value fields", {
   n_metadata_calls <- 0
 
   local_mocked_bindings(
-    get_sp_list_metadata = function(..., as_data_frame = TRUE) {
+    !!!mock_sp_fn(get_sp_list_metadata = function(..., as_data_frame = TRUE) {
       n_metadata_calls <<- n_metadata_calls + 1
       col_metadata
-    }
+    })
   )
 
   # Minimal stand-in for a Microsoft365R::ms_list that records create calls
@@ -587,17 +587,17 @@ local_fake_item_list <- function(env = parent.frame()) {
   }
 
   local_mocked_bindings(
-    get_sp_list = function(...) {
+    !!!mock_sp_fn(get_sp_list = function(...) {
       requests$n_get_list <- requests$n_get_list + 1
       sp_list
-    },
-    get_sp_list_metadata = function(...) {
+    }),
+    !!!mock_sp_fn(get_sp_list_metadata = function(...) {
       requests$n_metadata <- requests$n_metadata + 1
       list(
         list(name = "Title", text = list()),
         list(name = "Choices", choice = list(displayAs = "checkBoxes"))
       )
-    },
+    }),
     .env = env
   )
 
@@ -1142,10 +1142,10 @@ test_that("list_sp_list_items() fetches column metadata once for select, formatt
   graph_expand <- NULL
 
   local_mocked_bindings(
-    get_sp_list_metadata = function(..., as_data_frame = TRUE) {
+    !!!mock_sp_fn(get_sp_list_metadata = function(..., as_data_frame = TRUE) {
       n_metadata_calls <<- n_metadata_calls + 1
       col_metadata
-    },
+    }),
     .sp_extract_list_values = function(pager, ...) {
       fields <- data.frame(
         `@odata.etag` = "1",

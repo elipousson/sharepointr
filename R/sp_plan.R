@@ -28,9 +28,12 @@ get_sp_plan <- function(
   ...,
   site = NULL,
   site_url = NULL,
-  as_data_frame = FALSE,
-  call = caller_env()
+  as_data_frame = FALSE
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   if (is_url(plan_title)) {
     site_url <- site_url %||% plan_title
   }
@@ -38,8 +41,7 @@ get_sp_plan <- function(
   grp <- get_sp_group(
     site = site,
     site_url = site_url,
-    ...,
-    call = call
+    ...
   )
 
   check_exclusive_strings(plan_title, plan_id, call = call)
@@ -73,13 +75,12 @@ list_sp_plans <- function(
   filter = NULL,
   n = NULL,
   site = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 ) {
+  call <- current_env()
   grp <- get_sp_group(
     ...,
-    site = site,
-    call = call
+    site = site
   )
 
   check_ms_obj(grp, "az_group", call = call)

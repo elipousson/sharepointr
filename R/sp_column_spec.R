@@ -254,9 +254,12 @@ sp_column_prop_hints <- c(
 as_column_definition <- function(
   x,
   ...,
-  allow_custom = TRUE,
-  call = caller_env()
+  allow_custom = TRUE
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   check_dots_empty()
   validate_column_definition(
     x,

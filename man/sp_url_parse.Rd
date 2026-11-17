@@ -7,7 +7,7 @@
 \alias{sp_url_parse_query}
 \title{Parse a SharePoint URL using \code{httr2::url_parse}}
 \usage{
-sp_url_parse(url, call = caller_env())
+sp_url_parse(url)
 
 sp_url_parse_hostname(hostname, tenant = "[a-zA-Z0-9.-]+", scheme = "https")
 

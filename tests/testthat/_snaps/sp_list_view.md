@@ -3,7 +3,7 @@
     Code
       get_sp_list_view(new_fake_ms_list(), view_title = "A", view_id = "B")
     Condition
-      Error:
+      Error in `get_sp_list_view()`:
       ! Supply `view_title` or `view_id`, not both.
 
 # update_sp_list_view and delete_sp_list_view protect the default view
@@ -11,19 +11,19 @@
     Code
       update_sp_list_view(new_fake_ms_list(), view_title = "All Items", default_view = FALSE)
     Condition
-      Error:
+      Error in `update_sp_list_view()`:
       ! "All Items" is the default view.
       i Set another view as the default view instead.
     Code
       delete_sp_list_view(new_fake_ms_list(), view_title = "All Items", confirm = FALSE)
     Condition
-      Error:
+      Error in `delete_sp_list_view()`:
       ! "All Items" is the default view and can't be deleted.
       i Set another view as the default view first.
     Code
       delete_sp_list_view(new_fake_ms_list())
     Condition
-      Error:
+      Error in `delete_sp_list_view()`:
       ! `view_title` or `view_id` must be supplied.
 
 # validate_view_definition validates view properties
@@ -57,7 +57,7 @@
       create_sp_list_view(list(), view_definition = list(Title = "A"), row_limit = 10,
       paged = FALSE)
     Condition
-      Error:
+      Error in `create_sp_list_view()`:
       ! Supply `view_definition` or view arguments, not both.
       x Also supplied: `row_limit` and `paged`.
 

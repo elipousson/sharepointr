@@ -22,7 +22,7 @@ get_ms_list_obj <- function(
 
   if (get_sp_drive_obj) {
     drive <- drive %||%
-      get_sp_drive(
+      .get_sp_drive(
         drive_name = drive_name,
         drive_id = drive_id,
         ...,
@@ -38,7 +38,7 @@ get_ms_list_obj <- function(
   }
 
   site <- site %||%
-    get_sp_site(
+    .get_sp_site(
       site_url = site_url,
       ...,
       call = call
@@ -94,6 +94,39 @@ get_sp_list <- function(
   drive_id = NULL,
   drive = NULL,
   metadata = deprecated(),
+  as_data_frame = FALSE
+) {
+  .get_sp_list(
+    list_name = list_name,
+    list_id = list_id,
+    ...,
+    site_url = site_url,
+    site = site,
+    drive_name = drive_name,
+    drive_id = drive_id,
+    drive = drive,
+    metadata = metadata,
+    as_data_frame = as_data_frame,
+    call = current_env()
+  )
+}
+
+#' Internal version of [get_sp_list()] that takes the `call` environment
+#'
+#' Used by other package functions so that errors are reported from the
+#' user-facing function that was called.
+#'
+#' @noRd
+.get_sp_list <- function(
+  list_name = NULL,
+  list_id = NULL,
+  ...,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
+  metadata = deprecated(),
   as_data_frame = FALSE,
   call = caller_env()
 ) {
@@ -116,8 +149,7 @@ get_sp_list <- function(
     check_sp_list_url(url, call = call)
 
     sp_url_parts <- sp_url_parse(
-      url = url,
-      call = call
+      url = url
     )
 
     # FIXME: Parsing the drive_name for lists does not typically work
@@ -159,14 +191,12 @@ get_sp_list <- function(
     if (is_ms_site(ms_list_obj)) {
       sp_lists <- list_sp_lists(
         site = ms_list_obj,
-        as_data_frame = FALSE,
-        call = call
+        as_data_frame = FALSE
       )
     } else if (is_ms_drive(ms_list_obj)) {
       sp_lists <- list_sp_lists(
         drive = ms_list_obj,
-        as_data_frame = FALSE,
-        call = call
+        as_data_frame = FALSE
       )
     } else {
       # TODO: Add handling for displayName validation
@@ -177,8 +207,7 @@ get_sp_list <- function(
         drive_name = drive_name,
         drive_id = drive_id,
         as_data_frame = FALSE,
-        drive = drive,
-        call = call
+        drive = drive
       )
     }
 
@@ -287,9 +316,12 @@ list_sp_lists <- function(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   ms_list_obj <- get_ms_list_obj(
     site_url = site_url,
     ...,
@@ -346,11 +378,48 @@ get_sp_list_metadata <- function(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
+  as_data_frame = TRUE
+) {
+  .get_sp_list_metadata(
+    list_name = list_name,
+    list_id = list_id,
+    sp_list = sp_list,
+    ...,
+    keep = keep,
+    select = select,
+    site_url = site_url,
+    site = site,
+    drive_name = drive_name,
+    drive_id = drive_id,
+    drive = drive,
+    as_data_frame = as_data_frame,
+    call = current_env()
+  )
+}
+
+#' Internal version of [get_sp_list_metadata()] that takes the `call` environment
+#'
+#' Used by other package functions so that errors are reported from the
+#' user-facing function that was called.
+#'
+#' @noRd
+.get_sp_list_metadata <- function(
+  list_name = NULL,
+  list_id = NULL,
+  sp_list = NULL,
+  ...,
+  keep = c("visible", "all", "editable", "external"),
+  select = NULL,
+  site_url = NULL,
+  site = NULL,
+  drive_name = NULL,
+  drive_id = NULL,
+  drive = NULL,
   as_data_frame = TRUE,
   call = caller_env()
 ) {
   sp_list <- sp_list %||%
-    get_sp_list(
+    .get_sp_list(
       list_name = list_name,
       list_id = list_id,
       ...,
@@ -397,7 +466,7 @@ get_sp_list_metadata <- function(
 
   vctrs::vec_slice(
     sp_list_meta,
-    pull_sp_list_cols(sp_list_meta, col_type = keep, call = call)
+    pull_sp_list_cols(sp_list_meta, col_type = keep)
   )
 }
 
@@ -489,9 +558,9 @@ create_sp_list <- function(
   ),
   definition = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 ) {
+  call <- current_env()
   if (inherits(columns, "sp_list_definition")) {
     if (!is.null(definition)) {
       cli_abort(
@@ -513,10 +582,10 @@ create_sp_list <- function(
     }
 
     if (is_string(definition)) {
-      definition <- read_sp_list_yaml(definition, call = call)
+      definition <- read_sp_list_yaml(definition)
     }
 
-    definition <- as_sp_list_definition(definition, call = call)
+    definition <- as_sp_list_definition(definition)
     list_info <- definition[["list"]]
 
     if (!is.null(definition[["id"]])) {
@@ -567,7 +636,7 @@ create_sp_list <- function(
   }
 
   site <- site %||%
-    get_sp_site(
+    .get_sp_site(
       site_url = site_url,
       ...,
       call = call
@@ -633,8 +702,7 @@ create_sp_list <- function(
       list = create_list_info(
         hidden = hidden,
         content_types = content_types,
-        template = template,
-        call = call
+        template = template
       )
     )
   )
@@ -689,8 +757,7 @@ create_sp_list <- function(
       update_sp_list_column(
         sp_list = sp_list,
         column_name = "Title",
-        column_definition = c(list(name = "Title"), title_definition),
-        call = call
+        column_definition = c(list(name = "Title"), title_definition)
       )
     )
   }
@@ -698,8 +765,7 @@ create_sp_list <- function(
   for (column in calculated_columns) {
     create_sp_list_column(
       sp_list = sp_list,
-      column_definition = column,
-      call = call
+      column_definition = column
     )
   }
 
@@ -768,8 +834,7 @@ create_sp_list_definition_views <- function(
       updated <- update_sp_list_view(
         sp_list,
         view_title = default_view_title,
-        view_definition = view,
-        call = call
+        view_definition = view
       )
 
       view_ids[[view[["Title"]]]] <- updated[["Id"]]
@@ -815,11 +880,11 @@ update_sp_list <- function(
   site = NULL,
   drive_name = NULL,
   drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
+  drive = NULL
 ) {
+  call <- current_env()
   sp_list <- sp_list %||%
-    get_sp_list(
+    .get_sp_list(
       list_name = list_name,
       list_id = list_id,
       ...,
@@ -860,11 +925,11 @@ delete_sp_list <- function(
   site = NULL,
   drive_name = NULL,
   drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
+  drive = NULL
 ) {
+  call <- current_env()
   sp_list <- sp_list %||%
-    get_sp_list(
+    .get_sp_list(
       list_name = list_name,
       list_id = list_id,
       ...,
@@ -916,9 +981,9 @@ create_list_info <- function(
     "contacts"
   ),
   content_types = NULL,
-  hidden = NULL,
-  call = caller_env()
+  hidden = NULL
 ) {
+  call <- current_env()
   # Validate listinfo properties
   template <- arg_match(template, error_call = call)
 
@@ -958,11 +1023,11 @@ get_sp_list_column <- function(
   list_name = NULL,
   site_url = NULL,
   site = NULL,
-  column_name_type = "name",
-  call = caller_env()
+  column_name_type = "name"
 ) {
+  call <- current_env()
   sp_list <- sp_list %||%
-    get_sp_list(
+    .get_sp_list(
       list_name = list_name,
       ...,
       site_url = site_url,
@@ -1033,11 +1098,11 @@ create_sp_list_column <- function(
   column_definition = NULL,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 ) {
+  call <- current_env()
   sp_list <- sp_list %||%
-    get_sp_list(
+    .get_sp_list(
       list_name = list_name,
       site_url = site_url,
       site = site,
@@ -1125,11 +1190,11 @@ update_sp_list_column <- function(
   site_url = NULL,
   site = NULL,
   column_definition = NULL,
-  column_name_type = "name",
-  call = caller_env()
+  column_name_type = "name"
 ) {
+  call <- current_env()
   sp_list <- sp_list %||%
-    get_sp_list(
+    .get_sp_list(
       list_name = list_name,
       site_url = site_url,
       site = site,
@@ -1219,11 +1284,11 @@ delete_sp_list_column <- function(
   list_name = NULL,
   site_url = NULL,
   site = NULL,
-  column_name_type = "name",
-  call = caller_env()
+  column_name_type = "name"
 ) {
+  call <- current_env()
   sp_list <- sp_list %||%
-    get_sp_list(
+    .get_sp_list(
       list_name = list_name,
       site_url = site_url,
       site = site,
@@ -1292,7 +1357,7 @@ sp_list_column_by_name <- function(
     error_call = call
   )
 
-  col_metadata <- get_sp_list_metadata(
+  col_metadata <- .get_sp_list_metadata(
     sp_list = sp_list,
     as_data_frame = FALSE,
     call = call
@@ -1354,13 +1419,13 @@ create_sp_list_lookup_column <- function(
   ...,
   list_name = NULL,
   site = NULL,
-  site_url = NULL,
-  call = caller_env()
+  site_url = NULL
 ) {
+  call <- current_env()
   check_string(column_name, call = call)
 
   sp_list <- sp_list %||%
-    get_sp_list(
+    .get_sp_list(
       list_name = list_name,
       site = site,
       site_url = site_url,
@@ -1385,8 +1450,7 @@ create_sp_list_lookup_column <- function(
 
   create_sp_list_column(
     sp_list = sp_list,
-    column_definition = lookup_column_definition,
-    call = call
+    column_definition = lookup_column_definition
   )
 }
 
@@ -1404,9 +1468,9 @@ create_sp_list_person_column <- function(
   list_name = NULL,
   site = NULL,
   site_url = NULL,
-  allow_multiple = deprecated(),
-  call = caller_env()
+  allow_multiple = deprecated()
 ) {
+  call <- current_env()
   check_string(column_name, call = call)
 
   if (lifecycle::is_present(allow_multiple)) {
@@ -1429,8 +1493,7 @@ create_sp_list_person_column <- function(
     ),
     list_name = list_name,
     site = site,
-    site_url = site_url,
-    call = call
+    site_url = site_url
   )
 }
 
@@ -1455,14 +1518,14 @@ get_sp_lookup_list <- function(
     check_string(lookup_list, allow_empty = FALSE, arg = arg, call = call)
 
     if (!is.null(sp_list) && !is_url(lookup_list)) {
-      lookup_list <- get_sp_list(
+      lookup_list <- .get_sp_list(
         list_name = lookup_list,
         site = sp_list_site(sp_list),
         as_data_frame = FALSE,
         call = call
       )
     } else {
-      lookup_list <- get_sp_list(
+      lookup_list <- .get_sp_list(
         list_name = lookup_list,
         ...,
         as_data_frame = FALSE,
@@ -1571,16 +1634,16 @@ update_sp_list_lookup_items <- function(
   .id = "id",
   ignore_case = FALSE,
   na_fields = c("drop", "replace"),
-  .progress = TRUE,
-  call = caller_env()
+  .progress = TRUE
 ) {
+  call <- current_env()
   check_string(column_name, call = call)
   check_string(join_column, call = call)
   check_string(lookup_join_column, call = call)
   check_bool(ignore_case, call = call)
 
   sp_list <- sp_list %||%
-    get_sp_list(
+    .get_sp_list(
       ...,
       as_data_frame = FALSE,
       call = call
@@ -1592,8 +1655,7 @@ update_sp_list_lookup_items <- function(
     get_sp_list_items(
       sp_list = sp_list,
       ...,
-      select = c(.id, join_column),
-      call = call
+      select = c(.id, join_column)
     )
 
   if (is.null(lookup_list_data)) {
@@ -1652,8 +1714,7 @@ update_sp_list_lookup_items <- function(
     allow_display_nm = FALSE,
     check_fields = FALSE,
     na_fields = na_fields,
-    .progress = .progress,
-    call = call
+    .progress = .progress
   )
 }
 
@@ -1668,9 +1729,9 @@ fmt_sp_list_lookup_items <- function(
   lookup_join_column = column_name,
   ...,
   .id = "id",
-  ignore_case = FALSE,
-  call = caller_env()
+  ignore_case = FALSE
 ) {
+  call <- current_env()
   check_character(column_name, call = call)
   check_character(lookup_join_column, call = call)
   check_bool(ignore_case, call = call)
@@ -1963,9 +2024,9 @@ pull_sp_list_cols <- function(
     "editable",
     "external"
   ),
-  names_from = c("name", "displayName"),
-  call = caller_env()
+  names_from = c("name", "displayName")
 ) {
+  call <- current_env()
   if (!is.data.frame(sp_list_meta) && !is_bare_list(sp_list_meta)) {
     stop_input_type(
       sp_list_meta,

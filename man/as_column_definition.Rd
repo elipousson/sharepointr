@@ -4,7 +4,7 @@
 \alias{as_column_definition}
 \title{Validate a column definition}
 \usage{
-as_column_definition(x, ..., allow_custom = TRUE, call = caller_env())
+as_column_definition(x, ..., allow_custom = TRUE)
 }
 \arguments{
 \item{x}{A named list of columnDefinition properties.}
@@ -12,11 +12,6 @@ as_column_definition(x, ..., allow_custom = TRUE, call = caller_env())
 \item{...}{Must be empty.}
 
 \item{allow_custom}{If \code{TRUE} (default), allow a \code{custom} element.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \value{
 The validated column definition \code{x} with \code{choices} converted to a

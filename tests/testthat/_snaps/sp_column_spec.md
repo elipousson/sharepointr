@@ -3,80 +3,80 @@
     Code
       as_column_definition(list(displayName = "No name", text = list()))
     Condition
-      Error:
+      Error in `as_column_definition()`:
       ! `column.name` must be a valid name, not `NULL`.
     Code
       as_column_definition(list(name = "NoType"))
     Condition
-      Error:
+      Error in `as_column_definition()`:
       ! NoType must have a column type key.
       i Use one of boolean, calculated, choice, contentApprovalStatus, currency, dateTime, geolocation, hyperlinkOrPicture, lookup, number, personOrGroup, term, text, or thumbnail, e.g. `text: {}`.
     Code
       as_column_definition(list(name = "TwoTypes", text = list(), number = list()))
     Condition
-      Error:
+      Error in `as_column_definition()`:
       ! TwoTypes must have one column type key, not 2: text and number.
     Code
       as_column_definition(list(name = "Label", label = "Label", text = list()))
     Condition
-      Error:
+      Error in `as_column_definition()`:
       ! Label has unknown property: label.
       i Use displayName in place of label.
     Code
       as_column_definition(list(name = "ReadOnly", type = "text", text = list()))
     Condition
-      Error:
+      Error in `as_column_definition()`:
       ! ReadOnly has unknown property: type.
       i type is read-only.
       i Use a column type key, e.g. `text: {}` in place of type.
     Code
       as_column_definition(list(name = "Lines", text = list(multiple_lines = TRUE)))
     Condition
-      Error:
+      Error in `as_column_definition()`:
       ! Lines.text has unknown property: multiple_lines.
       i Use allowMultipleLines in place of multiple_lines.
       i Allowed properties: allowMultipleLines, appendChangesToExistingText, linesForEditing, maxLength, and textType.
     Code
       as_column_definition(list(name = "Display", choice = list(displayAs = "list")))
     Condition
-      Error:
+      Error in `as_column_definition()`:
       ! `Display.choice.displayAs` must be one of "checkBoxes", "dropDownMenu", or "radioButtons", not "list".
     Code
       as_column_definition(list(name = "Bool", text = list(allowMultipleLines = "yes")))
     Condition
-      Error:
+      Error in `as_column_definition()`:
       ! `Bool.text.allowMultipleLines` must be `TRUE` or `FALSE`, not the string "yes".
     Code
       as_column_definition(list(name = "Calc", calculated = list(formula = "=1")))
     Condition
-      Error:
+      Error in `as_column_definition()`:
       ! Calc.calculated must have formula and outputType.
     Code
       as_column_definition(list(name = "Calc", calculated = list(formula = "=1",
         outputType = "text", format = "dateOnly")))
     Condition
-      Error:
+      Error in `as_column_definition()`:
       ! Calc.calculated.format can only be used when outputType is "dateTime".
     Code
       as_column_definition(list(name = "Lookup", lookup = list(columnName = "Title")))
     Condition
-      Error:
+      Error in `as_column_definition()`:
       ! Lookup.lookup must have listId and columnName.
     Code
       as_column_definition(list(name = "Default", defaultValue = list(), text = list()))
     Condition
-      Error:
+      Error in `as_column_definition()`:
       ! `Default.defaultValue` must have either a value or formula element.
     Code
       as_column_definition(list(name = "Custom", custom = list("a"), text = list()))
     Condition
-      Error:
+      Error in `as_column_definition()`:
       ! Custom.custom must be a named list (a YAML mapping).
     Code
       as_column_definition(list(name = "NoCustom", custom = list(), text = list()),
       allow_custom = FALSE)
     Condition
-      Error:
+      Error in `as_column_definition()`:
       ! NoCustom has unknown property: custom.
 
 # as_column_definition warns for cell reference names and unknown person display values
@@ -84,14 +84,14 @@
     Code
       def <- as_column_definition(list(name = "V4", text = list()))
     Condition
-      Warning:
+      Warning in `as_column_definition()`:
       Column name "V4" looks like a spreadsheet cell reference.
       i SharePoint encodes names like this (e.g. "V4" is stored as "_x0056_4").
     Code
       def <- as_column_definition(list(name = "Person", personOrGroup = list(
         displayAs = "nickname")))
     Condition
-      Warning:
+      Warning in `as_column_definition()`:
       `Person.personOrGroup.displayAs` value "nickname" isn't a documented value.
 
 # create_*_column helpers error for conflicting or unknown properties

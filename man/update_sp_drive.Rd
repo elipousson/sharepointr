@@ -15,8 +15,7 @@ update_sp_drive(
   ...,
   properties = FALSE,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 
 delete_sp_drive(
@@ -27,8 +26,7 @@ delete_sp_drive(
   confirm = TRUE,
   ...,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 }
 \arguments{
@@ -58,11 +56,6 @@ included in the URL.}
 
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{confirm}{If \code{TRUE} (default), confirm deletion of the library before
 proceeding.}

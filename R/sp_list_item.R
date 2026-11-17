@@ -67,15 +67,18 @@ list_sp_list_items <- function(
   site = NULL,
   drive_name = NULL,
   drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
+  drive = NULL
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   col_formatting <- arg_match(col_formatting, error_call = call)
   display_nm <- arg_match(display_nm, error_call = call)
   select_type <- arg_match(select_type, error_call = call)
 
   sp_list <- sp_list %||%
-    get_sp_list(
+    .get_sp_list(
       list_name = list_name,
       list_id = list_id,
       as_data_frame = FALSE,
@@ -102,7 +105,7 @@ list_sp_list_items <- function(
   if (
     select_type != "asis" || col_formatting != "asis" || display_nm != "drop"
   ) {
-    col_metadata <- get_sp_list_metadata(
+    col_metadata <- .get_sp_list_metadata(
       sp_list = sp_list,
       as_data_frame = FALSE,
       call = call
@@ -117,8 +120,7 @@ list_sp_list_items <- function(
       "ID",
       names(pull_sp_list_cols(
         col_metadata,
-        col_type = select_type,
-        call = call
+        col_type = select_type
       ))
     )
   }
@@ -231,9 +233,9 @@ get_sp_list_items <- function(
   site = NULL,
   drive_name = NULL,
   drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
+  drive = NULL
 ) {
+  call <- current_env()
   list_sp_list_items(
     list_name = list_name,
     list_id = list_id,
@@ -255,8 +257,7 @@ get_sp_list_items <- function(
     site = site,
     drive_name = drive_name,
     drive_id = drive_id,
-    drive = drive,
-    call = call
+    drive = drive
   )
 }
 
@@ -593,11 +594,11 @@ get_sp_list_item <- function(
   site = NULL,
   drive_name = NULL,
   drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
+  drive = NULL
 ) {
+  call <- current_env()
   sp_list <- sp_list %||%
-    get_sp_list(
+    .get_sp_list(
       list_name = list_name,
       list_id = list_id,
       as_data_frame = FALSE,
@@ -720,9 +721,9 @@ create_sp_list_items <- function(
   create_list = FALSE,
   strict = FALSE,
   .batch = getOption("sharepointr.batch", TRUE),
-  .progress = TRUE,
-  call = caller_env()
+  .progress = TRUE
 ) {
+  call <- current_env()
   check_bool(.batch, call = call)
   input <- data
 
@@ -762,13 +763,12 @@ create_sp_list_items <- function(
       columns = data_as_column_definition_list(data),
       ...,
       site = site,
-      site_url = site_url,
-      call = call
+      site_url = site_url
     )
   }
 
   sp_list <- sp_list %||%
-    get_sp_list(
+    .get_sp_list(
       list_name = list_name,
       list_id = list_id,
       as_data_frame = FALSE,
@@ -783,7 +783,7 @@ create_sp_list_items <- function(
 
   # Get column definitions once to validate fields, use display names, and find
   # multi-value fields
-  col_metadata <- get_sp_list_metadata(
+  col_metadata <- .get_sp_list_metadata(
     sp_list = sp_list,
     as_data_frame = FALSE,
     call = call
@@ -922,7 +922,7 @@ validate_sp_list_data_fields <- function(
   call = caller_env()
 ) {
   if (is.null(values)) {
-    sp_list_meta <- get_sp_list_metadata(
+    sp_list_meta <- .get_sp_list_metadata(
       sp_list = sp_list,
       keep = keep,
       call = call
@@ -1046,9 +1046,9 @@ update_sp_list_items <- function(
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
   .batch = getOption("sharepointr.batch", TRUE),
-  .progress = TRUE,
-  call = caller_env()
+  .progress = TRUE
 ) {
+  call <- current_env()
   check_bool(.batch, call = call)
   input <- data
 
@@ -1072,7 +1072,7 @@ update_sp_list_items <- function(
   }
 
   sp_list <- sp_list %||%
-    get_sp_list(
+    .get_sp_list(
       list_name = list_name,
       as_data_frame = FALSE,
       list_id = list_id,
@@ -1083,7 +1083,7 @@ update_sp_list_items <- function(
   check_ms_obj(sp_list, "ms_list", call = call)
 
   # Get column definitions once to validate fields and find multi-value fields
-  col_metadata <- get_sp_list_metadata(
+  col_metadata <- .get_sp_list_metadata(
     sp_list = sp_list,
     as_data_frame = FALSE,
     call = call
@@ -1490,9 +1490,9 @@ update_sp_list_item <- function(
   drive_id = NULL,
   drive = NULL,
   .multi_fields = NULL,
-  .quiet = FALSE,
-  call = caller_env()
+  .quiet = FALSE
 ) {
+  call <- current_env()
   # TODO: Allow option to get id from .data
   .data <- .data %||% list2(...)
 
@@ -1560,7 +1560,7 @@ update_sp_list_item <- function(
 
   if (is.null(sp_list_item) && !is.null(item_id)) {
     sp_list <- sp_list %||%
-      get_sp_list(
+      .get_sp_list(
         list_name = list_name,
         as_data_frame = FALSE,
         list_id = list_id,
@@ -1576,7 +1576,7 @@ update_sp_list_item <- function(
 
     # Get column definitions once to validate fields and find multi-value fields
     if (is.null(.multi_fields) || check_fields) {
-      col_metadata <- get_sp_list_metadata(
+      col_metadata <- .get_sp_list_metadata(
         sp_list = sp_list,
         as_data_frame = FALSE,
         call = call
@@ -1591,7 +1591,7 @@ update_sp_list_item <- function(
         validate_sp_list_data_fields(
           update_data,
           values = names(
-            pull_sp_list_cols(col_metadata, col_type = "editable", call = call)
+            pull_sp_list_cols(col_metadata, col_type = "editable")
           ),
           drop_fields = c(.id, drop_fields)
         )
@@ -2025,9 +2025,9 @@ delete_sp_list_item <- function(
   sp_list = NULL,
   site_url = NULL,
   site = NULL,
-  confirm = TRUE,
-  call = caller_env()
+  confirm = TRUE
 ) {
+  call <- current_env()
   check_dots_empty(call = call)
 
   # Get the id from a data frame or record before checking arguments
@@ -2054,8 +2054,7 @@ delete_sp_list_item <- function(
       list_id = list_id,
       sp_list = sp_list,
       site_url = site_url,
-      site = site,
-      call = call
+      site = site
     )
 
   item_id <- item_id %||% sp_list_item[["properties"]][["id"]]
@@ -2097,9 +2096,9 @@ delete_sp_list_items <- function(
   filter = NULL,
   confirm = TRUE,
   .batch = getOption("sharepointr.batch", TRUE),
-  .progress = TRUE,
-  call = caller_env()
+  .progress = TRUE
 ) {
+  call <- current_env()
   check_bool(.batch, call = call)
 
   if (!is.null(item_id) && !is.null(filter)) {
@@ -2114,7 +2113,7 @@ delete_sp_list_items <- function(
     item_id <- as_sp_item_ids(item_id, .id = .id, call = call)
   }
 
-  sp_list <- sp_list %||% get_sp_list(..., call = call)
+  sp_list <- sp_list %||% .get_sp_list(..., call = call)
 
   if (is.null(item_id)) {
     sp_list_items <- .ms365_list_items(

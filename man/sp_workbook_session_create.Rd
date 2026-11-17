@@ -5,9 +5,9 @@
 \alias{sp_workbook_session_close}
 \title{Create or close a workbook session}
 \usage{
-sp_workbook_session_create(x, ..., persist_changes = TRUE, call = caller_env())
+sp_workbook_session_create(x, ..., persist_changes = TRUE)
 
-sp_workbook_session_close(x, session_id, ..., call = caller_env())
+sp_workbook_session_close(x, session_id, ...)
 }
 \arguments{
 \item{x}{A SharePoint or OneDrive Excel workbook. Can be a \code{ms_drive_item}
@@ -18,9 +18,6 @@ object, a SharePoint URL, or a path passed to \code{\link[=get_sp_item]{get_sp_i
 
 \item{persist_changes}{If \code{TRUE} (default), changes made in the session are
 saved to the workbook.}
-
-\item{call}{The execution environment used in error messages. Defaults to
-the environment of the calling function.}
 
 \item{session_id}{A workbook session ID from \code{\link[=sp_workbook_session_create]{sp_workbook_session_create()}}.}
 }

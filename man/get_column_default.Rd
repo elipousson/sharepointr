@@ -4,12 +4,7 @@
 \alias{get_column_default}
 \title{Get a column default value or formula}
 \usage{
-get_column_default(
-  value = NULL,
-  formula = NULL,
-  allow_null = TRUE,
-  call = caller_env()
-)
+get_column_default(value = NULL, formula = NULL, allow_null = TRUE)
 }
 \arguments{
 \item{value}{Value used as default value.}
@@ -18,11 +13,6 @@ get_column_default(
 
 \item{allow_null}{If \code{TRUE}, return \code{NULL} if both \code{value} and \code{formula} are
 \code{NULL}.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \description{
 \code{\link[=get_column_default]{get_column_default()}} returns a formula or value or NULL. See documentation

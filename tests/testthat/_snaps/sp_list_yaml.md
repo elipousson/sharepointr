@@ -13,31 +13,31 @@
     Code
       read_sp_list_yaml("missing-file.yaml")
     Condition
-      Error:
+      Error in `read_sp_list_yaml()`:
       ! 'missing-file.yaml' doesn't exist.
     Code
       read_sp_list_yaml(local_yaml(c("displayName: Test", "fields: []")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! A list definition has unknown key: fields.
       i Allowed keys: format_version, displayName, description, list, custom, columns, views, and folders. Use custom for other metadata.
       i Read-only list properties (e.g. id or webUrl) are also allowed.
     Code
       read_sp_list_yaml(local_yaml(c("columns: []")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! `displayName` must be a single string, not `NULL`.
     Code
       read_sp_list_yaml(local_yaml(c("displayName: Test", "format_version: 2",
         "columns: []")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! format_version 2 isn't supported.
     Code
       read_sp_list_yaml(local_yaml(c("displayName: Test", "columns:", "  - name: A",
         "    label: A", "    sp_col_type: text")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! A has unknown property: label and sp_col_type.
       i Use displayName in place of label.
       i Use a column type key, e.g. `text: {}` in place of sp_col_type.
@@ -45,7 +45,7 @@
       read_sp_list_yaml(local_yaml(c("displayName: Test", "columns:", "  - name: A",
         "    text: {}", "  - name: A", "    number: {}")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! Column names must be unique. Duplicated: A.
 
 # read_sp_list_yaml validates the list name and settings
@@ -53,21 +53,21 @@
     Code
       read_sp_list_yaml(local_yaml(c("name: Test", "columns: []")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! A list definition must have a displayName.
       i name is the read-only list name set by SharePoint (used in the list URL). Use displayName for the list display name.
     Code
       read_sp_list_yaml(local_yaml(c("displayName: Test", "list:",
         "  baseTemplate: 100", "columns: []")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! list has unknown property: baseTemplate.
       i Allowed properties: template, hidden, and contentTypesEnabled.
     Code
       read_sp_list_yaml(local_yaml(c("displayName: Test", "list:", "  hidden: maybe",
         "columns: []")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! `list.hidden` must be `TRUE` or `FALSE`, not the string "maybe".
 
 # read_sp_list_yaml allows read-only list properties and column ids
@@ -76,7 +76,7 @@
       read_sp_list_yaml(local_yaml(c("displayName: Test", "parentReference: site-1",
         "columns: []")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! parentReference must be a named list (a YAML mapping).
 
 # resolve_read_only_props resolves read_only values
@@ -102,25 +102,25 @@
     Code
       read_sp_list_yaml(local_yaml(c(base, "  - Title: A", "  - Title: A")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! View titles must be unique. Duplicated: "A".
     Code
       read_sp_list_yaml(local_yaml(c(base, "  - Title: A", "    DefaultView: true",
         "  - Title: B", "    DefaultView: true")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! Only one view can be the default view, not "A" and "B".
     Code
       read_sp_list_yaml(local_yaml(c(base, "  - Title: A", "    row_limit: 10")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! A has unknown view property: row_limit.
       i Use RowLimit in place of row_limit.
       i Allowed properties: Title, ViewFields, ViewQuery, RowLimit, Paged, DefaultView, Hidden, Scope, CustomFormatter, MobileView, and MobileDefaultView.
     Code
       read_sp_list_yaml(local_yaml(c(base, "  - RowLimit: 10")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! `views[[1]].Title` must be a single string, not `NULL`.
 
 ---
@@ -129,7 +129,7 @@
       definition <- read_sp_list_yaml(local_yaml(c(base, "  - Title: A",
         "    ViewFields: [LinkTitle, Status, Missing, Modified]")))
     Condition
-      Warning:
+      Warning in `as_sp_list_definition()`:
       Views show fields that aren't columns in the definition:
       * "A": Missing
 
@@ -138,7 +138,7 @@
     Code
       definition <- read_sp_list_yaml(path)
     Condition
-      Warning:
+      Warning in `as_sp_list_definition()`:
       Duplicated column display name: "Same".
       i Formulas reference columns by display name.
 
@@ -223,7 +223,7 @@
     Code
       written <- write_sp_list_yaml(live, path)
     Condition
-      Warning:
+      Warning in `write_sp_list_yaml()`:
       <path> has comments after the header.
       ! Only the comments before the first key (or before a `---` document start marker) are kept.
     Message
@@ -244,7 +244,7 @@
     Code
       write_sp_list_yaml(read_sp_list_yaml(example_path()), out, include_views = TRUE)
     Condition
-      Warning:
+      Warning in `write_sp_list_yaml()`:
       `include_views` is ignored unless `x` is a <ms_list> object.
       i Use `get_sp_list_definition()` to get a definition from a list.
     Message
@@ -265,27 +265,27 @@
       read_sp_list_yaml(local_yaml(c("displayName: Test", "columns: []",
         "folders: [A]")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! folders are only allowed for a document library.
       i Set list.template to "documentLibrary".
     Code
       read_sp_list_yaml(local_yaml(c("displayName: Test", "list:",
         "  template: documentLibrary", "columns: []", "folders: [A, A/]")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! folders must be unique. Duplicated: "A".
     Code
       read_sp_list_yaml(local_yaml(c("displayName: Test", "list:",
         "  template: documentLibrary", "columns: []",
         "folders: ['A//B', 'C:D', 'E.', ' F']")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! folders has invalid folder path: "A//B", "C:D", "E.", and " F".
       i Separate folders with `/`. A folder name can't be empty, start or end with a space, end with a period, or include any of `" * : < > ? \ |`.
     Code
       read_sp_list_yaml(local_yaml(c("displayName: Test", "list:",
         "  template: documentLibrary", "columns: []", "folders:", "  name: A")))
     Condition
-      Error:
+      Error in `as_sp_list_definition()`:
       ! folders must be a character vector of folder paths (a YAML sequence of strings).
 

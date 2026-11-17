@@ -21,11 +21,10 @@ download_sp_item(
   dest = NULL,
   overwrite = FALSE,
   recursive = FALSE,
-  parallel = FALSE,
-  call = caller_env()
+  parallel = FALSE
 )
 
-download_sp_file(file, new_path = "", ..., call = caller_env())
+download_sp_file(file, new_path = "", ...)
 }
 \arguments{
 \item{path, file}{Required. A SharePoint shared file URL, document URL, or, if
@@ -69,11 +68,6 @@ included in the URL.}
 
 \item{dest, overwrite, recursive, parallel}{Parameters passed to \code{download}
 method for \code{ms_drive_item} object.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \value{
 Invisibly returns the input \code{dest} or the \code{dest} parsed from the

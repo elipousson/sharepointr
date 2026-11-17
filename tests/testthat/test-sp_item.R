@@ -90,7 +90,9 @@ test_that("get_sp_item() uses the shares API for item URLs", {
       shares_url <<- url
       item
     },
-    get_sp_drive = function(...) stop("get_sp_drive() shouldn't be called")
+    !!!mock_sp_fn(get_sp_drive = function(...) {
+      stop("get_sp_drive() shouldn't be called")
+    })
   )
 
   url <- "https://contoso.sharepoint.com/sites/Team/Shared%20Documents/A.png"
@@ -105,10 +107,14 @@ test_that("get_sp_item() falls back to the parsed URL if the shares API fails", 
 
   local_mocked_bindings(
     sp_shares_get_item = function(...) cli::cli_abort("Forbidden (HTTP 403)."),
-    get_sp_drive = function(drive_name = NULL, ..., site_url = NULL) {
+    !!!mock_sp_fn(get_sp_drive = function(
+      drive_name = NULL,
+      ...,
+      site_url = NULL
+    ) {
       drive_args <<- list(drive_name = drive_name, site_url = site_url)
       list(get_item = function(path = NULL, itemid = NULL) list(path = path))
-    },
+    }),
     check_ms_drive = function(...) invisible(NULL)
   )
 
@@ -140,10 +146,10 @@ test_that("batch_download_sp_item() gets the drive once and downloads each item"
   # The mocks can't record calls from parallel workers
   local_mocked_bindings(
     sp_use_parallel = function() FALSE,
-    get_sp_drive = function(...) {
+    !!!mock_sp_fn(get_sp_drive = function(...) {
       drive_calls <<- drive_calls + 1
       "drive"
-    },
+    }),
     download_sp_item = function(
       ...,
       item_id = NULL,

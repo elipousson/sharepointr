@@ -219,8 +219,15 @@ test_that("get_definition_sp_list uses and checks the definition id", {
   get_args <- NULL
 
   local_mocked_bindings(
-    get_sp_site = function(site_id, ...) paste0("site:", site_id),
-    get_sp_list = function(list_name = NULL, list_id = NULL, ..., site = NULL) {
+    !!!mock_sp_fn(get_sp_site = function(site_id, ...) {
+      paste0("site:", site_id)
+    }),
+    !!!mock_sp_fn(get_sp_list = function(
+      list_name = NULL,
+      list_id = NULL,
+      ...,
+      site = NULL
+    ) {
       get_args <<- list(
         list_name = list_name,
         list_id = list_id,
@@ -228,7 +235,7 @@ test_that("get_definition_sp_list uses and checks the definition id", {
         ...
       )
       new_ms_list(list_id %||% "list-from-name")
-    }
+    })
   )
 
   # The id and parentReference.siteId are used to get the list
@@ -530,7 +537,7 @@ test_that("compare_sp_list only compares views if the definition has views", {
   read_views <- 0
 
   local_mocked_bindings(
-    get_sp_list_metadata = function(...) live_meta[3],
+    !!!mock_sp_fn(get_sp_list_metadata = function(...) live_meta[3]),
     list_sp_list_views = function(...) {
       read_views <<- read_views + 1
       live_views
@@ -566,7 +573,7 @@ test_that("compare_sp_list explains how to skip views if they can't be read", {
   sp_list$properties <- list(id = "list-1", displayName = "Projects")
 
   local_mocked_bindings(
-    get_sp_list_metadata = function(...) list(),
+    !!!mock_sp_fn(get_sp_list_metadata = function(...) list()),
     list_sp_list_views = function(...) cli_abort("No REST token.")
   )
 

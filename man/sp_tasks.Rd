@@ -13,8 +13,7 @@ get_sp_task(
   plan_title = NULL,
   plan_id = NULL,
   plan = NULL,
-  as_data_frame = FALSE,
-  call = caller_env()
+  as_data_frame = FALSE
 )
 
 list_sp_tasks(
@@ -24,8 +23,7 @@ list_sp_tasks(
   filter = NULL,
   n = NULL,
   plan = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 }
 \arguments{
@@ -44,11 +42,6 @@ arguments must be supplied.}
 frame of object properties with with a list column named "ms_plan_task"
 containing \code{ms_plan_task} objects. If \code{FALSE} (default \code{\link[=get_sp_task]{get_sp_task()}}),
 return a \code{ms_plan_task} object or list of \code{ms_plan_task} objects.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{filter}{A string with \href{https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#filter-parameter}{an OData expression}
 apply as a filter to the results. Learn more in the \href{https://learn.microsoft.com/en-us/graph/filter-query-parameter}{Microsoft Graph API documentation}

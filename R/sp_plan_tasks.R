@@ -25,11 +25,14 @@ get_sp_task <- function(
   plan_title = NULL,
   plan_id = NULL,
   plan = NULL,
-  as_data_frame = FALSE,
-  call = caller_env()
+  as_data_frame = FALSE
 ) {
+  # Exported functions don't have a `call` argument: errors are reported from
+  # this function's frame. `call` is passed to helpers (also inside lambdas,
+  # where `caller_env()` would be the lambda).
+  call <- current_env()
   plan <- plan %||%
-    get_sp_plan(plan_title = plan_title, plan_id = plan_id, ..., call = call)
+    get_sp_plan(plan_title = plan_title, plan_id = plan_id, ...)
 
   check_ms_obj(plan, "ms_plan", call = call)
 
@@ -65,11 +68,11 @@ list_sp_tasks <- function(
   filter = NULL,
   n = NULL,
   plan = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 ) {
+  call <- current_env()
   plan <- plan %||%
-    get_sp_plan(plan_title = plan_title, plan_id = plan_id, ..., call = call)
+    get_sp_plan(plan_title = plan_title, plan_id = plan_id, ...)
 
   check_ms_obj(plan, "ms_plan", call = call)
 

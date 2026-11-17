@@ -14,8 +14,7 @@ get_sp_site(
   cache = getOption("sharepointr.cache", FALSE),
   refresh = getOption("sharepointr.refresh", TRUE),
   overwrite = FALSE,
-  cache_file = NULL,
-  call = caller_env()
+  cache_file = NULL
 )
 
 cache_sp_site(
@@ -23,8 +22,7 @@ cache_sp_site(
   site = NULL,
   cache_file = NULL,
   cache_dir = NULL,
-  overwrite = FALSE,
-  call = caller_env()
+  overwrite = FALSE
 )
 }
 \arguments{
@@ -59,11 +57,6 @@ as a local option. If \code{FALSE}, use the cached \code{ms_site} object.}
 the same \code{cache_file} name already exists.}
 
 \item{cache_file}{File name for cached drive or site. Default \code{NULL}.}
-
-\item{call}{The execution environment of a currently
-running function, e.g. \code{caller_env()}. The function will be
-mentioned in error messages as the source of the error. See the
-\code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 
 \item{site}{A \code{ms_site} object. If \code{site} is supplied, \code{site_url},
 \code{site_name}, and \code{site_id} are ignored.}

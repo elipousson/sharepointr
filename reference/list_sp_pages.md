@@ -11,8 +11,7 @@ list_sp_pages(
   ...,
   site = NULL,
   page_type = c("sitePage", "page"),
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 
 get_sp_page(page_url = NULL, page_id = NULL, ..., site = NULL)
@@ -79,14 +78,6 @@ get_sp_page(page_url = NULL, page_id = NULL, ..., site = NULL)
 
   If `TRUE`, return a data frame with details on the SharePoint site
   pages. If `FALSE`, return a list.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 - page_url, page_id:
 

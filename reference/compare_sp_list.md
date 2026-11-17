@@ -16,14 +16,7 @@ planned changes (`dry_run = TRUE`) and doesn't delete columns or views
 ## Usage
 
 ``` r
-compare_sp_list(
-  definitions,
-  sp_list = NULL,
-  ...,
-  views = TRUE,
-  folders = TRUE,
-  call = caller_env()
-)
+compare_sp_list(definitions, sp_list = NULL, ..., views = TRUE, folders = TRUE)
 
 sync_sp_list(
   definitions,
@@ -33,8 +26,7 @@ sync_sp_list(
   delete = FALSE,
   allow_data_loss = FALSE,
   views = TRUE,
-  folders = TRUE,
-  call = caller_env()
+  folders = TRUE
 )
 ```
 
@@ -76,14 +68,6 @@ sync_sp_list(
 
   If `TRUE` (default), compare folders if the definition has a `folders`
   element. If `FALSE`, folders are skipped.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 - dry_run:
 

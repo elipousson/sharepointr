@@ -16,7 +16,7 @@ e.g. `"/:f:/r/sites/site-name/Shared Documents/Folder"`.
 ## Usage
 
 ``` r
-sp_url_parse(url, call = caller_env())
+sp_url_parse(url)
 
 sp_url_parse_hostname(hostname, tenant = "[a-zA-Z0-9.-]+", scheme = "https")
 

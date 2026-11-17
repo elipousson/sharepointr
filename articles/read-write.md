@@ -34,9 +34,9 @@ download_sp_item(
 )
 #> Loading Microsoft Graph login for default tenant
 #> 
-ℹ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13 ]8;;…
+ℹ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13 ]8;;…
 
-✔ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13 ]8;;…
+✔ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13 ]8;;…
 ```
 
 For files on SharePoint,
@@ -63,13 +63,13 @@ file based on the file extension:
 docx <- read_sharepoint(docx_url)
 #> Loading Microsoft Graph login for default tenant
 #> 
-ℹ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13 ]8;;…
+ℹ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13 ]8;;…
 
-✔ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13 ]8;;…
+✔ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Data Classification Standard.docx/var/folders/3f/50m42dx13 ]8;;…
 #> 
-ℹ Reading item with ` ]8;;x-r-help:officer::read_docxofficer::read_docx ]8;;()`
+ℹ Reading item with ` ]8;;x-r-help:officer::read_docxofficer::read_docx ]8;;()`
 
-✔ Reading item with ` ]8;;x-r-help:officer::read_docxofficer::read_docx ]8;;()` [59ms]
+✔ Reading item with ` ]8;;x-r-help:officer::read_docxofficer::read_docx ]8;;()` [59ms]
 
 docx
 #> rdocx document with 62 element(s)
@@ -129,13 +129,13 @@ wb_url <- "https://bmore.sharepoint.com/:x:/r/sites/MayorsOffice-DataGovernance/
 wb <- read_sharepoint(wb_url, .f = openxlsx2::wb_load)
 #> Loading Microsoft Graph login for default tenant
 #> 
-ℹ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Agency Naming Conventions.xlsx/var/folders/3f/50m42dx13 ]8;;…
+ℹ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Agency Naming Conventions.xlsx/var/folders/3f/50m42dx13 ]8;;…
 
-✔ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Agency Naming Conventions.xlsx/var/folders/3f/50m42dx13 ]8;;…
+✔ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/Agency Naming Conventions.xlsx/var/folders/3f/50m42dx13 ]8;;…
 #> 
-ℹ Reading item with ` ]8;;x-r-help:openxlsx2::wb_loadopenxlsx2::wb_load ]8;;()`
+ℹ Reading item with ` ]8;;x-r-help:openxlsx2::wb_loadopenxlsx2::wb_load ]8;;()`
 
-✔ Reading item with ` ]8;;x-r-help:openxlsx2::wb_loadopenxlsx2::wb_load ]8;;()` [183ms]
+✔ Reading item with ` ]8;;x-r-help:openxlsx2::wb_loadopenxlsx2::wb_load ]8;;()` [183ms]
 
 wb
 #> A Workbook object.
@@ -209,7 +209,7 @@ upload_sp_item(
 )
 #> Loading Microsoft Graph login for default tenant
 #> 
-ℹ Uploading file ' ]8;;file:///Users/elipousson/Projects/01_rpackages/sharepointr/vignettes/nc.gpkgnc.gpkg ]8;;' to SharePoint drive
+ℹ Uploading file ' ]8;;file:///Users/elipousson/Projects/01_rpackages/sharepointr/vignettes/nc.gpkgnc.gpkg ]8;;' to SharePoint drive
 
 ✔ File upload complete [2.4s]                 
 ```
@@ -228,13 +228,13 @@ nc <- read_sharepoint(
 )
 #> 
 ℹ Downloading SharePoint item to
-#> ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/nc.gpkg/var/folders/3f/50m42dx13 ]8;;…
+#> ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/nc.gpkg/var/folders/3f/50m42dx13 ]8;;…
 #> 
-✔ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/nc.gpkg/var/folders/3f/50m42dx13 ]8;;…
+✔ Downloading SharePoint item to ' ]8;;file:///var/folders/3f/50m42dx1333_dfqb5772j6_40000gn/T//RtmpIIrptB/nc.gpkg/var/folders/3f/50m42dx13 ]8;;…
 #> 
-ℹ Reading item with ` ]8;;x-r-help:sf::read_sfsf::read_sf ]8;;()`
+ℹ Reading item with ` ]8;;x-r-help:sf::read_sfsf::read_sf ]8;;()`
 
-✔ Reading item with ` ]8;;x-r-help:sf::read_sfsf::read_sf ]8;;()` [48ms]
+✔ Reading item with ` ]8;;x-r-help:sf::read_sfsf::read_sf ]8;;()` [48ms]
 
 plot(nc["AREA"])
 ```
@@ -268,7 +268,7 @@ write_sharepoint(
 )
 #> Loading Microsoft Graph login for default tenant
 #> 
-ℹ Uploading file ' ]8;;file:///Users/elipousson/Projects/01_rpackages/sharepointr/vignettes/mtcars.csvmtcars.csv ]8;;' to SharePoint drive
+ℹ Uploading file ' ]8;;file:///Users/elipousson/Projects/01_rpackages/sharepointr/vignettes/mtcars.csvmtcars.csv ]8;;' to SharePoint drive
 
 ✔ File upload complete [1.1s]                    
 ```

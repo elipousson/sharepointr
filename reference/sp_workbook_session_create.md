@@ -5,9 +5,9 @@
 ## Usage
 
 ``` r
-sp_workbook_session_create(x, ..., persist_changes = TRUE, call = caller_env())
+sp_workbook_session_create(x, ..., persist_changes = TRUE)
 
-sp_workbook_session_close(x, session_id, ..., call = caller_env())
+sp_workbook_session_close(x, session_id, ...)
 ```
 
 ## Arguments
@@ -28,11 +28,6 @@ sp_workbook_session_close(x, session_id, ..., call = caller_env())
 
   If `TRUE` (default), changes made in the session are saved to the
   workbook.
-
-- call:
-
-  The execution environment used in error messages. Defaults to the
-  environment of the calling function.
 
 - session_id:
 

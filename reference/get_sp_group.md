@@ -15,8 +15,7 @@ get_sp_group(
   site_name = NULL,
   site_id = NULL,
   ...,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 
 list_sp_group_members(
@@ -25,8 +24,7 @@ list_sp_group_members(
   site_id = NULL,
   ...,
   sp_group = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 ```
 
@@ -56,14 +54,6 @@ list_sp_group_members(
 
   A `ms_site` object. If `site` is supplied, `site_url`, `site_name`,
   and `site_id` are ignored.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 - sp_group:
 

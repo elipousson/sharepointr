@@ -30,8 +30,7 @@ list_sp_list_items(
   site = NULL,
   drive_name = NULL,
   drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
+  drive = NULL
 )
 
 get_sp_list_items(
@@ -55,8 +54,7 @@ get_sp_list_items(
   site = NULL,
   drive_name = NULL,
   drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
+  drive = NULL
 )
 
 get_sp_list_item(
@@ -69,8 +67,7 @@ get_sp_list_item(
   site = NULL,
   drive_name = NULL,
   drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
+  drive = NULL
 )
 ```
 
@@ -226,14 +223,6 @@ get_sp_list_item(
 
   A `ms_drive` object. If `drive` is supplied, `drive_name` and
   `drive_id` are ignored.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 - id:
 

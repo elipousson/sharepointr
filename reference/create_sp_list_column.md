@@ -19,8 +19,7 @@ create_sp_list_column(
   column_definition = NULL,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 
 update_sp_list_column(
@@ -32,8 +31,7 @@ update_sp_list_column(
   site_url = NULL,
   site = NULL,
   column_definition = NULL,
-  column_name_type = "name",
-  call = caller_env()
+  column_name_type = "name"
 )
 
 delete_sp_list_column(
@@ -43,8 +41,7 @@ delete_sp_list_column(
   list_name = NULL,
   site_url = NULL,
   site = NULL,
-  column_name_type = "name",
-  call = caller_env()
+  column_name_type = "name"
 )
 ```
 
@@ -124,6 +121,11 @@ delete_sp_list_column(
   :   Column validation created with
       [`column_validation()`](https://elipousson.github.io/sharepointr/reference/column_validation.md).
       Graph property: `validation`.
+
+  `call`
+
+  :   The execution environment used in error messages. The
+      `create_*_column()` helpers pass their own environment.
 
   `indexed,sealed,propagate_changes,read_only,id`
 
@@ -323,14 +325,6 @@ delete_sp_list_column(
 
   A `ms_site` object. If `site` is supplied, `site_url`, `site_name`,
   and `site_id` are ignored.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 - column_name_type:
 

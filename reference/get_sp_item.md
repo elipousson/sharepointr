@@ -35,8 +35,7 @@ get_sp_item(
   drive = NULL,
   site_url = NULL,
   properties = FALSE,
-  as_data_frame = FALSE,
-  call = caller_env()
+  as_data_frame = FALSE
 )
 ```
 
@@ -134,14 +133,6 @@ get_sp_item(
 
   If `TRUE`, return a data frame. If `FALSE` (default), return a
   `ms_item` or `ms_item_properties` object.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 ## Value
 

@@ -28,8 +28,7 @@ update_sp_drive(
   ...,
   properties = FALSE,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 
 delete_sp_drive(
@@ -40,8 +39,7 @@ delete_sp_drive(
   confirm = TRUE,
   ...,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 ```
 
@@ -92,14 +90,6 @@ delete_sp_drive(
 
   A `ms_site` object. If `site` is supplied, `site_url`, `site_name`,
   and `site_id` are ignored.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 - confirm:
 

@@ -14,8 +14,7 @@ get_sp_task(
   plan_title = NULL,
   plan_id = NULL,
   plan = NULL,
-  as_data_frame = FALSE,
-  call = caller_env()
+  as_data_frame = FALSE
 )
 
 list_sp_tasks(
@@ -25,8 +24,7 @@ list_sp_tasks(
   filter = NULL,
   n = NULL,
   plan = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 ```
 
@@ -59,14 +57,6 @@ list_sp_tasks(
   containing `ms_plan_task` objects. If `FALSE` (default
   `get_sp_task()`), return a `ms_plan_task` object or list of
   `ms_plan_task` objects.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 - filter:
 

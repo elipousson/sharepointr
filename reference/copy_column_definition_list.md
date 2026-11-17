@@ -78,14 +78,6 @@ copy_column_definition_list(sp_list = NULL, ..., keep = "visible")
       document URL can also be parsed to build a site URL using the
       tenant and site name included in the URL.
 
-  `call`
-
-  :   The execution environment of a currently running function, e.g.
-      `caller_env()`. The function will be mentioned in error messages
-      as the source of the error. See the `call` argument of
-      [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-      information.
-
   `site`
 
   :   A `ms_site` object. If `site` is supplied, `site_url`,

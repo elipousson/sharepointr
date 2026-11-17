@@ -29,8 +29,7 @@ sp_dir_info(
   regexp = NULL,
   invert = FALSE,
   perl = FALSE,
-  .batch = getOption("sharepointr.batch", TRUE),
-  call = caller_env()
+  .batch = getOption("sharepointr.batch", TRUE)
 )
 
 sp_dir_ls(
@@ -46,8 +45,7 @@ sp_dir_ls(
   regexp = NULL,
   invert = FALSE,
   perl = FALSE,
-  .batch = getOption("sharepointr.batch", TRUE),
-  call = caller_env()
+  .batch = getOption("sharepointr.batch", TRUE)
 )
 ```
 
@@ -219,14 +217,6 @@ sp_dir_ls(
   are set, the `$batch` requests for each level are sent in parallel and
   the progress bar is updated after each level. Use `.batch = FALSE` or
   `options(sharepointr.batch = FALSE)` to send a request per directory.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 ## Value
 

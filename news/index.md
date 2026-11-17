@@ -4,6 +4,32 @@
 
 ### Added
 
+- Exported functions no longer have a `call` argument and now report
+  errors from their own call (e.g. `Error in`list_sp_list_items()`:`)
+  instead of from the caller’s environment. This fixes a confusing “`fn`
+  must be supplied” error from rlang (r-lib/rlang `call_match()`) when
+  an argument check fails in a function called directly from a knitr
+  chunk or with [`eval()`](https://rdrr.io/r/base/eval.html).
+  [`create_column_definition()`](https://elipousson.github.io/sharepointr/reference/create_column_definition.md)
+  keeps its `call` argument. (2026-11-17)
+- [`get_sp_list()`](https://elipousson.github.io/sharepointr/reference/sp_list.md)
+  (and functions that use it such as
+  [`list_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/sp_list_item.md)
+  and
+  [`delete_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md))
+  now falls back to matching `list_name` against the list display name
+  if there is no match for the internal name, and reports the match.
+  This helps for lists created with names such as `"my-list"` since
+  SharePoint removes some characters (e.g. hyphens) from the internal
+  name. Multiple lists with the same display name are an error.
+  [`create_sp_list()`](https://elipousson.github.io/sharepointr/reference/create_sp_list.md)
+  now reports the internal list name if it differs from `list_name`.
+  (2026-11-17)
+- [`get_sp_site()`](https://elipousson.github.io/sharepointr/reference/sp_site.md)
+  now suggests re-authenticating or running
+  [`AzureAuth::clean_token_directory()`](https://rdrr.io/pkg/AzureAuth/man/get_azure_token.html)
+  when Microsoft365R fails with an “Unable to refresh token” error.
+  (2026-11-17)
 - Add
   [`sp_workbook_sheets()`](https://elipousson.github.io/sharepointr/reference/sp_workbook.md),
   [`sp_workbook_range_read()`](https://elipousson.github.io/sharepointr/reference/sp_workbook.md),

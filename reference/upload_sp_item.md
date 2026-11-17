@@ -21,8 +21,7 @@ upload_sp_item(
   drive = NULL,
   blocksize = 327680000,
   recursive = FALSE,
-  parallel = FALSE,
-  call = caller_env()
+  parallel = FALSE
 )
 
 upload_sp_items(
@@ -36,8 +35,7 @@ upload_sp_items(
   drive = NULL,
   blocksize = 327680000,
   recursive = FALSE,
-  parallel = FALSE,
-  call = caller_env()
+  parallel = FALSE
 )
 ```
 
@@ -97,14 +95,6 @@ upload_sp_items(
 
   Additional parameters passed to `upload_folder` or `upload_file`
   method for `ms_drive` objects.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 ## Value
 

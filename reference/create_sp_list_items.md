@@ -22,8 +22,7 @@ create_sp_list_items(
   create_list = FALSE,
   strict = FALSE,
   .batch = getOption("sharepointr.batch", TRUE),
-  .progress = TRUE,
-  call = caller_env()
+  .progress = TRUE
 )
 
 update_sp_list_items(
@@ -39,8 +38,7 @@ update_sp_list_items(
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
   .batch = getOption("sharepointr.batch", TRUE),
-  .progress = TRUE,
-  call = caller_env()
+  .progress = TRUE
 )
 
 update_sp_list_item(
@@ -61,8 +59,7 @@ update_sp_list_item(
   drive_id = NULL,
   drive = NULL,
   .multi_fields = NULL,
-  .quiet = FALSE,
-  call = caller_env()
+  .quiet = FALSE
 )
 ```
 
@@ -184,14 +181,6 @@ update_sp_list_item(
   bar, use a string to give it a name, or see
   [progress_bars](https://purrr.tidyverse.org/reference/progress_bars.html)
   for more details.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 - na_fields:
 

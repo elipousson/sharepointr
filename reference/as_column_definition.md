@@ -23,7 +23,7 @@ the formula isn't processed with
 ## Usage
 
 ``` r
-as_column_definition(x, ..., allow_custom = TRUE, call = caller_env())
+as_column_definition(x, ..., allow_custom = TRUE)
 ```
 
 ## Arguments
@@ -39,14 +39,6 @@ as_column_definition(x, ..., allow_custom = TRUE, call = caller_env())
 - allow_custom:
 
   If `TRUE` (default), allow a `custom` element.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 ## Value
 

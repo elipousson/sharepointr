@@ -13,18 +13,10 @@ get_sp_plan(
   ...,
   site = NULL,
   site_url = NULL,
-  as_data_frame = FALSE,
-  call = caller_env()
+  as_data_frame = FALSE
 )
 
-list_sp_plans(
-  ...,
-  filter = NULL,
-  n = NULL,
-  site = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
-)
+list_sp_plans(..., filter = NULL, n = NULL, site = NULL, as_data_frame = TRUE)
 ```
 
 ## Arguments
@@ -58,14 +50,6 @@ list_sp_plans(
   column named "ms_plan" containing `ms_plan` objects. If `FALSE`
   (default `get_sp_plan()`), return a `ms_plan` object or list of
   `ms_plan` objects.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 - filter:
 

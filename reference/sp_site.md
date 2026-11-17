@@ -21,8 +21,7 @@ get_sp_site(
   cache = getOption("sharepointr.cache", FALSE),
   refresh = getOption("sharepointr.refresh", TRUE),
   overwrite = FALSE,
-  cache_file = NULL,
-  call = caller_env()
+  cache_file = NULL
 )
 
 cache_sp_site(
@@ -30,8 +29,7 @@ cache_sp_site(
   site = NULL,
   cache_file = NULL,
   cache_dir = NULL,
-  overwrite = FALSE,
-  call = caller_env()
+  overwrite = FALSE
 )
 ```
 
@@ -112,14 +110,6 @@ cache_sp_site(
 - cache_file:
 
   File name for cached drive or site. Default `NULL`.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 - site:
 

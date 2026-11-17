@@ -14,8 +14,7 @@ sp_dir_create(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  relative = FALSE,
-  call = caller_env()
+  relative = FALSE
 )
 ```
 
@@ -91,14 +90,6 @@ sp_dir_create(
   character vector, it must be length 1 or the same length as path and
   appended to path as a vector of parent directories. The second option
   takes precedence over any file path parsed from the url.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 ## Value
 

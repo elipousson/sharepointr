@@ -21,8 +21,7 @@ create_sp_list_lookup_column(
   ...,
   list_name = NULL,
   site = NULL,
-  site_url = NULL,
-  call = caller_env()
+  site_url = NULL
 )
 
 create_sp_list_person_column(
@@ -35,8 +34,7 @@ create_sp_list_person_column(
   list_name = NULL,
   site = NULL,
   site_url = NULL,
-  allow_multiple = deprecated(),
-  call = caller_env()
+  allow_multiple = deprecated()
 )
 
 update_sp_list_lookup_items(
@@ -51,8 +49,7 @@ update_sp_list_lookup_items(
   .id = "id",
   ignore_case = FALSE,
   na_fields = c("drop", "replace"),
-  .progress = TRUE,
-  call = caller_env()
+  .progress = TRUE
 )
 
 fmt_sp_list_lookup_items(
@@ -63,8 +60,7 @@ fmt_sp_list_lookup_items(
   lookup_join_column = column_name,
   ...,
   .id = "id",
-  ignore_case = FALSE,
-  call = caller_env()
+  ignore_case = FALSE
 )
 
 update_sp_list_person_items(
@@ -78,8 +74,7 @@ update_sp_list_person_items(
   ...,
   .id = "id",
   na_fields = c("drop", "replace"),
-  .progress = TRUE,
-  call = caller_env()
+  .progress = TRUE
 )
 ```
 
@@ -168,6 +163,11 @@ update_sp_list_person_items(
   :   Column validation created with
       [`column_validation()`](https://elipousson.github.io/sharepointr/reference/column_validation.md).
       Graph property: `validation`.
+
+  `call`
+
+  :   The execution environment used in error messages. The
+      `create_*_column()` helpers pass their own environment.
 
   `indexed,sealed,propagate_changes,read_only,id`
 
@@ -318,14 +318,6 @@ update_sp_list_person_items(
   name\].sharepoint.com/sites/\[site name\]". Any SharePoint item or
   document URL can also be parsed to build a site URL using the tenant
   and site name included in the URL.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 - allow_multiple_selection:
 

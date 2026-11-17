@@ -37,8 +37,7 @@ write_sharepoint(
   site_name = NULL,
   site_id = NULL,
   site = NULL,
-  blocksize = 327680000,
-  call = caller_env()
+  blocksize = 327680000
 )
 ```
 
@@ -136,14 +135,6 @@ write_sharepoint(
 
   Additional parameter passed to `upload_folder` or `upload_file` method
   for `ms_drive` objects.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 ## Value
 

@@ -12,8 +12,7 @@ download_sp_list(
   new_path = "",
   sp_list = NULL,
   fileext = "csv",
-  keep_list_cols = c("createdBy", "lastModifiedBy"),
-  call = caller_env()
+  keep_list_cols = c("createdBy", "lastModifiedBy")
 )
 ```
 
@@ -127,14 +126,6 @@ download_sp_list(
 
   Column names for those columns to maintain in a list format instead of
   attempting to convert to a character vector.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 ## Value
 

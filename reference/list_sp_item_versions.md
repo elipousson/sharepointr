@@ -17,8 +17,7 @@ list_sp_item_versions(
   modified_between = NULL,
   item_cols = c("id", "none", "summary"),
   version_cols = c("properties", "all"),
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 
 get_sp_item_version(
@@ -27,8 +26,7 @@ get_sp_item_version(
   sp_item = NULL,
   item_cols = c("id", "none", "summary"),
   version_cols = c("properties", "all"),
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 
 download_sp_item_version(
@@ -36,8 +34,7 @@ download_sp_item_version(
   ...,
   sp_item = NULL,
   dest = NULL,
-  overwrite = FALSE,
-  call = caller_env()
+  overwrite = FALSE
 )
 ```
 
@@ -132,14 +129,6 @@ download_sp_item_version(
 
   If `TRUE` (default), return a data frame. If `FALSE`, return the
   response from the API as a list.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 - version_id:
 

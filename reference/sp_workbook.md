@@ -28,7 +28,7 @@ to manage the session yourself.
 ## Usage
 
 ``` r
-sp_workbook_sheets(x, ..., session_id = NULL, call = caller_env())
+sp_workbook_sheets(x, ..., session_id = NULL)
 
 sp_workbook_range_read(
   x,
@@ -36,8 +36,7 @@ sp_workbook_range_read(
   ...,
   sheet = NULL,
   header = TRUE,
-  session_id = NULL,
-  call = caller_env()
+  session_id = NULL
 )
 
 sp_workbook_range_write(
@@ -47,8 +46,7 @@ sp_workbook_range_write(
   ...,
   sheet = NULL,
   col_names = TRUE,
-  session_id = NULL,
-  call = caller_env()
+  session_id = NULL
 )
 ```
 
@@ -74,11 +72,6 @@ sp_workbook_range_write(
   [`local_sp_workbook_session()`](https://elipousson.github.io/sharepointr/reference/local_sp_workbook_session.md)
   or the `sharepointr.workbook_session` option is used, if any.
   Otherwise the request is sent without a session.
-
-- call:
-
-  The execution environment used in error messages. Defaults to the
-  environment of the calling function.
 
 - range:
 

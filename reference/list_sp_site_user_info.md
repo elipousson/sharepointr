@@ -10,8 +10,7 @@ list_sp_site_user_info(
   sp_site = NULL,
   user_type = c("all", "visible"),
   filter = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 ```
 
@@ -48,14 +47,6 @@ list_sp_site_user_info(
   returns a data frame with n rows or all lists available for the
   SharePoint site or drive. Defaults to `FALSE`. Ignored is
   `metadata = TRUE` as list metadata is always returned as a data frame.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 ## Details
 

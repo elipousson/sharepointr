@@ -33,8 +33,7 @@ list_sp_list_views(
   as_data_frame = TRUE,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 
 get_sp_list_view(
@@ -44,8 +43,7 @@ get_sp_list_view(
   ...,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 
 create_sp_list_view(
@@ -63,8 +61,7 @@ create_sp_list_view(
   view_definition = NULL,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 
 update_sp_list_view(
@@ -84,8 +81,7 @@ update_sp_list_view(
   view_definition = NULL,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 
 delete_sp_list_view(
@@ -96,8 +92,7 @@ delete_sp_list_view(
   confirm = TRUE,
   list_name = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 ```
 
@@ -141,14 +136,6 @@ delete_sp_list_view(
 
   A `ms_site` object. If `site` is supplied, `site_url`, `site_name`,
   and `site_id` are ignored.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 - view_title, view_id:
 

@@ -62,8 +62,7 @@ create_sp_list(
   title_definition = list(required = FALSE),
   definition = NULL,
   site_url = NULL,
-  site = NULL,
-  call = caller_env()
+  site = NULL
 )
 
 update_sp_list(
@@ -77,8 +76,7 @@ update_sp_list(
   site = NULL,
   drive_name = NULL,
   drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
+  drive = NULL
 )
 
 delete_sp_list(
@@ -91,8 +89,7 @@ delete_sp_list(
   site = NULL,
   drive_name = NULL,
   drive_id = NULL,
-  drive = NULL,
-  call = caller_env()
+  drive = NULL
 )
 ```
 
@@ -166,14 +163,6 @@ delete_sp_list(
 
   A `ms_site` object. If `site` is supplied, `site_url`, `site_name`,
   and `site_id` are ignored.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 - list_id:
 

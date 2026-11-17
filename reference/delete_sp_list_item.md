@@ -17,8 +17,7 @@ delete_sp_list_item(
   sp_list = NULL,
   site_url = NULL,
   site = NULL,
-  confirm = TRUE,
-  call = caller_env()
+  confirm = TRUE
 )
 
 delete_sp_list_items(
@@ -29,8 +28,7 @@ delete_sp_list_items(
   filter = NULL,
   confirm = TRUE,
   .batch = getOption("sharepointr.batch", TRUE),
-  .progress = TRUE,
-  call = caller_env()
+  .progress = TRUE
 )
 ```
 
@@ -87,14 +85,6 @@ delete_sp_list_items(
 - confirm:
 
   If `TRUE` (default), user confirmation is required to delete items.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 - filter:
 

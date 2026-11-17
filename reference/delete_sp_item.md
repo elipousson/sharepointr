@@ -19,8 +19,7 @@ delete_sp_item(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  site_url = NULL,
-  call = caller_env()
+  site_url = NULL
 )
 ```
 
@@ -92,14 +91,6 @@ delete_sp_item(
   name\].sharepoint.com/sites/\[site name\]". Any SharePoint item or
   document URL can also be parsed to build a site URL using the tenant
   and site name included in the URL.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 ## Value
 

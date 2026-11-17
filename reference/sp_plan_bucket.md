@@ -13,8 +13,7 @@ list_sp_plan_buckets(
   filter = NULL,
   n = NULL,
   plan = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 ```
 
@@ -55,14 +54,6 @@ list_sp_plan_buckets(
   of object properties with with a list column named "ms_plan_bucket"
   containing `ms_plan_task` objects. If `FALSE`, return a
   `ms_plan_bucket` object or list of `ms_plan_bucket` objects.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 ## Value
 

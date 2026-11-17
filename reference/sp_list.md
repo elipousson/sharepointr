@@ -22,8 +22,7 @@ get_sp_list(
   drive_id = NULL,
   drive = NULL,
   metadata = deprecated(),
-  as_data_frame = FALSE,
-  call = caller_env()
+  as_data_frame = FALSE
 )
 
 list_sp_lists(
@@ -35,8 +34,7 @@ list_sp_lists(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 
 get_sp_list_metadata(
@@ -51,8 +49,7 @@ get_sp_list_metadata(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
+  as_data_frame = TRUE
 )
 ```
 
@@ -135,14 +132,6 @@ get_sp_list_metadata(
   returns a data frame with n rows or all lists available for the
   SharePoint site or drive. Defaults to `FALSE`. Ignored is
   `metadata = TRUE` as list metadata is always returned as a data frame.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 - filter:
 

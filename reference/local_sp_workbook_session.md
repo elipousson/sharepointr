@@ -9,8 +9,7 @@ local_sp_workbook_session(
   x,
   ...,
   persist_changes = TRUE,
-  .local_envir = caller_env(),
-  call = caller_env()
+  .local_envir = caller_env()
 )
 ```
 
@@ -36,11 +35,6 @@ local_sp_workbook_session(
 - .local_envir:
 
   The environment to use for scoping.
-
-- call:
-
-  The execution environment used in error messages. Defaults to the
-  environment of the calling function.
 
 ## Value
 

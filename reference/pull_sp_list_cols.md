@@ -16,8 +16,7 @@ pull_sp_list_cols(
     "choice", "contentApprovalStatus", "currency", "dateTime", "geolocation",
     "hyperlinkOrPicture", "lookup", "number", "personOrGroup", "term", "text",
     "thumbnail", "all", "editable", "external"),
-  names_from = c("name", "displayName"),
-  call = caller_env()
+  names_from = c("name", "displayName")
 )
 ```
 

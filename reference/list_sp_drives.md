@@ -8,14 +8,7 @@ can't easily be identified using a Drive URL alone.
 ## Usage
 
 ``` r
-list_sp_drives(
-  ...,
-  site = NULL,
-  filter = NULL,
-  n = NULL,
-  as_data_frame = TRUE,
-  call = caller_env()
-)
+list_sp_drives(..., site = NULL, filter = NULL, n = NULL, as_data_frame = TRUE)
 ```
 
 ## Arguments
@@ -81,14 +74,6 @@ list_sp_drives(
 - as_data_frame:
 
   If `TRUE` (default), return list as a data frame.
-
-- call:
-
-  The execution environment of a currently running function, e.g.
-  `caller_env()`. The function will be mentioned in error messages as
-  the source of the error. See the `call` argument of
-  [`abort()`](https://rlang.r-lib.org/reference/abort.html) for more
-  information.
 
 ## Value
 

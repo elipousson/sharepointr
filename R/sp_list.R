@@ -183,12 +183,19 @@ get_sp_list <- function(
     }
 
     nm_values <- purrr::map_chr(sp_lists, \(x) x$properties$name)
-
-    list_name <- arg_match(list_name, values = nm_values, error_call = call)
+    display_values <- purrr::map_chr(
+      sp_lists,
+      \(x) x$properties$displayName %||% NA_character_
+    )
 
     # Use the matching list from the site lists (with the same properties as
     # the get_list method) instead of getting the list again
-    sp_list <- sp_lists[[match(list_name, nm_values)]]
+    sp_list <- sp_lists[[match_sp_list_name(
+      list_name,
+      nm_values = nm_values,
+      display_values = display_values,
+      call = call
+    )]]
   }
 
   if (is.null(sp_list)) {
@@ -221,6 +228,50 @@ get_sp_list <- function(
     keep_list_cols = c("createdBy", "lastModifiedBy"),
     .error_call = call
   )
+}
+
+#' Match a list name to the internal name or display name of a list
+#'
+#' Matches the internal `name` first. SharePoint removes characters such as
+#' hyphens from the internal name of a new list so if there is no match, a
+#' single matching `displayName` is used. Display names are not unique so
+#' multiple matches are an error.
+#'
+#' @returns Index of the matching list.
+#' @noRd
+match_sp_list_name <- function(
+  list_name,
+  nm_values,
+  display_values = NULL,
+  call = caller_env()
+) {
+  if (list_name %in% nm_values) {
+    return(match(list_name, nm_values))
+  }
+
+  idx <- which(display_values %in% list_name)
+
+  if (length(idx) == 1) {
+    cli::cli_alert_info(
+      "Matched {.val {list_name}} to the list display name. The internal list
+      name is {.val {nm_values[[idx]]}}."
+    )
+    return(idx)
+  }
+
+  if (length(idx) > 1) {
+    cli_abort(
+      c(
+        "{.arg list_name} {.val {list_name}} matches the display names of
+        {length(idx)} lists.",
+        "i" = "Use the internal name of the list instead: {.val {nm_values[idx]}}."
+      ),
+      call = call
+    )
+  }
+
+  list_name <- arg_match(list_name, values = nm_values, error_call = call)
+  match(list_name, nm_values)
 }
 
 #' @rdname sp_list
@@ -609,6 +660,15 @@ create_sp_list <- function(
       site = site
     )
   )
+
+  # SharePoint removes some characters (e.g. hyphens) from the internal name
+  internal_name <- sp_list$properties$name
+  if (!is.null(internal_name) && !identical(internal_name, list_name)) {
+    cli::cli_alert_info(
+      "The internal list name is {.val {internal_name}} (display name
+      {.val {list_name}})."
+    )
+  }
 
   purrr::iwalk(
     validations,

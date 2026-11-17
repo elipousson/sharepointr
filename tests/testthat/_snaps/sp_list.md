@@ -26,3 +26,11 @@
       Error:
       ! `names_from` must be one of "name" or "displayName", not "id".
 
+# match_sp_list_name() matches internal then display names
+
+    Code
+      idx <- match_sp_list_name("demo-2026", nm, display)
+    Message
+      i Matched "demo-2026" to the list display name. The internal list
+      name is "demo2026".
+

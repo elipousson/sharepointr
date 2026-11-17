@@ -935,3 +935,19 @@ test_that("get_sp_list(metadata = TRUE) is soft deprecated", {
 
   expect_no_warning(get_sp_list(list_id = "list-id"))
 })
+
+test_that("match_sp_list_name() matches internal then display names", {
+  nm <- c("MyList", "demo2026", "A", "B")
+  display <- c("My List", "demo-2026", "Same", "Same")
+
+  expect_equal(match_sp_list_name("MyList", nm, display), 1)
+
+  expect_snapshot(idx <- match_sp_list_name("demo-2026", nm, display))
+  expect_equal(idx, 2)
+
+  # Internal names take precedence over display names
+  expect_equal(match_sp_list_name("A", nm, c("B", "A", "x", "y")), 3)
+
+  expect_error(match_sp_list_name("Same", nm, display), "matches the display")
+  expect_error(match_sp_list_name("Nope", nm, display), "must be one of")
+})

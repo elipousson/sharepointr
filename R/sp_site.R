@@ -116,8 +116,20 @@ get_sp_site <- function(
       ...
     ),
     error = function(cnd) {
+      msg <- cnd$message
+      if (grepl("refresh token", msg, fixed = TRUE)) {
+        cli_abort(
+          c(
+            "{msg}",
+            "i" = "Re-authenticate interactively with
+            {.fn Microsoft365R::get_sharepoint_site}, or clear cached tokens
+            with {.run AzureAuth::clean_token_directory()}."
+          ),
+          call = call
+        )
+      }
       cli_abort(
-        cnd$message,
+        msg,
         call = call
       )
     }

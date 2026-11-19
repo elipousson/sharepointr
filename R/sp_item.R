@@ -406,7 +406,8 @@ update_sp_item_properties <- function(
   item_id = NULL,
   item_url = NULL,
   item = NULL,
-  check_fields = TRUE,
+  unmatched_fields = c("drop", "error", "keep"),
+  validate = c("none", "warn", "error"),
   na_fields = c("drop", "replace"),
   drive_name = NULL,
   drive_id = NULL,
@@ -458,7 +459,8 @@ update_sp_item_properties <- function(
       .data = .data,
       item_id = sp_drive_item_list_item_id(item, call = call),
       sp_list = sp_drive_item_list(item),
-      check_fields = check_fields,
+      unmatched_fields = unmatched_fields,
+      validate = validate,
       na_fields = na_fields
     )
   }

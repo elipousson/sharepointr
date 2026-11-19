@@ -27,7 +27,8 @@ update_sp_item_properties(
   item_id = NULL,
   item_url = NULL,
   item = NULL,
-  check_fields = TRUE,
+  unmatched_fields = c("drop", "error", "keep"),
+  validate = c("none", "warn", "error"),
   na_fields = c("drop", "replace"),
   drive_name = NULL,
   drive_id = NULL,
@@ -87,10 +88,33 @@ exists in the folder.}
 \item{item}{A \code{ms_drive_item} object. If \code{item} is supplied, \code{path},
 \code{item_id}, \code{item_url}, and the drive arguments are ignored.}
 
-\item{check_fields}{If \code{TRUE} (default), column names (or record field
-names) for the input data are matched to the fields of the list object.
-If \code{FALSE}, names aren't checked and the Graph API errors for any name
-that isn't a list field.}
+\item{unmatched_fields}{What to do with column names in a data frame (or
+field names in a list of records) that don't match field names in the
+supplied SharePoint list. One of:
+\itemize{
+\item \code{"drop"} (default): drop unmatched names with a message. An error if no
+names match.
+\item \code{"error"}: an error if any name doesn't match.
+\item \code{"keep"}: names aren't checked and the Graph API errors for any name
+that isn't a list field.
+}}
+
+\item{validate}{What to do with values that don't match the list column
+definitions, after values are coerced. One of:
+\itemize{
+\item \code{"none"} (default): don't check values.
+\item \code{"warn"}: warn and send the items.
+\item \code{"error"}: error before any items are sent.
+}
+
+Values are checked for text longer than the column \code{maxLength}, numbers
+outside the column minimum and maximum, choices that aren't in a choice
+column (unless the column allows text entry), and missing values in required
+columns that have no default value. Missing required values are checked
+for new items and for updates that replace values with \code{NA} (\code{na_fields = "replace"}), since other fields are left unchanged. Values that don't
+match are reported together (up to 10). Missing required values are always
+a warning (even with \code{validate = "error"}) since SharePoint creates items
+without them. Field names are checked with \code{unmatched_fields}.}
 
 \item{na_fields}{How to handle \code{NA} fields in input data. One of \code{"drop"}
 (remove \code{NA} and empty fields, e.g. a multi-select value of

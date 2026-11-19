@@ -10,7 +10,8 @@ create_sp_list_item(
   .fields = NULL,
   .keep_na = FALSE,
   .multi_fields = NULL,
-  .coerce = c("basic", "asis", "geometry")
+  .coerce = c("basic", "asis", "geometry"),
+  .validate = c("none", "warn", "error")
 )
 }
 \arguments{
@@ -29,6 +30,10 @@ than 1 are treated as multi-value fields.}
 types. One of \code{"basic"} (default), \code{"asis"}, or \code{"geometry"}. See the
 \code{coerce} argument for \code{\link[=create_sp_list_items]{create_sp_list_items()}}. Use \code{"asis"} if values
 are already coerced.}
+
+\item{.validate}{What to do with \code{.fields} values that don't match the list
+column definitions. One of \code{"none"} (default), \code{"warn"}, or \code{"error"}. See
+the \code{validate} argument for \code{\link[=create_sp_list_items]{create_sp_list_items()}}.}
 }
 \description{
 \code{\link[=create_sp_list_item]{create_sp_list_item()}} is an alternative to the \code{create_item} method for

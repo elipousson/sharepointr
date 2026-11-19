@@ -637,8 +637,8 @@ get_sp_list_item <- function(
 #'   fields that do not have corresponding names in data remain blank.
 #' - If any names in data do not match fields in the list, by default, those
 #'   columns are dropped before adding items to the list.
-#' - If `strict = TRUE` and any names in data to not match fields, the function
-#'   errors.
+#' - If `unmatched_fields = "error"` and any names in data do not match fields,
+#'   the function errors.
 #'
 #' @aliases import_sp_list_items
 #' @param data Required. A data frame or a list of named lists (one record per
@@ -650,14 +650,17 @@ get_sp_list_item <- function(
 #'   unchanged, even when `na_fields = "replace"`. For
 #'   [create_sp_list_items()], wrap a single record in a list (e.g.
 #'   `list(record)`) and `data` must be a data frame if `create_list = TRUE`.
-#' @param strict If `TRUE`, all column names in a data frame (or field names
-#'   in a list of records) must match field names in the supplied SharePoint
-#'   list. If `FALSE` (default), unmatched names are dropped with a message.
-#'   Only used if `check_fields = TRUE`.
-#' @param check_fields If `TRUE` (default), column names (or record field
-#'   names) for the input data are matched to the fields of the list object.
-#'   If `FALSE`, names aren't checked and the Graph API errors for any name
-#'   that isn't a list field.
+#' @param unmatched_fields What to do with column names in a data frame (or
+#'   field names in a list of records) that don't match field names in the
+#'   supplied SharePoint list. One of:
+#'   - `"drop"` (default): drop unmatched names with a message. An error if no
+#'     names match.
+#'   - `"error"`: an error if any name doesn't match.
+#'   - `"keep"`: names aren't checked and the Graph API errors for any name
+#'     that isn't a list field.
+#' @param check_fields,strict `r lifecycle::badge("deprecated")` Use
+#'   `unmatched_fields` instead: `check_fields = FALSE` is `"keep"` and `strict =
+#'   TRUE` is `"error"`.
 #' @param coerce How to convert values in `data` to match the list column
 #'   types. One of:
 #'   - `"basic"` (default): convert numbers, logical values, and factors to
@@ -670,21 +673,37 @@ get_sp_list_item <- function(
 #'   - `"geometry"`: do everything in `"basic"` and convert `sf` geometry
 #'     columns to well-known text (WKT) with [sf::st_as_text()].
 #'
-#'   Coercion changes types but doesn't check values (e.g. text length, number
-#'   ranges, or choices). See the section on single item functions for the
-#'   cost of coercion with [update_sp_list_item()].
+#'   Coercion changes types but doesn't check values. Use `validate` to check
+#'   values. See the section on single item functions for the cost of coercion
+#'   with [update_sp_list_item()].
+#' @param validate What to do with values that don't match the list column
+#'   definitions, after values are coerced. One of:
+#'   - `"none"` (default): don't check values.
+#'   - `"warn"`: warn and send the items.
+#'   - `"error"`: error before any items are sent.
+#'
+#'   Values are checked for text longer than the column `maxLength`, numbers
+#'   outside the column minimum and maximum, choices that aren't in a choice
+#'   column (unless the column allows text entry), and missing values in required
+#'   columns that have no default value. Missing required values are checked
+#'   for new items and for updates that replace values with `NA` (`na_fields =
+#'   "replace"`), since other fields are left unchanged. Values that don't
+#'   match are reported together (up to 10). Missing required values are always
+#'   a warning (even with `validate = "error"`) since SharePoint creates items
+#'   without them. Field names are checked with `unmatched_fields`.
 #' @section Single item functions:
 #'
 #' [create_sp_list_items()] and [update_sp_list_items()] get the list column
-#' definitions once and use them to check field names (`check_fields`) and
+#' definitions once and use them to check field names (`unmatched_fields`) and
 #' coerce values (`coerce`) for every item. [update_sp_list_item()] and
 #' [create_sp_list_item()] work on one item at a time so:
 #'
 #' - If you supply `sp_list` (and `item_id`), the column definitions are
 #'   requested from the Graph API for every call. Looping over items adds one
 #'   extra request per item. To avoid the request, set `coerce = "asis"`,
-#'   `check_fields = FALSE`, and supply `.multi_fields` (for
-#'   [create_sp_list_item()], set `.coerce = "asis"`).
+#'   `unmatched_fields = "keep"`, `validate = "none"`, and supply
+#'   `.multi_fields` (for [create_sp_list_item()], set `.coerce = "asis"` and
+#'   `.validate = "none"`).
 #' - If you supply `sp_list_item` (a list item object) to
 #'   [update_sp_list_item()], the column definitions are requested for the
 #'   item's list (a `ms_list` object is created from the item's site and list
@@ -754,16 +773,26 @@ create_sp_list_items <- function(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  check_fields = TRUE,
+  unmatched_fields = c("drop", "error", "keep"),
   coerce = c("basic", "asis", "geometry"),
+  validate = c("none", "warn", "error"),
   create_list = FALSE,
-  strict = FALSE,
   .batch = getOption("sharepointr.batch", TRUE),
-  .progress = TRUE
+  .progress = TRUE,
+  check_fields = deprecated(),
+  strict = deprecated()
 ) {
   call <- current_env()
   check_bool(.batch, call = call)
   coerce <- arg_match(coerce, error_call = call)
+  validate <- arg_match(validate, error_call = call)
+  unmatched_fields <- sp_unmatched_fields_arg(
+    unmatched_fields,
+    check_fields = check_fields,
+    strict = strict,
+    fn = "create_sp_list_items",
+    call = call
+  )
   input <- data
 
   # Check the input before any API calls (or creating a list)
@@ -835,7 +864,9 @@ create_sp_list_items <- function(
   }
 
   field_nm <- names(pull_sp_list_cols(col_metadata, col_type = "editable"))
-  coerce_targets <- sp_list_coerce_targets(col_metadata, coerce = coerce)
+  specs <- if (coerce != "asis" || validate != "none") {
+    sp_list_col_specs(col_metadata)
+  }
 
   if (is.data.frame(data)) {
     if (allow_display_nm) {
@@ -849,16 +880,16 @@ create_sp_list_items <- function(
 
     data <- coerce_sp_list_values(
       data,
-      targets = coerce_targets,
+      specs = specs,
       coerce = coerce,
       call = call
     )
 
-    if (check_fields) {
+    if (unmatched_fields != "keep") {
       data <- validate_sp_list_data_fields(
         data,
         values = field_nm,
-        strict = strict,
+        strict = unmatched_fields == "error",
         call = call
       )
     }
@@ -879,22 +910,30 @@ create_sp_list_items <- function(
 
         coerce_sp_list_values(
           x,
-          targets = coerce_targets,
+          specs = specs,
           coerce = coerce,
           call = call
         )
       }
     )
 
-    if (check_fields) {
+    if (unmatched_fields != "keep") {
       records <- validate_sp_item_record_fields(
         records,
         values = field_nm,
-        strict = strict,
+        strict = unmatched_fields == "error",
         call = call
       )
     }
   }
+
+  check_sp_list_values(
+    if (is.data.frame(data)) data else records,
+    specs = specs,
+    validate = validate,
+    action = "create",
+    call = call
+  )
 
   # Multi-value (Collection) columns need an "@odata.type" annotation even when
   # a single value is selected
@@ -943,8 +982,9 @@ create_sp_list_items <- function(
           .sp_list = .sp_list,
           .fields = record,
           .multi_fields = .multi_fields,
-          # Values are already coerced for all items
-          .coerce = "asis"
+          # Values are already coerced and checked for all items
+          .coerce = "asis",
+          .validate = "none"
         )
       },
       fn = create_sp_list_item,
@@ -1092,17 +1132,28 @@ update_sp_list_items <- function(
   ...,
   .id = "id",
   allow_display_nm = FALSE,
-  check_fields = TRUE,
+  unmatched_fields = c("drop", "error", "keep"),
   coerce = c("basic", "asis", "geometry"),
-  strict = FALSE,
+  validate = c("none", "warn", "error"),
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
   .batch = getOption("sharepointr.batch", TRUE),
-  .progress = TRUE
+  .progress = TRUE,
+  check_fields = deprecated(),
+  strict = deprecated()
 ) {
   call <- current_env()
   check_bool(.batch, call = call)
   coerce <- arg_match(coerce, error_call = call)
+  validate <- arg_match(validate, error_call = call)
+  na_fields <- arg_match(na_fields, error_call = call)
+  unmatched_fields <- sp_unmatched_fields_arg(
+    unmatched_fields,
+    check_fields = check_fields,
+    strict = strict,
+    fn = "update_sp_list_items",
+    call = call
+  )
   input <- data
 
   if (is.data.frame(data) && nrow(data) == 0) {
@@ -1144,7 +1195,7 @@ update_sp_list_items <- function(
 
   field_nm <- NULL
 
-  if (check_fields) {
+  if (unmatched_fields != "keep") {
     field_nm <- names(pull_sp_list_cols(col_metadata, col_type = "editable"))
   }
 
@@ -1154,7 +1205,9 @@ update_sp_list_items <- function(
     display_nm <- pull_sp_list_display_names(col_metadata = col_metadata)
   }
 
-  coerce_targets <- sp_list_coerce_targets(col_metadata, coerce = coerce)
+  specs <- if (coerce != "asis" || validate != "none") {
+    sp_list_col_specs(col_metadata)
+  }
 
   if (is.data.frame(data)) {
     if (allow_display_nm) {
@@ -1168,18 +1221,18 @@ update_sp_list_items <- function(
 
     update_data <- coerce_sp_list_values(
       data,
-      targets = coerce_targets,
+      specs = specs,
       coerce = coerce,
       call = call
     )
     update_data[[.id]] <- NULL
 
-    if (check_fields) {
+    if (unmatched_fields != "keep") {
       update_data <- validate_sp_list_data_fields(
         update_data,
         values = field_nm,
         drop_fields = drop_fields,
-        strict = strict,
+        strict = unmatched_fields == "error",
         call = call
       )
     }
@@ -1200,7 +1253,7 @@ update_sp_list_items <- function(
 
         x <- coerce_sp_list_values(
           x,
-          targets = coerce_targets,
+          specs = specs,
           coerce = coerce,
           call = call
         )
@@ -1208,24 +1261,32 @@ update_sp_list_items <- function(
       }
     )
 
-    if (check_fields) {
+    if (unmatched_fields != "keep") {
       records <- validate_sp_item_record_fields(
         records,
         values = field_nm,
         drop_fields = drop_fields,
-        strict = strict,
+        strict = unmatched_fields == "error",
         call = call
       )
     }
   }
+
+  check_sp_list_values(
+    if (is.data.frame(data)) update_data else records,
+    specs = specs,
+    validate = validate,
+    action = "update",
+    na_fields = na_fields,
+    labels = paste("Item", item_ids),
+    call = call
+  )
 
   # Multi-value (Collection) columns need an "@odata.type" annotation even when
   # a single value is selected
   multi_fields <- pull_sp_list_multi_cols(col_metadata = col_metadata)
 
   if (.batch) {
-    na_fields <- arg_match(na_fields, error_call = call)
-
     fields <- purrr::map(
       records,
       \(record) {
@@ -1293,8 +1354,9 @@ update_sp_list_items <- function(
           item_id = item_id,
           sp_list = sp_list,
           # Fields are already validated (or skipped) and coerced for all items
-          check_fields = FALSE,
+          unmatched_fields = "keep",
           coerce = "asis",
+          validate = "none",
           .multi_fields = .multi_fields,
           # One message is shown for all items (and cli output from parallel
           # workers isn't shown)
@@ -1545,8 +1607,9 @@ update_sp_list_item <- function(
   item_id = NULL,
   sp_list_item = NULL,
   .id = "id",
-  check_fields = TRUE,
+  unmatched_fields = c("drop", "error", "keep"),
   coerce = c("basic", "asis", "geometry"),
+  validate = c("none", "warn", "error"),
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
   list_name = NULL,
@@ -1558,10 +1621,18 @@ update_sp_list_item <- function(
   drive_id = NULL,
   drive = NULL,
   .multi_fields = NULL,
-  .quiet = FALSE
+  .quiet = FALSE,
+  check_fields = deprecated()
 ) {
   call <- current_env()
   coerce <- arg_match(coerce, error_call = call)
+  validate <- arg_match(validate, error_call = call)
+  unmatched_fields <- sp_unmatched_fields_arg(
+    unmatched_fields,
+    check_fields = check_fields,
+    fn = "update_sp_list_item",
+    call = call
+  )
   # TODO: Allow option to get id from .data
   .data <- .data %||% list2(...)
 
@@ -1627,9 +1698,15 @@ update_sp_list_item <- function(
   update_data[[.id]] <- NULL
 
   check_exclusive_args(item_id, sp_list_item, call = call)
+  # The list for the item is found from `sp_list_item` if it is supplied
+  check_exclusive_args(sp_list, sp_list_item, require = FALSE, call = call)
 
   # The list is used to get the column definitions for the item
   list_obj <- NULL
+  needs_metadata <- is.null(.multi_fields) ||
+    unmatched_fields != "keep" ||
+    coerce != "asis" ||
+    validate != "none"
 
   if (is.null(sp_list_item) && !is.null(item_id)) {
     sp_list <- sp_list %||%
@@ -1650,17 +1727,14 @@ update_sp_list_item <- function(
   } else if (!is.null(sp_list_item)) {
     check_ms_obj(sp_list_item, "ms_list_item", call = call)
 
-    if (is.null(.multi_fields) || check_fields || coerce != "asis") {
+    if (needs_metadata) {
       list_obj <- sp_list_item_list(sp_list_item)
     }
   }
 
   # Get column definitions once to validate fields, coerce values, and find
   # multi-value fields
-  if (
-    !is.null(list_obj) &&
-      (is.null(.multi_fields) || check_fields || coerce != "asis")
-  ) {
+  if (!is.null(list_obj) && needs_metadata) {
     col_metadata <- .get_sp_list_metadata(
       sp_list = list_obj,
       as_data_frame = FALSE,
@@ -1670,7 +1744,7 @@ update_sp_list_item <- function(
     .multi_fields <- .multi_fields %||%
       pull_sp_list_multi_cols(col_metadata = col_metadata)
 
-    if (check_fields) {
+    if (unmatched_fields != "keep") {
       update_data <- suppressMessages(
         validate_sp_list_data_fields(
           update_data,
@@ -1682,10 +1756,22 @@ update_sp_list_item <- function(
       )
     }
 
+    specs <- sp_list_col_specs(col_metadata)
+
     update_data <- coerce_sp_list_values(
       update_data,
-      targets = sp_list_coerce_targets(col_metadata, coerce = coerce),
+      specs = specs,
       coerce = coerce,
+      call = call
+    )
+
+    check_sp_list_values(
+      update_data,
+      specs = specs,
+      validate = validate,
+      action = "update",
+      na_fields = na_fields,
+      labels = paste("Item", item_id %||% sp_list_item[["properties"]][["id"]]),
       call = call
     )
   }
@@ -1741,6 +1827,74 @@ update_sp_list_item <- function(
   }
 
   invisible(.data)
+}
+
+#' Resolve `unmatched_fields` from the deprecated `check_fields` and `strict`
+#'
+#' @param unmatched_fields Value of the `unmatched_fields` argument (the full
+#'   vector of choices if the argument wasn't supplied).
+#' @param fn Name of the exported function for the deprecation message.
+#' @returns One of "drop", "error", or "keep".
+#' @noRd
+sp_unmatched_fields_arg <- function(
+  unmatched_fields,
+  check_fields = deprecated(),
+  strict = deprecated(),
+  fn = NULL,
+  call = caller_env(),
+  user_env = caller_env(2)
+) {
+  values <- c("drop", "error", "keep")
+  is_default <- identical(unmatched_fields, values)
+
+  if (!is_default) {
+    unmatched_fields <- arg_match0(
+      unmatched_fields,
+      values,
+      arg_nm = "unmatched_fields",
+      error_call = call
+    )
+  }
+
+  has_check_fields <- lifecycle::is_present(check_fields)
+  has_strict <- lifecycle::is_present(strict)
+
+  if (!has_check_fields && !has_strict) {
+    return(if (is_default) values[[1]] else unmatched_fields)
+  }
+
+  if (has_check_fields) {
+    lifecycle::deprecate_soft(
+      "0.2.0",
+      paste0(fn, "(check_fields)"),
+      paste0(fn, "(unmatched_fields)"),
+      user_env = user_env
+    )
+  }
+
+  if (has_strict) {
+    lifecycle::deprecate_soft(
+      "0.2.0",
+      paste0(fn, "(strict)"),
+      paste0(fn, "(unmatched_fields)"),
+      user_env = user_env
+    )
+  }
+
+  if (!is_default) {
+    cli_abort(
+      "Can't supply {.arg unmatched_fields} with {.arg check_fields} or
+      {.arg strict}.",
+      call = call
+    )
+  }
+
+  # `strict` is only used if `check_fields` is `TRUE`
+  if (has_check_fields && !isTRUE(check_fields)) {
+    return("keep")
+  }
+
+  if (has_strict && isTRUE(strict)) "error" else "drop"
 }
 
 #' Get the list for a list item object
@@ -2027,15 +2181,15 @@ sfc_cols_as_wkt <- function(data) {
 #' data frame (one value vector per column) or a named list (a single record),
 #' so the same code handles both.
 #' @param data A data frame or named list of field values.
-#' @param targets Named character vector from `sp_list_coerce_targets()`. If
-#'   `NULL`, only `sf` geometry columns are handled.
+#' @param specs Column specifications from `sp_list_col_specs()`. If `NULL`,
+#'   only `sf` geometry columns are handled.
 #' @inheritParams create_sp_list_items
 #' @returns `data` with values converted to the target column types. Errors if
 #'   `data` has `sfc` columns and `coerce` is not `"geometry"`.
 #' @noRd
 coerce_sp_list_values <- function(
   data,
-  targets = NULL,
+  specs = NULL,
   coerce = "basic",
   call = caller_env()
 ) {
@@ -2061,13 +2215,15 @@ coerce_sp_list_values <- function(
     data <- sfc_cols_as_wkt(data)
   }
 
-  nm <- intersect(names(data), names(targets))
+  kinds <- purrr::map_chr(specs[names(specs) %in% names(data)], "kind")
+  kinds <- kinds[!is.na(kinds)]
+  nm <- names(kinds)
 
   if (is_empty(nm)) {
     return(data)
   }
 
-  converted <- purrr::map2(data[nm], targets[nm], coerce_sp_list_value)
+  converted <- purrr::map2(data[nm], kinds, coerce_sp_list_value)
   failed <- purrr::map_lgl(converted, is_coerce_failure)
 
   if (any(failed)) {
@@ -2157,33 +2313,33 @@ coerce_failure <- function() structure(list(), class = "coerce_failure")
 
 is_coerce_failure <- function(x) inherits(x, "coerce_failure")
 
-#' Get the value type each list column should be coerced to
+#' Get the specification for each list column
 #'
-#' Text and choice columns are `"character"`, number and currency columns are
-#' `"double"`, and the "{name}LookupId" fields of lookup and person columns are
-#' `"integer"`. Other columns are not coerced.
+#' Used to coerce values (`kind`) and check values (the other elements) before
+#' list items are sent. Names are converted to match item data (e.g.
+#' "{name}LookupId").
+#'
+#' - `kind` is the value type: text and choice columns are `"character"`,
+#'   number and currency columns are `"double"`, and lookup and person columns
+#'   are `"integer"`. Other columns are `NA` and aren't coerced.
+#' - `required` is `TRUE` for editable columns that require a value and have no
+#'   default value.
+#' - `max_length`, `min`, `max`, and `choices` are `NULL` if the column
+#'   doesn't have the limit (`choices` is also `NULL` if the column allows
+#'   text entry).
 #' @inheritParams create_sp_list_items
-#' @returns A named character vector, or `NULL` if `coerce` is `"asis"`.
+#' @returns A named list with one list element per list column.
 #' @noRd
-sp_list_coerce_targets <- function(
-  col_metadata = NULL,
-  sp_list = NULL,
-  coerce = "basic"
-) {
-  if (coerce == "asis") {
-    return(NULL)
-  }
-
-  # Names are converted to match item data (e.g. "{name}LookupId")
+sp_list_col_specs <- function(col_metadata = NULL, sp_list = NULL) {
   col_metadata <- sp_list_ptype_col_metadata(
     sp_list = sp_list,
     col_metadata = col_metadata
   )
 
-  targets <- purrr::map_chr(
+  purrr::map(
     col_metadata,
     \(x) {
-      if (any(has_name(x, c("text", "choice")))) {
+      kind <- if (any(has_name(x, c("text", "choice")))) {
         "character"
       } else if (any(has_name(x, c("number", "currency")))) {
         "double"
@@ -2192,10 +2348,277 @@ sp_list_coerce_targets <- function(
       } else {
         NA_character_
       }
+
+      editable <- !is_true(x[["readOnly"]]) &&
+        !(x[["name"]] %in% c("ContentType", "Attachments"))
+
+      list(
+        kind = kind,
+        required = editable &&
+          is_true(x[["required"]]) &&
+          is.null(x[["defaultValue"]]),
+        max_length = x[["text"]][["maxLength"]],
+        min = x[["number"]][["minimum"]],
+        max = x[["number"]][["maximum"]],
+        choices = if (!is_true(x[["choice"]][["allowTextEntry"]])) {
+          unlist(x[["choice"]][["choices"]])
+        }
+      )
     }
   )
+}
 
-  targets[!is.na(targets)]
+#' Check list item values against the list column definitions
+#'
+#' Checks required columns, text length (`maxLength`), number range, and
+#' choices. `data` can be a data frame, a list of records, or a single record
+#' (a named list). Each is converted to a list of per-item values for each
+#' column so the same code is used for all three.
+#' @param data A data frame, list of named list records, or a named list.
+#' @param specs Column specifications from `sp_list_col_specs()`.
+#' @param validate What to do with values that don't match: `"none"` (don't
+#'   check), `"warn"`, or `"error"`.
+#' @param action `"create"` or `"update"`. Required columns are checked for
+#'   new items. For updates, only values replaced with `NA`
+#'   (`na_fields = "replace"`) are checked since other fields are left
+#'   unchanged.
+#' @param labels Optional. Labels for the items in `data`. Defaults to row
+#'   numbers.
+#' @returns `data` unchanged (invisibly), or a warning or error that lists up
+#'   to 10 values that don't match.
+#' @noRd
+check_sp_list_values <- function(
+  data,
+  specs,
+  validate = "warn",
+  action = "create",
+  na_fields = "drop",
+  labels = NULL,
+  call = caller_env()
+) {
+  if (validate == "none") {
+    return(invisible(data))
+  }
+
+  if (is.data.frame(data)) {
+    n <- vctrs::vec_size(data)
+    cols <- purrr::map(data, \(x) if (is.list(x)) x else as.list(x))
+  } else {
+    records <- if (is_named(data)) list(data) else data
+    n <- length(records)
+    field_nm <- unique(unlist(purrr::map(records, names)))
+    cols <- set_names(
+      purrr::map(field_nm, \(field) purrr::map(records, \(x) x[[field]])),
+      field_nm
+    )
+  }
+
+  is_create <- action == "create"
+  # Updates leave fields that aren't supplied unchanged
+  check_required <- is_create || na_fields == "replace"
+
+  hits <- purrr::imap(
+    specs,
+    \(spec, field) {
+      sp_list_col_hits(
+        cols[[field]],
+        spec,
+        n = n,
+        field = field,
+        check_required = check_required,
+        check_absent = is_create
+      )
+    }
+  )
+  hits <- vctrs::vec_rbind(!!!hits)
+  n_hits <- vctrs::vec_size(hits)
+
+  if (n_hits == 0) {
+    return(invisible(data))
+  }
+
+  labels <- labels %||% paste("Row", seq_len(n))
+  hits <- hits[order(hits[["row"]]), ]
+
+  if (validate == "warn") {
+    report_sp_list_value_hits(hits, labels, level = "warn", call = call)
+    return(invisible(data))
+  }
+
+  # SharePoint creates items without values for required columns so these are
+  # always a warning
+  is_required <- hits[["rule"]] == "required"
+
+  report_sp_list_value_hits(
+    hits[is_required, ],
+    labels,
+    level = "warn",
+    call = call
+  )
+  report_sp_list_value_hits(
+    hits[!is_required, ],
+    labels,
+    level = "error",
+    call = call
+  )
+
+  invisible(data)
+}
+
+#' Report values that don't match the list column definitions
+#' @param hits Rows from `sp_list_col_hits()`.
+#' @param level "warn" or "error".
+#' @noRd
+report_sp_list_value_hits <- function(hits, labels, level, call = caller_env()) {
+  n_hits <- vctrs::vec_size(hits)
+
+  if (n_hits == 0) {
+    return(invisible(NULL))
+  }
+
+  shown <- utils::head(hits, 10)
+
+  # Values can include braces so they are escaped for cli
+  esc <- \(x) gsub("}", "}}", gsub("{", "{{", x, fixed = TRUE), fixed = TRUE)
+
+  msg <- c(
+    "{n_hits} value{?s} in {.arg data} {?doesn't/don't} match the list column
+    definitions.",
+    set_names(
+      paste0(
+        esc(labels[shown[["row"]]]),
+        ", {.field ",
+        shown[["field"]],
+        "}: ",
+        esc(shown[["detail"]])
+      ),
+      rep("x", vctrs::vec_size(shown))
+    )
+  )
+
+  if (n_hits > 10) {
+    msg <- c(msg, "i" = "{n_hits - 10} more not shown.")
+  }
+
+  if (level == "warn") {
+    cli::cli_warn(msg, call = call)
+  } else {
+    cli_abort(msg, call = call)
+  }
+
+  invisible(NULL)
+}
+
+#' Find the values for a column that don't match its specification
+#' @param values A list with the value (or `NULL` if absent) for each item, or
+#'   `NULL` if the column isn't in the data.
+#' @param check_required,check_absent Check if a required value is `NA`
+#'   (`check_required`) or absent (`check_absent`).
+#' @returns A data frame with `row`, `field`, `rule`, and `detail` columns.
+#' @noRd
+sp_list_col_hits <- function(
+  values,
+  spec,
+  n,
+  field,
+  check_required = TRUE,
+  check_absent = TRUE
+) {
+  hits <- list()
+
+  add_hits <- function(is_hit, detail, rule) {
+    if (any(is_hit)) {
+      hits[[length(hits) + 1]] <<- data.frame(
+        row = which(is_hit),
+        field = field,
+        rule = rule,
+        detail = detail[is_hit]
+      )
+    }
+  }
+
+  if (is.null(values)) {
+    if (spec[["required"]] && check_required && check_absent) {
+      add_hits(rep(TRUE, n), rep("a value is required", n), "required")
+    }
+
+    return(vctrs::vec_rbind(!!!hits))
+  }
+
+  if (spec[["required"]] && check_required) {
+    is_absent <- purrr::map_lgl(values, is.null)
+    is_blank <- purrr::map_lgl(values, \(x) !is.null(x) && all(is.na(x)))
+
+    add_hits(
+      is_blank | (check_absent & is_absent),
+      rep("a value is required", n),
+      "required"
+    )
+  }
+
+  if (!is.null(spec[["max_length"]])) {
+    len <- purrr::map_int(
+      values,
+      \(x) {
+        if (is.character(x) && !all(is.na(x))) {
+          max(nchar(x), na.rm = TRUE)
+        } else {
+          0L
+        }
+      }
+    )
+
+    add_hits(
+      len > spec[["max_length"]],
+      paste0(len, " characters (maximum ", spec[["max_length"]], ")"),
+      "max_length"
+    )
+  }
+
+  if (!is.null(spec[["min"]]) || !is.null(spec[["max"]])) {
+    lower <- spec[["min"]] %||% -Inf
+    upper <- spec[["max"]] %||% Inf
+
+    out_of_range <- purrr::map(
+      values,
+      \(x) if (is.numeric(x)) x[!is.na(x) & (x < lower | x > upper)]
+    )
+
+    add_hits(
+      purrr::map_lgl(out_of_range, \(x) length(x) > 0),
+      purrr::map_chr(
+        out_of_range,
+        \(x) {
+          paste0(
+            x[1],
+            " is outside ",
+            if (is.finite(lower)) lower else "no minimum",
+            " to ",
+            if (is.finite(upper)) upper else "no maximum"
+          )
+        }
+      ),
+      "range"
+    )
+  }
+
+  if (!is.null(spec[["choices"]])) {
+    not_choice <- purrr::map(
+      values,
+      \(x) if (is.character(x)) setdiff(x[!is.na(x)], spec[["choices"]])
+    )
+
+    add_hits(
+      purrr::map_lgl(not_choice, \(x) length(x) > 0),
+      purrr::map_chr(
+        not_choice,
+        \(x) paste0("\"", x[1], "\" is not a choice")
+      ),
+      "choices"
+    )
+  }
+
+  vctrs::vec_rbind(!!!hits)
 }
 
 #' Get the names of multi-value (Collection) columns for a SharePoint list
@@ -2227,6 +2650,9 @@ pull_sp_list_multi_cols <- function(sp_list = NULL, col_metadata = NULL) {
 #'   types. One of `"basic"` (default), `"asis"`, or `"geometry"`. See the
 #'   `coerce` argument for [create_sp_list_items()]. Use `"asis"` if values
 #'   are already coerced.
+#' @param .validate What to do with `.fields` values that don't match the list
+#'   column definitions. One of `"none"` (default), `"warn"`, or `"error"`. See
+#'   the `validate` argument for [create_sp_list_items()].
 #' @param ... Ignored if .fields is supplied.
 #' @param .multi_fields Optional. Names of multi-value (Collection) fields, such
 #'   as multi-select choice columns, that should always be sent as an array with
@@ -2240,16 +2666,30 @@ create_sp_list_item <- function(
   .fields = NULL,
   .keep_na = FALSE,
   .multi_fields = NULL,
-  .coerce = c("basic", "asis", "geometry")
+  .coerce = c("basic", "asis", "geometry"),
+  .validate = c("none", "warn", "error")
 ) {
   call <- current_env()
   .coerce <- arg_match(.coerce, error_call = call)
+  .validate <- arg_match(.validate, error_call = call)
   .fields <- .fields %||% rlang::list2(...)
+
+  specs <- if (.coerce != "asis" || .validate != "none") {
+    sp_list_col_specs(sp_list = .sp_list)
+  }
 
   .fields <- coerce_sp_list_values(
     .fields,
-    targets = sp_list_coerce_targets(sp_list = .sp_list, coerce = .coerce),
+    specs = specs,
     coerce = .coerce,
+    call = call
+  )
+
+  check_sp_list_values(
+    .fields,
+    specs = specs,
+    validate = .validate,
+    labels = "Item",
     call = call
   )
 

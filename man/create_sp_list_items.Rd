@@ -20,12 +20,14 @@ create_sp_list_items(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  check_fields = TRUE,
+  unmatched_fields = c("drop", "error", "keep"),
   coerce = c("basic", "asis", "geometry"),
+  validate = c("none", "warn", "error"),
   create_list = FALSE,
-  strict = FALSE,
   .batch = getOption("sharepointr.batch", TRUE),
-  .progress = TRUE
+  .progress = TRUE,
+  check_fields = deprecated(),
+  strict = deprecated()
 )
 
 update_sp_list_items(
@@ -36,13 +38,15 @@ update_sp_list_items(
   ...,
   .id = "id",
   allow_display_nm = FALSE,
-  check_fields = TRUE,
+  unmatched_fields = c("drop", "error", "keep"),
   coerce = c("basic", "asis", "geometry"),
-  strict = FALSE,
+  validate = c("none", "warn", "error"),
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
   .batch = getOption("sharepointr.batch", TRUE),
-  .progress = TRUE
+  .progress = TRUE,
+  check_fields = deprecated(),
+  strict = deprecated()
 )
 
 update_sp_list_item(
@@ -51,8 +55,9 @@ update_sp_list_item(
   item_id = NULL,
   sp_list_item = NULL,
   .id = "id",
-  check_fields = TRUE,
+  unmatched_fields = c("drop", "error", "keep"),
   coerce = c("basic", "asis", "geometry"),
+  validate = c("none", "warn", "error"),
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
   list_name = NULL,
@@ -64,7 +69,8 @@ update_sp_list_item(
   drive_id = NULL,
   drive = NULL,
   .multi_fields = NULL,
-  .quiet = FALSE
+  .quiet = FALSE,
+  check_fields = deprecated()
 )
 }
 \arguments{
@@ -113,10 +119,16 @@ method for SharePoint site object.}
 \item{drive}{A \code{ms_drive} object. If \code{drive} is supplied, \code{drive_name} and
 \code{drive_id} are ignored.}
 
-\item{check_fields}{If \code{TRUE} (default), column names (or record field
-names) for the input data are matched to the fields of the list object.
-If \code{FALSE}, names aren't checked and the Graph API errors for any name
-that isn't a list field.}
+\item{unmatched_fields}{What to do with column names in a data frame (or
+field names in a list of records) that don't match field names in the
+supplied SharePoint list. One of:
+\itemize{
+\item \code{"drop"} (default): drop unmatched names with a message. An error if no
+names match.
+\item \code{"error"}: an error if any name doesn't match.
+\item \code{"keep"}: names aren't checked and the Graph API errors for any name
+that isn't a list field.
+}}
 
 \item{coerce}{How to convert values in \code{data} to match the list column
 types. One of:
@@ -132,18 +144,30 @@ geometry columns is an error.
 columns to well-known text (WKT) with \code{\link[sf:st_as_text]{sf::st_as_text()}}.
 }
 
-Coercion changes types but doesn't check values (e.g. text length, number
-ranges, or choices). See the section on single item functions for the
-cost of coercion with \code{\link[=update_sp_list_item]{update_sp_list_item()}}.}
+Coercion changes types but doesn't check values. Use \code{validate} to check
+values. See the section on single item functions for the cost of coercion
+with \code{\link[=update_sp_list_item]{update_sp_list_item()}}.}
+
+\item{validate}{What to do with values that don't match the list column
+definitions, after values are coerced. One of:
+\itemize{
+\item \code{"none"} (default): don't check values.
+\item \code{"warn"}: warn and send the items.
+\item \code{"error"}: error before any items are sent.
+}
+
+Values are checked for text longer than the column \code{maxLength}, numbers
+outside the column minimum and maximum, choices that aren't in a choice
+column (unless the column allows text entry), and missing values in required
+columns that have no default value. Missing required values are checked
+for new items and for updates that replace values with \code{NA} (\code{na_fields = "replace"}), since other fields are left unchanged. Values that don't
+match are reported together (up to 10). Missing required values are always
+a warning (even with \code{validate = "error"}) since SharePoint creates items
+without them. Field names are checked with \code{unmatched_fields}.}
 
 \item{create_list}{If \code{TRUE} and \code{list_name} is supplied, a new list is
 created using \code{\link[=data_as_column_definition_list]{data_as_column_definition_list()}} to set the column
 definitions for the list.}
-
-\item{strict}{If \code{TRUE}, all column names in a data frame (or field names
-in a list of records) must match field names in the supplied SharePoint
-list. If \code{FALSE} (default), unmatched names are dropped with a message.
-Only used if \code{check_fields = TRUE}.}
 
 \item{.batch}{If \code{TRUE} (default), items are sent with Microsoft Graph
 \verb{$batch} requests (up to 20 items per request), which is much faster than
@@ -164,6 +188,9 @@ if item IDs must follow the order of \code{data}.}
 \item{.progress}{Whether to show a progress bar. Use \code{TRUE} to turn on
 a basic progress bar, use a string to give it a name, or see
 \link[purrr]{progress_bars} for more details.}
+
+\item{check_fields, strict}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
+\code{unmatched_fields} instead: \code{check_fields = FALSE} is \code{"keep"} and \code{strict = TRUE} is \code{"error"}.}
 
 \item{na_fields}{How to handle \code{NA} fields in input data. One of \code{"drop"}
 (remove \code{NA} and empty fields, e.g. a multi-select value of
@@ -211,23 +238,24 @@ the field names.
 fields that do not have corresponding names in data remain blank.
 \item If any names in data do not match fields in the list, by default, those
 columns are dropped before adding items to the list.
-\item If \code{strict = TRUE} and any names in data to not match fields, the function
-errors.
+\item If \code{unmatched_fields = "error"} and any names in data do not match fields,
+the function errors.
 }
 }
 \section{Single item functions}{
 
 
 \code{\link[=create_sp_list_items]{create_sp_list_items()}} and \code{\link[=update_sp_list_items]{update_sp_list_items()}} get the list column
-definitions once and use them to check field names (\code{check_fields}) and
+definitions once and use them to check field names (\code{unmatched_fields}) and
 coerce values (\code{coerce}) for every item. \code{\link[=update_sp_list_item]{update_sp_list_item()}} and
 \code{\link[=create_sp_list_item]{create_sp_list_item()}} work on one item at a time so:
 \itemize{
 \item If you supply \code{sp_list} (and \code{item_id}), the column definitions are
 requested from the Graph API for every call. Looping over items adds one
 extra request per item. To avoid the request, set \code{coerce = "asis"},
-\code{check_fields = FALSE}, and supply \code{.multi_fields} (for
-\code{\link[=create_sp_list_item]{create_sp_list_item()}}, set \code{.coerce = "asis"}).
+\code{unmatched_fields = "keep"}, \code{validate = "none"}, and supply
+\code{.multi_fields} (for \code{\link[=create_sp_list_item]{create_sp_list_item()}}, set \code{.coerce = "asis"} and
+\code{.validate = "none"}).
 \item If you supply \code{sp_list_item} (a list item object) to
 \code{\link[=update_sp_list_item]{update_sp_list_item()}}, the column definitions are requested for the
 item's list (a \code{ms_list} object is created from the item's site and list

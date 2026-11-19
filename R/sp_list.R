@@ -1578,7 +1578,7 @@ sp_list_site <- function(sp_list) {
 #' target list to the data from the lookup list (either user provided or
 #' retrieved based on the provided lists), renames the column to match the
 #' required pattern of `"{column_name}LookupId"`, and calls
-#' [update_sp_list_items()] with `check_fields = FALSE`. As of May 2026, the
+#' [update_sp_list_items()] with `unmatched_fields = "keep"`. As of May 2026, the
 #' function does not support multiple values for lookup columns.
 #'
 #' [update_sp_list_person_items()] is a variant of
@@ -1712,7 +1712,7 @@ update_sp_list_lookup_items <- function(
     ...,
     .id = .id,
     allow_display_nm = FALSE,
-    check_fields = FALSE,
+    unmatched_fields = "keep",
     na_fields = na_fields,
     .progress = .progress
   )

@@ -745,7 +745,7 @@ test_that("update_sp_list_item() uses `.id` to check for empty data", {
       .data = list(ID = "5", Title = NA),
       .id = "ID",
       sp_list = requests$sp_list,
-      check_fields = FALSE
+      unmatched_fields = "keep"
     ),
     "empty after dropping"
   )
@@ -830,7 +830,7 @@ test_that("update_sp_list_items() supports strict field matching", {
     update_sp_list_items(
       list(list(id = "1", Title = "A", Other = "B")),
       sp_list = requests$sp_list,
-      strict = TRUE,
+      unmatched_fields = "error",
       .progress = FALSE
     ),
     "All field names in `data` must match"
@@ -839,7 +839,7 @@ test_that("update_sp_list_items() supports strict field matching", {
     update_sp_list_items(
       data.frame(id = "1", Title = "A", Other = "B"),
       sp_list = requests$sp_list,
-      strict = TRUE,
+      unmatched_fields = "error",
       .progress = FALSE
     ),
     "All column names in `data` must match"
@@ -1238,7 +1238,7 @@ test_that("update_sp_list_item() sends one PATCH and gets column metadata once",
   update_sp_list_item(
     .data = list(id = "2", Title = "C"),
     sp_list = requests$sp_list,
-    check_fields = FALSE,
+    unmatched_fields = "keep",
     coerce = "asis",
     .multi_fields = character(0)
   )
@@ -1257,6 +1257,15 @@ test_that("update_sp_list_item() sends one PATCH and gets column metadata once",
     requests$item_ops <- c(requests$item_ops, list(list(op, http_verb, body)))
   }
 
+  expect_error(
+    update_sp_list_item(
+      .data = list(Title = "D"),
+      sp_list = requests$sp_list,
+      sp_list_item = sp_list_item
+    ),
+    "Exactly one of `sp_list` or `sp_list_item`"
+  )
+
   local_mocked_bindings(sp_list_item_list = function(sp_list_item) {
     requests$sp_list
   })
@@ -1265,7 +1274,7 @@ test_that("update_sp_list_item() sends one PATCH and gets column metadata once",
   update_sp_list_item(
     .data = list(Title = "D"),
     sp_list_item = sp_list_item,
-    check_fields = FALSE,
+    unmatched_fields = "keep",
     coerce = "asis",
     .multi_fields = character(0)
   )
@@ -1390,7 +1399,7 @@ test_that("update_sp_list_items() skips items without values with `.batch = TRUE
     update_sp_list_items(
       data.frame(id = c("1", "2"), Title = c("A", NA)),
       sp_list = requests$sp_list,
-      check_fields = FALSE,
+      unmatched_fields = "keep",
       .progress = FALSE
     ),
     "1 item is empty after dropping"
@@ -1418,30 +1427,59 @@ test_that("delete_sp_list_items() returns a status for each item with `.batch = 
 })
 
 coerce_test_metadata <- list(
-  list(name = "Title", text = list()),
-  list(name = "Status", choice = list(choices = c("A", "B"))),
-  list(name = "Count", number = list()),
+  list(name = "Title", text = list(maxLength = 5), required = TRUE),
+  list(
+    name = "Status",
+    choice = list(choices = c("A", "B"), allowTextEntry = FALSE)
+  ),
+  list(name = "Count", number = list(minimum = 0, maximum = 10)),
   list(name = "Cost", currency = list()),
   list(name = "Owner", personOrGroup = list()),
-  list(name = "Done", boolean = list())
+  list(name = "Done", boolean = list()),
+  list(name = "Notes", text = list(), required = TRUE, defaultValue = list()),
+  list(name = "Free", choice = list(choices = "A", allowTextEntry = TRUE)),
+  list(name = "Locked", text = list(), required = TRUE, readOnly = TRUE)
 )
 
-test_that("sp_list_coerce_targets() maps list columns to value types", {
+test_that("sp_list_col_specs() describes list columns", {
+  specs <- sp_list_col_specs(coerce_test_metadata)
+
   expect_identical(
-    sp_list_coerce_targets(coerce_test_metadata),
+    purrr::map_chr(specs, "kind"),
     c(
       Title = "character",
       Status = "character",
       Count = "double",
       Cost = "double",
-      OwnerLookupId = "integer"
+      OwnerLookupId = "integer",
+      Done = NA_character_,
+      Notes = "character",
+      Free = "character",
+      Locked = "character"
     )
   )
-  expect_null(sp_list_coerce_targets(coerce_test_metadata, coerce = "asis"))
+  expect_identical(
+    purrr::map_lgl(specs, "required"),
+    c(
+      Title = TRUE,
+      Status = FALSE,
+      Count = FALSE,
+      Cost = FALSE,
+      OwnerLookupId = FALSE,
+      Done = FALSE,
+      Notes = FALSE,
+      Free = FALSE,
+      Locked = FALSE
+    )
+  )
+  expect_identical(specs[["Title"]][["max_length"]], 5)
+  expect_identical(specs[["Count"]][["max"]], 10)
+  expect_identical(specs[["Status"]][["choices"]], c("A", "B"))
+  expect_null(specs[["Free"]][["choices"]])
 })
 
 test_that("coerce_sp_list_values() converts data frames and records", {
-  targets <- sp_list_coerce_targets(coerce_test_metadata)
+  specs <- sp_list_col_specs(coerce_test_metadata)
 
   data <- data.frame(
     Title = c(1162, 100000.5, NA),
@@ -1451,7 +1489,7 @@ test_that("coerce_sp_list_values() converts data frames and records", {
     Done = c(TRUE, FALSE, NA)
   )
 
-  out <- coerce_sp_list_values(data, targets = targets)
+  out <- coerce_sp_list_values(data, specs = specs)
   expect_identical(out[["Title"]], c("1162", "100000.5", NA))
   expect_identical(out[["Status"]], c("A", "B", "A"))
   expect_identical(out[["Count"]], c(1, 2.5, NA))
@@ -1461,23 +1499,23 @@ test_that("coerce_sp_list_values() converts data frames and records", {
   # Records (named lists) use the same code
   record <- coerce_sp_list_values(
     list(Title = 7, Count = "8", Other = 9),
-    targets = targets
+    specs = specs
   )
   expect_identical(record, list(Title = "7", Count = 8, Other = 9))
 
   # Values are unchanged with `coerce = "asis"`
   expect_identical(
-    coerce_sp_list_values(data, targets = targets, coerce = "asis"),
+    coerce_sp_list_values(data, specs = specs, coerce = "asis"),
     data
   )
 })
 
 test_that("coerce_sp_list_values() warns and keeps values it can't convert", {
-  targets <- sp_list_coerce_targets(coerce_test_metadata)
+  specs <- sp_list_col_specs(coerce_test_metadata)
   data <- list(Count = c("1", "twelve"), OwnerLookupId = 1.5, Title = 1)
 
   expect_warning(
-    out <- coerce_sp_list_values(data, targets = targets),
+    out <- coerce_sp_list_values(data, specs = specs),
     "Count"
   )
   expect_identical(out, list(Count = c("1", "twelve"), OwnerLookupId = 1.5, Title = "1"))
@@ -1490,30 +1528,214 @@ test_that("coerce_sp_list_values() handles geometry with `coerce`", {
     Title = 1,
     geometry = sf::st_sfc(sf::st_point(c(1, 2)))
   )
-  targets <- sp_list_coerce_targets(coerce_test_metadata)
+  specs <- sp_list_col_specs(coerce_test_metadata)
 
-  expect_error(coerce_sp_list_values(data, targets = targets), "geometry")
+  expect_error(coerce_sp_list_values(data, specs = specs), "geometry")
 
-  out <- coerce_sp_list_values(data, targets = targets, coerce = "geometry")
+  out <- coerce_sp_list_values(data, specs = specs, coerce = "geometry")
   expect_identical(out[["geometry"]], "POINT (1 2)")
   expect_identical(out[["Title"]], "1")
 })
 
 test_that("coerce_sp_list_values() handles list-columns and NULL values", {
-  targets <- sp_list_coerce_targets(coerce_test_metadata)
+  specs <- sp_list_col_specs(coerce_test_metadata)
 
   # Multi-select values in a list-column are converted element by element
   data <- data.frame(Id = 1:3)
   data[["Status"]] <- list(c(1, 2), character(0), NA)
-  out <- coerce_sp_list_values(data, targets = targets)
+  out <- coerce_sp_list_values(data, specs = specs)
   expect_identical(out[["Status"]], list(c("1", "2"), character(0), NA))
 
   # NULL values aren't conversion failures
   expect_no_warning(
     out <- coerce_sp_list_values(
       list(Title = NULL, Status = list(NULL)),
-      targets = targets
+      specs = specs
     )
   )
   expect_identical(out, list(Title = NULL, Status = list(NULL)))
+})
+
+test_that("check_fields and strict are soft deprecated for unmatched_fields", {
+  requests <- local_fake_item_list()
+
+  # The deprecated arguments are mapped to `unmatched_fields`
+  expect_identical(sp_unmatched_fields_arg(c("drop", "error", "keep")), "drop")
+  expect_identical(sp_unmatched_fields_arg("error"), "error")
+  expect_identical(
+    suppressWarnings(
+      sp_unmatched_fields_arg(
+        c("drop", "error", "keep"),
+        check_fields = FALSE,
+        strict = TRUE,
+        fn = "fn"
+      )
+    ),
+    "keep"
+  )
+  expect_identical(
+    suppressWarnings(
+      sp_unmatched_fields_arg(
+        c("drop", "error", "keep"),
+        strict = TRUE,
+        fn = "fn"
+      )
+    ),
+    "error"
+  )
+  expect_error(
+    suppressWarnings(
+      sp_unmatched_fields_arg("drop", check_fields = TRUE, fn = "fn")
+    ),
+    "Can't supply `unmatched_fields`"
+  )
+  expect_error(
+    update_sp_list_items(
+      data.frame(id = "1", Title = "A"),
+      sp_list = requests$sp_list,
+      unmatched_fields = "asis"
+    ),
+    "unmatched_fields"
+  )
+
+  # Deprecated arguments still work
+  lifecycle::expect_deprecated(
+    expect_error(
+      update_sp_list_items(
+        data.frame(id = "1", Title = "A", Other = "B"),
+        sp_list = requests$sp_list,
+        strict = TRUE,
+        .progress = FALSE
+      ),
+      "All column names in `data` must match"
+    ),
+    "strict"
+  )
+  lifecycle::expect_deprecated(
+    update_sp_list_item(
+      .data = list(id = "5", Title = "A"),
+      sp_list = requests$sp_list,
+      check_fields = FALSE,
+      coerce = "asis",
+      .multi_fields = character(0),
+      .quiet = TRUE
+    ),
+    "check_fields"
+  )
+})
+
+test_that("check_sp_list_values() reports values that don't match the list", {
+  specs <- sp_list_col_specs(coerce_test_metadata)
+  data <- data.frame(
+    Title = c("ok", "too long", NA),
+    Status = c("A", "C", "B"),
+    Count = c(1, 2, 11)
+  )
+
+  expect_identical(
+    check_sp_list_values(data, specs, validate = "none"),
+    data
+  )
+
+  expect_snapshot(
+    check_sp_list_values(data, specs, validate = "error"),
+    error = TRUE
+  )
+  expect_warning(
+    check_sp_list_values(data, specs, validate = "warn"),
+    "4 values in `data` don't match"
+  )
+
+  # Records and a single record use the same checks
+  records <- list(
+    list(Title = "ok", Status = "A"),
+    list(Title = "toolong", Status = c("A", "C"))
+  )
+  expect_error(
+    check_sp_list_values(records, specs, "error", labels = c("a", "b")),
+    "b, Title"
+  )
+  expect_error(
+    check_sp_list_values(list(Title = "ok", Count = -1), specs, "error"),
+    "-1 is outside 0 to 10"
+  )
+
+  # Free text, read-only, and defaulted columns aren't checked
+  expect_no_error(
+    check_sp_list_values(
+      list(Title = "ok", Free = "Z", Notes = NA, Locked = NA),
+      specs,
+      "error"
+    )
+  )
+})
+
+test_that("check_sp_list_values() checks required values for create and update", {
+  specs <- sp_list_col_specs(coerce_test_metadata)
+
+  # A required column that is absent or `NA` is always a warning for new items
+  expect_warning(
+    check_sp_list_values(list(Status = "A"), specs, "error"),
+    "Title.*a value is required"
+  )
+  expect_warning(
+    check_sp_list_values(list(Title = NA), specs, "error"),
+    "a value is required"
+  )
+
+  # Other values are still an error (after the warning)
+  expect_snapshot(
+    check_sp_list_values(list(Status = "C"), specs, "error"),
+    error = TRUE
+  )
+
+  # Updates leave absent fields unchanged and drop `NA` values by default
+  expect_no_error(
+    check_sp_list_values(
+      list(Status = "A"),
+      specs,
+      "error",
+      action = "update"
+    )
+  )
+  expect_no_error(
+    check_sp_list_values(
+      list(Title = NA),
+      specs,
+      "error",
+      action = "update"
+    )
+  )
+  expect_warning(
+    check_sp_list_values(
+      list(Title = NA),
+      specs,
+      "error",
+      action = "update",
+      na_fields = "replace"
+    ),
+    "a value is required"
+  )
+})
+
+test_that("update_sp_list_items() and create_sp_list_items() use `validate`", {
+  requests <- local_fake_item_list()
+
+  expect_error(
+    create_sp_list_items(
+      data.frame(Title = c("A", "B"), Choices = c("X", "Y")),
+      sp_list = requests$sp_list,
+      validate = "error",
+      .progress = FALSE
+    ),
+    NA
+  )
+  expect_error(
+    update_sp_list_items(
+      data.frame(id = "1", Title = "A"),
+      sp_list = requests$sp_list,
+      validate = "maybe"
+    ),
+    "validate"
+  )
 })

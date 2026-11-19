@@ -90,3 +90,24 @@ test_that("sp_in_parallel() returns a plain function if .parallel is FALSE", {
   expect_false(inherits(f, "crate"))
   expect_identical(f(1), 2)
 })
+
+test_that("str_c_path drops an empty folder path", {
+  expect_identical(str_c_path("", "a.txt"), "a.txt")
+  expect_identical(str_c_path("General/a", "b.txt"), "General/a/b.txt")
+  expect_identical(
+    str_c_path("General", c("a", "b")),
+    c("General/a", "General/b")
+  )
+})
+
+test_that("list_replace_if() replaces elements that satisfy the predicate", {
+  x <- list(a = "x", b = NA, c = character(0))
+  expect_identical(
+    list_replace_if(x[1:2], is.na),
+    list(a = "x", b = NULL)
+  )
+  expect_identical(
+    list_replace_if(x[c(1, 3)], is_empty, replace = "none"),
+    list(a = "x", c = "none")
+  )
+})

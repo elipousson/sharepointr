@@ -27,11 +27,6 @@ test_that("check_sp_transfer_type checks for a file or folder", {
   expect_null(check_sp_transfer_type(folder, "any"))
 })
 
-test_that("str_c_path drops an empty folder path", {
-  expect_identical(str_c_path("", "a.txt"), "a.txt")
-  expect_identical(str_c_path("General/a", "b.txt"), "General/a/b.txt")
-})
-
 # ---- Live SharePoint integration tests ----
 #
 # These tests create a uniquely-named folder (using `sp_test_marker()`) in

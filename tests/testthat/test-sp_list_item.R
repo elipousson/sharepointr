@@ -142,9 +142,9 @@ test_that("unwrap_list_fields() and sfc_cols_as_wkt() prepare list item fields",
   expect_identical(fields[["Choices"]], c("B", "C"))
 })
 
-test_that("drop_na_fields() drops NA and empty fields", {
+test_that("prep_sp_list_item_na_fields() drops NA and empty fields", {
   expect_identical(
-    drop_na_fields(
+    prep_sp_list_item_na_fields(
       list(
         id = "1",
         Title = NA,
@@ -1518,7 +1518,10 @@ test_that("coerce_sp_list_values() warns and keeps values it can't convert", {
     out <- coerce_sp_list_values(data, specs = specs),
     "Count"
   )
-  expect_identical(out, list(Count = c("1", "twelve"), OwnerLookupId = 1.5, Title = "1"))
+  expect_identical(
+    out,
+    list(Count = c("1", "twelve"), OwnerLookupId = 1.5, Title = "1")
+  )
 })
 
 test_that("coerce_sp_list_values() handles geometry with `coerce`", {

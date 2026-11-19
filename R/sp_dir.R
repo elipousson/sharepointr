@@ -314,13 +314,15 @@ sp_dir_info <- function(
           n_items <- n_items + nrow(item_list)
 
           if (recurse && any(item_list[["isdir"]])) {
+            # If `full_names` is `FALSE`, `name` is relative to the parent
+            child_dirs <- item_list[item_list[["isdir"]], ][["name"]]
             next_pending <- c(
               next_pending,
-              sp_dir_child_paths(
-                item_list[item_list[["isdir"]], ][["name"]],
-                parent = pending[[idx[[j]]]],
-                full_names = full_names
-              )
+              if (full_names) {
+                str_remove_slash(child_dirs, before = TRUE)
+              } else {
+                str_c_path(pending[[idx[[j]]]], child_dirs)
+              }
             )
           }
         }
@@ -727,32 +729,10 @@ sp_dir_children_op <- function(path) {
   paste0("root:/", paste(segments, collapse = "/"), ":/children")
 }
 
-#' Get the paths to the subdirectories of `parent`
-#'
-#' If `full_names` is `FALSE`, `name` is relative to `parent`.
-#' @noRd
-sp_dir_child_paths <- function(name, parent, full_names) {
-  if (full_names) {
-    return(str_remove_slash(name, before = TRUE))
-  }
-
-  if (parent == "") {
-    return(name)
-  }
-
-  paste(parent, name, sep = "/")
-}
-
-#' @returns An `fs_bytes` vector.
-#' @noRd
-vec_fmt_sp_item_size <- function(x) {
-  fs::as_fs_bytes(as.double(x))
-}
-
 #' @returns `data` with `size_col` converted to an `fs_bytes` vector.
 #' @noRd
 fmt_sp_item_size <- function(data, size_col = "size") {
-  data[[size_col]] <- vec_fmt_sp_item_size(data[[size_col]])
+  data[[size_col]] <- fs::as_fs_bytes(as.double(data[[size_col]]))
 
   data
 }

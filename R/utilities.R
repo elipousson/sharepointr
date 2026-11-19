@@ -156,6 +156,16 @@ str_c_url <- function(..., sep = "/") {
   stringr::str_c(..., sep = sep)
 }
 
+#' Combine a folder path and a name, dropping an empty folder path
+#' @noRd
+str_c_path <- function(dir, name) {
+  if (!nzchar(dir)) {
+    return(name)
+  }
+
+  str_c_url(dir, name)
+}
+
 #' @returns A character vector with the elements of `...` concatenated using
 #'   `fsep`.
 #' @noRd
@@ -176,7 +186,7 @@ str_match_list <- function(string, pattern, i = 1, nm = NULL) {
     matches <- matches[i, ]
   }
 
-  matches <- list_replace_na(as.list(matches))
+  matches <- list_replace_if(as.list(matches), is.na)
 
   if (is.null(nm)) {
     return(matches)
@@ -185,28 +195,16 @@ str_match_list <- function(string, pattern, i = 1, nm = NULL) {
   set_names(matches, nm)
 }
 
-#' Replace NA elements in a list
+#' Replace elements of a list that satisfy a predicate
 #'
-#' @returns A list the same length as `x`, with any `NA` elements replaced by
-#'   `replace`.
+#' @param predicate A function (e.g. `is.na` or `is_empty`) that returns a
+#'   single `TRUE` or `FALSE` for each element of `x`.
+#' @returns A list the same length as `x`, with any element where
+#'   `predicate(element)` is `TRUE` replaced by `replace`.
 #' @noRd
-list_replace_na <- function(x, replace = NULL) {
+list_replace_if <- function(x, predicate, replace = NULL) {
   purrr::map(x, function(i) {
-    if (is.na(i)) {
-      return(replace)
-    }
-    i
-  })
-}
-
-#' Replace empty elements in a list
-#'
-#' @returns A list the same length as `x`, with any empty elements replaced
-#'   by `replace`.
-#' @noRd
-list_replace_empty <- function(x, replace = NULL) {
-  purrr::map(x, function(i) {
-    if (is_empty(i)) {
+    if (predicate(i)) {
       return(replace)
     }
     i

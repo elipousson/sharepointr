@@ -290,11 +290,11 @@ sp_transfer_item <- function(
   existing <- NULL
 
   if (item$is_folder()) {
-    existing <- sp_drive_child_props(
+    existing <- sp_drive_item_props(
       dest[["token"]],
       dest[["drive_id"]],
-      dest[["parent_id"]],
-      dest[["name"]]
+      path = dest[["name"]],
+      parent_id = dest[["parent_id"]]
     )
   }
 
@@ -599,51 +599,29 @@ sp_transfer_dest <- function(
   )
 }
 
-#' Combine a folder path and a name, dropping an empty folder path
-#' @noRd
-str_c_path <- function(dir, name) {
-  if (!nzchar(dir)) {
-    return(name)
-  }
-
-  str_c_url(dir, name)
-}
-
 #' Get the properties of a drive item by path
 #'
-#' @param path A path relative to the drive root. Use `""` for the root.
+#' @param path A path relative to the drive root. Use `""` for the root. If
+#'   `parent_id` is supplied, the name of an item in that folder.
+#' @param parent_id Optional id of the folder containing the item named `path`.
 #' @returns A list of item properties, or `NULL` if no item exists at `path`.
 #' @noRd
-sp_drive_item_props <- function(token, drive_id, path = "") {
-  op <- "root"
-  if (nzchar(path)) {
+sp_drive_item_props <- function(token, drive_id, path = "", parent_id = NULL) {
+  if (!is.null(parent_id)) {
+    op <- file.path(
+      "items",
+      paste0(parent_id, ":/", utils::URLencode(path, reserved = TRUE))
+    )
+  } else if (nzchar(path)) {
     op <- paste0("root:/", utils::URLencode(path, reserved = TRUE))
+  } else {
+    op <- "root"
   }
 
   tryCatch(
     AzureGraph::call_graph_endpoint(
       token,
       file.path("drives", drive_id, op)
-    ),
-    http_404 = function(cnd) NULL
-  )
-}
-
-#' Get the properties of an item in a folder by name
-#'
-#' @returns A list of item properties, or `NULL` if no item named `name` is in
-#'   the folder.
-#' @noRd
-sp_drive_child_props <- function(token, drive_id, parent_id, name) {
-  tryCatch(
-    AzureGraph::call_graph_endpoint(
-      token,
-      file.path(
-        "drives",
-        drive_id,
-        "items",
-        paste0(parent_id, ":/", utils::URLencode(name, reserved = TRUE))
-      )
     ),
     http_404 = function(cnd) NULL
   )

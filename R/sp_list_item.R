@@ -543,42 +543,6 @@ format_sp_list_date_cols <- function(
   sp_list_items
 }
 
-#' @returns A named vector of item id values, named with the values of
-#'   `column`.
-#' @noRd
-pull_sp_list_item_id <- function(
-  sp_list = NULL,
-  column = NULL,
-  ...,
-  .id = "id"
-) {
-  pull_sp_list_items_index(
-    sp_list = sp_list,
-    var = column,
-    name = .id %||% column
-  )
-}
-
-#' @returns A named vector with the values of `var`, named with the
-#'   corresponding values of `name`.
-#' @noRd
-pull_sp_list_items_index <- function(
-  sp_list_items = NULL,
-  sp_list = NULL,
-  var = NULL,
-  ...,
-  name = var
-) {
-  var_name_pair <- sp_list_items %||%
-    list_sp_list_items(
-      sp_list = sp_list,
-      ...,
-      select = c(var, name)
-    )
-
-  set_names(var_name_pair[[var]], var_name_pair[[name]])
-}
-
 #' @rdname sp_list_item
 #' @name get_sp_list_item
 #' @param id Required. A SharePoint list item ID typically an integer for the
@@ -1991,31 +1955,19 @@ append_field_odata_types <- function(fields, multi_fields = NULL) {
   )
 }
 
-#' Drop `NA` and empty fields
+#' Drop or replace `NA` fields for a list item update
 #'
 #' Used by [update_sp_list_item()] when `na_fields = "drop"` so existing list
 #' values are left in place for fields that are `NULL`, `NA`, all `NA` (for
 #' multi-value fields), or empty (e.g. a multi-select value of `character(0)`).
-#' @returns `fields` with any `NULL`, empty, or all `NA` elements removed.
-#' @noRd
-drop_na_fields <- function(fields) {
-  purrr::discard(
-    fields,
-    \(x) {
-      is.null(x) || all(is.na(x))
-    }
-  )
-}
-
-#' Drop or replace `NA` fields for a list item update
-#' @param na_fields If "drop", drop `NA` and empty fields with
-#'   `drop_na_fields()`. If "replace", replace any `NA` values (e.g.
-#'   `NA_integer_` or `NA_real_`) with `NA` so the field is cleared.
+#' @param na_fields If "drop", drop `NULL`, empty, and all `NA` fields. If
+#'   "replace", replace any `NA` values (e.g. `NA_integer_` or `NA_real_`) with
+#'   `NA` so the field is cleared.
 #' @returns `fields` with `NA` fields dropped or replaced.
 #' @noRd
 prep_sp_list_item_na_fields <- function(fields, na_fields = "drop") {
   if (na_fields == "drop") {
-    return(drop_na_fields(fields))
+    return(purrr::discard(fields, \(x) is.null(x) || all(is.na(x))))
   }
 
   vctrs::vec_assign(fields, i = is.na(fields), value = NA)
@@ -2255,7 +2207,9 @@ coerce_sp_list_value <- function(x, kind) {
   # Multi-value fields (list-columns) are converted one element at a time
   if (is.list(x)) {
     x <- purrr::map(x, coerce_sp_list_value, kind = kind)
-    return(if (any(purrr::map_lgl(x, is_coerce_failure))) coerce_failure() else x)
+    return(
+      if (any(purrr::map_lgl(x, is_coerce_failure))) coerce_failure() else x
+    )
   }
 
   if (kind == "character") {
@@ -2469,7 +2423,12 @@ check_sp_list_values <- function(
 #' @param hits Rows from `sp_list_col_hits()`.
 #' @param level "warn" or "error".
 #' @noRd
-report_sp_list_value_hits <- function(hits, labels, level, call = caller_env()) {
+report_sp_list_value_hits <- function(
+  hits,
+  labels,
+  level,
+  call = caller_env()
+) {
   n_hits <- vctrs::vec_size(hits)
 
   if (n_hits == 0) {

@@ -201,7 +201,11 @@ update_sp_list_field_rest <- function(
 ) {
   sp_list_rest_request(
     sp_list,
-    path = sp_rest_field_path(column_name),
+    path = paste0(
+      "fields/getbyinternalnameortitle('",
+      sp_rest_string(column_name),
+      "')"
+    ),
     method = "POST",
     body = fields,
     merge = TRUE,
@@ -209,15 +213,6 @@ update_sp_list_field_rest <- function(
   )
 
   invisible(sp_list)
-}
-
-#' @noRd
-sp_rest_field_path <- function(column_name) {
-  paste0(
-    "fields/getbyinternalnameortitle('",
-    sp_rest_string(column_name),
-    "')"
-  )
 }
 
 #' Format a string for use in a SharePoint REST API URL path

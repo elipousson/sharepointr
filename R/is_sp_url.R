@@ -32,13 +32,6 @@ is_sp_site_page_url <- function(x) {
   is_sp_url(x) & grepl("/SitePages/", x)
 }
 
-#' @returns A logical vector the same length as `x`, `TRUE` for elements that
-#'   are SharePoint "Forms" URLs.
-#' @noRd
-is_sp_site_form_url <- function(x) {
-  is_sp_url(x) & grepl("/Forms/", x)
-}
-
 #' @rdname is_sp_url
 #' @name is_sp_doc_url
 #' @export

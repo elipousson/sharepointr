@@ -60,7 +60,13 @@ sp_url_parse <- function(url) {
   # TODO: Add parsing for Planner URLs
 
   if (is_sp_site_page_url(url)) {
-    return(sp_site_page_url_parse(url))
+    return(c(
+      sp_url_parse_hostname(url),
+      list(
+        "site_url" = stringr::str_remove(url, "/SitePages/[:graph:]+$"),
+        "page_name" = basename(url)
+      )
+    ))
   }
 
   if (is_sp_webview_list_url(url)) {
@@ -68,7 +74,7 @@ sp_url_parse <- function(url) {
   }
 
   if (is_sp_site_url(url)) {
-    return(sp_site_url_parse(url))
+    return(c(sp_url_parse_hostname(url), list("site_url" = url)))
   }
 
   if (is_sp_drive_url(url)) {
@@ -80,12 +86,13 @@ sp_url_parse <- function(url) {
   sp_url_parts <- sp_url_parse_hostname(parts[["hostname"]])
 
   # FIXME: Should this be list_replace_na?
-  sp_url_parts <- list_replace_empty(
+  sp_url_parts <- list_replace_if(
     c(
       sp_url_parts,
       sp_url_parse_path(parts[["path"]]),
       sp_url_parse_query(parts[["query"]])
-    )
+    ),
+    is_empty
   )
 
   sp_url_parts[["site_url"]] <- sp_site_url_build(
@@ -285,33 +292,6 @@ sp_webview_list_url_parse <- function(url, call = caller_env()) {
   )
 
   sp_url_parts
-}
-
-#' Helper for parsing a SharePoint site page URL
-#' @returns A named list with hostname, `site_url`, and `page_name` elements
-#'   parsed from `url`.
-#' @noRd
-#' @importFrom stringr str_remove
-sp_site_page_url_parse <- function(url) {
-  c(
-    sp_url_parse_hostname(url),
-    list(
-      "site_url" = stringr::str_remove(url, "/SitePages/[:graph:]+$"),
-      "page_name" = basename(url)
-    )
-  )
-}
-
-
-#' Helper for parsing a SharePoint site URL
-#' @returns A named list with hostname elements parsed from `url`, plus
-#'   `site_url` set to `url`.
-#' @noRd
-sp_site_url_parse <- function(url) {
-  c(
-    sp_url_parse_hostname(url),
-    list("site_url" = url)
-  )
 }
 
 # stringr::str_extract(url, pattern = "([^/]+)/([^/])/Forms/AllItems.aspx")

@@ -593,11 +593,11 @@ each item.</p>
 <div class="section level3">
 <h3 id="spatial-data">Spatial data<a class="anchor" aria-label="anchor" href="#spatial-data"></a>
 </h3>
-<p><code><a href="../reference/create_sp_list_items.html">create_sp_list_items()</a></code> offers special handling for sf
-objects: the geometry column is converted to well-known text using
-<code><a href="https://r-spatial.github.io/sf/reference/st_as_text.html" class="external-link">sf::st_as_text()</a></code>. The CRS is not stored as part of the list
-so the CRS must be specified when reading the data back into a sf
-object.</p>
+<p><code><a href="../reference/create_sp_list_items.html">create_sp_list_items()</a></code> can convert the geometry column
+of an sf object to well-known text using <code><a href="https://r-spatial.github.io/sf/reference/st_as_text.html" class="external-link">sf::st_as_text()</a></code>
+if you set <code>coerce = "geometry"</code>. Without it, sf data is an
+error. The CRS is not stored as part of the list so the CRS must be
+specified when reading the data back into a sf object.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nc</span> <span class="op">&lt;-</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">st_read</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"shape/nc.shp"</span>, package <span class="op">=</span> <span class="st">"sf"</span><span class="op">)</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -605,6 +605,7 @@ object.</p>
 <span>  list_name <span class="op">=</span> <span class="st">"North Carolina SIDS data"</span>,</span>
 <span>  description <span class="op">=</span> <span class="st">"Sudden Infant Death Syndrome (SIDS) sample data for North Carolina counties, two time periods (1974-78 and 1979-84)."</span>,</span>
 <span>  create_list <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  coerce <span class="op">=</span> <span class="st">"geometry"</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">nc</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>  site <span class="op">=</span> <span class="va">sp_site</span></span>
 <span><span class="op">)</span></span>

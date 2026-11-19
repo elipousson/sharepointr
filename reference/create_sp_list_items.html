@@ -58,11 +58,14 @@
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  check_fields <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  unmatched_fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drop"</span>, <span class="st">"error"</span>, <span class="st">"keep"</span><span class="op">)</span>,</span>
+<span>  coerce <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"basic"</span>, <span class="st">"asis"</span>, <span class="st">"geometry"</span><span class="op">)</span>,</span>
+<span>  validate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"warn"</span>, <span class="st">"error"</span><span class="op">)</span>,</span>
 <span>  create_list <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  strict <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  .batch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sharepointr.batch"</span>, <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  .progress <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  .progress <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  check_fields <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  strict <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">update_sp_list_items</span><span class="op">(</span></span>
@@ -73,12 +76,15 @@
 <span>  <span class="va">...</span>,</span>
 <span>  .id <span class="op">=</span> <span class="st">"id"</span>,</span>
 <span>  allow_display_nm <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  check_fields <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  strict <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  unmatched_fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drop"</span>, <span class="st">"error"</span>, <span class="st">"keep"</span><span class="op">)</span>,</span>
+<span>  coerce <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"basic"</span>, <span class="st">"asis"</span>, <span class="st">"geometry"</span><span class="op">)</span>,</span>
+<span>  validate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"warn"</span>, <span class="st">"error"</span><span class="op">)</span>,</span>
 <span>  na_fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drop"</span>, <span class="st">"replace"</span><span class="op">)</span>,</span>
 <span>  drop_fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ContentType"</span>, <span class="st">"Attachments"</span><span class="op">)</span>,</span>
 <span>  .batch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"sharepointr.batch"</span>, <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  .progress <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  .progress <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  check_fields <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  strict <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">update_sp_list_item</span><span class="op">(</span></span>
@@ -87,7 +93,9 @@
 <span>  item_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sp_list_item <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  .id <span class="op">=</span> <span class="st">"id"</span>,</span>
-<span>  check_fields <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  unmatched_fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drop"</span>, <span class="st">"error"</span>, <span class="st">"keep"</span><span class="op">)</span>,</span>
+<span>  coerce <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"basic"</span>, <span class="st">"asis"</span>, <span class="st">"geometry"</span><span class="op">)</span>,</span>
+<span>  validate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"warn"</span>, <span class="st">"error"</span><span class="op">)</span>,</span>
 <span>  na_fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drop"</span>, <span class="st">"replace"</span><span class="op">)</span>,</span>
 <span>  drop_fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ContentType"</span>, <span class="st">"Attachments"</span><span class="op">)</span>,</span>
 <span>  list_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -99,7 +107,8 @@
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  .multi_fields <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  .quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  .quiet <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  check_fields <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -172,24 +181,52 @@ method for SharePoint site object.</p></dd>
 <code>drive_id</code> are ignored.</p></dd>
 
 
-<dt id="arg-check-fields">check_fields<a class="anchor" aria-label="anchor" href="#arg-check-fields"></a></dt>
-<dd><p>If <code>TRUE</code> (default), column names (or record field
-names) for the input data are matched to the fields of the list object.
-If <code>FALSE</code>, names aren't checked and the Graph API errors for any name
-that isn't a list field.</p></dd>
+<dt id="arg-unmatched-fields">unmatched_fields<a class="anchor" aria-label="anchor" href="#arg-unmatched-fields"></a></dt>
+<dd><p>What to do with column names in a data frame (or
+field names in a list of records) that don't match field names in the
+supplied SharePoint list. One of:</p><ul><li><p><code>"drop"</code> (default): drop unmatched names with a message. An error if no
+names match.</p></li>
+<li><p><code>"error"</code>: an error if any name doesn't match.</p></li>
+<li><p><code>"keep"</code>: names aren't checked and the Graph API errors for any name
+that isn't a list field.</p></li>
+</ul></dd>
+
+
+<dt id="arg-coerce">coerce<a class="anchor" aria-label="anchor" href="#arg-coerce"></a></dt>
+<dd><p>How to convert values in <code>data</code> to match the list column
+types. One of:</p><ul><li><p><code>"basic"</code> (default): convert numbers, logical values, and factors to
+text for text and choice columns; convert text to numbers for number
+and currency columns; and convert whole numbers (or text) to integers
+for the <code>LookupId</code> fields of lookup and person columns. Values that
+can't be converted are left unchanged with a warning. Data with <code>sf</code>
+geometry columns is an error.</p></li>
+<li><p><code>"asis"</code>: send values unchanged.</p></li>
+<li><p><code>"geometry"</code>: do everything in <code>"basic"</code> and convert <code>sf</code> geometry
+columns to well-known text (WKT) with <code><a href="https://r-spatial.github.io/sf/reference/st_as_text.html" class="external-link">sf::st_as_text()</a></code>.</p></li>
+</ul><p>Coercion changes types but doesn't check values. Use <code>validate</code> to check
+values. See the section on single item functions for the cost of coercion
+with <code>update_sp_list_item()</code>.</p></dd>
+
+
+<dt id="arg-validate">validate<a class="anchor" aria-label="anchor" href="#arg-validate"></a></dt>
+<dd><p>What to do with values that don't match the list column
+definitions, after values are coerced. One of:</p><ul><li><p><code>"none"</code> (default): don't check values.</p></li>
+<li><p><code>"warn"</code>: warn and send the items.</p></li>
+<li><p><code>"error"</code>: error before any items are sent.</p></li>
+</ul><p>Values are checked for text longer than the column <code>maxLength</code>, numbers
+outside the column minimum and maximum, choices that aren't in a choice
+column (unless the column allows text entry), and missing values in required
+columns that have no default value. Missing required values are checked
+for new items and for updates that replace values with <code>NA</code> (<code>na_fields = "replace"</code>), since other fields are left unchanged. Values that don't
+match are reported together (up to 10). Missing required values are always
+a warning (even with <code>validate = "error"</code>) since SharePoint creates items
+without them. Field names are checked with <code>unmatched_fields</code>.</p></dd>
 
 
 <dt id="arg-create-list">create_list<a class="anchor" aria-label="anchor" href="#arg-create-list"></a></dt>
 <dd><p>If <code>TRUE</code> and <code>list_name</code> is supplied, a new list is
 created using <code><a href="data_as_column_definition_list.html">data_as_column_definition_list()</a></code> to set the column
 definitions for the list.</p></dd>
-
-
-<dt id="arg-strict">strict<a class="anchor" aria-label="anchor" href="#arg-strict"></a></dt>
-<dd><p>If <code>TRUE</code>, all column names in a data frame (or field names
-in a list of records) must match field names in the supplied SharePoint
-list. If <code>FALSE</code> (default), unmatched names are dropped with a message.
-Only used if <code>check_fields = TRUE</code>.</p></dd>
 
 
 <dt id="arg--batch">.batch<a class="anchor" aria-label="anchor" href="#arg--batch"></a></dt>
@@ -216,6 +253,11 @@ a basic progress bar, use a string to give it a name, or see
 <a href="https://purrr.tidyverse.org/reference/progress_bars.html" class="external-link">progress_bars</a> for more details.</p></dd>
 
 
+<dt id="arg-check-fields-strict">check_fields, strict<a class="anchor" aria-label="anchor" href="#arg-check-fields-strict"></a></dt>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Use
+<code>unmatched_fields</code> instead: <code>check_fields = FALSE</code> is <code>"keep"</code> and <code>strict = TRUE</code> is <code>"error"</code>.</p></dd>
+
+
 <dt id="arg-na-fields">na_fields<a class="anchor" aria-label="anchor" href="#arg-na-fields"></a></dt>
 <dd><p>How to handle <code>NA</code> fields in input data. One of <code>"drop"</code>
 (remove <code>NA</code> and empty fields, e.g. a multi-select value of
@@ -239,7 +281,9 @@ must be provided but not both.</p></dd>
 
 
 <dt id="arg-sp-list-item">sp_list_item<a class="anchor" aria-label="anchor" href="#arg-sp-list-item"></a></dt>
-<dd><p>Optional. A SharePoint list item object to update.</p></dd>
+<dd><p>Optional. A SharePoint list item object to update. The
+column definitions for the list are requested to check field names and
+coerce values (see the section on single item functions).</p></dd>
 
 
 <dt id="arg--multi-fields">.multi_fields<a class="anchor" aria-label="anchor" href="#arg--multi-fields"></a></dt>
@@ -270,9 +314,32 @@ the field names.</p></li>
 fields that do not have corresponding names in data remain blank.</p></li>
 <li><p>If any names in data do not match fields in the list, by default, those
 columns are dropped before adding items to the list.</p></li>
-<li><p>If <code>strict = TRUE</code> and any names in data to not match fields, the function
-errors.</p></li>
+<li><p>If <code>unmatched_fields = "error"</code> and any names in data do not match fields,
+the function errors.</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="single-item-functions">Single item functions<a class="anchor" aria-label="anchor" href="#single-item-functions"></a></h2>
+
+
+
+<p><code>create_sp_list_items()</code> and <code>update_sp_list_items()</code> get the list column
+definitions once and use them to check field names (<code>unmatched_fields</code>) and
+coerce values (<code>coerce</code>) for every item. <code>update_sp_list_item()</code> and
+<code><a href="create_sp_list_item.html">create_sp_list_item()</a></code> work on one item at a time so:</p><ul><li><p>If you supply <code>sp_list</code> (and <code>item_id</code>), the column definitions are
+requested from the Graph API for every call. Looping over items adds one
+extra request per item. To avoid the request, set <code>coerce = "asis"</code>,
+<code>unmatched_fields = "keep"</code>, <code>validate = "none"</code>, and supply
+<code>.multi_fields</code> (for <code><a href="create_sp_list_item.html">create_sp_list_item()</a></code>, set <code>.coerce = "asis"</code> and
+<code>.validate = "none"</code>).</p></li>
+<li><p>If you supply <code>sp_list_item</code> (a list item object) to
+<code>update_sp_list_item()</code>, the column definitions are requested for the
+item's list (a <code>ms_list</code> object is created from the item's site and list
+IDs) so the same extra request is made for every call, and the same
+arguments avoid it.</p></li>
+</ul><p>Use the plural functions to update more than one item (they also send
+requests in batches), or coerce and check the data first and send it with
+<code>coerce = "asis"</code>.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

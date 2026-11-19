@@ -4,6 +4,53 @@
 
 ### Added
 
+- [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  [`update_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  and
+  [`update_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/sp_item_properties.md)
+  gain a `validate` argument (and
+  [`create_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_item.md)
+  gains `.validate`) to check values against the list column definitions
+  after they are coerced. With `validate = "warn"` or `"error"`, text
+  longer than the column `maxLength`, numbers outside the column minimum
+  and maximum, values that aren’t a choice, and missing values in
+  required columns (without a default value) are reported together with
+  the item and column. Missing required values are always a warning
+  since SharePoint creates items without them. The default is
+  `validate = "none"`. (2026-11-19)
+- [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  [`update_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  and
+  [`update_sp_item_properties()`](https://elipousson.github.io/sharepointr/reference/sp_item_properties.md)
+  gain an `unmatched_fields` argument that replaces `check_fields` and
+  `strict`: `"drop"` (the default) drops names that don’t match a list
+  field with a message, `"error"` is an error for any unmatched name
+  (`strict = TRUE`), and `"keep"` sends names without checking them
+  (`check_fields = FALSE`). `check_fields` and `strict` are soft
+  deprecated. (2026-11-18)
+- [`update_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  is now an error if both `sp_list` and `sp_list_item` are supplied, and
+  gets the list column definitions for a `sp_list_item` object so
+  `unmatched_fields` and `coerce` also work for list item objects.
+  (2026-11-18)
+- [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  [`update_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md),
+  [`create_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_item.md)
+  (`.coerce`), and
+  [`update_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
+  gain a `coerce` argument. With the default `coerce = "basic"`, values
+  are converted to match the list column type before items are sent:
+  numbers, logical values, and factors to text for text and choice
+  columns (a number sent to a text column caused a “General exception
+  while processing (HTTP 500 generalException)” error), text to numbers
+  for number and currency columns, and whole numbers or text to integers
+  for lookup and person `LookupId` fields. Values that can’t be
+  converted are left unchanged with a warning. Use `coerce = "asis"` to
+  send values unchanged or `coerce = "geometry"` to also convert `sf`
+  geometry columns to WKT. Data with a geometry column is now an error
+  unless `coerce = "geometry"`. (2026-11-18)
 - Exported functions no longer have a `call` argument and now report
   errors from their own call (e.g. `Error in`list_sp_list_items()`:`)
   instead of from the caller’s environment. This fixes a confusing “`fn`

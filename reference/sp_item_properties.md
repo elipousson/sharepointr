@@ -47,7 +47,8 @@ update_sp_item_properties(
   item_id = NULL,
   item_url = NULL,
   item = NULL,
-  check_fields = TRUE,
+  unmatched_fields = c("drop", "error", "keep"),
+  validate = c("none", "warn", "error"),
   na_fields = c("drop", "replace"),
   drive_name = NULL,
   drive_id = NULL,
@@ -135,12 +136,41 @@ update_sp_item_properties(
   A `ms_drive_item` object. If `item` is supplied, `path`, `item_id`,
   `item_url`, and the drive arguments are ignored.
 
-- check_fields:
+- unmatched_fields:
 
-  If `TRUE` (default), column names (or record field names) for the
-  input data are matched to the fields of the list object. If `FALSE`,
-  names aren't checked and the Graph API errors for any name that isn't
-  a list field.
+  What to do with column names in a data frame (or field names in a list
+  of records) that don't match field names in the supplied SharePoint
+  list. One of:
+
+  - `"drop"` (default): drop unmatched names with a message. An error if
+    no names match.
+
+  - `"error"`: an error if any name doesn't match.
+
+  - `"keep"`: names aren't checked and the Graph API errors for any name
+    that isn't a list field.
+
+- validate:
+
+  What to do with values that don't match the list column definitions,
+  after values are coerced. One of:
+
+  - `"none"` (default): don't check values.
+
+  - `"warn"`: warn and send the items.
+
+  - `"error"`: error before any items are sent.
+
+  Values are checked for text longer than the column `maxLength`,
+  numbers outside the column minimum and maximum, choices that aren't in
+  a choice column (unless the column allows text entry), and missing
+  values in required columns that have no default value. Missing
+  required values are checked for new items and for updates that replace
+  values with `NA` (`na_fields = "replace"`), since other fields are
+  left unchanged. Values that don't match are reported together (up to
+  10). Missing required values are always a warning (even with
+  `validate = "error"`) since SharePoint creates items without them.
+  Field names are checked with `unmatched_fields`.
 
 - na_fields:
 

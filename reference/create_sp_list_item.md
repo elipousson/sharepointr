@@ -16,7 +16,9 @@ create_sp_list_item(
   .sp_list = NULL,
   .fields = NULL,
   .keep_na = FALSE,
-  .multi_fields = NULL
+  .multi_fields = NULL,
+  .coerce = c("basic", "asis", "geometry"),
+  .validate = c("none", "warn", "error")
 )
 ```
 
@@ -40,3 +42,18 @@ create_sp_list_item(
   multi-select choice columns, that should always be sent as an array
   with an `"@odata.type"` annotation. If `NULL`, only fields with a
   length other than 1 are treated as multi-value fields.
+
+- .coerce:
+
+  How to convert `.fields` values to match the list column types. One of
+  `"basic"` (default), `"asis"`, or `"geometry"`. See the `coerce`
+  argument for
+  [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md).
+  Use `"asis"` if values are already coerced.
+
+- .validate:
+
+  What to do with `.fields` values that don't match the list column
+  definitions. One of `"none"` (default), `"warn"`, or `"error"`. See
+  the `validate` argument for
+  [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md).

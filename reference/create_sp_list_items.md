@@ -18,11 +18,14 @@ create_sp_list_items(
   drive_name = NULL,
   drive_id = NULL,
   drive = NULL,
-  check_fields = TRUE,
+  unmatched_fields = c("drop", "error", "keep"),
+  coerce = c("basic", "asis", "geometry"),
+  validate = c("none", "warn", "error"),
   create_list = FALSE,
-  strict = FALSE,
   .batch = getOption("sharepointr.batch", TRUE),
-  .progress = TRUE
+  .progress = TRUE,
+  check_fields = deprecated(),
+  strict = deprecated()
 )
 
 update_sp_list_items(
@@ -33,12 +36,15 @@ update_sp_list_items(
   ...,
   .id = "id",
   allow_display_nm = FALSE,
-  check_fields = TRUE,
-  strict = FALSE,
+  unmatched_fields = c("drop", "error", "keep"),
+  coerce = c("basic", "asis", "geometry"),
+  validate = c("none", "warn", "error"),
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
   .batch = getOption("sharepointr.batch", TRUE),
-  .progress = TRUE
+  .progress = TRUE,
+  check_fields = deprecated(),
+  strict = deprecated()
 )
 
 update_sp_list_item(
@@ -47,7 +53,9 @@ update_sp_list_item(
   item_id = NULL,
   sp_list_item = NULL,
   .id = "id",
-  check_fields = TRUE,
+  unmatched_fields = c("drop", "error", "keep"),
+  coerce = c("basic", "asis", "geometry"),
+  validate = c("none", "warn", "error"),
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
   list_name = NULL,
@@ -59,7 +67,8 @@ update_sp_list_item(
   drive_id = NULL,
   drive = NULL,
   .multi_fields = NULL,
-  .quiet = FALSE
+  .quiet = FALSE,
+  check_fields = deprecated()
 )
 ```
 
@@ -134,25 +143,69 @@ update_sp_list_item(
   A `ms_drive` object. If `drive` is supplied, `drive_name` and
   `drive_id` are ignored.
 
-- check_fields:
+- unmatched_fields:
 
-  If `TRUE` (default), column names (or record field names) for the
-  input data are matched to the fields of the list object. If `FALSE`,
-  names aren't checked and the Graph API errors for any name that isn't
-  a list field.
+  What to do with column names in a data frame (or field names in a list
+  of records) that don't match field names in the supplied SharePoint
+  list. One of:
+
+  - `"drop"` (default): drop unmatched names with a message. An error if
+    no names match.
+
+  - `"error"`: an error if any name doesn't match.
+
+  - `"keep"`: names aren't checked and the Graph API errors for any name
+    that isn't a list field.
+
+- coerce:
+
+  How to convert values in `data` to match the list column types. One
+  of:
+
+  - `"basic"` (default): convert numbers, logical values, and factors to
+    text for text and choice columns; convert text to numbers for number
+    and currency columns; and convert whole numbers (or text) to
+    integers for the `LookupId` fields of lookup and person columns.
+    Values that can't be converted are left unchanged with a warning.
+    Data with `sf` geometry columns is an error.
+
+  - `"asis"`: send values unchanged.
+
+  - `"geometry"`: do everything in `"basic"` and convert `sf` geometry
+    columns to well-known text (WKT) with
+    [`sf::st_as_text()`](https://r-spatial.github.io/sf/reference/st_as_text.html).
+
+  Coercion changes types but doesn't check values. Use `validate` to
+  check values. See the section on single item functions for the cost of
+  coercion with `update_sp_list_item()`.
+
+- validate:
+
+  What to do with values that don't match the list column definitions,
+  after values are coerced. One of:
+
+  - `"none"` (default): don't check values.
+
+  - `"warn"`: warn and send the items.
+
+  - `"error"`: error before any items are sent.
+
+  Values are checked for text longer than the column `maxLength`,
+  numbers outside the column minimum and maximum, choices that aren't in
+  a choice column (unless the column allows text entry), and missing
+  values in required columns that have no default value. Missing
+  required values are checked for new items and for updates that replace
+  values with `NA` (`na_fields = "replace"`), since other fields are
+  left unchanged. Values that don't match are reported together (up to
+  10). Missing required values are always a warning (even with
+  `validate = "error"`) since SharePoint creates items without them.
+  Field names are checked with `unmatched_fields`.
 
 - create_list:
 
   If `TRUE` and `list_name` is supplied, a new list is created using
   [`data_as_column_definition_list()`](https://elipousson.github.io/sharepointr/reference/data_as_column_definition_list.md)
   to set the column definitions for the list.
-
-- strict:
-
-  If `TRUE`, all column names in a data frame (or field names in a list
-  of records) must match field names in the supplied SharePoint list. If
-  `FALSE` (default), unmatched names are dropped with a message. Only
-  used if `check_fields = TRUE`.
 
 - .batch:
 
@@ -182,6 +235,11 @@ update_sp_list_item(
   [progress_bars](https://purrr.tidyverse.org/reference/progress_bars.html)
   for more details.
 
+- check_fields, strict:
+
+  **\[deprecated\]** Use `unmatched_fields` instead:
+  `check_fields = FALSE` is `"keep"` and `strict = TRUE` is `"error"`.
+
 - na_fields:
 
   How to handle `NA` fields in input data. One of `"drop"` (remove `NA`
@@ -206,7 +264,9 @@ update_sp_list_item(
 
 - sp_list_item:
 
-  Optional. A SharePoint list item object to update.
+  Optional. A SharePoint list item object to update. The column
+  definitions for the list are requested to check field names and coerce
+  values (see the section on single item functions).
 
 - .multi_fields:
 
@@ -243,8 +303,35 @@ the fields names in the supplied list includes a few options:
 - If any names in data do not match fields in the list, by default,
   those columns are dropped before adding items to the list.
 
-- If `strict = TRUE` and any names in data to not match fields, the
-  function errors.
+- If `unmatched_fields = "error"` and any names in data do not match
+  fields, the function errors.
+
+## Single item functions
+
+`create_sp_list_items()` and `update_sp_list_items()` get the list
+column definitions once and use them to check field names
+(`unmatched_fields`) and coerce values (`coerce`) for every item.
+`update_sp_list_item()` and
+[`create_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_item.md)
+work on one item at a time so:
+
+- If you supply `sp_list` (and `item_id`), the column definitions are
+  requested from the Graph API for every call. Looping over items adds
+  one extra request per item. To avoid the request, set
+  `coerce = "asis"`, `unmatched_fields = "keep"`, `validate = "none"`,
+  and supply `.multi_fields` (for
+  [`create_sp_list_item()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_item.md),
+  set `.coerce = "asis"` and `.validate = "none"`).
+
+- If you supply `sp_list_item` (a list item object) to
+  `update_sp_list_item()`, the column definitions are requested for the
+  item's list (a `ms_list` object is created from the item's site and
+  list IDs) so the same extra request is made for every call, and the
+  same arguments avoid it.
+
+Use the plural functions to update more than one item (they also send
+requests in batches), or coerce and check the data first and send it
+with `coerce = "asis"`.
 
 ## Examples
 

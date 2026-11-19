@@ -606,11 +606,11 @@ request for each item.
 ### Spatial data
 
 [`create_sp_list_items()`](https://elipousson.github.io/sharepointr/reference/create_sp_list_items.md)
-offers special handling for sf objects: the geometry column is converted
-to well-known text using
-[`sf::st_as_text()`](https://r-spatial.github.io/sf/reference/st_as_text.html).
-The CRS is not stored as part of the list so the CRS must be specified
-when reading the data back into a sf object.
+can convert the geometry column of an sf object to well-known text using
+[`sf::st_as_text()`](https://r-spatial.github.io/sf/reference/st_as_text.html)
+if you set `coerce = "geometry"`. Without it, sf data is an error. The
+CRS is not stored as part of the list so the CRS must be specified when
+reading the data back into a sf object.
 
 ``` r
 
@@ -620,6 +620,7 @@ create_sp_list_items(
   list_name = "North Carolina SIDS data",
   description = "Sudden Infant Death Syndrome (SIDS) sample data for North Carolina counties, two time periods (1974-78 and 1979-84).",
   create_list = TRUE,
+  coerce = "geometry",
   data = nc[, c(1, 2, 3)],
   site = sp_site
 )

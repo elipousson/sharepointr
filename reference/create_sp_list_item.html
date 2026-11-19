@@ -59,7 +59,9 @@ for number columns.</p>
 <span>  .sp_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  .fields <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  .keep_na <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  .multi_fields <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  .multi_fields <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  .coerce <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"basic"</span>, <span class="st">"asis"</span>, <span class="st">"geometry"</span><span class="op">)</span>,</span>
+<span>  .validate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"warn"</span>, <span class="st">"error"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -84,6 +86,19 @@ for number columns.</p>
 as multi-select choice columns, that should always be sent as an array with
 an <code>"@odata.type"</code> annotation. If <code>NULL</code>, only fields with a length other
 than 1 are treated as multi-value fields.</p></dd>
+
+
+<dt id="arg--coerce">.coerce<a class="anchor" aria-label="anchor" href="#arg--coerce"></a></dt>
+<dd><p>How to convert <code>.fields</code> values to match the list column
+types. One of <code>"basic"</code> (default), <code>"asis"</code>, or <code>"geometry"</code>. See the
+<code>coerce</code> argument for <code><a href="create_sp_list_items.html">create_sp_list_items()</a></code>. Use <code>"asis"</code> if values
+are already coerced.</p></dd>
+
+
+<dt id="arg--validate">.validate<a class="anchor" aria-label="anchor" href="#arg--validate"></a></dt>
+<dd><p>What to do with <code>.fields</code> values that don't match the list
+column definitions. One of <code>"none"</code> (default), <code>"warn"</code>, or <code>"error"</code>. See
+the <code>validate</code> argument for <code><a href="create_sp_list_items.html">create_sp_list_items()</a></code>.</p></dd>
 
 </dl></div>
 

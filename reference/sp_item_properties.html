@@ -96,7 +96,8 @@ used. To move an item to another folder, use <code><a href="sp_item_copy.html">s
 <span>  item_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  item_url <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  item <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  check_fields <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  unmatched_fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drop"</span>, <span class="st">"error"</span>, <span class="st">"keep"</span><span class="op">)</span>,</span>
+<span>  validate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"warn"</span>, <span class="st">"error"</span><span class="op">)</span>,</span>
 <span>  na_fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drop"</span>, <span class="st">"replace"</span><span class="op">)</span>,</span>
 <span>  drive_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drive_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -184,11 +185,30 @@ exists in the folder.</p></dd>
 <code>item_id</code>, <code>item_url</code>, and the drive arguments are ignored.</p></dd>
 
 
-<dt id="arg-check-fields">check_fields<a class="anchor" aria-label="anchor" href="#arg-check-fields"></a></dt>
-<dd><p>If <code>TRUE</code> (default), column names (or record field
-names) for the input data are matched to the fields of the list object.
-If <code>FALSE</code>, names aren't checked and the Graph API errors for any name
-that isn't a list field.</p></dd>
+<dt id="arg-unmatched-fields">unmatched_fields<a class="anchor" aria-label="anchor" href="#arg-unmatched-fields"></a></dt>
+<dd><p>What to do with column names in a data frame (or
+field names in a list of records) that don't match field names in the
+supplied SharePoint list. One of:</p><ul><li><p><code>"drop"</code> (default): drop unmatched names with a message. An error if no
+names match.</p></li>
+<li><p><code>"error"</code>: an error if any name doesn't match.</p></li>
+<li><p><code>"keep"</code>: names aren't checked and the Graph API errors for any name
+that isn't a list field.</p></li>
+</ul></dd>
+
+
+<dt id="arg-validate">validate<a class="anchor" aria-label="anchor" href="#arg-validate"></a></dt>
+<dd><p>What to do with values that don't match the list column
+definitions, after values are coerced. One of:</p><ul><li><p><code>"none"</code> (default): don't check values.</p></li>
+<li><p><code>"warn"</code>: warn and send the items.</p></li>
+<li><p><code>"error"</code>: error before any items are sent.</p></li>
+</ul><p>Values are checked for text longer than the column <code>maxLength</code>, numbers
+outside the column minimum and maximum, choices that aren't in a choice
+column (unless the column allows text entry), and missing values in required
+columns that have no default value. Missing required values are checked
+for new items and for updates that replace values with <code>NA</code> (<code>na_fields = "replace"</code>), since other fields are left unchanged. Values that don't
+match are reported together (up to 10). Missing required values are always
+a warning (even with <code>validate = "error"</code>) since SharePoint creates items
+without them. Field names are checked with <code>unmatched_fields</code>.</p></dd>
 
 
 <dt id="arg-na-fields">na_fields<a class="anchor" aria-label="anchor" href="#arg-na-fields"></a></dt>

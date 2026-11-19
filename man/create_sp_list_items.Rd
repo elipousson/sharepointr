@@ -21,6 +21,7 @@ create_sp_list_items(
   drive_id = NULL,
   drive = NULL,
   check_fields = TRUE,
+  coerce = c("basic", "asis", "geometry"),
   create_list = FALSE,
   strict = FALSE,
   .batch = getOption("sharepointr.batch", TRUE),
@@ -36,6 +37,7 @@ update_sp_list_items(
   .id = "id",
   allow_display_nm = FALSE,
   check_fields = TRUE,
+  coerce = c("basic", "asis", "geometry"),
   strict = FALSE,
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
@@ -50,6 +52,7 @@ update_sp_list_item(
   sp_list_item = NULL,
   .id = "id",
   check_fields = TRUE,
+  coerce = c("basic", "asis", "geometry"),
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
   list_name = NULL,
@@ -115,6 +118,24 @@ names) for the input data are matched to the fields of the list object.
 If \code{FALSE}, names aren't checked and the Graph API errors for any name
 that isn't a list field.}
 
+\item{coerce}{How to convert values in \code{data} to match the list column
+types. One of:
+\itemize{
+\item \code{"basic"} (default): convert numbers, logical values, and factors to
+text for text and choice columns; convert text to numbers for number
+and currency columns; and convert whole numbers (or text) to integers
+for the \code{LookupId} fields of lookup and person columns. Values that
+can't be converted are left unchanged with a warning. Data with \code{sf}
+geometry columns is an error.
+\item \code{"asis"}: send values unchanged.
+\item \code{"geometry"}: do everything in \code{"basic"} and convert \code{sf} geometry
+columns to well-known text (WKT) with \code{\link[sf:st_as_text]{sf::st_as_text()}}.
+}
+
+Coercion changes types but doesn't check values (e.g. text length, number
+ranges, or choices). See the section on single item functions for the
+cost of coercion with \code{\link[=update_sp_list_item]{update_sp_list_item()}}.}
+
 \item{create_list}{If \code{TRUE} and \code{list_name} is supplied, a new list is
 created using \code{\link[=data_as_column_definition_list]{data_as_column_definition_list()}} to set the column
 definitions for the list.}
@@ -158,7 +179,9 @@ as editable fields. Defaults to \code{c("ContentType", "Attachments")}}
 \item{item_id}{A SharePoint list item id. Either \code{item_id} or \code{sp_list_item}
 must be provided but not both.}
 
-\item{sp_list_item}{Optional. A SharePoint list item object to update.}
+\item{sp_list_item}{Optional. A SharePoint list item object to update. The
+column definitions for the list are requested to check field names and
+coerce values (see the section on single item functions).}
 
 \item{.multi_fields}{Optional. Names of multi-value (Collection) fields, such
 as multi-select choice columns, that should always be sent as an array with
@@ -192,6 +215,31 @@ columns are dropped before adding items to the list.
 errors.
 }
 }
+\section{Single item functions}{
+
+
+\code{\link[=create_sp_list_items]{create_sp_list_items()}} and \code{\link[=update_sp_list_items]{update_sp_list_items()}} get the list column
+definitions once and use them to check field names (\code{check_fields}) and
+coerce values (\code{coerce}) for every item. \code{\link[=update_sp_list_item]{update_sp_list_item()}} and
+\code{\link[=create_sp_list_item]{create_sp_list_item()}} work on one item at a time so:
+\itemize{
+\item If you supply \code{sp_list} (and \code{item_id}), the column definitions are
+requested from the Graph API for every call. Looping over items adds one
+extra request per item. To avoid the request, set \code{coerce = "asis"},
+\code{check_fields = FALSE}, and supply \code{.multi_fields} (for
+\code{\link[=create_sp_list_item]{create_sp_list_item()}}, set \code{.coerce = "asis"}).
+\item If you supply \code{sp_list_item} (a list item object) to
+\code{\link[=update_sp_list_item]{update_sp_list_item()}}, the column definitions are requested for the
+item's list (a \code{ms_list} object is created from the item's site and list
+IDs) so the same extra request is made for every call, and the same
+arguments avoid it.
+}
+
+Use the plural functions to update more than one item (they also send
+requests in batches), or coerce and check the data first and send it with
+\code{coerce = "asis"}.
+}
+
 \examples{
 sp_list_url <- "<SharePoint List URL with a Name field>"
 

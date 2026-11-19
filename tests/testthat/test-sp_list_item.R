@@ -1233,12 +1233,13 @@ test_that("update_sp_list_item() sends one PATCH and gets column metadata once",
     ))
   )
 
-  # No metadata is needed if fields aren't checked and multi-value fields are
-  # supplied
+  # No metadata is needed if fields aren't checked or coerced and multi-value
+  # fields are supplied
   update_sp_list_item(
     .data = list(id = "2", Title = "C"),
     sp_list = requests$sp_list,
     check_fields = FALSE,
+    coerce = "asis",
     .multi_fields = character(0)
   )
   expect_identical(requests$n_metadata, 1)
@@ -1256,10 +1257,47 @@ test_that("update_sp_list_item() sends one PATCH and gets column metadata once",
     requests$item_ops <- c(requests$item_ops, list(list(op, http_verb, body)))
   }
 
-  update_sp_list_item(.data = list(Title = "D"), sp_list_item = sp_list_item)
+  local_mocked_bindings(sp_list_item_list = function(sp_list_item) {
+    requests$sp_list
+  })
+
+  n_metadata <- requests$n_metadata
+  update_sp_list_item(
+    .data = list(Title = "D"),
+    sp_list_item = sp_list_item,
+    check_fields = FALSE,
+    coerce = "asis",
+    .multi_fields = character(0)
+  )
   expect_identical(
     requests$item_ops,
     list(list("", "PATCH", list(fields = list(Title = "D"))))
+  )
+  # No metadata is requested if it isn't needed
+  expect_identical(requests$n_metadata, n_metadata)
+
+  # Otherwise the column definitions for the item's list are used to check
+  # fields and coerce values
+  requests$item_ops <- NULL
+  update_sp_list_item(
+    .data = list(Title = 4, Other = "dropped", Choices = "B"),
+    sp_list_item = sp_list_item,
+    .quiet = TRUE
+  )
+  expect_identical(requests$n_metadata, n_metadata + 1)
+  expect_identical(
+    requests$item_ops,
+    list(list(
+      "",
+      "PATCH",
+      list(
+        fields = list(
+          Title = "4",
+          Choices = list("B"),
+          `Choices@odata.type` = "Collection(Edm.String)"
+        )
+      )
+    ))
   )
 })
 
@@ -1377,4 +1415,105 @@ test_that("delete_sp_list_items() returns a status for each item with `.batch = 
     resp,
     list(structure(list(), status = 200L), structure(list(), status = 200L))
   )
+})
+
+coerce_test_metadata <- list(
+  list(name = "Title", text = list()),
+  list(name = "Status", choice = list(choices = c("A", "B"))),
+  list(name = "Count", number = list()),
+  list(name = "Cost", currency = list()),
+  list(name = "Owner", personOrGroup = list()),
+  list(name = "Done", boolean = list())
+)
+
+test_that("sp_list_coerce_targets() maps list columns to value types", {
+  expect_identical(
+    sp_list_coerce_targets(coerce_test_metadata),
+    c(
+      Title = "character",
+      Status = "character",
+      Count = "double",
+      Cost = "double",
+      OwnerLookupId = "integer"
+    )
+  )
+  expect_null(sp_list_coerce_targets(coerce_test_metadata, coerce = "asis"))
+})
+
+test_that("coerce_sp_list_values() converts data frames and records", {
+  targets <- sp_list_coerce_targets(coerce_test_metadata)
+
+  data <- data.frame(
+    Title = c(1162, 100000.5, NA),
+    Status = factor(c("A", "B", "A")),
+    Count = c("1", "2.5", NA),
+    OwnerLookupId = c("3", "4", NA),
+    Done = c(TRUE, FALSE, NA)
+  )
+
+  out <- coerce_sp_list_values(data, targets = targets)
+  expect_identical(out[["Title"]], c("1162", "100000.5", NA))
+  expect_identical(out[["Status"]], c("A", "B", "A"))
+  expect_identical(out[["Count"]], c(1, 2.5, NA))
+  expect_identical(out[["OwnerLookupId"]], c(3L, 4L, NA))
+  expect_identical(out[["Done"]], data[["Done"]])
+
+  # Records (named lists) use the same code
+  record <- coerce_sp_list_values(
+    list(Title = 7, Count = "8", Other = 9),
+    targets = targets
+  )
+  expect_identical(record, list(Title = "7", Count = 8, Other = 9))
+
+  # Values are unchanged with `coerce = "asis"`
+  expect_identical(
+    coerce_sp_list_values(data, targets = targets, coerce = "asis"),
+    data
+  )
+})
+
+test_that("coerce_sp_list_values() warns and keeps values it can't convert", {
+  targets <- sp_list_coerce_targets(coerce_test_metadata)
+  data <- list(Count = c("1", "twelve"), OwnerLookupId = 1.5, Title = 1)
+
+  expect_warning(
+    out <- coerce_sp_list_values(data, targets = targets),
+    "Count"
+  )
+  expect_identical(out, list(Count = c("1", "twelve"), OwnerLookupId = 1.5, Title = "1"))
+})
+
+test_that("coerce_sp_list_values() handles geometry with `coerce`", {
+  skip_if_not_installed("sf")
+
+  data <- sf::st_sf(
+    Title = 1,
+    geometry = sf::st_sfc(sf::st_point(c(1, 2)))
+  )
+  targets <- sp_list_coerce_targets(coerce_test_metadata)
+
+  expect_error(coerce_sp_list_values(data, targets = targets), "geometry")
+
+  out <- coerce_sp_list_values(data, targets = targets, coerce = "geometry")
+  expect_identical(out[["geometry"]], "POINT (1 2)")
+  expect_identical(out[["Title"]], "1")
+})
+
+test_that("coerce_sp_list_values() handles list-columns and NULL values", {
+  targets <- sp_list_coerce_targets(coerce_test_metadata)
+
+  # Multi-select values in a list-column are converted element by element
+  data <- data.frame(Id = 1:3)
+  data[["Status"]] <- list(c(1, 2), character(0), NA)
+  out <- coerce_sp_list_values(data, targets = targets)
+  expect_identical(out[["Status"]], list(c("1", "2"), character(0), NA))
+
+  # NULL values aren't conversion failures
+  expect_no_warning(
+    out <- coerce_sp_list_values(
+      list(Title = NULL, Status = list(NULL)),
+      targets = targets
+    )
+  )
+  expect_identical(out, list(Title = NULL, Status = list(NULL)))
 })

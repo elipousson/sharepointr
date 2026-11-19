@@ -658,6 +658,43 @@ get_sp_list_item <- function(
 #'   names) for the input data are matched to the fields of the list object.
 #'   If `FALSE`, names aren't checked and the Graph API errors for any name
 #'   that isn't a list field.
+#' @param coerce How to convert values in `data` to match the list column
+#'   types. One of:
+#'   - `"basic"` (default): convert numbers, logical values, and factors to
+#'     text for text and choice columns; convert text to numbers for number
+#'     and currency columns; and convert whole numbers (or text) to integers
+#'     for the `LookupId` fields of lookup and person columns. Values that
+#'     can't be converted are left unchanged with a warning. Data with `sf`
+#'     geometry columns is an error.
+#'   - `"asis"`: send values unchanged.
+#'   - `"geometry"`: do everything in `"basic"` and convert `sf` geometry
+#'     columns to well-known text (WKT) with [sf::st_as_text()].
+#'
+#'   Coercion changes types but doesn't check values (e.g. text length, number
+#'   ranges, or choices). See the section on single item functions for the
+#'   cost of coercion with [update_sp_list_item()].
+#' @section Single item functions:
+#'
+#' [create_sp_list_items()] and [update_sp_list_items()] get the list column
+#' definitions once and use them to check field names (`check_fields`) and
+#' coerce values (`coerce`) for every item. [update_sp_list_item()] and
+#' [create_sp_list_item()] work on one item at a time so:
+#'
+#' - If you supply `sp_list` (and `item_id`), the column definitions are
+#'   requested from the Graph API for every call. Looping over items adds one
+#'   extra request per item. To avoid the request, set `coerce = "asis"`,
+#'   `check_fields = FALSE`, and supply `.multi_fields` (for
+#'   [create_sp_list_item()], set `.coerce = "asis"`).
+#' - If you supply `sp_list_item` (a list item object) to
+#'   [update_sp_list_item()], the column definitions are requested for the
+#'   item's list (a `ms_list` object is created from the item's site and list
+#'   IDs) so the same extra request is made for every call, and the same
+#'   arguments avoid it.
+#'
+#' Use the plural functions to update more than one item (they also send
+#' requests in batches), or coerce and check the data first and send it with
+#' `coerce = "asis"`.
+#'
 #' @inheritParams ms_graph_arg_terms
 #' @inheritParams get_sp_list
 #' @param allow_display_nm If `TRUE`, allow data to use list field display names
@@ -718,6 +755,7 @@ create_sp_list_items <- function(
   drive_id = NULL,
   drive = NULL,
   check_fields = TRUE,
+  coerce = c("basic", "asis", "geometry"),
   create_list = FALSE,
   strict = FALSE,
   .batch = getOption("sharepointr.batch", TRUE),
@@ -725,6 +763,7 @@ create_sp_list_items <- function(
 ) {
   call <- current_env()
   check_bool(.batch, call = call)
+  coerce <- arg_match(coerce, error_call = call)
   input <- data
 
   # Check the input before any API calls (or creating a list)
@@ -796,11 +835,9 @@ create_sp_list_items <- function(
   }
 
   field_nm <- names(pull_sp_list_cols(col_metadata, col_type = "editable"))
+  coerce_targets <- sp_list_coerce_targets(col_metadata, coerce = coerce)
 
   if (is.data.frame(data)) {
-    # Coerce sf column to WKT
-    data <- sfc_cols_as_wkt(data)
-
     if (allow_display_nm) {
       data <- replace_with_sp_list_display_names(
         data,
@@ -809,6 +846,13 @@ create_sp_list_items <- function(
         call = call
       )
     }
+
+    data <- coerce_sp_list_values(
+      data,
+      targets = coerce_targets,
+      coerce = coerce,
+      call = call
+    )
 
     if (check_fields) {
       data <- validate_sp_list_data_fields(
@@ -833,7 +877,12 @@ create_sp_list_items <- function(
           )
         }
 
-        sfc_cols_as_wkt(x)
+        coerce_sp_list_values(
+          x,
+          targets = coerce_targets,
+          coerce = coerce,
+          call = call
+        )
       }
     )
 
@@ -893,7 +942,9 @@ create_sp_list_items <- function(
         fn(
           .sp_list = .sp_list,
           .fields = record,
-          .multi_fields = .multi_fields
+          .multi_fields = .multi_fields,
+          # Values are already coerced for all items
+          .coerce = "asis"
         )
       },
       fn = create_sp_list_item,
@@ -1042,6 +1093,7 @@ update_sp_list_items <- function(
   .id = "id",
   allow_display_nm = FALSE,
   check_fields = TRUE,
+  coerce = c("basic", "asis", "geometry"),
   strict = FALSE,
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
@@ -1050,6 +1102,7 @@ update_sp_list_items <- function(
 ) {
   call <- current_env()
   check_bool(.batch, call = call)
+  coerce <- arg_match(coerce, error_call = call)
   input <- data
 
   if (is.data.frame(data) && nrow(data) == 0) {
@@ -1101,6 +1154,8 @@ update_sp_list_items <- function(
     display_nm <- pull_sp_list_display_names(col_metadata = col_metadata)
   }
 
+  coerce_targets <- sp_list_coerce_targets(col_metadata, coerce = coerce)
+
   if (is.data.frame(data)) {
     if (allow_display_nm) {
       data <- replace_with_sp_list_display_names(
@@ -1111,8 +1166,12 @@ update_sp_list_items <- function(
       )
     }
 
-    # Coerce sf column to WKT (consistent with create_sp_list_items())
-    update_data <- sfc_cols_as_wkt(data)
+    update_data <- coerce_sp_list_values(
+      data,
+      targets = coerce_targets,
+      coerce = coerce,
+      call = call
+    )
     update_data[[.id]] <- NULL
 
     if (check_fields) {
@@ -1139,7 +1198,12 @@ update_sp_list_items <- function(
           )
         }
 
-        x <- sfc_cols_as_wkt(x)
+        x <- coerce_sp_list_values(
+          x,
+          targets = coerce_targets,
+          coerce = coerce,
+          call = call
+        )
         x[names(x) != .id]
       }
     )
@@ -1228,8 +1292,9 @@ update_sp_list_items <- function(
           na_fields = na_fields,
           item_id = item_id,
           sp_list = sp_list,
-          # Fields are already validated (or skipped) for all items
+          # Fields are already validated (or skipped) and coerced for all items
           check_fields = FALSE,
+          coerce = "asis",
           .multi_fields = .multi_fields,
           # One message is shown for all items (and cli output from parallel
           # workers isn't shown)
@@ -1454,7 +1519,9 @@ replace_with_sp_list_display_names <- function(
 
 #' @rdname create_sp_list_items
 #' @name update_sp_list_item
-#' @param sp_list_item Optional. A SharePoint list item object to update.
+#' @param sp_list_item Optional. A SharePoint list item object to update. The
+#'   column definitions for the list are requested to check field names and
+#'   coerce values (see the section on single item functions).
 #' @param item_id A SharePoint list item id. Either `item_id` or `sp_list_item`
 #' must be provided but not both.
 #' @param .data A list or data frame with fields to update.
@@ -1479,6 +1546,7 @@ update_sp_list_item <- function(
   sp_list_item = NULL,
   .id = "id",
   check_fields = TRUE,
+  coerce = c("basic", "asis", "geometry"),
   na_fields = c("drop", "replace"),
   drop_fields = c("ContentType", "Attachments"),
   list_name = NULL,
@@ -1493,6 +1561,7 @@ update_sp_list_item <- function(
   .quiet = FALSE
 ) {
   call <- current_env()
+  coerce <- arg_match(coerce, error_call = call)
   # TODO: Allow option to get id from .data
   .data <- .data %||% list2(...)
 
@@ -1504,8 +1573,9 @@ update_sp_list_item <- function(
     )
   }
 
-  # Coerce sf column to WKT (consistent with create_sp_list_items())
-  .data <- sfc_cols_as_wkt(.data)
+  # Handle any sf geometry columns before values are unwrapped (types are
+  # coerced below once the list column definitions are available)
+  .data <- coerce_sp_list_values(.data, coerce = coerce, call = call)
 
   # NOTE: This is not type stable since the output will be converted to a list
   # and drop or replace NA values
@@ -1558,6 +1628,9 @@ update_sp_list_item <- function(
 
   check_exclusive_args(item_id, sp_list_item, call = call)
 
+  # The list is used to get the column definitions for the item
+  list_obj <- NULL
+
   if (is.null(sp_list_item) && !is.null(item_id)) {
     sp_list <- sp_list %||%
       .get_sp_list(
@@ -1573,18 +1646,29 @@ update_sp_list_item <- function(
       )
 
     check_ms_obj(sp_list, "ms_list", call = call)
+    list_obj <- sp_list
+  } else if (!is.null(sp_list_item)) {
+    check_ms_obj(sp_list_item, "ms_list_item", call = call)
 
-    # Get column definitions once to validate fields and find multi-value fields
-    if (is.null(.multi_fields) || check_fields) {
-      col_metadata <- .get_sp_list_metadata(
-        sp_list = sp_list,
-        as_data_frame = FALSE,
-        call = call
-      )
-
-      .multi_fields <- .multi_fields %||%
-        pull_sp_list_multi_cols(col_metadata = col_metadata)
+    if (is.null(.multi_fields) || check_fields || coerce != "asis") {
+      list_obj <- sp_list_item_list(sp_list_item)
     }
+  }
+
+  # Get column definitions once to validate fields, coerce values, and find
+  # multi-value fields
+  if (
+    !is.null(list_obj) &&
+      (is.null(.multi_fields) || check_fields || coerce != "asis")
+  ) {
+    col_metadata <- .get_sp_list_metadata(
+      sp_list = list_obj,
+      as_data_frame = FALSE,
+      call = call
+    )
+
+    .multi_fields <- .multi_fields %||%
+      pull_sp_list_multi_cols(col_metadata = col_metadata)
 
     if (check_fields) {
       update_data <- suppressMessages(
@@ -1597,8 +1681,13 @@ update_sp_list_item <- function(
         )
       )
     }
-  } else {
-    # TODO: Implement check_fields if `sp_list_item` is supplied
+
+    update_data <- coerce_sp_list_values(
+      update_data,
+      targets = sp_list_coerce_targets(col_metadata, coerce = coerce),
+      coerce = coerce,
+      call = call
+    )
   }
 
   update_data <- as_graph_item_fields(update_data, multi_fields = .multi_fields)
@@ -1627,8 +1716,6 @@ update_sp_list_item <- function(
       }
     )
   } else if (!is.null(sp_list_item)) {
-    check_ms_obj(sp_list_item, "ms_list_item", call = call)
-
     item_id <- sp_list_item[["properties"]][["id"]]
 
     if (!.quiet) {
@@ -1654,6 +1741,23 @@ update_sp_list_item <- function(
   }
 
   invisible(.data)
+}
+
+#' Get the list for a list item object
+#'
+#' A `ms_list_item` object only stores the site and list IDs so a `ms_list`
+#' object is created (without an API request) to get the list column
+#' definitions.
+#' @noRd
+sp_list_item_list <- function(sp_list_item) {
+  Microsoft365R::ms_list$new(
+    token = sp_list_item[["token"]],
+    tenant = sp_list_item[["tenant"]],
+    properties = list(
+      id = sp_list_item[["list_id"]],
+      parentReference = list(siteId = sp_list_item[["site_id"]])
+    )
+  )
 }
 
 #' Append "@odata.type" fields for multi-value (Collection) fields
@@ -1782,9 +1886,6 @@ prep_sp_list_item_create_fields <- function(
     stopifnot(nrow(fields) == 1)
     fields <- as.list(fields)
   }
-
-  # Coerce sf column to WKT (consistent with create_sp_list_items())
-  fields <- sfc_cols_as_wkt(fields)
 
   # Unwrap list-column values (e.g. multi-select choice values) so each field
   # is a vector instead of a length 1 list
@@ -1920,6 +2021,183 @@ sfc_cols_as_wkt <- function(data) {
   data
 }
 
+#' Coerce list item values to match list column types
+#'
+#' Used by the `create_*` and `update_*` list item functions. `data` can be a
+#' data frame (one value vector per column) or a named list (a single record),
+#' so the same code handles both.
+#' @param data A data frame or named list of field values.
+#' @param targets Named character vector from `sp_list_coerce_targets()`. If
+#'   `NULL`, only `sf` geometry columns are handled.
+#' @inheritParams create_sp_list_items
+#' @returns `data` with values converted to the target column types. Errors if
+#'   `data` has `sfc` columns and `coerce` is not `"geometry"`.
+#' @noRd
+coerce_sp_list_values <- function(
+  data,
+  targets = NULL,
+  coerce = "basic",
+  call = caller_env()
+) {
+  if (coerce == "asis") {
+    return(data)
+  }
+
+  is_sfc <- purrr::map_lgl(data, \(x) inherits(x, "sfc"))
+
+  if (any(is_sfc)) {
+    if (coerce != "geometry") {
+      cli_abort(
+        c(
+          "{.arg data} can't include geometry (sfc) column{?s}
+          {.field {names(data)[is_sfc]}}.",
+          "i" = "Use {.code coerce = \"geometry\"} to convert geometry to text
+          (WKT) or drop the geometry with {.fn sf::st_drop_geometry}."
+        ),
+        call = call
+      )
+    }
+
+    data <- sfc_cols_as_wkt(data)
+  }
+
+  nm <- intersect(names(data), names(targets))
+
+  if (is_empty(nm)) {
+    return(data)
+  }
+
+  converted <- purrr::map2(data[nm], targets[nm], coerce_sp_list_value)
+  failed <- purrr::map_lgl(converted, is_coerce_failure)
+
+  if (any(failed)) {
+    cli::cli_warn(
+      c(
+        "Can't convert {cli::qty(sum(failed))}value{?s} in {.field {nm[failed]}}
+        to match the list column type.",
+        "i" = "Values are left unchanged."
+      ),
+      call = call
+    )
+  }
+
+  data[nm[!failed]] <- converted[!failed]
+  data
+}
+
+#' Convert a vector of values to a list column target type
+#' @param kind One of "character", "double", or "integer".
+#' @returns `x` converted to `kind`, `x` unchanged if no conversion is needed,
+#'   or a `coerce_failure` object if `x` can't be converted (`NULL` is a valid
+#'   value so it can't signal failure).
+#' @noRd
+coerce_sp_list_value <- function(x, kind) {
+  if (is.null(x) || (!is.list(x) && all(is.na(x)))) {
+    return(x)
+  }
+
+  # Multi-value fields (list-columns) are converted one element at a time
+  if (is.list(x)) {
+    x <- purrr::map(x, coerce_sp_list_value, kind = kind)
+    return(if (any(purrr::map_lgl(x, is_coerce_failure))) coerce_failure() else x)
+  }
+
+  if (kind == "character") {
+    if (is.factor(x)) {
+      return(as.character(x))
+    }
+
+    if (is.numeric(x)) {
+      # Avoid scientific notation (e.g. "1e+05") and padding to a shared format
+      out <- rep(NA_character_, length(x))
+      out[!is.na(x)] <- purrr::map_chr(
+        x[!is.na(x)],
+        format,
+        scientific = FALSE,
+        trim = TRUE,
+        digits = 15
+      )
+      return(out)
+    }
+
+    if (is.logical(x)) {
+      return(as.character(x))
+    }
+
+    return(x)
+  }
+
+  if (!is.character(x) && !is.double(x)) {
+    return(x)
+  }
+
+  if (kind == "double" && is.double(x)) {
+    return(x)
+  }
+
+  num <- suppressWarnings(as.numeric(x))
+
+  if (any(is.na(num) & !is.na(x))) {
+    return(coerce_failure())
+  }
+
+  if (kind == "double") {
+    return(num)
+  }
+
+  # kind == "integer"
+  if (any(num[!is.na(num)] != round(num[!is.na(num)]))) {
+    return(coerce_failure())
+  }
+
+  as.integer(num)
+}
+
+coerce_failure <- function() structure(list(), class = "coerce_failure")
+
+is_coerce_failure <- function(x) inherits(x, "coerce_failure")
+
+#' Get the value type each list column should be coerced to
+#'
+#' Text and choice columns are `"character"`, number and currency columns are
+#' `"double"`, and the "{name}LookupId" fields of lookup and person columns are
+#' `"integer"`. Other columns are not coerced.
+#' @inheritParams create_sp_list_items
+#' @returns A named character vector, or `NULL` if `coerce` is `"asis"`.
+#' @noRd
+sp_list_coerce_targets <- function(
+  col_metadata = NULL,
+  sp_list = NULL,
+  coerce = "basic"
+) {
+  if (coerce == "asis") {
+    return(NULL)
+  }
+
+  # Names are converted to match item data (e.g. "{name}LookupId")
+  col_metadata <- sp_list_ptype_col_metadata(
+    sp_list = sp_list,
+    col_metadata = col_metadata
+  )
+
+  targets <- purrr::map_chr(
+    col_metadata,
+    \(x) {
+      if (any(has_name(x, c("text", "choice")))) {
+        "character"
+      } else if (any(has_name(x, c("number", "currency")))) {
+        "double"
+      } else if (any(has_name(x, c("lookup", "personOrGroup")))) {
+        "integer"
+      } else {
+        NA_character_
+      }
+    }
+  )
+
+  targets[!is.na(targets)]
+}
+
 #' Get the names of multi-value (Collection) columns for a SharePoint list
 #'
 #' Names use the same convention as list item data (e.g. "{name}LookupId" for
@@ -1945,6 +2223,10 @@ pull_sp_list_multi_cols <- function(sp_list = NULL, col_metadata = NULL) {
 #'
 #' @param .sp_list A `ms_list` object.
 #' @param .fields A named list or single row data frame.
+#' @param .coerce How to convert `.fields` values to match the list column
+#'   types. One of `"basic"` (default), `"asis"`, or `"geometry"`. See the
+#'   `coerce` argument for [create_sp_list_items()]. Use `"asis"` if values
+#'   are already coerced.
 #' @param ... Ignored if .fields is supplied.
 #' @param .multi_fields Optional. Names of multi-value (Collection) fields, such
 #'   as multi-select choice columns, that should always be sent as an array with
@@ -1957,9 +2239,19 @@ create_sp_list_item <- function(
   .sp_list = NULL,
   .fields = NULL,
   .keep_na = FALSE,
-  .multi_fields = NULL
+  .multi_fields = NULL,
+  .coerce = c("basic", "asis", "geometry")
 ) {
+  call <- current_env()
+  .coerce <- arg_match(.coerce, error_call = call)
   .fields <- .fields %||% rlang::list2(...)
+
+  .fields <- coerce_sp_list_values(
+    .fields,
+    targets = sp_list_coerce_targets(sp_list = .sp_list, coerce = .coerce),
+    coerce = .coerce,
+    call = call
+  )
 
   .fields <- prep_sp_list_item_create_fields(
     .fields,

@@ -9,7 +9,8 @@ create_sp_list_item(
   .sp_list = NULL,
   .fields = NULL,
   .keep_na = FALSE,
-  .multi_fields = NULL
+  .multi_fields = NULL,
+  .coerce = c("basic", "asis", "geometry")
 )
 }
 \arguments{
@@ -23,6 +24,11 @@ create_sp_list_item(
 as multi-select choice columns, that should always be sent as an array with
 an \code{"@odata.type"} annotation. If \code{NULL}, only fields with a length other
 than 1 are treated as multi-value fields.}
+
+\item{.coerce}{How to convert \code{.fields} values to match the list column
+types. One of \code{"basic"} (default), \code{"asis"}, or \code{"geometry"}. See the
+\code{coerce} argument for \code{\link[=create_sp_list_items]{create_sp_list_items()}}. Use \code{"asis"} if values
+are already coerced.}
 }
 \description{
 \code{\link[=create_sp_list_item]{create_sp_list_item()}} is an alternative to the \code{create_item} method for
